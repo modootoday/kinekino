@@ -1,0 +1,22 @@
+[package]
+name = "kinekino-process"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+kinekino-core.workspace = true
+
+[dev-dependencies]
+kinekino-platform.workspace = true
+
+[features]
+test-support = []
+
+# Windows-only contract tests (moved to the adapter side in batch 6).
+[target.'cfg(windows)'.dev-dependencies]
+windows = { workspace = true, features = ["Win32_System_Threading"] }
+
+[lints]
+workspace = true

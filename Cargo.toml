@@ -1,6 +1,6 @@
 [workspace]
-members = ["xtask", "crates/kinekino-core", "crates/kinekino-media-contracts", "crates/kinekino-plugin-sdk"]
-default-members = ["crates/kinekino-core", "crates/kinekino-media-contracts", "crates/kinekino-plugin-sdk"]
+members = ["xtask", "crates/kinekino-core", "crates/kinekino-platform", "crates/kinekino-platform-windows", "crates/kinekino-platform-unix", "crates/kinekino-media-contracts", "crates/kinekino-process", "crates/kinekino-plugin-sdk"]
+default-members = ["crates/kinekino-core", "crates/kinekino-platform", "crates/kinekino-platform-unix", "crates/kinekino-media-contracts", "crates/kinekino-process", "crates/kinekino-plugin-sdk"]
 exclude = ["vendor/meari", "tools/boundary-observation", "tools/engine-lab", "tools/model-review-bundle", "tools/model-spike", "tools/spec-maintenance", "tools/validation", "tools/visual-review"]
 resolver = "3"
 
@@ -53,6 +53,10 @@ url = "2"
 kinekino-core = { path = "crates/kinekino-core" }
 kinekino-plugin-sdk = { path = "crates/kinekino-plugin-sdk" }
 kinekino-media-contracts = { path = "crates/kinekino-media-contracts" }
+kinekino-platform-unix = { path = "crates/kinekino-platform-unix" }
+kinekino-platform-windows = { path = "crates/kinekino-platform-windows" }
+kinekino-platform = { path = "crates/kinekino-platform" }
+kinekino-process = { path = "crates/kinekino-process" }
 
 [workspace.lints.rust]
 unsafe_op_in_unsafe_fn = "warn"
