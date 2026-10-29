@@ -1,0 +1,351 @@
+{
+  "version": 8,
+  "_doc": "v8 camera (view) motion presets. Runtime-only JSON on the 'camera' layer (not baked into the glb): core glTF 2.0 animation can target node TRS but not camera yfov (needs KHR_animation_pointer, not supported by the three.js r170 loader), and a dolly zoom needs FOV and distance together. Values are framing-relative: zoom = subject size multiplier vs the default framing (1 = default), fovDeg absolute, yawDeg orbit around the subject, focus = framing centre in SVG units. Every clip starts and ends at default framing unless it sets holdEnd:true (permanent zoom; ended by cam.reset).",
+  "settings": {
+    "_doc": "settings-page items (user-editable); clips reference them as \"$name\"",
+    "defaultFovDeg": 30,
+    "defaultDistance": 7.5,
+    "zoomInScale": 1.6,
+    "zoomInSlowSec": 2.4,
+    "zoomInFastSec": 0.8,
+    "zoomOutScale": 0.7,
+    "zoomOutSec": 1.6,
+    "punchScale": 1.22,
+    "punchSec": 0.45,
+    "pulseScale": 1.08,
+    "pulseBpm": 100,
+    "pulseBeats": 4,
+    "eyesScale": 2.4,
+    "eyesSec": 2.2,
+    "revealFromScale": 2.2,
+    "revealSec": 1.8,
+    "slowPushScale": 1.25,
+    "slowPushSec": 4,
+    "dollyFovDeg": 55,
+    "dollySec": 2.0,
+    "orbitYawDeg": 25,
+    "orbitScale": 0.85,
+    "orbitSec": 2.0,
+    "intensity": 1.0
+  },
+  "clips": {
+    "cam.zoom_in_slow": {
+      "duration": "$zoomInSlowSec+1",
+      "keys": {
+        "zoom": [
+          [
+            0,
+            1
+          ],
+          [
+            "$zoomInSlowSec",
+            "$zoomInScale"
+          ],
+          [
+            "$zoomInSlowSec+1",
+            "$zoomInScale"
+          ]
+        ]
+      },
+      "holdEnd": true,
+      "doc": "천천히 줌인 후 유지(영구 줌, cam.reset 으로 복귀)"
+    },
+    "cam.zoom_in_fast": {
+      "duration": "$zoomInFastSec+0.6",
+      "keys": {
+        "zoom": [
+          [
+            0,
+            1
+          ],
+          [
+            "$zoomInFastSec",
+            "$zoomInScale"
+          ],
+          [
+            "$zoomInFastSec+0.6",
+            "$zoomInScale"
+          ]
+        ]
+      },
+      "holdEnd": true,
+      "doc": "빠르게 줌인 후 유지(영구 줌)"
+    },
+    "cam.zoom_out": {
+      "duration": "$zoomOutSec*2+0.6",
+      "keys": {
+        "zoom": [
+          [
+            0,
+            1
+          ],
+          [
+            "$zoomOutSec",
+            "$zoomOutScale"
+          ],
+          [
+            "$zoomOutSec+0.6",
+            "$zoomOutScale"
+          ],
+          [
+            "$zoomOutSec*2+0.6",
+            1
+          ]
+        ]
+      },
+      "doc": "줌아웃 후 복귀"
+    },
+    "cam.reset": {
+      "duration": 0.8,
+      "fromCurrent": true,
+      "keys": {
+        "zoom": [
+          [
+            0,
+            "current"
+          ],
+          [
+            0.8,
+            1
+          ]
+        ]
+      },
+      "doc": "영구 줌 클립 해제: 현재 값 -> 기본 프레이밍"
+    },
+    "cam.punch_in": {
+      "duration": "$punchSec",
+      "keys": {
+        "zoom": [
+          [
+            0,
+            1
+          ],
+          [
+            "$punchSec*0.22",
+            "$punchScale"
+          ],
+          [
+            "$punchSec",
+            1
+          ]
+        ]
+      },
+      "easing": "easeOut",
+      "doc": "짧은 임팩트 줌인 후 복귀"
+    },
+    "cam.dolly_zoom": {
+      "duration": "$dollySec",
+      "keys": {
+        "fovDeg": [
+          [
+            0,
+            "$defaultFovDeg"
+          ],
+          [
+            "$dollySec*0.5",
+            "$dollyFovDeg"
+          ],
+          [
+            "$dollySec",
+            "$defaultFovDeg"
+          ]
+        ]
+      },
+      "dolly": true,
+      "doc": "버티고: FOV 를 키우면서 거리를 줄여 피사체 크기 유지, 배경 원근만 변함"
+    },
+    "cam.zoom_pulse": {
+      "duration": "60/$pulseBpm*$pulseBeats",
+      "pulse": {
+        "scale": "$pulseScale",
+        "bpm": "$pulseBpm",
+        "beats": "$pulseBeats"
+      },
+      "doc": "박자 맞춘 박동 줌"
+    },
+    "cam.focus_eyes": {
+      "duration": "$eyesSec",
+      "keys": {
+        "zoom": [
+          [
+            0,
+            1
+          ],
+          [
+            "$eyesSec*0.35",
+            "$eyesScale"
+          ],
+          [
+            "$eyesSec*0.65",
+            "$eyesScale"
+          ],
+          [
+            "$eyesSec",
+            1
+          ]
+        ],
+        "focusY": [
+          [
+            0,
+            0
+          ],
+          [
+            "$eyesSec*0.35",
+            1
+          ],
+          [
+            "$eyesSec*0.65",
+            1
+          ],
+          [
+            "$eyesSec",
+            0
+          ]
+        ]
+      },
+      "focus": [
+        60,
+        52
+      ],
+      "doc": "눈 클로즈업 줌인 후 복귀"
+    },
+    "cam.pull_back_reveal": {
+      "duration": "$revealSec",
+      "keys": {
+        "zoom": [
+          [
+            0,
+            "$revealFromScale"
+          ],
+          [
+            "$revealSec",
+            1
+          ]
+        ]
+      },
+      "restExempt": "entry",
+      "doc": "클로즈업에서 줌아웃하며 전신 공개(시작만 기본 프레이밍 아님)"
+    },
+    "cam.slow_push": {
+      "duration": "$slowPushSec+1",
+      "keys": {
+        "zoom": [
+          [
+            0,
+            1
+          ],
+          [
+            "$slowPushSec",
+            "$slowPushScale"
+          ],
+          [
+            "$slowPushSec+1",
+            "$slowPushScale"
+          ]
+        ]
+      },
+      "easing": "linear",
+      "holdEnd": true,
+      "doc": "느린 접근 후 유지(영구 줌)"
+    },
+    "cam.orbit_zoom": {
+      "duration": "$orbitSec",
+      "keys": {
+        "zoom": [
+          [
+            0,
+            1
+          ],
+          [
+            "$orbitSec*0.5",
+            "$orbitScale"
+          ],
+          [
+            "$orbitSec",
+            1
+          ]
+        ],
+        "yawDeg": [
+          [
+            0,
+            0
+          ],
+          [
+            "$orbitSec*0.5",
+            "$orbitYawDeg"
+          ],
+          [
+            "$orbitSec",
+            0
+          ]
+        ]
+      },
+      "doc": "곡예용 소폭 궤도 + 줌아웃"
+    }
+  },
+  "combos": {
+    "acro_show": [
+      [
+        "cam.pull_back_reveal",
+        0
+      ]
+    ],
+    "acro_combo": [
+      [
+        "cam.orbit_zoom",
+        0
+      ],
+      [
+        "cam.orbit_zoom",
+        2.1
+      ],
+      [
+        "cam.punch_in",
+        5.3
+      ]
+    ],
+    "acro_flip_front": [
+      [
+        "cam.punch_in",
+        1.1
+      ]
+    ],
+    "acro_flip_back": [
+      [
+        "cam.punch_in",
+        1.1
+      ]
+    ],
+    "acro_cartwheel": [
+      [
+        "cam.orbit_zoom",
+        0
+      ]
+    ]
+  },
+  "events": {
+    "_doc": "camera follow-ups to app events; the camera layer has its own priority: a newer camera request replaces the running one only if its tier (state-machine tiers) is >= the running one; acro combos bring their own camera track (combos above) which wins over these per-event defaults.",
+    "success": "cam.punch_in",
+    "notification": "cam.zoom_pulse",
+    "error": "cam.punch_in",
+    "achievement": "cam.pull_back_reveal",
+    "hover": "cam.slow_push",
+    "hover_end": "cam.reset",
+    "voice_listen": "cam.focus_eyes",
+    "task_complete": "cam.punch_in"
+  },
+  "rules": {
+    "_doc": "state-machine camera arbitration (src/runtime/state-machine.js camStep). acro combos own the camera for their whole duration (their tracks above win; per-event cameras during that window are dropped unless the event tier is higher than the acro tier). Otherwise a new camera request replaces the running one if its tier >= the running tier. Per-event cooldown (s) since that event last moved the camera; holdEnd clips own the camera until cam.reset.",
+    "cooldownDefault": 1.5,
+    "cooldowns": {
+      "success": 2.0,
+      "notification": 4.0,
+      "error": 1.0,
+      "hover": 6.0,
+      "hover_end": 0,
+      "voice_listen": 3.0,
+      "achievement": 8.0,
+      "task_complete": 3.0
+    }
+  }
+}
