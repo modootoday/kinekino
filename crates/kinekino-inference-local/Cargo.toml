@@ -1,0 +1,18 @@
+[package]
+name = "kinekino-inference-local"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+kinekino-core.workspace = true
+kinekino-inference.workspace = true
+serde_json.workspace = true
+
+[[test]]
+name = "whisper_cli"
+harness = false
+
+[lints]
+workspace = true
