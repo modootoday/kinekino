@@ -1,0 +1,22 @@
+[package]
+name = "kinekino-vad-executor"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+kinekino-core.workspace = true
+kinekino-media-contracts.workspace = true
+kinekino-jobs.workspace = true
+kinekino-vad.workspace = true
+sha2.workspace = true
+serde_json.workspace = true
+serde.workspace = true
+kinekino-process.workspace = true
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+kinekino-platform.workspace = true

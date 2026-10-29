@@ -1,0 +1,38 @@
+[package]
+name = "kinekino-vad-worker"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[features]
+default = []
+native-ort = ["dep:ort"]
+test-control-process = []
+
+[[test]]
+name = "control-process-fixture"
+path = "tests/control_process_fixture.rs"
+harness = false
+required-features = ["test-control-process"]
+
+[[test]]
+name = "configured-process-fixture"
+path = "tests/configured_process_fixture.rs"
+harness = false
+required-features = ["test-control-process"]
+
+[dependencies]
+kinekino-core.workspace = true
+kinekino-media-contracts.workspace = true
+kinekino-vad.workspace = true
+kinekino-vad-executor.workspace = true
+sha2.workspace = true
+ort = { workspace = true, optional = true, features = ["std", "api-31"] }
+
+[dev-dependencies]
+kinekino-platform.workspace = true
+serde_json.workspace = true
+
+[lints]
+workspace = true
