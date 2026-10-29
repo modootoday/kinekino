@@ -1,0 +1,5 @@
+{"page":{"items":[{"ref":{"provider":"com.example.fixture","id":"show-1"},"title":"Example Show"}],"next_page":2}}
+{"page":{"items":[],"next_page":null}}
+{"adjacency":{"previous":null,"next":{"provider":"com.example.fixture","id":"ep-2"}}}
+{"streams":{"streams":[{"url":"https://media.example.test/ep-1/index.m3u8","headers":[["Referer","https://catalog.example.test/"]]}]}}
+{"error":{"kind":"unsupported","message":"fixture supports browse only"}}

@@ -1,0 +1,5 @@
+{"method":"browse","category":{"provider":"com.example.fixture","id":"airing"},"page":1}
+{"method":"search","query":"example","page":2}
+{"method":"series","series":{"provider":"com.example.fixture","id":"show-1"}}
+{"method":"episode","episode":{"provider":"com.example.fixture","id":"ep-1"}}
+{"method":"resolve","episode":{"provider":"com.example.fixture","id":"ep-1"}}

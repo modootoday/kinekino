@@ -1,5 +1,6 @@
 [workspace]
-members = ["xtask"]
+members = ["xtask", "crates/kinekino-plugin-sdk"]
+default-members = ["crates/kinekino-plugin-sdk"]
 exclude = ["vendor/meari", "tools/boundary-observation", "tools/engine-lab", "tools/model-review-bundle", "tools/model-spike", "tools/spec-maintenance", "tools/validation", "tools/visual-review"]
 resolver = "3"
 
@@ -49,6 +50,7 @@ serde_json = "1"
 ctor = "0.10.1"
 sha2 = "=0.10.9"
 url = "2"
+kinekino-plugin-sdk = { path = "crates/kinekino-plugin-sdk" }
 
 [workspace.lints.rust]
 unsafe_op_in_unsafe_fn = "warn"
