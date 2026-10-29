@@ -1,0 +1,361 @@
+file-and-dir crates/kinekino-card-render/src/tests.rs
+file-and-dir crates/kinekino-card-render/src/tests/native_png.rs
+file-and-dir crates/kinekino-host/src/host_shutdown/dependency.rs
+file-and-dir crates/kinekino-host/src/host_shutdown/dependency/native.rs
+file-and-dir crates/kinekino-host/src/native_host.rs
+file-and-dir crates/kinekino-host/src/review_host.rs
+file-and-dir crates/kinekino-host/src/runner.rs
+file-and-dir crates/kinekino-jobs/src/application/worker.rs
+file-and-dir crates/kinekino-jobs/src/application/worker/owned.rs
+file-and-dir crates/kinekino-jobs/src/infrastructure/subtitle_executor.rs
+file-and-dir crates/kinekino-jobs/src/infrastructure/worker_host.rs
+file-and-dir crates/kinekino-jobs/src/infrastructure/worker_host/shutdown.rs
+file-and-dir crates/kinekino-player/src/application/api/asset_artifacts.rs
+file-and-dir crates/kinekino-player/src/application/api/asset_projects.rs
+file-and-dir crates/kinekino-player/src/application/api/asset_sources.rs
+file-and-dir crates/kinekino-player/src/application/api/capture_mutation.rs
+file-and-dir crates/kinekino-player/src/application/api/card_projects.rs
+file-and-dir crates/kinekino-player/src/application/api/client.rs
+file-and-dir crates/kinekino-player/src/application/api/clip_projects.rs
+file-and-dir crates/kinekino-player/src/application/asset_artifacts.rs
+file-and-dir crates/kinekino-player/src/application/asset_bundle.rs
+file-and-dir crates/kinekino-player/src/application/asset_bundle/sources.rs
+file-and-dir crates/kinekino-player/src/application/asset_source_archives.rs
+file-and-dir crates/kinekino-player/src/application/audio_handoff/coordinator.rs
+file-and-dir crates/kinekino-player/src/application/audio_handoff/intents.rs
+file-and-dir crates/kinekino-player/src/application/audio_handoff/web_silence.rs
+file-and-dir crates/kinekino-player/src/application/audio_vad/prepared.rs
+file-and-dir crates/kinekino-player/src/application/audio_vad/prepared/tests.rs
+file-and-dir crates/kinekino-player/src/application/browser_provider/document_owner.rs
+file-and-dir crates/kinekino-player/src/application/browser_provider/replay.rs
+file-and-dir crates/kinekino-player/src/application/clip_projects.rs
+file-and-dir crates/kinekino-player/src/application/clip_render/boundaries.rs
+file-and-dir crates/kinekino-player/src/application/clip_render/encoder.rs
+file-and-dir crates/kinekino-player/src/application/clip_render/media.rs
+file-and-dir crates/kinekino-player/src/application/clip_render/presets.rs
+file-and-dir crates/kinekino-player/src/application/clip_render/subtitles.rs
+file-and-dir crates/kinekino-player/src/application/clip_render/subtitles/frames.rs
+file-and-dir crates/kinekino-player/src/application/download/owned_session.rs
+file-and-dir crates/kinekino-player/src/application/job_batches/tests.rs
+file-and-dir crates/kinekino-player/src/application/launch.rs
+file-and-dir crates/kinekino-player/src/application/launch/browser_provider.rs
+file-and-dir crates/kinekino-player/src/application/launch/native_proposal.rs
+file-and-dir crates/kinekino-player/src/application/launch/native_proposal/options.rs
+file-and-dir crates/kinekino-player/src/application/launch/native_viewer.rs
+file-and-dir crates/kinekino-player/src/application/model_catalog.rs
+file-and-dir crates/kinekino-player/src/application/playback_session/native_result_export.rs
+file-and-dir crates/kinekino-player/src/application/playback_session/transition/resolve_job.rs
+file-and-dir crates/kinekino-player/src/application/proposals/guarded.rs
+file-and-dir crates/kinekino-player/src/application/proposals/output_review/tests.rs
+file-and-dir crates/kinekino-player/src/application/review_source/timeline_evidence.rs
+file-and-dir crates/kinekino-player/src/application/sdk_execution/host.rs
+file-and-dir crates/kinekino-player/src/application/sdk_execution/tests.rs
+file-and-dir crates/kinekino-player/src/application/ui_observation.rs
+file-and-dir crates/kinekino-player/src/application/ui_observation/encoding.rs
+file-and-dir crates/kinekino-player/src/domain/asset_generation.rs
+file-and-dir crates/kinekino-player/src/domain/clip_document/tests.rs
+file-and-dir crates/kinekino-player/src/domain/proposals/accepted_subtitle_projection.rs
+file-and-dir crates/kinekino-player/src/infrastructure/asset_build_jobs/inspection.rs
+file-and-dir crates/kinekino-player/src/infrastructure/asset_build_jobs/tests.rs
+file-and-dir crates/kinekino-player/src/infrastructure/asset_bundle_encoding.rs
+file-and-dir crates/kinekino-player/src/infrastructure/asset_inputs/tests.rs
+file-and-dir crates/kinekino-player/src/infrastructure/asset_projects/tests.rs
+file-and-dir crates/kinekino-player/src/infrastructure/asset_source_archives.rs
+file-and-dir crates/kinekino-player/src/infrastructure/browser/audio_backend.rs
+file-and-dir crates/kinekino-player/src/infrastructure/browser/audio_backend/actual.rs
+file-and-dir crates/kinekino-player/src/infrastructure/browser_provider_jobs.rs
+file-and-dir crates/kinekino-player/src/infrastructure/browser_provider_jobs/shutdown.rs
+file-and-dir crates/kinekino-player/src/infrastructure/card_bundle_jobs/publication.rs
+file-and-dir crates/kinekino-player/src/infrastructure/card_export/bundle.rs
+file-and-dir crates/kinekino-player/src/infrastructure/catalog.rs
+file-and-dir crates/kinekino-player/src/infrastructure/clip_render_jobs.rs
+file-and-dir crates/kinekino-player/src/infrastructure/clip_render_jobs/tests.rs
+file-and-dir crates/kinekino-player/src/infrastructure/clip_renderer/command.rs
+file-and-dir crates/kinekino-player/src/infrastructure/clip_renderer/publication.rs
+file-and-dir crates/kinekino-player/src/infrastructure/clip_renderer/subtitles.rs
+file-and-dir crates/kinekino-player/src/infrastructure/clip_sources/boundaries.rs
+file-and-dir crates/kinekino-player/src/infrastructure/clip_sources/observation.rs
+file-and-dir crates/kinekino-player/src/infrastructure/clip_subtitle_raster/tests.rs
+file-and-dir crates/kinekino-player/src/infrastructure/content_digest.rs
+file-and-dir crates/kinekino-player/src/infrastructure/download/browser_replay.rs
+file-and-dir crates/kinekino-player/src/infrastructure/download/media_probe.rs
+file-and-dir crates/kinekino-player/src/infrastructure/download/process_source.rs
+file-and-dir crates/kinekino-player/src/infrastructure/download/process_source/tests.rs
+file-and-dir crates/kinekino-player/src/infrastructure/download/process_source/tests/live.rs
+file-and-dir crates/kinekino-player/src/infrastructure/download/process_source/tests/live/jobs.rs
+file-and-dir crates/kinekino-player/src/infrastructure/frame_capture/process.rs
+file-and-dir crates/kinekino-player/src/infrastructure/historical_evidence/process.rs
+file-and-dir crates/kinekino-player/src/infrastructure/job_batches/tests.rs
+file-and-dir crates/kinekino-player/src/infrastructure/jobs.rs
+file-and-dir crates/kinekino-player/src/infrastructure/local_host/client.rs
+file-and-dir crates/kinekino-player/src/infrastructure/local_host/execution_host.rs
+file-and-dir crates/kinekino-player/src/infrastructure/model_catalog.rs
+file-and-dir crates/kinekino-player/src/infrastructure/mpv/control.rs
+file-and-dir crates/kinekino-player/src/infrastructure/mpv/parent_binding.rs
+file-and-dir crates/kinekino-player/src/infrastructure/mpv/parent_router/tests.rs
+file-and-dir crates/kinekino-player/src/infrastructure/mpv/parent_router/tests/bootstrap_late.rs
+file-and-dir crates/kinekino-player/src/infrastructure/mpv/parent_router/tests/failed_engine_cleanup.rs
+file-and-dir crates/kinekino-player/src/infrastructure/mpv/parent_router/tests/routed_activation.rs
+file-and-dir crates/kinekino-player/src/infrastructure/mpv/parent_router/tests/routed_replacement.rs
+file-and-dir crates/kinekino-player/src/infrastructure/mpv/parent_surface/win32/child_input.rs
+file-and-dir crates/kinekino-player/src/infrastructure/mpv/parent_surface/win32/construction_guard.rs
+file-and-dir crates/kinekino-player/src/infrastructure/mpv/parent_surface/win32/visible_render_only/events.rs
+file-and-dir crates/kinekino-player/src/infrastructure/mpv/parent_surface/win32/visible_render_only/geometry.rs
+file-and-dir crates/kinekino-player/src/infrastructure/mpv/parent_surface/win32/visible_render_only/routed_media.rs
+file-and-dir crates/kinekino-player/src/infrastructure/mpv/review_worker.rs
+file-and-dir crates/kinekino-player/src/infrastructure/mpv/review_worker/commands.rs
+file-and-dir crates/kinekino-player/src/infrastructure/mpv/session_engine.rs
+file-and-dir crates/kinekino-player/src/infrastructure/mpv/session_engine/replacement.rs
+file-and-dir crates/kinekino-player/src/infrastructure/native_proposal_request.rs
+file-and-dir crates/kinekino-player/src/infrastructure/proposals/guarded.rs
+file-and-dir crates/kinekino-player/src/infrastructure/proposals/origin.rs
+file-and-dir crates/kinekino-player/src/infrastructure/proposals/output_reviews/tests.rs
+file-and-dir crates/kinekino-player/src/infrastructure/proposals/tests.rs
+file-and-dir crates/kinekino-player/src/infrastructure/review_content_classification.rs
+file-and-dir crates/kinekino-player/src/infrastructure/timeline_evidence/audio.rs
+file-and-dir crates/kinekino-player/src/infrastructure/timeline_evidence/capture_execution.rs
+file-and-dir crates/kinekino-player/src/infrastructure/timeline_evidence/original_execution.rs
+file-and-dir crates/kinekino-player/src/infrastructure/timeline_evidence/pcm.rs
+file-and-dir crates/kinekino-player/src/infrastructure/timeline_evidence/production/bundle.rs
+file-and-dir crates/kinekino-player/src/infrastructure/timeline_evidence/production/video.rs
+file-and-dir crates/kinekino-player/src/infrastructure/timeline_evidence/publication/reader.rs
+file-and-dir crates/kinekino-player/src/infrastructure/timeline_evidence/video.rs
+file-and-dir crates/kinekino-player/src/infrastructure/vad_fixed_inputs.rs
+file-and-dir crates/kinekino-player/src/infrastructure/vad_product_host/inputs.rs
+file-and-dir crates/kinekino-player/src/infrastructure/vad_product_host/inputs/audio.rs
+file-and-dir crates/kinekino-player/src/infrastructure/vad_worker_payload.rs
+file-and-dir crates/kinekino-player/src/presentation/chrome.rs
+file-and-dir crates/kinekino-player/src/presentation/chrome/interaction.rs
+file-and-dir crates/kinekino-player/src/presentation/components/filter_bar.rs
+file-and-dir crates/kinekino-player/src/presentation/design_assets.rs
+file-and-dir crates/kinekino-player/src/presentation/design_preview.rs
+file-and-dir crates/kinekino-player/src/presentation/studio/model_review/state.rs
+file-and-dir crates/kinekino-player/src/presentation/studio/model_review/state/tests.rs
+file-and-dir crates/kinekino-player/src/presentation/studio/screens/conversion.rs
+file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/player_shell/document.rs
+file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/player_shell/document/product_frame.rs
+file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/player_shell/proposal_chooser.rs
+file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/player_shell/window_caption.rs
+file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/proposals/bootstrap.rs
+file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/proposals/capture_mutation.rs
+file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/proposals/capture_mutation/execution.rs
+file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/proposals/capture_mutation/execution/tests.rs
+file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/proposals/card_selection_queue.rs
+file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/proposals/correction_panel.rs
+file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/proposals/document_factory.rs
+file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/proposals/document_session.rs
+file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/proposals/document_session/local_composition.rs
+file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/proposals/frame_composition.rs
+file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/proposals/initial_panel.rs
+file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/proposals/manual_repair.rs
+file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/proposals/pending_controller.rs
+file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/proposals/project_card_choices.rs
+file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/proposals/project_task_choices.rs
+file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/proposals/raw_review_state.rs
+file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/proposals/repair_panel.rs
+file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/proposals/review_feedback.rs
+file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/proposals/scoped_panel.rs
+file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/proposals/scoped_panel/tests.rs
+file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/proposals/scoped_task_panel.rs
+file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/proposals/window_bridge.rs
+file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/proposals/window_bridge/scoped.rs
+file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/studio/job_details.rs
+file-and-dir crates/kinekino-player/tests/accepted_card_export_cli.rs
+file-and-dir crates/kinekino-player/tests/execution_host_cli.rs
+file-and-dir crates/kinekino-player/tests/historical_provenance_cli.rs
+file-and-dir crates/kinekino-player/tests/jobs.rs
+file-and-dir crates/kinekino-player/tests/jobs/card_bundle.rs
+file-and-dir crates/kinekino-player/tests/jobs/fixture.rs
+file-and-dir crates/kinekino-player/tests/jobs/native_episode.rs
+file-and-dir crates/kinekino-player/tests/jobs/provider.rs
+file-and-dir crates/kinekino-player/tests/jobs/same_endpoint.rs
+file-and-dir crates/kinekino-player/tests/jobs/same_endpoint/chain.rs
+file-and-dir crates/kinekino-player/tests/jobs/same_endpoint/routed.rs
+file-and-dir crates/kinekino-player/tests/jobs/same_endpoint/routed/observation.rs
+file-and-dir crates/kinekino-player/tests/native_gui_endpoint.rs
+file-and-dir crates/kinekino-player/tests/native_product_launch.rs
+file-and-dir crates/kinekino-player/tests/native_product_launch/default_launch.rs
+file-and-dir crates/kinekino-player/tests/native_skip_cli.rs
+file-and-dir crates/kinekino-player/tests/native_skip_cli/actual_export.rs
+file-and-dir crates/kinekino-player/tests/native_skip_cli/actual_export/manual_fixture.rs
+file-and-dir crates/kinekino-player/tests/output_review_cli.rs
+file-and-dir crates/kinekino-player/tests/review_mapping_proof_actual.rs
+file-and-dir crates/kinekino-player/tests/review_source_cli.rs
+file-and-dir crates/kinekino-player/tests/review_startup_actual.rs
+file-and-dir crates/kinekino-player/tests/speaker_annotations_cli.rs
+file-and-dir crates/kinekino-player/tests/sprite_capture_cli.rs
+file-and-dir crates/kinekino-player/tests/sprite_timeline_bundle.rs
+file-and-dir crates/kinekino-player/tests/timeline_video_production_actual.rs
+file-and-dir crates/kinekino-player/tests/vad_jobs.rs
+file-and-dir crates/kinekino-player/tests/vad_parent_worker.rs
+file-and-dir crates/kinekino-player/tests/vad_worker_control_process.rs
+file-and-dir crates/kinekino-process/src/application/supervisor.rs
+file-and-dir crates/kinekino-source-host/src/domain.rs
+file-and-dir crates/kinekino-source-host/src/http_metadata.rs
+file-and-dir crates/kinekino-source-host/src/http_send.rs
+file-and-dir crates/kinekino-source-host/src/parent_host.rs
+file-and-dir crates/kinekino-source-host/src/parent_launch.rs
+file-and-dir crates/kinekino-source-host/src/parent_stream.rs
+file-and-dir crates/kinekino-source-host/src/parent_transfer.rs
+file-and-dir crates/kinekino-source-host/src/request.rs
+file-and-dir crates/kinekino-source-host/src/transport.rs
+file-and-dir crates/kinekino-source-host/src/worker_loop.rs
+file-and-dir crates/kinekino-source-host/src/worker_session.rs
+file-and-dir crates/kinekino-vad-executor/src/application/child_configuration.rs
+file-and-dir crates/kinekino-vad-executor/src/application/release_manifest.rs
+file-and-dir crates/kinekino-vad-executor/src/infrastructure/native.rs
+file-and-dir crates/kinekino-vad-executor/src/infrastructure/worker_control.rs
+file-and-dir crates/kinekino-vad-worker/src/control.rs
+file-and-dir crates/kinekino-vad-worker/src/entry.rs
+file-and-dir crates/kinekino-vad-worker/src/infrastructure.rs
+file-and-dir crates/kinekino-vad-worker/src/infrastructure/windows_loaded_runtime.rs
+file-and-dir crates/kinekino-vad-worker/src/infrastructure/windows_loaded_runtime/files.rs
+file-and-dir crates/kinekino-vad-worker/src/parent_configuration.rs
+file-and-dir crates/kinekino-vad-worker/src/payload_tests.rs
+file-and-dir crates/kinekino-vad-worker/src/production.rs
+file-lines crates/kinekino-host/src/runner.rs (>1100)
+file-lines crates/kinekino-jobs/src/application/owned_attempt/tests.rs (>600)
+file-lines crates/kinekino-jobs/src/application/worker/owned/tests.rs (>600)
+file-lines crates/kinekino-jobs/src/infrastructure/subtitle_executor/tests.rs (>700)
+file-lines crates/kinekino-player/src/application/api/mod.rs (>900)
+file-lines crates/kinekino-player/src/application/browser_network/request_ledger.rs (>800)
+file-lines crates/kinekino-player/src/application/browser_provider/state.rs (>700)
+file-lines crates/kinekino-player/src/application/download/transfer.rs (>600)
+file-lines crates/kinekino-player/src/application/playback_session/native_result_export.rs (>600)
+file-lines crates/kinekino-player/src/application/review_source/tests.rs (>700)
+file-lines crates/kinekino-player/src/application/skip_segments/host/registry.rs (>1000)
+file-lines crates/kinekino-player/src/infrastructure/download/staged_output.rs (>600)
+file-lines crates/kinekino-player/src/infrastructure/mpv/guarded_command/lifecycle_tests.rs (>600)
+file-lines crates/kinekino-player/src/infrastructure/mpv/guarded_command/mod.rs (>600)
+file-lines crates/kinekino-player/src/infrastructure/mpv/guarded_command/results.rs (>1400)
+file-lines crates/kinekino-player/src/infrastructure/mpv/guarded_command/tests.rs (>1100)
+file-lines crates/kinekino-player/src/infrastructure/mpv/parent_binding.rs (>700)
+file-lines crates/kinekino-player/src/infrastructure/mpv/parent_binding/tests.rs (>600)
+file-lines crates/kinekino-player/src/infrastructure/mpv/parent_router/tests.rs (>1900)
+file-lines crates/kinekino-player/src/infrastructure/mpv/session_engine.rs (>800)
+file-lines crates/kinekino-player/src/infrastructure/vad_fixed_inputs.rs (>600)
+file-lines crates/kinekino-player/src/presentation/studio/mod.rs (>600)
+file-lines crates/kinekino-player/src/presentation/web_ui_adapter/proposals/document_factory.rs (>600)
+file-lines crates/kinekino-player/src/presentation/web_ui_adapter/proposals/initial_panel.rs (>600)
+file-lines crates/kinekino-player/src/presentation/web_ui_adapter/proposals/initial_panel/tests.rs (>600)
+file-lines crates/kinekino-player/src/presentation/web_ui_adapter/proposals/pending_controller/tests.rs (>600)
+file-lines crates/kinekino-player/src/presentation/web_ui_adapter/proposals/window_bridge.rs (>800)
+file-lines crates/kinekino-player/tests/frame_capture.rs (>600)
+file-lines crates/kinekino-player/tests/historical_provenance_cli.rs (>700)
+file-lines crates/kinekino-player/tests/jobs/kinekino_process.rs (>1000)
+file-lines crates/kinekino-player/tests/native_product_launch/default_launch.rs (>600)
+file-lines crates/kinekino-player/tests/native_product_launch/default_launch/control.rs (>700)
+file-lines crates/kinekino-player/tests/native_skip_cli/actual_export.rs (>1000)
+file-lines crates/kinekino-player/tests/support/download_real_probe.rs (>700)
+file-lines crates/kinekino-player/tests/support/owned_process_evidence.rs (>600)
+file-lines crates/kinekino-vad-executor/src/infrastructure/native.rs (>600)
+file-lines crates/kinekino-vad/tests/contract.rs (>800)
+file-lines crates/kinekino-vad/tests/protocol_contract.rs (>600)
+flat-dir crates/kinekino-jobs/src/application
+flat-dir crates/kinekino-player/src/application
+flat-dir crates/kinekino-player/src/application/api
+flat-dir crates/kinekino-player/src/application/browser_network
+flat-dir crates/kinekino-player/src/application/browser_provider
+flat-dir crates/kinekino-player/src/application/review_source
+flat-dir crates/kinekino-player/src/application/sdk_execution
+flat-dir crates/kinekino-player/src/application/sdk_execution/tests
+flat-dir crates/kinekino-player/src/application/workspace_read
+flat-dir crates/kinekino-player/src/domain
+flat-dir crates/kinekino-player/src/domain/proposals
+flat-dir crates/kinekino-player/src/infrastructure
+flat-dir crates/kinekino-player/src/infrastructure/browser_provider
+flat-dir crates/kinekino-player/src/infrastructure/local_host
+flat-dir crates/kinekino-player/src/infrastructure/mpv
+flat-dir crates/kinekino-player/src/infrastructure/mpv/guarded_command
+flat-dir crates/kinekino-player/src/presentation
+flat-dir crates/kinekino-player/src/presentation/components
+flat-dir crates/kinekino-player/src/presentation/studio/screens
+flat-dir crates/kinekino-player/src/presentation/web_ui_adapter/player_shell
+flat-dir crates/kinekino-player/src/presentation/web_ui_adapter/proposals
+flat-dir crates/kinekino-player/tests
+flat-dir crates/kinekino-player/tests/jobs
+flat-dir crates/kinekino-player/tests/support
+flat-dir crates/kinekino-source-host/src
+flat-dir crates/kinekino-vad-executor/src/application
+flat-dir crates/kinekino-vad-executor/src/infrastructure
+flat-dir crates/kinekino-vad-worker/src
+r-cfg crates/kinekino-jobs/src/infrastructure/files/mod.rs
+r-cfg crates/kinekino-jobs/src/infrastructure/subtitle_executor.rs
+r-cfg crates/kinekino-player/src/application/audio_vad/prepared/tests.rs
+r-cfg crates/kinekino-player/src/application/review_source/tests.rs
+r-cfg crates/kinekino-player/src/application/sdk_execution/tests.rs
+r-cfg crates/kinekino-player/src/application/skip_segments/host/mod.rs
+r-cfg crates/kinekino-player/src/application/skip_segments/host/registry.rs
+r-cfg crates/kinekino-player/src/assembly/meari/async_proposals/mod.rs
+r-cfg crates/kinekino-player/src/assembly/meari/async_proposals/tests/policy.rs
+r-cfg crates/kinekino-player/src/assembly/meari/mod.rs
+r-cfg crates/kinekino-player/src/assembly/mod.rs
+r-cfg crates/kinekino-player/src/domain/local_video.rs
+r-cfg crates/kinekino-player/src/infrastructure/asset_raster/mod.rs
+r-cfg crates/kinekino-player/src/infrastructure/frame_capture/mod.rs
+r-cfg crates/kinekino-player/src/infrastructure/mod.rs
+r-cfg crates/kinekino-player/src/lib.rs
+r-cfg crates/kinekino-player/src/presentation/mod.rs
+r-cfg crates/kinekino-player/src/presentation/web_ui_adapter/player_shell/document.rs
+r-cfg crates/kinekino-player/src/presentation/web_ui_adapter/proposals/document_session/local_composition.rs
+r-cfg crates/kinekino-player/src/presentation/web_ui_adapter/proposals/mod.rs
+r-cfg crates/kinekino-player/src/presentation/web_ui_adapter/proposals/repair_panel.rs
+r-cfg crates/kinekino-player/src/presentation/web_ui_adapter/proposals/repair_panel/tests.rs
+r-cfg crates/kinekino-player/src/presentation/web_ui_adapter/proposals/window_bridge.rs
+r-cfg crates/kinekino-player/src/test_support/mod.rs
+r-cfg crates/kinekino-player/tests/accepted_card_export_cli.rs
+r-cfg crates/kinekino-player/tests/accepted_subtitle_export_cli.rs
+r-cfg crates/kinekino-player/tests/asset_project_cli.rs
+r-cfg crates/kinekino-player/tests/capture_mutation.rs
+r-cfg crates/kinekino-player/tests/card_project_cli.rs
+r-cfg crates/kinekino-player/tests/catalog.rs
+r-cfg crates/kinekino-player/tests/cli_discovery_inventory.rs
+r-cfg crates/kinekino-player/tests/clip_project_cli.rs
+r-cfg crates/kinekino-player/tests/cue_edit_cli.rs
+r-cfg crates/kinekino-player/tests/download_cli.rs
+r-cfg crates/kinekino-player/tests/execution_host_cli.rs
+r-cfg crates/kinekino-player/tests/ffprobe_observation.rs
+r-cfg crates/kinekino-player/tests/frame_snapshot_pipeline.rs
+r-cfg crates/kinekino-player/tests/historical_provenance_cli.rs
+r-cfg crates/kinekino-player/tests/jobs.rs
+r-cfg crates/kinekino-player/tests/local_host.rs
+r-cfg crates/kinekino-player/tests/manual_skip_cli.rs
+r-cfg crates/kinekino-player/tests/media_download.rs
+r-cfg crates/kinekino-player/tests/media_download_owned.rs
+r-cfg crates/kinekino-player/tests/model_catalog_cli.rs
+r-cfg crates/kinekino-player/tests/model_review.rs
+r-cfg crates/kinekino-player/tests/native_gui_endpoint.rs
+r-cfg crates/kinekino-player/tests/native_product_launch.rs
+r-cfg crates/kinekino-player/tests/native_skip_cli.rs
+r-cfg crates/kinekino-player/tests/output_review_cli.rs
+r-cfg crates/kinekino-player/tests/playback_control.rs
+r-cfg crates/kinekino-player/tests/product_gui_launch.rs
+r-cfg crates/kinekino-player/tests/projects.rs
+r-cfg crates/kinekino-player/tests/proposal_list.rs
+r-cfg crates/kinekino-player/tests/proposals.rs
+r-cfg crates/kinekino-player/tests/review_mapping_proof_actual.rs
+r-cfg crates/kinekino-player/tests/review_matroska_input.rs
+r-cfg crates/kinekino-player/tests/review_matroska_timeline.rs
+r-cfg crates/kinekino-player/tests/review_media_preparation.rs
+r-cfg crates/kinekino-player/tests/review_playback_b0.rs
+r-cfg crates/kinekino-player/tests/review_source_cli.rs
+r-cfg crates/kinekino-player/tests/review_startup_actual.rs
+r-cfg crates/kinekino-player/tests/review_worker_actual.rs
+r-cfg crates/kinekino-player/tests/sdk_capability_parity.rs
+r-cfg crates/kinekino-player/tests/snapshot_export_api_cli.rs
+r-cfg crates/kinekino-player/tests/speaker_annotations_cli.rs
+r-cfg crates/kinekino-player/tests/sprite_capture_cli.rs
+r-cfg crates/kinekino-player/tests/sprite_timeline_bundle.rs
+r-cfg crates/kinekino-player/tests/subtitle_conversion.rs
+r-cfg crates/kinekino-player/tests/timeline_video_production_actual.rs
+r-cfg crates/kinekino-player/tests/vad_jobs.rs
+r-cfg crates/kinekino-player/tests/vad_parent_worker.rs
+r-cfg crates/kinekino-player/tests/vad_product_cli.rs
+r-cfg crates/kinekino-player/tests/vad_worker_control_process.rs
+r-cfg crates/kinekino-process/tests/polled_cleanup.rs
+r-cfg crates/kinekino-process/tests/windows_family.rs
+r-cfg crates/kinekino-source-host/src/lib.rs
+r-cfg crates/kinekino-vad-worker/src/infrastructure.rs
+r-cfg xtask/src/demo_engine.rs
+r-cfg xtask/src/install.rs
+r-cfg xtask/src/structure/boundary/tests.rs
