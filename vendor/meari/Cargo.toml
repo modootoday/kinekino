@@ -1,0 +1,43 @@
+[workspace]
+members = ["crates/meari", "crates/meari-native", "crates/meari-platform", "crates/meari-native-tools", "crates/meari-builder", "crates/meari-cli", "crates/meari-paint", "crates/meari-dom", "crates/meari-visual", "crates/meari-demo", "xtask"]
+default-members = ["crates/meari"]
+exclude = ["verification/native-hmr"]
+resolver = "3"
+
+[workspace.dependencies]
+meari = { path = "crates/meari", version = "0.1.0" }
+meari-platform = { path = "crates/meari-platform", version = "0.1.0" }
+
+[patch.crates-io]
+blitz-paint = { path = "crates/meari-paint" }
+blitz-dom = { path = "crates/meari-dom" }
+
+[profile.dev]
+debug = "line-tables-only"
+split-debuginfo = "unpacked"
+incremental = false
+
+[profile.test]
+debug = "line-tables-only"
+split-debuginfo = "unpacked"
+incremental = false
+
+[profile.dev.package."*"]
+debug = false
+
+# Web font slicing and cache verification run in tests and the visual test; unoptimized they
+# take minutes on the CJK faces.
+[profile.dev.package."skrifa@0.49.0"]
+opt-level = 3
+[profile.dev.package.skera]
+opt-level = 3
+[profile.dev.package."read-fonts@0.46.0"]
+opt-level = 3
+[profile.dev.package.write-fonts]
+opt-level = 3
+[profile.dev.package.ttf2woff2]
+opt-level = 3
+[profile.dev.package.brotli]
+opt-level = 3
+[profile.dev.package.sha2]
+opt-level = 3
