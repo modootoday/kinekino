@@ -1,6 +1,6 @@
 [workspace]
-members = ["xtask", "crates/kinekino-core", "crates/kinekino-platform", "crates/kinekino-platform-windows", "crates/kinekino-platform-unix", "crates/kinekino-media-contracts", "crates/kinekino-subtitles", "crates/kinekino-jobs", "crates/kinekino-process", "crates/kinekino-vad", "crates/kinekino-vad-executor", "crates/kinekino-vad-worker", "crates/kinekino-plugin-sdk", "crates/kinekino-libmpv"]
-default-members = ["crates/kinekino-core", "crates/kinekino-platform", "crates/kinekino-platform-unix", "crates/kinekino-media-contracts", "crates/kinekino-subtitles", "crates/kinekino-jobs", "crates/kinekino-process", "crates/kinekino-vad", "crates/kinekino-vad-executor", "crates/kinekino-vad-worker", "crates/kinekino-plugin-sdk", "crates/kinekino-libmpv"]
+members = ["xtask", "crates/kinekino-core", "crates/kinekino-platform", "crates/kinekino-platform-windows", "crates/kinekino-platform-unix", "crates/kinekino-media-contracts", "crates/kinekino-subtitles", "crates/kinekino-jobs", "crates/kinekino-process", "crates/kinekino-vad", "crates/kinekino-vad-executor", "crates/kinekino-vad-worker", "crates/kinekino-source-host", "crates/kinekino-browser", "crates/kinekino-plugin-sdk", "crates/kinekino-libmpv"]
+default-members = ["crates/kinekino-core", "crates/kinekino-platform", "crates/kinekino-platform-unix", "crates/kinekino-media-contracts", "crates/kinekino-subtitles", "crates/kinekino-jobs", "crates/kinekino-process", "crates/kinekino-vad", "crates/kinekino-vad-executor", "crates/kinekino-vad-worker", "crates/kinekino-browser", "crates/kinekino-plugin-sdk", "crates/kinekino-libmpv"]
 exclude = ["vendor/meari", "tools/boundary-observation", "tools/engine-lab", "tools/model-review-bundle", "tools/model-spike", "tools/spec-maintenance", "tools/validation", "tools/visual-review"]
 resolver = "3"
 
@@ -50,6 +50,7 @@ serde_json = "1"
 ctor = "0.10.1"
 sha2 = "=0.10.9"
 url = "2"
+kinekino-browser = { path = "crates/kinekino-browser" }
 kinekino-core = { path = "crates/kinekino-core" }
 kinekino-plugin-sdk = { path = "crates/kinekino-plugin-sdk" }
 kinekino-libmpv = { path = "crates/kinekino-libmpv" }
@@ -59,6 +60,7 @@ kinekino-platform-unix = { path = "crates/kinekino-platform-unix" }
 kinekino-platform-windows = { path = "crates/kinekino-platform-windows" }
 kinekino-platform = { path = "crates/kinekino-platform" }
 kinekino-process = { path = "crates/kinekino-process" }
+kinekino-source-host = { path = "crates/kinekino-source-host" }
 kinekino-subtitles = { path = "crates/kinekino-subtitles" }
 kinekino-vad-executor = { path = "crates/kinekino-vad-executor" }
 kinekino-vad-worker = { path = "crates/kinekino-vad-worker" }
