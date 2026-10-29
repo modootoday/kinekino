@@ -1,0 +1,17 @@
+[package]
+name = "kinekino-libmpv"
+description = "libmpv render API adapter (software render) loaded at runtime; libmpv is never bundled"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+kinekino-core.workspace = true
+libloading.workspace = true
+
+[dev-dependencies]
+kinekino-media-contracts.workspace = true
+
+[lints]
+workspace = true

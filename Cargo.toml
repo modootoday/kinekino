@@ -1,6 +1,6 @@
 [workspace]
-members = ["xtask", "crates/kinekino-core", "crates/kinekino-platform", "crates/kinekino-platform-windows", "crates/kinekino-platform-unix", "crates/kinekino-media-contracts", "crates/kinekino-process", "crates/kinekino-plugin-sdk"]
-default-members = ["crates/kinekino-core", "crates/kinekino-platform", "crates/kinekino-platform-unix", "crates/kinekino-media-contracts", "crates/kinekino-process", "crates/kinekino-plugin-sdk"]
+members = ["xtask", "crates/kinekino-core", "crates/kinekino-platform", "crates/kinekino-platform-windows", "crates/kinekino-platform-unix", "crates/kinekino-media-contracts", "crates/kinekino-process", "crates/kinekino-plugin-sdk", "crates/kinekino-libmpv"]
+default-members = ["crates/kinekino-core", "crates/kinekino-platform", "crates/kinekino-platform-unix", "crates/kinekino-media-contracts", "crates/kinekino-process", "crates/kinekino-plugin-sdk", "crates/kinekino-libmpv"]
 exclude = ["vendor/meari", "tools/boundary-observation", "tools/engine-lab", "tools/model-review-bundle", "tools/model-spike", "tools/spec-maintenance", "tools/validation", "tools/visual-review"]
 resolver = "3"
 
@@ -52,6 +52,7 @@ sha2 = "=0.10.9"
 url = "2"
 kinekino-core = { path = "crates/kinekino-core" }
 kinekino-plugin-sdk = { path = "crates/kinekino-plugin-sdk" }
+kinekino-libmpv = { path = "crates/kinekino-libmpv" }
 kinekino-media-contracts = { path = "crates/kinekino-media-contracts" }
 kinekino-platform-unix = { path = "crates/kinekino-platform-unix" }
 kinekino-platform-windows = { path = "crates/kinekino-platform-windows" }
