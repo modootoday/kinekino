@@ -1,0 +1,5 @@
+{"protocol":"document/1","method":"revision"}
+{"protocol":"document/1","method":"fetch","location":"https://catalog.example.test/list/airing"}
+{"protocol":"document/1","method":"parse","raw":{"status":200,"content_type":"text/html","content_encoding":null,"body":[60,62],"provenance":{"requested_url":"https://catalog.example.test/list/airing","final_url":"https://catalog.example.test/list/airing","redirects":[],"sha256":"0000000000000000000000000000000000000000000000000000000000000000","bytes":2,"observed_unix_ms":1793000000000,"parser_revision":"fixture-parser/1"}}}
+{"protocol":"document/1","method":"parse_html","location":"https://catalog.example.test/list/airing","html":"<>","provenance":{"requested_url":"https://catalog.example.test/list/airing","final_url":"https://catalog.example.test/list/airing","redirects":[],"sha256":"0000000000000000000000000000000000000000000000000000000000000000","bytes":2,"observed_unix_ms":1793000000000,"parser_revision":"fixture-parser/1"}}
+{"protocol":"document/1","method":"episode_document","html":[60,62]}

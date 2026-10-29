@@ -1,0 +1,16 @@
+{
+  "id": "com.example.fixture",
+  "version": "0.1.0",
+  "api": "source/1",
+  "capabilities": ["browse", "search", "series", "episode", "resolve"],
+  "media_hosts": ["media.example.test"],
+  "executable": "bin/fixture-source",
+  "document": {
+    "host": "catalog.example.test",
+    "categories": { "airing": "/list/airing", "completed": "/list/completed", "movies": "/list/movies" },
+    "kinds": { "show": "series", "watch": "episode" },
+    "stable_prefix": "https://catalog.example.test/"
+  },
+  "signature": { "key_id": "0123456789ABCDEF" },
+  "entry_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+}
