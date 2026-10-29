@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "note": "Spring-bone parameters for the tail chain (tail_0..tail_3). All values are design estimates (추정), tuned visually.",
+  "fixedStep": 0.008333,
+  "bones": [
+    { "name": "tail_0", "mass": 1.0, "stiffness": 220, "damping": 18, "limitDeg": 14 },
+    { "name": "tail_1", "mass": 0.8, "stiffness": 160, "damping": 12, "limitDeg": 18 },
+    { "name": "tail_2", "mass": 0.6, "stiffness": 110, "damping": 8,  "limitDeg": 22 },
+    { "name": "tail_3", "mass": 0.4, "stiffness": 80,  "damping": 6,  "limitDeg": 24 }
+  ],
+  "inertiaGain": 1.0,
+  "chainLag": 0.6,
+  "volumePreserve": 0.35
+}

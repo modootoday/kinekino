@@ -1,0 +1,275 @@
+{
+ "_doc": "v7 app-event state machine (src/runtime/state-machine.js). JSON is the source of truth: events -> combo + priority tier, idle rules, cooldowns, escalation. Times in seconds; values marked (est) are estimates from the research page.",
+ "tiers": {
+  "drag": 5,
+  "direct": 4,
+  "alert": 3,
+  "info": 2,
+  "idle": 1,
+  "_doc": "higher interrupts lower; same tier: newest wins; lower tier only runs on layers no higher tier still owns (layer-level interrupt)"
+ },
+ "events": {
+  "app_start": {
+   "combo": "greet",
+   "tier": "info",
+   "firstRunVars": {
+    "entry": "fx.pop_in"
+   },
+   "vars": {
+    "entry": "fx.peek"
+   }
+  },
+  "app_exit": {
+   "combo": "goodbye",
+   "tier": "drag",
+   "note": "<= 1s (eSheep kill)"
+  },
+  "load_start": {
+   "combo": "loading",
+   "tier": "info",
+   "delay": 0.3,
+   "cancelOn": "load_end",
+   "note": "< 300ms loads skip the animation"
+  },
+  "load_long": {
+   "combo": "loading_long",
+   "tier": "info",
+   "after": {
+    "event": "load_start",
+    "seconds": 5
+   },
+   "internal": true
+  },
+  "load_end": {
+   "stop": [
+    "loading",
+    "loading_long"
+   ],
+   "helper": true
+  },
+  "success": {
+   "combo": "success",
+   "tier": "info",
+   "streak": {
+    "count": 3,
+    "combo": "big_success",
+    "resetOn": [
+     "error",
+     "warning"
+    ],
+    "bigStreak": {
+     "count": 6,
+     "combo": "acro_cartwheel",
+     "note": "v8"
+    }
+   }
+  },
+  "error": {
+   "combo": "error",
+   "tier": "alert",
+   "fatalCombo": "scared"
+  },
+  "warning": {
+   "combo": "warning",
+   "tier": "alert"
+  },
+  "notification": {
+   "combo": "notification",
+   "tier": "info",
+   "lookTarget": "payload.target"
+  },
+  "typing": {
+   "combo": "typing_buddy",
+   "tier": "info",
+   "trigger": "input",
+   "releaseAfter": 2.0
+  },
+  "voice_listen": {
+   "combo": "listen",
+   "tier": "info",
+   "until": "voice_end"
+  },
+  "music_start": {
+   "combo": "music_groove",
+   "tier": "info",
+   "defaultBpm": 100,
+   "until": "music_stop"
+  },
+  "music_pause": {
+   "combo": "playback_pause",
+   "tier": "info",
+   "stop": [
+    "music_groove"
+   ]
+  },
+  "offline": {
+   "combo": "offline",
+   "tier": "alert",
+   "onRecover": {
+    "event": "online",
+    "combo": "success",
+    "weight": 0.5
+   }
+  },
+  "hover": {
+   "combo": "hover",
+   "tier": "direct",
+   "until": "hover_end"
+  },
+  "click": {
+   "combo": "click_poke",
+   "tier": "direct",
+   "doubleWithin": 0.35,
+   "double": "double_click",
+   "rapid": {
+    "count": 3,
+    "within": 1.0,
+    "combo": "rapid_click"
+   },
+   "overstim": {
+    "count": 5,
+    "within": 2.0,
+    "combo": "dizzy"
+   }
+  },
+  "double_click": {
+   "combo": "double_click",
+   "tier": "direct"
+  },
+  "rapid_click": {
+   "combo": "rapid_click",
+   "tier": "direct"
+  },
+  "stroke": {
+   "combo": "stroke",
+   "tier": "direct",
+   "until": "stroke_end",
+   "overstim": {
+    "after": 8.0,
+    "steps": [
+     {
+      "clip": "tail.tip_flick",
+      "layer": "tail"
+     },
+     {
+      "combo": "annoyed",
+      "at": 1.0
+     }
+    ]
+   },
+   "rapid": {
+    "count": 3,
+    "within": 2,
+    "event": "pet_rapid",
+    "note": "v8"
+   }
+  },
+  "drag_start": {
+   "combo": "drag_hold",
+   "tier": "drag",
+   "until": "drop"
+  },
+  "drop": {
+   "combo": "drop_land",
+   "tier": "drag"
+  },
+  "shake": {
+   "combo": "shake_hard",
+   "tier": "drag"
+  },
+  "file_drag_over": {
+   "combo": "file_drag_over",
+   "tier": "direct",
+   "until": "file_drag_end"
+  },
+  "idle_30s": {
+   "tier": "idle",
+   "internal": true,
+   "note": "starts the random idle variants (est 30s)"
+  },
+  "idle_3min": {
+   "combo": "idle_deep",
+   "tier": "idle",
+   "internal": true,
+   "note": "est 180s"
+  },
+  "input_resume": {
+   "combo": "wake_up",
+   "tier": "direct",
+   "onlyIf": "asleep"
+  },
+  "cursor_fast": {
+   "combo": "startled",
+   "tier": "direct",
+   "note": "speed threshold must be tuned (est)"
+  },
+  "cursor_slow": {
+   "combo": "hunting_stalk",
+   "tier": "info",
+   "onlyIf": "playMode",
+   "then": {
+    "after": 3.0,
+    "combo": "pounce"
+   }
+  },
+  "achievement": {
+   "combo": "acro_show",
+   "tier": "info",
+   "note": "v8: 업적/마일스톤"
+  },
+  "task_complete": {
+   "combo": "acro_flip_front",
+   "tier": "info",
+   "note": "v8: 긴 작업 완료"
+  },
+  "celebrate": {
+   "combo": "acro_combo",
+   "tier": "info",
+   "note": "v8: 큰 축하(연속 기술)"
+  },
+  "pet_rapid": {
+   "combo": "acro_roll",
+   "tier": "direct",
+   "internal": true,
+   "note": "v8: 쓰다듬기 연타(stroke 3회/2s) -> 옆구르기"
+  }
+ },
+ "idle": {
+  "startAfter": 30,
+  "deepAfter": 180,
+  "gap": [
+   3,
+   8
+  ],
+  "weights": {
+   "idle_twitch": 30,
+   "idle_slow_blink": 20,
+   "idle_look_around": 15,
+   "idle_tail_flick": 15,
+   "idle_yawn": 8,
+   "idle_stretch": 7,
+   "idle_groom": 5
+  },
+  "cooldown": {
+   "same": 20,
+   "big": 60,
+   "bigSet": [
+    "idle_yawn",
+    "idle_stretch",
+    "idle_groom"
+   ]
+  },
+  "noRepeatLast": 2,
+  "deepStages": {
+   "asleepAt": 13
+  }
+ },
+ "blend": {
+  "default": 0.2,
+  "instant": 0.05,
+  "instantSet": [
+   "startled",
+   "angry_puff"
+  ]
+ }
+}

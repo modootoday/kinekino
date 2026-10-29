@@ -1,0 +1,2646 @@
+{
+ "version": 1,
+ "layers": {
+  "reveal": {
+   "priority": 0,
+   "channels": [
+    "body.weights (reveal, blush)",
+    "eyes.scale"
+   ]
+  },
+  "body": {
+   "priority": 1,
+   "channels": [
+    "root.scale",
+    "root.translation",
+    "root.rotation"
+   ],
+   "_doc": "root only (whole-body squash/stretch/lean/translation)."
+  },
+  "shape": {
+   "priority": 1,
+   "channels": [
+    "crown.scale",
+    "crown.translation",
+    "crown.rotation",
+    "base_L.scale",
+    "base_L.translation",
+    "base_L.rotation",
+    "base_R.scale",
+    "base_R.translation",
+    "base_R.rotation"
+   ],
+   "_doc": "v7: body deformer bones (skin slot falloff, identity at rest). Separate slot so shape clips (loaf/knead/crouch/arch/wobble_hit) compose with root clips (breathe/purr/tremble)."
+  },
+  "ear_L": {
+   "priority": 2,
+   "channels": [
+    "ear_L.rotation",
+    "ear_L_tip.rotation",
+    "ear_L.scale"
+   ]
+  },
+  "ear_R": {
+   "priority": 2,
+   "channels": [
+    "ear_R.rotation",
+    "ear_R_tip.rotation",
+    "ear_R.scale"
+   ]
+  },
+  "tail": {
+   "priority": 2,
+   "channels": [
+    "tail_0..3.rotation",
+    "tail_0..3.scale"
+   ]
+  },
+  "eye_L": {
+   "priority": 3,
+   "channels": [
+    "eye_L.scale",
+    "eye_L.rotation",
+    "eye_L.translation",
+    "eye_L.weights"
+   ]
+  },
+  "eye_R": {
+   "priority": 3,
+   "channels": [
+    "eye_R.scale",
+    "eye_R.rotation",
+    "eye_R.translation",
+    "eye_R.weights"
+   ]
+  },
+  "look": {
+   "priority": 4,
+   "channels": [
+    "eye_L_look.translation",
+    "eye_R_look.translation",
+    "head.rotation"
+   ],
+   "additive": [
+    "ear_L.rotation",
+    "ear_R.rotation"
+   ]
+  },
+  "camera": {
+   "priority": 0,
+   "channels": [
+    "camera.zoom",
+    "camera.fovDeg",
+    "camera.yawDeg",
+    "camera.focus"
+   ],
+   "runtimeOnly": true,
+   "_doc": "v8: view motion (src/presets/camera.json, src/runtime/camera.js). Not a mascot node, not in the glb; never written by part clips."
+  }
+ },
+ "defaults": {
+  "fadeIn": 0.12,
+  "fadeOut": 0.2
+ },
+ "rules": [
+  "A channel belongs to exactly one layer; clips never write channels of another layer.",
+  "Same layer: new clip cross-fades the previous one (fadeIn of the new = fadeOut of the old).",
+  "Different layers are independent; evaluation order does not matter.",
+  "Look writes its own nodes absolutely and adds ear offsets after clip evaluation (only additive channel).",
+  "priority decides which request wins when two arrive for the same layer in the same frame (higher wins).",
+  "v7: combo tracks are [layer, clip, at, opts?]; opts: weight, timeScale, loop, hold, repeat {every, jitter}, side \"random\" (layer/clip written with ?), bpmScale. Track layer \"combo\" nests a combo, \"look\" plays a looks preset. \"$var\" clips resolve from combo vars / call vars.",
+  "v7: reveal mode \"full\" (default: reveal.show/hide) or \"eyes\" (reveal.eyes/hide_eyes; only eyes shown so reveal.pulse can flash the band).",
+  "v7: combo.blend = cross-fade (s) when the combo takes over layers: 0.2 default (0.15-0.3), 0.05 for startle-type (startled, angry_puff)."
+ ],
+ "eyes": {
+  "_doc": "SVG units. v5: ellipse r[2.8,5], gap 28. v6: 1.5x size, 75% gap. v6.1: capsule (stadium) - straight sides + semicircular caps; height = straight + 2*capRadius, width = 2*capRadius by default.",
+  "centerY": 58,
+  "gap": 21,
+  "maxScale": 1.22,
+  "shape": {
+   "type": "capsule",
+   "width": 8.4,
+   "straight": 6.6,
+   "capRadius": 4.2
+  }
+ },
+ "look": {
+  "_doc": "lookPose(g) with g in [-1,1]^2 (x right, y up). eyeRange in SVG units (elliptic clamp; v6.1 widened 3x2.2 -> 7x4.5, worst-case eye edge stays 10.7 SVG units inside the rim), head deg, ear deg additive.",
+  "eyeRange": [
+   7.0,
+   4.5
+  ],
+  "headYawDeg": 0,
+  "headPitchDeg": 0,
+  "earLeadDeg": 3,
+  "omega": 12
+ },
+ "combos": {
+  "startled": {
+   "duration": 2.4,
+   "tracks": [
+    [
+     "body",
+     "body.jump_recoil",
+     0
+    ],
+    [
+     "ear_L",
+     "ear_L.back",
+     0.05
+    ],
+    [
+     "ear_R",
+     "ear_R.back",
+     0.05
+    ],
+    [
+     "tail",
+     "tail.stiff",
+     0.08
+    ],
+    [
+     "eye_L",
+     "eye_L.surprise",
+     0
+    ],
+    [
+     "eye_R",
+     "eye_R.surprise",
+     0
+    ]
+   ],
+   "blend": 0.05
+  },
+  "alert": {
+   "duration": 2.4,
+   "tracks": [
+    [
+     "ear_L",
+     "ear_L.perk",
+     0.1
+    ],
+    [
+     "ear_R",
+     "ear_R.perk",
+     0.1
+    ],
+    [
+     "eye_L",
+     "eye_L.grow",
+     0.1
+    ],
+    [
+     "eye_R",
+     "eye_R.grow",
+     0.1
+    ]
+   ],
+   "blend": 0.2
+  },
+  "curious": {
+   "duration": 3.0,
+   "tracks": [
+    [
+     "body",
+     "body.lean",
+     0.2
+    ],
+    [
+     "ear_R",
+     "ear_R.perk",
+     0.3
+    ],
+    [
+     "eye_L",
+     "eye_L.grow",
+     0.3
+    ],
+    [
+     "eye_R",
+     "eye_R.grow",
+     0.3
+    ]
+   ],
+   "blend": 0.2
+  },
+  "tickle": {
+   "duration": 2.0,
+   "tracks": [
+    [
+     "body",
+     "body.wobble",
+     0.1
+    ],
+    [
+     "ear_L",
+     "ear_L.flutter",
+     0.1
+    ],
+    [
+     "ear_R",
+     "ear_R.flutter",
+     0.1
+    ],
+    [
+     "eye_L",
+     "eye_L.squint",
+     0.1
+    ],
+    [
+     "eye_R",
+     "eye_R.squint",
+     0.1
+    ]
+   ],
+   "blend": 0.2
+  },
+  "content": {
+   "duration": 3.0,
+   "tracks": [
+    [
+     "body",
+     "body.breathe",
+     0
+    ],
+    [
+     "tail",
+     "tail.curl",
+     0.3
+    ],
+    [
+     "eye_L",
+     "eye_L.squint",
+     0.4
+    ],
+    [
+     "eye_R",
+     "eye_R.squint",
+     0.4
+    ]
+   ],
+   "blend": 0.2
+  },
+  "ear_perk": {
+   "duration": 1.6,
+   "tracks": [
+    [
+     "ear_L",
+     "ear_L.perk",
+     0.1
+    ],
+    [
+     "ear_R",
+     "ear_R.perk",
+     0.1
+    ]
+   ],
+   "blend": 0.2
+  },
+  "ear_flutter": {
+   "duration": 1.6,
+   "tracks": [
+    [
+     "ear_L",
+     "ear_L.flutter",
+     0.1
+    ],
+    [
+     "ear_R",
+     "ear_R.flutter",
+     0.1
+    ]
+   ],
+   "blend": 0.2
+  },
+  "idle_breath": {
+   "duration": 3.0,
+   "tracks": [
+    [
+     "body",
+     "body.breathe",
+     0
+    ],
+    [
+     "eye_L",
+     "eye_L.blink",
+     1.5
+    ],
+    [
+     "eye_R",
+     "eye_R.blink",
+     1.5
+    ]
+   ],
+   "blend": 0.2
+  },
+  "wink_wag": {
+   "duration": 2.4,
+   "tracks": [
+    [
+     "tail",
+     "tail.wag",
+     0
+    ],
+    [
+     "eye_L",
+     "eye_L.wink",
+     0.3
+    ],
+    [
+     "ear_R",
+     "ear_R.perk",
+     0.3
+    ]
+   ],
+   "blend": 0.2
+  },
+  "sad": {
+   "duration": 2.4,
+   "tracks": [
+    [
+     "ear_L",
+     "ear_L.back",
+     0.1
+    ],
+    [
+     "ear_R",
+     "ear_R.back",
+     0.1
+    ],
+    [
+     "eye_L",
+     "eye_L.sad",
+     0.1
+    ],
+    [
+     "eye_R",
+     "eye_R.sad",
+     0.1
+    ],
+    [
+     "tail",
+     "tail.curl",
+     0.2
+    ]
+   ],
+   "blend": 0.2
+  },
+  "happy": {
+   "duration": 2.6,
+   "tracks": [
+    [
+     "tail",
+     "tail.question",
+     0
+    ],
+    [
+     "eye_L",
+     "eye_L.closed_happy",
+     0.1
+    ],
+    [
+     "eye_R",
+     "eye_R.closed_happy",
+     0.1
+    ],
+    [
+     "body",
+     "body.hop",
+     0.2
+    ],
+    [
+     "ear_L",
+     "ear_L.bounce_settle",
+     0.5
+    ],
+    [
+     "ear_R",
+     "ear_R.bounce_settle",
+     0.5
+    ]
+   ],
+   "group": "감정",
+   "meaning": "기분 좋음",
+   "batch": 2,
+   "blend": 0.2
+  },
+  "excited": {
+   "duration": 2.4,
+   "tracks": [
+    [
+     "tail",
+     "tail.quiver",
+     0
+    ],
+    [
+     "eye_L",
+     "eye_L.dilate",
+     0
+    ],
+    [
+     "eye_R",
+     "eye_R.dilate",
+     0
+    ],
+    [
+     "body",
+     "body.bounce_loop",
+     0.1,
+     {
+      "loop": true
+     }
+    ],
+    [
+     "ear_L",
+     "ear_L.perk",
+     0
+    ],
+    [
+     "ear_R",
+     "ear_R.perk",
+     0
+    ]
+   ],
+   "group": "감정",
+   "meaning": "매우 신남",
+   "batch": 2,
+   "blend": 0.2
+  },
+  "affection": {
+   "duration": 3.0,
+   "tracks": [
+    [
+     "eye_L",
+     "eye_L.slow_blink",
+     0
+    ],
+    [
+     "eye_R",
+     "eye_R.slow_blink",
+     0
+    ],
+    [
+     "ear_L",
+     "ear_L.droop",
+     0,
+     {
+      "weight": 0.5
+     }
+    ],
+    [
+     "ear_R",
+     "ear_R.droop",
+     0,
+     {
+      "weight": 0.5
+     }
+    ],
+    [
+     "reveal",
+     "reveal.blush",
+     0.3
+    ],
+    [
+     "tail",
+     "tail.question",
+     0
+    ]
+   ],
+   "group": "감정",
+   "meaning": "애정(느린 깜박임)",
+   "batch": 1,
+   "blend": 0.2
+  },
+  "pet_purr": {
+   "duration": 4.0,
+   "tracks": [
+    [
+     "eye_L",
+     "eye_L.half_lid",
+     0,
+     {
+      "hold": true
+     }
+    ],
+    [
+     "eye_R",
+     "eye_R.half_lid",
+     0,
+     {
+      "hold": true
+     }
+    ],
+    [
+     "body",
+     "body.purr",
+     0.2,
+     {
+      "loop": true
+     }
+    ],
+    [
+     "shape",
+     "body.knead",
+     0.5,
+     {
+      "loop": true
+     }
+    ],
+    [
+     "ear_L",
+     "ear_L.droop",
+     0,
+     {
+      "weight": 0.5,
+      "hold": true
+     }
+    ],
+    [
+     "ear_R",
+     "ear_R.droop",
+     0,
+     {
+      "weight": 0.5,
+      "hold": true
+     }
+    ],
+    [
+     "look",
+     "look.track_slow",
+     0
+    ]
+   ],
+   "group": "감정",
+   "meaning": "쓰다듬기 반응",
+   "loop": true,
+   "batch": 1,
+   "blend": 0.2
+  },
+  "sleepy": {
+   "duration": 5.0,
+   "tracks": [
+    [
+     "eye_L",
+     "eye_L.sleepy_droop",
+     0,
+     {
+      "loop": true
+     }
+    ],
+    [
+     "eye_R",
+     "eye_R.sleepy_droop",
+     0,
+     {
+      "loop": true
+     }
+    ],
+    [
+     "ear_L",
+     "ear_L.droop",
+     0.3,
+     {
+      "hold": true
+     }
+    ],
+    [
+     "ear_R",
+     "ear_R.droop",
+     0.3,
+     {
+      "hold": true
+     }
+    ],
+    [
+     "body",
+     "body.yawn",
+     1.0
+    ],
+    [
+     "tail",
+     "tail.wrap_body",
+     1.5,
+     {
+      "hold": true
+     }
+    ]
+   ],
+   "group": "감정",
+   "meaning": "졸림",
+   "batch": 1,
+   "blend": 0.2
+  },
+  "asleep": {
+   "duration": 6.0,
+   "tracks": [
+    [
+     "eye_L",
+     "eye_L.closed_line",
+     0,
+     {
+      "hold": true
+     }
+    ],
+    [
+     "eye_R",
+     "eye_R.closed_line",
+     0,
+     {
+      "hold": true
+     }
+    ],
+    [
+     "shape",
+     "body.loaf",
+     0,
+     {
+      "hold": true
+     }
+    ],
+    [
+     "body",
+     "body.breathe",
+     0,
+     {
+      "loop": true,
+      "timeScale": 0.6
+     }
+    ],
+    [
+     "ear_?",
+     "ear_?.twitch",
+     3,
+     {
+      "side": "random",
+      "repeat": {
+       "every": 4,
+       "jitter": 2
+      }
+     }
+    ]
+   ],
+   "group": "감정",
+   "meaning": "수면 루프",
+   "loop": true,
+   "batch": 2,
+   "blend": 0.2
+  },
+  "wake_up": {
+   "duration": 4.4,
+   "tracks": [
+    [
+     "eye_L",
+     "eye_L.double_blink",
+     0
+    ],
+    [
+     "eye_R",
+     "eye_R.double_blink",
+     0
+    ],
+    [
+     "body",
+     "body.stretch",
+     0.3
+    ],
+    [
+     "body",
+     "body.yawn",
+     1.8
+    ],
+    [
+     "body",
+     "body.shake_off",
+     3.5
+    ]
+   ],
+   "group": "감정",
+   "meaning": "기상",
+   "batch": 2,
+   "blend": 0.2
+  },
+  "annoyed": {
+   "duration": 2.4,
+   "tracks": [
+    [
+     "tail",
+     "tail.lash",
+     0,
+     {
+      "loop": true
+     }
+    ],
+    [
+     "ear_L",
+     "ear_L.airplane",
+     0.1
+    ],
+    [
+     "ear_R",
+     "ear_R.airplane",
+     0.1
+    ],
+    [
+     "eye_L",
+     "eye_L.glare",
+     0.2
+    ],
+    [
+     "eye_R",
+     "eye_R.glare",
+     0.2
+    ],
+    [
+     "look",
+     "look.avert",
+     0.4
+    ]
+   ],
+   "group": "감정",
+   "meaning": "짜증",
+   "batch": 2,
+   "blend": 0.2
+  },
+  "angry_puff": {
+   "duration": 2.0,
+   "tracks": [
+    [
+     "tail",
+     "tail.puff",
+     0
+    ],
+    [
+     "shape",
+     "body.arch",
+     0
+    ],
+    [
+     "ear_L",
+     "ear_L.flat",
+     0.05
+    ],
+    [
+     "ear_R",
+     "ear_R.flat",
+     0.05
+    ],
+    [
+     "eye_L",
+     "eye_L.dilate",
+     0
+    ],
+    [
+     "eye_R",
+     "eye_R.dilate",
+     0
+    ]
+   ],
+   "group": "감정",
+   "meaning": "화·위협",
+   "batch": 2,
+   "blend": 0.05
+  },
+  "scared": {
+   "duration": 2.6,
+   "tracks": [
+    [
+     "ear_L",
+     "ear_L.flat",
+     0
+    ],
+    [
+     "ear_R",
+     "ear_R.flat",
+     0
+    ],
+    [
+     "tail",
+     "tail.tuck",
+     0.1
+    ],
+    [
+     "shape",
+     "body.crouch",
+     0.1
+    ],
+    [
+     "body",
+     "body.tremble",
+     0.3,
+     {
+      "loop": true
+     }
+    ],
+    [
+     "eye_L",
+     "eye_L.rapid_blink",
+     0.5
+    ],
+    [
+     "eye_R",
+     "eye_R.rapid_blink",
+     0.5
+    ]
+   ],
+   "group": "감정",
+   "meaning": "겁먹음",
+   "batch": 2,
+   "blend": 0.2
+  },
+  "shy": {
+   "duration": 2.6,
+   "tracks": [
+    [
+     "look",
+     "look.avert",
+     0
+    ],
+    [
+     "reveal",
+     "reveal.blush",
+     0.1
+    ],
+    [
+     "ear_R",
+     "ear_R.one_back",
+     0.2
+    ],
+    [
+     "body",
+     "body.lean",
+     0.2,
+     {
+      "weight": 0.5
+     }
+    ]
+   ],
+   "group": "감정",
+   "meaning": "부끄러움",
+   "batch": 2,
+   "blend": 0.2
+  },
+  "proud": {
+   "duration": 2.6,
+   "tracks": [
+    [
+     "body",
+     "body.yawn",
+     0,
+     {
+      "weight": 0.7
+     }
+    ],
+    [
+     "eye_L",
+     "eye_L.half_lid",
+     0.2
+    ],
+    [
+     "eye_R",
+     "eye_R.half_lid",
+     0.2
+    ],
+    [
+     "tail",
+     "tail.question",
+     0
+    ],
+    [
+     "look",
+     "look.up_think",
+     0.2
+    ]
+   ],
+   "group": "감정",
+   "meaning": "뿌듯함",
+   "batch": 2,
+   "note": "body.stretch(세로만) -> body.yawn(세로 늘림) 0.7 가중치로 대체",
+   "blend": 0.2
+  },
+  "confused": {
+   "duration": 2.6,
+   "tracks": [
+    [
+     "body",
+     "body.head_tilt",
+     0
+    ],
+    [
+     "ear_L",
+     "ear_L.one_back",
+     0.1
+    ],
+    [
+     "eye_L",
+     "eye_L.double_blink",
+     0.3
+    ],
+    [
+     "eye_R",
+     "eye_R.double_blink",
+     0.3
+    ],
+    [
+     "look",
+     "look.scan",
+     0.5
+    ]
+   ],
+   "group": "감정",
+   "meaning": "혼란",
+   "batch": 2,
+   "blend": 0.2
+  },
+  "bored": {
+   "duration": 4.0,
+   "tracks": [
+    [
+     "look",
+     "look.scan",
+     0
+    ],
+    [
+     "tail",
+     "tail.slow_sway",
+     0,
+     {
+      "loop": true
+     }
+    ],
+    [
+     "body",
+     "body.melt",
+     1.5,
+     {
+      "weight": 0.5
+     }
+    ],
+    [
+     "eye_L",
+     "eye_L.half_lid",
+     1.5
+    ],
+    [
+     "eye_R",
+     "eye_R.half_lid",
+     1.5
+    ]
+   ],
+   "group": "감정",
+   "meaning": "심심함",
+   "batch": 2,
+   "blend": 0.2
+  },
+  "disappointed": {
+   "duration": 2.6,
+   "tracks": [
+    [
+     "ear_L",
+     "ear_L.droop",
+     0
+    ],
+    [
+     "ear_R",
+     "ear_R.droop",
+     0
+    ],
+    [
+     "tail",
+     "tail.low",
+     0.1
+    ],
+    [
+     "body",
+     "body.melt",
+     0.2,
+     {
+      "weight": 0.5
+     }
+    ],
+    [
+     "look",
+     "look.avert",
+     0.3
+    ]
+   ],
+   "group": "감정",
+   "meaning": "실망",
+   "batch": 2,
+   "blend": 0.2
+  },
+  "dizzy": {
+   "duration": 2.0,
+   "tracks": [
+    [
+     "eye_L",
+     "eye_L.dizzy",
+     0
+    ],
+    [
+     "eye_R",
+     "eye_R.dizzy",
+     0
+    ],
+    [
+     "body",
+     "body.wobble",
+     0
+    ],
+    [
+     "ear_L",
+     "ear_L.bounce_settle",
+     0.2
+    ],
+    [
+     "ear_R",
+     "ear_R.bounce_settle",
+     0.2
+    ]
+   ],
+   "group": "감정",
+   "meaning": "어지러움",
+   "batch": 3,
+   "blend": 0.2
+  },
+  "content_loaf": {
+   "duration": 6.0,
+   "tracks": [
+    [
+     "shape",
+     "body.loaf",
+     0,
+     {
+      "hold": true
+     }
+    ],
+    [
+     "eye_L",
+     "eye_L.half_lid",
+     0.5,
+     {
+      "hold": true
+     }
+    ],
+    [
+     "eye_R",
+     "eye_R.half_lid",
+     0.5,
+     {
+      "hold": true
+     }
+    ],
+    [
+     "tail",
+     "tail.wrap_body",
+     0.5,
+     {
+      "hold": true
+     }
+    ],
+    [
+     "eye_L",
+     "eye_L.slow_blink",
+     3,
+     {
+      "repeat": {
+       "every": 5,
+       "jitter": 2
+      }
+     }
+    ],
+    [
+     "eye_R",
+     "eye_R.slow_blink",
+     3,
+     {
+      "repeat": {
+       "every": 5,
+       "jitter": 2
+      }
+     }
+    ]
+   ],
+   "group": "감정",
+   "meaning": "편안한 휴식",
+   "loop": true,
+   "batch": 2,
+   "note": "half_lid 유지 중 slow_blink 반복이 같은 eye 슬롯을 교대 사용",
+   "blend": 0.2
+  },
+  "hunting_stalk": {
+   "duration": 4.0,
+   "tracks": [
+    [
+     "shape",
+     "body.crouch",
+     0,
+     {
+      "hold": true
+     }
+    ],
+    [
+     "look",
+     "look.stare_down",
+     0
+    ],
+    [
+     "ear_L",
+     "ear_L.perk",
+     0
+    ],
+    [
+     "ear_R",
+     "ear_R.perk",
+     0
+    ],
+    [
+     "tail",
+     "tail.tip_flick",
+     0.3,
+     {
+      "repeat": {
+       "every": 1.2,
+       "jitter": 0.4
+      }
+     }
+    ]
+   ],
+   "group": "행동",
+   "meaning": "사냥 집중",
+   "loop": true,
+   "batch": 2,
+   "blend": 0.2
+  },
+  "pounce": {
+   "duration": 2.2,
+   "tracks": [
+    [
+     "body",
+     "body.pounce",
+     0
+    ],
+    [
+     "ear_L",
+     "ear_L.bounce_settle",
+     0.8
+    ],
+    [
+     "ear_R",
+     "ear_R.bounce_settle",
+     0.8
+    ]
+   ],
+   "group": "행동",
+   "meaning": "덮치기",
+   "batch": 3,
+   "blend": 0.2
+  },
+  "groom": {
+   "duration": 3.2,
+   "tracks": [
+    [
+     "body",
+     "body.groom",
+     0
+    ],
+    [
+     "eye_L",
+     "eye_L.closed_line",
+     0.2
+    ],
+    [
+     "eye_R",
+     "eye_R.closed_line",
+     0.2
+    ],
+    [
+     "ear_?",
+     "ear_?.swivel",
+     1,
+     {
+      "side": "random"
+     }
+    ]
+   ],
+   "group": "행동",
+   "meaning": "그루밍",
+   "batch": 3,
+   "blend": 0.2
+  },
+  "play": {
+   "duration": 2.0,
+   "tracks": [
+    [
+     "shape",
+     "body.crouch",
+     0
+    ],
+    [
+     "eye_L",
+     "eye_L.dilate",
+     0
+    ],
+    [
+     "eye_R",
+     "eye_R.dilate",
+     0
+    ],
+    [
+     "tail",
+     "tail.slow_sway",
+     0
+    ],
+    [
+     "body",
+     "body.hop",
+     0.8
+    ]
+   ],
+   "group": "행동",
+   "meaning": "놀이 초대",
+   "batch": 2,
+   "blend": 0.2
+  },
+  "greet": {
+   "duration": 2.6,
+   "tracks": [
+    [
+     "body",
+     "$entry",
+     0
+    ],
+    [
+     "tail",
+     "tail.question",
+     0.3
+    ],
+    [
+     "eye_L",
+     "eye_L.slow_blink",
+     0.6
+    ],
+    [
+     "eye_R",
+     "eye_R.slow_blink",
+     0.6
+    ],
+    [
+     "body",
+     "body.headbutt",
+     1.0
+    ]
+   ],
+   "group": "행동",
+   "meaning": "인사",
+   "vars": {
+    "entry": "fx.peek"
+   },
+   "batch": 2,
+   "note": "첫 실행이면 vars.entry=fx.pop_in",
+   "blend": 0.2
+  },
+  "goodbye": {
+   "duration": 1.2,
+   "tracks": [
+    [
+     "body",
+     "body.nod",
+     0
+    ],
+    [
+     "eye_L",
+     "eye_L.closed_happy",
+     0.2
+    ],
+    [
+     "eye_R",
+     "eye_R.closed_happy",
+     0.2
+    ],
+    [
+     "body",
+     "fx.pop_out",
+     0.8
+    ]
+   ],
+   "group": "행동",
+   "meaning": "작별",
+   "batch": 2,
+   "blend": 0.2
+  },
+  "listen": {
+   "duration": 3.0,
+   "tracks": [
+    [
+     "ear_L",
+     "ear_L.swivel",
+     0
+    ],
+    [
+     "ear_R",
+     "ear_R.swivel",
+     0
+    ],
+    [
+     "ear_L",
+     "ear_L.perk",
+     0.8
+    ],
+    [
+     "ear_R",
+     "ear_R.perk",
+     0.8
+    ],
+    [
+     "look",
+     "look.at_target",
+     0
+    ],
+    [
+     "body",
+     "body.nod",
+     0.4,
+     {
+      "weight": 0.4,
+      "repeat": {
+       "every": 1.5
+      }
+     }
+    ]
+   ],
+   "group": "행동",
+   "meaning": "듣는 중",
+   "loop": true,
+   "batch": 2,
+   "note": "swivel(0.7s) 뒤 perk로 교대(같은 귀 슬롯)",
+   "blend": 0.2
+  },
+  "loading": {
+   "duration": 3.0,
+   "tracks": [
+    [
+     "body",
+     "body.think_sway",
+     0,
+     {
+      "loop": true
+     }
+    ],
+    [
+     "look",
+     "look.up_think",
+     0
+    ],
+    [
+     "tail",
+     "tail.slow_sway",
+     0,
+     {
+      "loop": true
+     }
+    ],
+    [
+     "eye_L",
+     "eye_L.blink",
+     1.0,
+     {
+      "repeat": {
+       "every": 2.5,
+       "jitter": 0.8
+      }
+     }
+    ],
+    [
+     "eye_R",
+     "eye_R.blink",
+     1.0,
+     {
+      "repeat": {
+       "every": 2.5,
+       "jitter": 0.8
+      }
+     }
+    ]
+   ],
+   "group": "앱 상태",
+   "meaning": "처리 중",
+   "loop": true,
+   "batch": 1,
+   "blend": 0.2
+  },
+  "loading_long": {
+   "duration": 12.0,
+   "tracks": [
+    [
+     "combo",
+     "loading",
+     0
+    ],
+    [
+     "combo",
+     "bored",
+     5
+    ],
+    [
+     "combo",
+     "groom",
+     10
+    ]
+   ],
+   "group": "앱 상태",
+   "meaning": "오래 걸림",
+   "loop": true,
+   "batch": 2,
+   "note": "5s bored, 10s groom 삽입. 이후 상태 머신이 loading 유지/재진입",
+   "blend": 0.2
+  },
+  "success": {
+   "duration": 2.0,
+   "tracks": [
+    [
+     "body",
+     "body.hop",
+     0
+    ],
+    [
+     "eye_L",
+     "eye_L.closed_happy",
+     0.1
+    ],
+    [
+     "eye_R",
+     "eye_R.closed_happy",
+     0.1
+    ],
+    [
+     "tail",
+     "tail.quiver",
+     0.2
+    ],
+    [
+     "reveal",
+     "reveal.pulse",
+     0.2
+    ]
+   ],
+   "group": "앱 상태",
+   "meaning": "성공",
+   "reveal": "eyes",
+   "batch": 1,
+   "blend": 0.2
+  },
+  "big_success": {
+   "duration": 3.8,
+   "tracks": [
+    [
+     "body",
+     "body.spin",
+     0
+    ],
+    [
+     "body",
+     "fx.overshoot",
+     0.8
+    ],
+    [
+     "combo",
+     "happy",
+     1.2
+    ]
+   ],
+   "group": "앱 상태",
+   "meaning": "큰 성공",
+   "batch": 3,
+   "blend": 0.2
+  },
+  "error": {
+   "duration": 2.4,
+   "tracks": [
+    [
+     "body",
+     "body.shake_no",
+     0
+    ],
+    [
+     "ear_L",
+     "ear_L.one_back",
+     0.1
+    ],
+    [
+     "eye_L",
+     "eye_L.worried",
+     0.2
+    ],
+    [
+     "eye_R",
+     "eye_R.worried",
+     0.2
+    ],
+    [
+     "tail",
+     "tail.low",
+     0.3
+    ]
+   ],
+   "group": "앱 상태",
+   "meaning": "실패",
+   "batch": 1,
+   "blend": 0.2
+  },
+  "warning": {
+   "duration": 2.0,
+   "tracks": [
+    [
+     "ear_?",
+     "ear_?.twitch",
+     0,
+     {
+      "side": "random"
+     }
+    ],
+    [
+     "look",
+     "look.at_target",
+     0
+    ],
+    [
+     "tail",
+     "tail.tip_flick",
+     0.2
+    ]
+   ],
+   "group": "앱 상태",
+   "meaning": "주의 필요",
+   "batch": 2,
+   "blend": 0.2
+  },
+  "notification": {
+   "duration": 2.0,
+   "tracks": [
+    [
+     "ear_L",
+     "ear_L.perk",
+     0
+    ],
+    [
+     "ear_R",
+     "ear_R.perk",
+     0
+    ],
+    [
+     "reveal",
+     "reveal.pulse",
+     0.1
+    ],
+    [
+     "look",
+     "look.at_target",
+     0.2
+    ]
+   ],
+   "group": "앱 상태",
+   "meaning": "새 알림",
+   "reveal": "eyes",
+   "batch": 1,
+   "blend": 0.2
+  },
+  "typing_buddy": {
+   "duration": 2.0,
+   "tracks": [
+    [
+     "look",
+     "look.at_target",
+     0
+    ],
+    [
+     "body",
+     "body.typing_bob",
+     0,
+     {
+      "trigger": "input"
+     }
+    ],
+    [
+     "ear_?",
+     "ear_?.twitch",
+     1.5,
+     {
+      "side": "random",
+      "repeat": {
+       "every": 3,
+       "jitter": 1.5
+      }
+     }
+    ]
+   ],
+   "group": "앱 상태",
+   "meaning": "타이핑 중",
+   "loop": true,
+   "batch": 2,
+   "note": "body.typing_bob은 composer.trigger(\"input\")마다 1회",
+   "blend": 0.2
+  },
+  "music_groove": {
+   "duration": 2.4,
+   "tracks": [
+    [
+     "body",
+     "body.bounce_loop",
+     0,
+     {
+      "loop": true,
+      "bpmScale": 1
+     }
+    ],
+    [
+     "ear_L",
+     "ear_L.listen_beat",
+     0,
+     {
+      "loop": true,
+      "bpmScale": 1
+     }
+    ],
+    [
+     "ear_R",
+     "ear_R.listen_beat",
+     0.6,
+     {
+      "loop": true,
+      "bpmScale": 1
+     }
+    ],
+    [
+     "tail",
+     "tail.slow_sway",
+     0,
+     {
+      "loop": true,
+      "bpmScale": 2
+     }
+    ],
+    [
+     "eye_L",
+     "eye_L.half_lid",
+     0,
+     {
+      "hold": true
+     }
+    ],
+    [
+     "eye_R",
+     "eye_R.half_lid",
+     0,
+     {
+      "hold": true
+     }
+    ]
+   ],
+   "group": "앱 상태",
+   "meaning": "음악 재생 중",
+   "loop": true,
+   "batch": 3,
+   "note": "bpmScale: timeScale = bpm/100 * bpmScale (BPM 미상이면 100). ear_R 0.6s=100BPM 1박; 런타임은 60/bpm으로 보정",
+   "blend": 0.2
+  },
+  "playback_pause": {
+   "duration": 1.6,
+   "tracks": [
+    [
+     "ear_L",
+     "ear_L.perk",
+     0
+    ],
+    [
+     "ear_R",
+     "ear_R.perk",
+     0
+    ],
+    [
+     "look",
+     "look.at_target",
+     0.1
+    ]
+   ],
+   "group": "앱 상태",
+   "meaning": "재생 일시정지",
+   "batch": 2,
+   "blend": 0.2
+  },
+  "offline": {
+   "duration": 2.6,
+   "tracks": [
+    [
+     "ear_L",
+     "ear_L.swivel",
+     0
+    ],
+    [
+     "ear_R",
+     "ear_R.swivel",
+     0
+    ],
+    [
+     "look",
+     "look.scan",
+     0.2
+    ],
+    [
+     "tail",
+     "tail.low",
+     0.5
+    ],
+    [
+     "eye_L",
+     "eye_L.worried",
+     0.5
+    ],
+    [
+     "eye_R",
+     "eye_R.worried",
+     0.5
+    ]
+   ],
+   "group": "앱 상태",
+   "meaning": "연결 끊김",
+   "batch": 2,
+   "blend": 0.2
+  },
+  "hover": {
+   "duration": 2.0,
+   "tracks": [
+    [
+     "eye_L",
+     "eye_L.dilate",
+     0,
+     {
+      "weight": 0.5,
+      "hold": true
+     }
+    ],
+    [
+     "eye_R",
+     "eye_R.dilate",
+     0,
+     {
+      "weight": 0.5,
+      "hold": true
+     }
+    ],
+    [
+     "ear_L",
+     "ear_L.perk",
+     0
+    ],
+    [
+     "ear_R",
+     "ear_R.perk",
+     0
+    ],
+    [
+     "look",
+     "look.track",
+     0,
+     {
+      "omega": 24
+     }
+    ]
+   ],
+   "group": "상호작용",
+   "meaning": "커서가 몸 위",
+   "loop": true,
+   "batch": 2,
+   "blend": 0.2
+  },
+  "click_poke": {
+   "duration": 0.9,
+   "tracks": [
+    [
+     "body",
+     "body.squash_press",
+     0
+    ],
+    [
+     "shape",
+     "body.wobble_hit",
+     0.15
+    ],
+    [
+     "eye_L",
+     "eye_L.blink",
+     0
+    ],
+    [
+     "eye_R",
+     "eye_R.blink",
+     0
+    ]
+   ],
+   "group": "상호작용",
+   "meaning": "클릭",
+   "batch": 1,
+   "blend": 0.2
+  },
+  "double_click": {
+   "duration": 1.2,
+   "tracks": [
+    [
+     "combo",
+     "click_poke",
+     0
+    ],
+    [
+     "body",
+     "body.hop",
+     0.2
+    ],
+    [
+     "eye_L",
+     "eye_L.double_blink",
+     0.2
+    ],
+    [
+     "eye_R",
+     "eye_R.double_blink",
+     0.2
+    ]
+   ],
+   "group": "상호작용",
+   "meaning": "더블클릭",
+   "batch": 2,
+   "blend": 0.2
+  },
+  "rapid_click": {
+   "duration": 2.4,
+   "tracks": [
+    [
+     "combo",
+     "annoyed",
+     0
+    ]
+   ],
+   "group": "상호작용",
+   "meaning": "연타",
+   "batch": 2,
+   "note": "5회 이상이면 상태 머신이 dizzy로 승격",
+   "blend": 0.2
+  },
+  "drag_hold": {
+   "duration": 2.0,
+   "tracks": [
+    [
+     "body",
+     "body.stretch_hang",
+     0,
+     {
+      "hold": true
+     }
+    ],
+    [
+     "ear_L",
+     "ear_L.bounce_settle",
+     0.3,
+     {
+      "repeat": {
+       "every": 0.9
+      }
+     }
+    ],
+    [
+     "ear_R",
+     "ear_R.bounce_settle",
+     0.3,
+     {
+      "repeat": {
+       "every": 0.9
+      }
+     }
+    ],
+    [
+     "tail",
+     "tail.low",
+     0,
+     {
+      "hold": true
+     }
+    ],
+    [
+     "eye_L",
+     "eye_L.dilate",
+     0,
+     {
+      "hold": true
+     }
+    ],
+    [
+     "eye_R",
+     "eye_R.dilate",
+     0,
+     {
+      "hold": true
+     }
+    ]
+   ],
+   "group": "상호작용",
+   "meaning": "끌어 올림",
+   "loop": true,
+   "batch": 1,
+   "blend": 0.2
+  },
+  "drop_land": {
+   "duration": 1.6,
+   "tracks": [
+    [
+     "body",
+     "body.fall_land",
+     0
+    ],
+    [
+     "ear_L",
+     "ear_L.bounce_settle",
+     0.3
+    ],
+    [
+     "ear_R",
+     "ear_R.bounce_settle",
+     0.3
+    ],
+    [
+     "body",
+     "body.shake_off",
+     0.6
+    ]
+   ],
+   "group": "상호작용",
+   "meaning": "놓음",
+   "batch": 1,
+   "blend": 0.2
+  },
+  "shake_hard": {
+   "duration": 2.0,
+   "tracks": [
+    [
+     "combo",
+     "dizzy",
+     0
+    ]
+   ],
+   "group": "상호작용",
+   "meaning": "빠르게 흔듦",
+   "batch": 3,
+   "blend": 0.2
+  },
+  "stroke": {
+   "duration": 4.0,
+   "tracks": [
+    [
+     "combo",
+     "pet_purr",
+     0
+    ]
+   ],
+   "group": "상호작용",
+   "meaning": "쓰다듬기",
+   "loop": true,
+   "batch": 3,
+   "note": "과자극 분기는 상태 머신(overstim)",
+   "blend": 0.2
+  },
+  "file_drag_over": {
+   "duration": 2.0,
+   "tracks": [
+    [
+     "look",
+     "look.follow_drop",
+     0
+    ],
+    [
+     "ear_L",
+     "ear_L.perk",
+     0
+    ],
+    [
+     "ear_R",
+     "ear_R.perk",
+     0
+    ],
+    [
+     "shape",
+     "body.crouch",
+     0.2,
+     {
+      "weight": 0.5,
+      "hold": true
+     }
+    ]
+   ],
+   "group": "상호작용",
+   "meaning": "파일 끌어오기",
+   "loop": true,
+   "batch": 2,
+   "blend": 0.2
+  },
+  "idle_twitch": {
+   "duration": 0.6,
+   "tracks": [
+    [
+     "ear_?",
+     "ear_?.twitch",
+     0,
+     {
+      "side": "random"
+     }
+    ]
+   ],
+   "group": "idle 변주",
+   "meaning": "미세 idle",
+   "batch": 1,
+   "blend": 0.2
+  },
+  "idle_look_around": {
+   "duration": 3.0,
+   "tracks": [
+    [
+     "look",
+     "look.scan",
+     0
+    ],
+    [
+     "ear_?",
+     "ear_?.swivel",
+     0.5,
+     {
+      "side": "random"
+     }
+    ]
+   ],
+   "group": "idle 변주",
+   "meaning": "두리번",
+   "batch": 1,
+   "blend": 0.2
+  },
+  "idle_tail_flick": {
+   "duration": 1.0,
+   "tracks": [
+    [
+     "tail",
+     "tail.tip_flick",
+     0
+    ],
+    [
+     "tail",
+     "tail.tip_flick",
+     0.45
+    ]
+   ],
+   "group": "idle 변주",
+   "meaning": "꼬리 끝",
+   "batch": 1,
+   "blend": 0.2
+  },
+  "idle_yawn": {
+   "duration": 2.4,
+   "tracks": [
+    [
+     "body",
+     "body.yawn",
+     0
+    ],
+    [
+     "eye_L",
+     "eye_L.closed_line",
+     0.4
+    ],
+    [
+     "eye_R",
+     "eye_R.closed_line",
+     0.4
+    ]
+   ],
+   "group": "idle 변주",
+   "meaning": "하품",
+   "batch": 2,
+   "blend": 0.2
+  },
+  "idle_slow_blink": {
+   "duration": 1.6,
+   "tracks": [
+    [
+     "eye_L",
+     "eye_L.slow_blink",
+     0
+    ],
+    [
+     "eye_R",
+     "eye_R.slow_blink",
+     0
+    ]
+   ],
+   "group": "idle 변주",
+   "meaning": "느린 깜박임",
+   "batch": 1,
+   "blend": 0.2
+  },
+  "idle_groom": {
+   "duration": 3.2,
+   "tracks": [
+    [
+     "combo",
+     "groom",
+     0
+    ]
+   ],
+   "group": "idle 변주",
+   "meaning": "그루밍",
+   "batch": 3,
+   "blend": 0.2
+  },
+  "idle_stretch": {
+   "duration": 2.4,
+   "tracks": [
+    [
+     "body",
+     "body.stretch",
+     0
+    ],
+    [
+     "ear_L",
+     "ear_L.bounce_settle",
+     1.4
+    ],
+    [
+     "ear_R",
+     "ear_R.bounce_settle",
+     1.4
+    ]
+   ],
+   "group": "idle 변주",
+   "meaning": "기지개",
+   "batch": 2,
+   "blend": 0.2
+  },
+  "idle_deep": {
+   "duration": 20.0,
+   "tracks": [
+    [
+     "combo",
+     "content_loaf",
+     0
+    ],
+    [
+     "combo",
+     "sleepy",
+     8
+    ],
+    [
+     "combo",
+     "asleep",
+     13
+    ]
+   ],
+   "group": "idle 변주",
+   "meaning": "깊은 idle",
+   "loop": true,
+   "batch": 2,
+   "blend": 0.2
+  },
+  "acro_show": {
+   "duration": 2.0,
+   "tracks": [
+    [
+     "look",
+     "look.release",
+     0
+    ],
+    [
+     "body",
+     "acro.spin_yaw_360_jump",
+     0
+    ],
+    [
+     "tail",
+     "tail.acro_drag",
+     0,
+     {
+      "timeScale": 1.0
+     }
+    ],
+    [
+     "ear_L",
+     "ear_L.acro_drag",
+     0,
+     {
+      "timeScale": 1.0
+     }
+    ],
+    [
+     "ear_R",
+     "ear_R.acro_drag",
+     0,
+     {
+      "timeScale": 1.0
+     }
+    ],
+    [
+     "shape",
+     "body.wobble_hit",
+     1.1
+    ],
+    [
+     "eye_L",
+     "eye_L.blink",
+     1.1500000000000001
+    ],
+    [
+     "eye_R",
+     "eye_R.blink",
+     1.1500000000000001
+    ],
+    [
+     "look",
+     "look.track",
+     1.4500000000000002
+    ]
+   ],
+   "group": "곡예",
+   "meaning": "팽이 점프",
+   "batch": 8,
+   "blend": 0.15
+  },
+  "acro_roll": {
+   "duration": 2.3,
+   "tracks": [
+    [
+     "look",
+     "look.release",
+     0
+    ],
+    [
+     "body",
+     "acro.roll_360",
+     0
+    ],
+    [
+     "tail",
+     "tail.acro_drag",
+     0,
+     {
+      "timeScale": 0.7777777777777777
+     }
+    ],
+    [
+     "ear_L",
+     "ear_L.acro_drag",
+     0,
+     {
+      "timeScale": 0.7777777777777777
+     }
+    ],
+    [
+     "ear_R",
+     "ear_R.acro_drag",
+     0,
+     {
+      "timeScale": 0.7777777777777777
+     }
+    ],
+    [
+     "shape",
+     "body.wobble_hit",
+     0.9
+    ],
+    [
+     "eye_L",
+     "eye_L.blink",
+     0.9500000000000001
+    ],
+    [
+     "eye_R",
+     "eye_R.blink",
+     0.9500000000000001
+    ],
+    [
+     "look",
+     "look.track",
+     1.25
+    ]
+   ],
+   "group": "곡예",
+   "meaning": "옆구르기",
+   "batch": 8,
+   "blend": 0.15
+  },
+  "acro_flip_front": {
+   "duration": 2.0,
+   "tracks": [
+    [
+     "look",
+     "look.release",
+     0
+    ],
+    [
+     "body",
+     "acro.flip_front_360_jump",
+     0
+    ],
+    [
+     "tail",
+     "tail.acro_drag",
+     0,
+     {
+      "timeScale": 1.0
+     }
+    ],
+    [
+     "ear_L",
+     "ear_L.acro_drag",
+     0,
+     {
+      "timeScale": 1.0
+     }
+    ],
+    [
+     "ear_R",
+     "ear_R.acro_drag",
+     0,
+     {
+      "timeScale": 1.0
+     }
+    ],
+    [
+     "shape",
+     "body.wobble_hit",
+     1.1
+    ],
+    [
+     "eye_L",
+     "eye_L.blink",
+     1.1500000000000001
+    ],
+    [
+     "eye_R",
+     "eye_R.blink",
+     1.1500000000000001
+    ],
+    [
+     "look",
+     "look.track",
+     1.4500000000000002
+    ]
+   ],
+   "group": "곡예",
+   "meaning": "앞 공중제비",
+   "batch": 8,
+   "blend": 0.15
+  },
+  "acro_flip_back": {
+   "duration": 2.0,
+   "tracks": [
+    [
+     "look",
+     "look.release",
+     0
+    ],
+    [
+     "body",
+     "acro.flip_back_360_jump",
+     0
+    ],
+    [
+     "tail",
+     "tail.acro_drag",
+     0,
+     {
+      "timeScale": 1.0
+     }
+    ],
+    [
+     "ear_L",
+     "ear_L.acro_drag",
+     0,
+     {
+      "timeScale": 1.0
+     }
+    ],
+    [
+     "ear_R",
+     "ear_R.acro_drag",
+     0,
+     {
+      "timeScale": 1.0
+     }
+    ],
+    [
+     "shape",
+     "body.wobble_hit",
+     1.1
+    ],
+    [
+     "eye_L",
+     "eye_L.blink",
+     1.1500000000000001
+    ],
+    [
+     "eye_R",
+     "eye_R.blink",
+     1.1500000000000001
+    ],
+    [
+     "look",
+     "look.track",
+     1.4500000000000002
+    ]
+   ],
+   "group": "곡예",
+   "meaning": "뒤 공중제비",
+   "batch": 8,
+   "blend": 0.15
+  },
+  "acro_cartwheel": {
+   "duration": 2.0,
+   "tracks": [
+    [
+     "look",
+     "look.release",
+     0
+    ],
+    [
+     "body",
+     "acro.cartwheel_360_jump",
+     0
+    ],
+    [
+     "tail",
+     "tail.acro_drag",
+     0,
+     {
+      "timeScale": 1.0
+     }
+    ],
+    [
+     "ear_L",
+     "ear_L.acro_drag",
+     0,
+     {
+      "timeScale": 1.0
+     }
+    ],
+    [
+     "ear_R",
+     "ear_R.acro_drag",
+     0,
+     {
+      "timeScale": 1.0
+     }
+    ],
+    [
+     "shape",
+     "body.wobble_hit",
+     1.1
+    ],
+    [
+     "eye_L",
+     "eye_L.blink",
+     1.1500000000000001
+    ],
+    [
+     "eye_R",
+     "eye_R.blink",
+     1.1500000000000001
+    ],
+    [
+     "look",
+     "look.track",
+     1.4500000000000002
+    ]
+   ],
+   "group": "곡예",
+   "meaning": "옆돌기",
+   "batch": 8,
+   "blend": 0.15
+  },
+  "acro_combo": {
+   "duration": 6.4,
+   "tracks": [
+    [
+     "combo",
+     "acro_show",
+     0
+    ],
+    [
+     "combo",
+     "acro_flip_back",
+     2.1
+    ],
+    [
+     "combo",
+     "acro_cartwheel",
+     4.2
+    ]
+   ],
+   "group": "곡예",
+   "meaning": "연속 기술",
+   "batch": 8,
+   "blend": 0.15
+  }
+ },
+ "looks": {
+  "_doc": "v7 runtime look presets (look layer; no glb clip). mode cursor|target|fixed|path|saccade. omega = smoothStep stiffness (default look.omega). Random parts use the injected seeded RNG.",
+  "look.track": {
+   "mode": "cursor",
+   "doc": "기본 커서 추적(보조)"
+  },
+  "look.track_slow": {
+   "mode": "cursor",
+   "omega": 4,
+   "spec": "look.track_slow",
+   "batch": 1
+  },
+  "look.avert": {
+   "mode": "cursor",
+   "invert": true,
+   "scale": 0.8,
+   "omega": 10,
+   "spec": "look.avert",
+   "batch": 2
+  },
+  "look.scan": {
+   "mode": "path",
+   "path": [
+    [
+     -0.9,
+     0.1,
+     0.7
+    ],
+    [
+     0.9,
+     0.15,
+     0.9
+    ],
+    [
+     0,
+     0,
+     0.7
+    ]
+   ],
+   "omega": 8,
+   "spec": "look.scan",
+   "batch": 1
+  },
+  "look.at_target": {
+   "mode": "target",
+   "source": "event",
+   "omega": 14,
+   "spec": "look.at_target",
+   "batch": 1
+  },
+  "look.up_think": {
+   "mode": "fixed",
+   "target": [
+    0.3,
+    0.9
+   ],
+   "omega": 8,
+   "spec": "look.up_think",
+   "batch": 1
+  },
+  "look.follow_drop": {
+   "mode": "target",
+   "source": "drag",
+   "omega": 16,
+   "spec": "look.follow_drop",
+   "batch": 2
+  },
+  "look.stare_down": {
+   "mode": "cursor",
+   "omega": 40,
+   "freeze": [
+    "tail",
+    "ear_L",
+    "ear_R"
+   ],
+   "spec": "look.stare_down",
+   "batch": 2
+  },
+  "eye.saccade": {
+   "mode": "saccade",
+   "interval": [
+    0.35,
+    1.1
+   ],
+   "jump": 0.35,
+   "omega": 60,
+   "spec": "eye.saccade",
+   "batch": 2
+  },
+  "look.release": {
+   "mode": "fixed",
+   "target": [
+    0,
+    0
+   ],
+   "omega": 30,
+   "doc": "v8: 회전 중 look-at 해제(정면 고정); 착지 후 look.track 으로 복귀"
+  }
+ }
+}

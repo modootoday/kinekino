@@ -1,0 +1,8 @@
+! Catalog Player seed rules, based on browser observations on 2026-10-18.
+! Project-authored minimal rules; not a bundled copy of EasyList.
+||doubleclick.net^
+||googlesyndication.com^
+||googleadservices.com^
+||runative-syndicate.com^
+||angvksnwg17bagsxs.com^
+||ygsqnqotwmudafbdgdoggp15wje.com^

@@ -1,0 +1,7 @@
+node_modules/
+# Render/capture outputs: regenerate with tools/*; only sheets/ (curated) is tracked.
+shots/
+out/*
+!out/kinekino-mascot.glb
+*.pyc
+__pycache__/
