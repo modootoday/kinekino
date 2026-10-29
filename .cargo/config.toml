@@ -1,0 +1,15 @@
+[build]
+# Per-repo dir under a target root shared with sibling repos; every worktree of this
+# repo shares it (box: /workspace/.cargo-target/kinekino). Relative to the repo root, so it means the
+# same on Linux and Windows; CARGO_TARGET_DIR overrides it per machine.
+target-dir = "../.cargo-target/kinekino"
+jobs = 1
+# Incremental caches grow without bound across rebuilds; keep them off.
+incremental = false
+
+[env]
+TMP = { value = "runtime/build-cache/tmp", relative = true, force = true }
+TEMP = { value = "runtime/build-cache/tmp", relative = true, force = true }
+
+[alias]
+xtask = "run --quiet --package kinekino-xtask --"

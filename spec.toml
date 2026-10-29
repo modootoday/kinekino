@@ -1,0 +1,14 @@
+[spec]
+schema = 1
+
+[owners]
+root = "kinekino"
+
+[files]
+inline_max_bytes = 4000000
+
+[aliases]
+file = ".spec/_aliases.tsv"
+
+[check]
+baseline = ".spec/_baseline.json"
