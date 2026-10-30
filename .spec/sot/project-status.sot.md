@@ -29,7 +29,7 @@ verify: manual
 |P3 BrowserProviderPort|부분|adblock 명령·포트 병합, 실사이트 검증 보류(네트워크)|
 |P4 제작 executor|부분|Linux snapshot·Windows 실측 병합, 품질 판정은 사용자|
 |P5 자막·AI executor|부분|ASS 입출력·ASR·전사→큐·번역·OCR·화자분리 executor(목 계약 테스트) 병합(`6a6d503`). 실 HF 호출 미검증|
-|P6 설정·GUI|부분|설정 페이지·설정 창(Meari) 병합. 플레이어 창(Meari, `kinekino-player-ui`): 4b 텍스처 `202c104`, 5 창·컨트롤러·`kinekino watch`(Linux·Windows 같은 경로). 남은 것: 기존 `kinekino-player` eframe·egui·wry 제거, 작품 탐색 연결, 단축키·자동 숨김·자막 오버레이, Windows 실제 창 스모크([ADR](../adr/20261031020000-player-window-meari-libmpv.adr.md))|
+|P6 설정·GUI|부분|설정 페이지·설정 창(Meari) 병합. 플레이어 창(Meari, `kinekino-player-ui`): 4b 텍스처 `202c104`, 5 창·컨트롤러·`kinekino watch`(Linux·Windows 같은 경로), Ctrl+O(macOS Cmd+O) 파일 열기 `c3f31a0`, 전체 화면 재생 중 컨트롤 자동 숨김(2.5초) `3620096`, libmpv `sub-text` 자막 오버레이 `4dca584`. 남은 것: 기존 `kinekino-player` eframe·egui·wry 제거, 작품 탐색 연결, Windows 실제 창 스모크([ADR](../adr/20261031020000-player-window-meari-libmpv.adr.md))|
 |P7 실 HF 평가|미착수|키·한도·동의 승인 필요|
 |P8 Windows·macOS 최종 검증|부분|아래 Windows 경과. macOS는 CI 권고 설정만, 실측 없음|
 |P9 MCP 서버|구현|`kinekino mcp serve` 병합|
