@@ -17,6 +17,7 @@ pub const PARAM_SW_FORMAT: c_int = 18;
 pub const PARAM_SW_STRIDE: c_int = 19;
 pub const PARAM_SW_POINTER: c_int = 20;
 pub const UPDATE_FRAME: u64 = 1;
+pub const FORMAT_STRING: c_int = 1;
 pub const FORMAT_DOUBLE: c_int = 5;
 pub const EVENT_END_FILE: c_int = 7;
 pub const EVENT_PLAYBACK_RESTART: c_int = 21;
@@ -37,6 +38,7 @@ pub struct Api {
     pub set_option_string: unsafe extern "C" fn(Handle, *const c_char, *const c_char) -> c_int,
     pub command: unsafe extern "C" fn(Handle, *mut *const c_char) -> c_int,
     pub get_property: unsafe extern "C" fn(Handle, *const c_char, c_int, *mut c_void) -> c_int,
+    pub free: unsafe extern "C" fn(*mut c_void),
     pub wait_event: unsafe extern "C" fn(Handle, f64) -> *mut Event,
     pub error_string: unsafe extern "C" fn(c_int) -> *const c_char,
     pub render_create: unsafe extern "C" fn(*mut RenderCtx, Handle, *mut RenderParam) -> c_int,
@@ -64,6 +66,7 @@ impl Api {
                 set_option_string: sym!(b"mpv_set_option_string\0"),
                 command: sym!(b"mpv_command\0"),
                 get_property: sym!(b"mpv_get_property\0"),
+                free: sym!(b"mpv_free\0"),
                 wait_event: sym!(b"mpv_wait_event\0"),
                 error_string: sym!(b"mpv_error_string\0"),
                 render_create: sym!(b"mpv_render_context_create\0"),

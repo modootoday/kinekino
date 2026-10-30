@@ -109,6 +109,7 @@ impl<E: Engine> Controller<E> {
                 self.view.playing = true;
                 self.view.position = 0.0;
                 self.view.duration = 0.0;
+                self.view.subtitle.clear();
                 self.view.status.clear();
             }
             Err(e) => self.view.status = format!("재생할 수 없습니다: {}", e.message),
@@ -186,6 +187,9 @@ impl<E: Engine> Controller<E> {
             return false;
         }
         let before = (self.view.position, self.view.duration, self.view.playing);
+        let subtitle = self.engine.text("sub-text").unwrap_or_default();
+        let subtitle_changed = subtitle != self.view.subtitle;
+        self.view.subtitle = subtitle;
         if let Some(p) = self.engine.property("time-pos") {
             self.view.position = p.max(0.0);
         }
@@ -199,6 +203,7 @@ impl<E: Engine> Controller<E> {
         before.0.floor() != self.view.position.floor()
             || before.1 != self.view.duration
             || before.2 != self.view.playing
+            || subtitle_changed
     }
 
     /// Pointer or key input at `now`: controls come back. True when the view changed.
