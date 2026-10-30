@@ -41,7 +41,7 @@ tokio = "=1.53.3"
 ttf-parser = { version = "=0.25.1", default-features = false }
 webview2-com = "0.39.1"
 windows = "=0.62.2"
-windows-core = "=0.62.2"
+windows-core = "=0.100.0"
 wry = "0.57.0"
 raw-window-handle = { version = "0.6.2", features = ["std"] }
 x11rb = "0.13.2"
