@@ -16,7 +16,7 @@ verify: manual
 - **우선순위(사용자 지시 2026-10-30):** Cross-OS 기반(P0) 위에서 단계별 완성. 리팩터링은 lint 예외 확대·허용치 완화·테스트 skip 없이 allowlist를 실제로 줄이는 방향으로만 한다.
 - **병합 완료(로컬 main):** 구조 재편 M1a(`c698f40`)·M1b(`116d5a4`, `259e3a0`)·M2(`ec00ae5`)·M3 플러그인 호스트(`ec08d47`)·M4 카탈로그 플러그인(`47ddd71`)·M5 문서 분리(`c6a97da`); P1b 설정 CLI(`cd6e2e1`); P3 adblock 명령(`32b78bc`); P4 Linux snapshot(`afb815a`)·Windows 실측(`2542829`); P5 ASS 출력(`6b69409`)·Linux job host(`3be1df6`)·AI 실행기(`a723381`)·ASR 큐(`a1a7ea1`)·전사→큐 Jobs(`f7ff389`); P6 설정 페이지(`a9a495b`)·Windows 설정 창(`a820298`)·Meari 설정(`4d9fdf0`); P9 MCP 서버(`198ae78`); 문서·라이선스·CI 권고 작업(`e21efe8`~`80ece14`).
 - **플러그인 SDK([[sot:kinekino/plugin-sdk-extraction]]):** `crates/kinekino-plugin-sdk` 0.1.0(serde·serde_json만, publish=false). S1 wire 추출·S2 `plugin.json` 매니페스트·합성 골든 fixture(core·host 양쪽 테스트가 읽음)·S3 `SourcePlugin`/`serve` 병합. S4는 비공개 저장소 대신 kinekino 밖 `/workspace/kk-sdk-consumer-check` 합성 소비자를 path·git(file://, main `6a6d503`) 의존 양쪽으로 빌드·실행해 검증(git 확인용 폴더는 정리). S5(push·`plugin-sdk-v0.1.0` 태그)는 사용자 승인 대기.
-- **Meari:** `vendor/meari`를 Meari main `dab9c74`(crates/ 레이아웃)로 재벤더링(`9ba32e2`). Pretendard 제거, 글꼴은 Noto Sans KR/JP(OFL)만, 리비전 고정·SHA-256 검증 다운로드 캐시(`kinekino fonts fetch`), 저장소에 글꼴 미포함.
+- **Meari:** crates.io 게시본 `meari`·`meari-native` 0.1.0(포크 `meari-dom`·`meari-paint`·`meari-shell` 포함)을 쓴다. `vendor/meari`와 `[patch.crates-io]`는 제거(이전 vendor와 소스 동일 확인). Pretendard 제거, 글꼴은 Noto Sans KR/JP(OFL)만, 리비전 고정·SHA-256 검증 다운로드 캐시(`kinekino fonts fetch`), 저장소에 글꼴 미포함.
 
 ## 로드맵 단계별 상태
 

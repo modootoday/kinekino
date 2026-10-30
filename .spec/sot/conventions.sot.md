@@ -51,7 +51,6 @@ kinekino/
 │   ├── tests/            # 통합 테스트 (크레이트 공개 API만 사용)
 │   ├── benches/  examples/
 ├── xtask/                # 개발 자동화 (cargo xtask 관례; Rust-only 원칙과 일치)
-├── vendor/meari/         # 외부 vendored, workspace exclude
 ├── assets/  docs/  runtime/(git 제외)
 ```
 - 루트 `[package]`(현 `kinekino-player`, 1,321 .rs / 253,140줄 [사실])는 **없앤다** → virtual manifest. 근거: 루트 lib 하나가 GUI·CLI·OS 어댑터를 모두 가져 Linux check 실패 9건의 원인([사실], baseline).

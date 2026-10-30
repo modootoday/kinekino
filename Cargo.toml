@@ -1,7 +1,7 @@
 [workspace]
 members = ["xtask", "crates/kinekino-player", "crates/kinekino-cli", "crates/kinekino-host", "crates/kinekino-core", "crates/kinekino-platform", "crates/kinekino-platform-windows", "crates/kinekino-platform-unix", "crates/kinekino-ui-plugins", "crates/kinekino-media-contracts", "crates/kinekino-subtitles", "crates/kinekino-jobs", "crates/kinekino-process", "crates/kinekino-vad", "crates/kinekino-vad-executor", "crates/kinekino-vad-worker", "crates/kinekino-source-host", "crates/kinekino-card-render", "crates/kinekino-browser", "crates/kinekino-app", "crates/kinekino-settings-ui", "crates/kinekino-inference", "crates/kinekino-inference-hf", "crates/kinekino-inference-local", "crates/kinekino-plugin-sdk", "crates/kinekino-libmpv", "crates/kinekino-player-ui"]
 default-members = ["crates/kinekino-player", "crates/kinekino-cli", "crates/kinekino-host", "crates/kinekino-host", "crates/kinekino-core", "crates/kinekino-platform", "crates/kinekino-platform-unix", "crates/kinekino-ui-plugins", "crates/kinekino-media-contracts", "crates/kinekino-subtitles", "crates/kinekino-jobs", "crates/kinekino-process", "crates/kinekino-vad", "crates/kinekino-vad-executor", "crates/kinekino-vad-worker", "crates/kinekino-browser", "crates/kinekino-app", "crates/kinekino-settings-ui", "crates/kinekino-inference", "crates/kinekino-inference-hf", "crates/kinekino-inference-local", "crates/kinekino-plugin-sdk", "crates/kinekino-libmpv", "crates/kinekino-player-ui"]
-exclude = ["vendor/meari", "tools/boundary-observation", "tools/engine-lab", "tools/model-review-bundle", "tools/model-spike", "tools/spec-maintenance", "tools/validation", "tools/visual-review"]
+exclude = ["tools/boundary-observation", "tools/engine-lab", "tools/model-review-bundle", "tools/model-spike", "tools/spec-maintenance", "tools/validation", "tools/visual-review"]
 resolver = "3"
 
 [workspace.package]
@@ -12,10 +12,11 @@ license = "MIT"
 [workspace.dependencies]
 libloading = "0.8.9"
 linebender_resource_handle = "0.1.1"
-blitz-dom = { version = "=0.3.0-beta.4", default-features = false }
+# Meari forks of blitz-dom/blitz-shell, published on crates.io under meari-*; imported as blitz_*.
+blitz-dom = { package = "meari-dom", version = "0.1.0", default-features = false }
 # Settings window (kinekino-settings-ui): the versions meari-native pins.
 winit = "=0.31.0-beta.3"
-blitz-shell = { version = "=0.3.0-beta.4", default-features = false }
+blitz-shell = { package = "meari-shell", version = "0.1.0", default-features = false }
 rfd = { version = "=0.17.2", default-features = false }
 adblock = { version = "0.13.3", default-features = false }
 anyhow = "1"
@@ -30,8 +31,8 @@ futures = "0.3"
 http = "=1.5.0"
 image = { version = "0.25", default-features = false }
 libc = "0.2"
-meari = { path = "vendor/meari/crates/meari" }
-meari-native = { path = "vendor/meari/crates/meari-native", default-features = false }
+meari = "0.1.0"
+meari-native = { version = "0.1.0", default-features = false }
 ort = { version = "=2.0.0-rc.14", default-features = false }
 png = "=0.18.1"
 reqwest = { version = "=0.12.28", default-features = false }
@@ -102,7 +103,4 @@ codegen-units = 1
 strip = true
 
 
-[patch.crates-io]
-blitz-paint = { path = "vendor/meari/crates/meari-paint" }
-blitz-dom = { path = "vendor/meari/crates/meari-dom" }
 
