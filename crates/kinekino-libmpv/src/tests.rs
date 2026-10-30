@@ -87,3 +87,23 @@ fn bad_source_and_bad_library_are_errors() {
         .unwrap();
     assert_eq!(err.code, ErrorCode::Unavailable);
 }
+
+/// Repeated create/render/drop on parallel threads: teardown must not unload libmpv
+/// under helper threads still finishing (former intermittent SIGSEGV).
+#[test]
+fn surfaces_tear_down_repeatedly_across_threads() {
+    let workers: Vec<_> = (0..3)
+        .map(|_| {
+            std::thread::spawn(|| {
+                for _ in 0..3 {
+                    let mut s = surface();
+                    let mut f = RgbaFrame::new(32, 18).unwrap();
+                    s.render(&mut f).unwrap();
+                }
+            })
+        })
+        .collect();
+    for w in workers {
+        w.join().unwrap();
+    }
+}

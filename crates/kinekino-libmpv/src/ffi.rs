@@ -31,7 +31,10 @@ pub struct Event {
 }
 
 pub struct Api {
-    _lib: libloading::Library,
+    /// Never unloaded: libmpv/ffmpeg leave thread-local destructors and helper threads
+    /// (audio, decoder pools) that may still run after `mpv_terminate_destroy`, so
+    /// `dlclose` there can jump into unmapped code (intermittent SIGSEGV at teardown).
+    _lib: std::mem::ManuallyDrop<libloading::Library>,
     pub create: unsafe extern "C" fn() -> Handle,
     pub initialize: unsafe extern "C" fn(Handle) -> c_int,
     pub terminate_destroy: unsafe extern "C" fn(Handle),
@@ -73,7 +76,7 @@ impl Api {
                 render_update: sym!(b"mpv_render_context_update\0"),
                 render_render: sym!(b"mpv_render_context_render\0"),
                 render_free: sym!(b"mpv_render_context_free\0"),
-                _lib: lib,
+                _lib: std::mem::ManuallyDrop::new(lib),
             })
         }
     }
