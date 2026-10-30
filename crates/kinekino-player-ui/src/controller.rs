@@ -14,6 +14,8 @@ pub const HIDE_AFTER: Duration = Duration::from_millis(2500);
 pub const RESTART_WITHIN: f64 = 3.0;
 /// A dialog answered faster than this was never on screen.
 pub const NO_DIALOG_WITHIN: Duration = Duration::from_millis(400);
+/// A notice over the playing video disappears after this long.
+pub const NOTICE_FOR: Duration = Duration::from_secs(4);
 const NO_DIALOG: &str = "파일 선택 창을 열 수 없습니다. xdg-desktop-portal 또는 zenity를 설치하거나 `kinekino watch <파일>`로 여세요.";
 
 /// Work only the window can do.
@@ -61,6 +63,7 @@ pub struct Controller<E: Engine> {
     /// Bumped when the episode rows change (the window remounts).
     pub generation: u64,
     last_input: Option<Instant>,
+    notice_since: Option<Instant>,
 }
 
 impl<E: Engine> Controller<E> {
@@ -71,6 +74,7 @@ impl<E: Engine> Controller<E> {
             files: Vec::new(),
             generation: 0,
             last_input: None,
+            notice_since: None,
         }
     }
 
@@ -82,6 +86,11 @@ impl<E: Engine> Controller<E> {
     pub fn picked(&mut self, media: Option<&Path>, took: Duration) -> bool {
         match media {
             Some(path) => self.open(path),
+            // The start screen has a status line; over a playing video it is a toast.
+            None if took < NO_DIALOG_WITHIN && self.view.has_media => {
+                self.view.notice = NO_DIALOG.into();
+                self.notice_since = Some(Instant::now());
+            }
             None if took < NO_DIALOG_WITHIN => {
                 self.view.status = NO_DIALOG.into();
             }
@@ -271,8 +280,15 @@ impl<E: Engine> Controller<E> {
             // Restart the clock so controls stay for a full period after e.g. resuming.
             self.last_input = Some(now);
         }
+        let expired = self
+            .notice_since
+            .is_some_and(|t| now.saturating_duration_since(t) >= NOTICE_FOR);
+        if expired {
+            self.notice_since = None;
+            self.view.notice.clear();
+        }
         let changed = visible != self.view.controls_visible;
         self.view.controls_visible = visible;
-        changed
+        changed || expired
     }
 }

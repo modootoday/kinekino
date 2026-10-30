@@ -397,3 +397,25 @@ fn a_file_dialog_that_never_showed_explains_how_to_open() {
     assert!(c.view.has_media);
     std::fs::remove_dir_all(dir).unwrap();
 }
+
+#[test]
+fn no_dialog_while_playing_is_a_toast_that_goes_away() {
+    use kinekino_player_ui::NOTICE_FOR;
+    use std::time::{Duration, Instant};
+    let mut c = Controller::new(FakeEngine::default());
+    let (dir, files) = folder("toast");
+    assert!(c.picked(Some(&files[0]), Duration::from_secs(2)));
+    assert!(c.picked(None, Duration::from_millis(5)));
+    assert!(c.view.notice.contains("zenity"), "{}", c.view.notice);
+    assert!(
+        c.view.status.is_empty(),
+        "the start-screen line stays empty"
+    );
+    let shown = format!("{:?}", meari_props(&c.view).get("noNotice"));
+    assert!(shown.contains("false"), "toast is visible: {shown}");
+    c.idle(Instant::now());
+    assert!(!c.view.notice.is_empty(), "still shown right away");
+    assert!(c.idle(Instant::now() + NOTICE_FOR + Duration::from_millis(1)));
+    assert!(c.view.notice.is_empty());
+    std::fs::remove_dir_all(dir).unwrap();
+}
