@@ -128,6 +128,12 @@ pub mod x11 {
         /// decorated frame would. `direction` is the EWMH code (0 top-left … 7 left).
         /// The pointer relative to `window` and to the screen (physical pixels).
         pub fn pointer(&self, window: u32) -> Result<(Point, Point), String> {
+            self.pointer_state(window).map(|(w, r, _)| (w, r))
+        }
+
+        /// As [`Self::pointer`], plus whether the left button is still held.
+        pub fn pointer_state(&self, window: u32) -> Result<(Point, Point, bool), String> {
+            use x11rb::protocol::xproto::KeyButMask;
             let p = self
                 .conn
                 .query_pointer(window)
@@ -137,6 +143,7 @@ pub mod x11 {
             Ok((
                 (i32::from(p.win_x), i32::from(p.win_y)),
                 (i32::from(p.root_x), i32::from(p.root_y)),
+                p.mask.contains(KeyButMask::BUTTON1),
             ))
         }
 

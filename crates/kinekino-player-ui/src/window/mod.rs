@@ -229,6 +229,9 @@ struct App<E: Engine> {
     /// An edge drag in progress: direction, start rectangle and start pointer (screen).
     #[cfg(all(unix, not(target_os = "macos")))]
     resizing: Option<(u32, edges::Rect, (i32, i32))>,
+    /// The last rectangle sent during the drag (no repeat requests for an unmoved pointer).
+    #[cfg(all(unix, not(target_os = "macos")))]
+    resized_to: Option<edges::Rect>,
     /// Last press on the caption row, for double-click maximize.
     caption_press: Option<Instant>,
 }
@@ -489,6 +492,8 @@ impl<E: Engine> ApplicationHandler for App<E> {
     }
     fn about_to_wait(&mut self, event_loop: &dyn ActiveEventLoop) {
         self.driver.about_to_wait(event_loop);
+        #[cfg(all(unix, not(target_os = "macos")))]
+        self.step_resize();
         self.tick(event_loop);
         event_loop.set_control_flow(ControlFlow::WaitUntil(Instant::now() + TICK));
     }
@@ -564,6 +569,8 @@ pub fn run<E: Engine>(controller: Controller<E>, options: Options) -> Result<Rep
             undecorated: false,
             #[cfg(all(unix, not(target_os = "macos")))]
             resizing: None,
+            #[cfg(all(unix, not(target_os = "macos")))]
+            resized_to: None,
             caption_press: None,
         };
         winit::event_loop::run_on_demand::EventLoopExtRunOnDemand::run_app_on_demand(
