@@ -5,6 +5,10 @@ use crate::session::Command;
 use crate::source::{Episode, View};
 use kinekino_core::port::error::PortResult;
 use std::path::{Path, PathBuf};
+use std::time::{Duration, Instant};
+
+/// VIEW-10: controls hide after this long without input while playing (fullscreen overlay).
+pub const HIDE_AFTER: Duration = Duration::from_millis(2500);
 
 /// Work only the window can do.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -50,6 +54,7 @@ pub struct Controller<E: Engine> {
     files: Vec<PathBuf>,
     /// Bumped when the episode rows change (the window remounts).
     pub generation: u64,
+    last_input: Option<Instant>,
 }
 
 impl<E: Engine> Controller<E> {
@@ -59,6 +64,7 @@ impl<E: Engine> Controller<E> {
             view: View::default(),
             files: Vec::new(),
             generation: 0,
+            last_input: None,
         }
     }
 
@@ -193,5 +199,32 @@ impl<E: Engine> Controller<E> {
         before.0.floor() != self.view.position.floor()
             || before.1 != self.view.duration
             || before.2 != self.view.playing
+    }
+
+    /// Pointer or key input at `now`: controls come back. True when the view changed.
+    pub fn input(&mut self, now: Instant) -> bool {
+        self.last_input = Some(now);
+        let changed = !self.view.controls_visible;
+        self.view.controls_visible = true;
+        changed
+    }
+
+    /// VIEW-10 auto-hide: only the fullscreen overlay while playing hides; paused, an
+    /// error/status, or an open panel keep it. True when the view changed.
+    pub fn idle(&mut self, now: Instant) -> bool {
+        let v = &self.view;
+        let may_hide =
+            v.fullscreen && v.has_media && v.playing && !v.panel_open && v.status.is_empty();
+        let quiet = self
+            .last_input
+            .is_none_or(|t| now.saturating_duration_since(t) >= HIDE_AFTER);
+        let visible = !(may_hide && quiet);
+        if !may_hide {
+            // Restart the clock so controls stay for a full period after e.g. resuming.
+            self.last_input = Some(now);
+        }
+        let changed = visible != self.view.controls_visible;
+        self.view.controls_visible = visible;
+        changed
     }
 }
