@@ -148,3 +148,32 @@ fn document_clicks_round_trip_through_controller() {
     );
     std::fs::remove_dir_all(dir).unwrap();
 }
+
+#[test]
+fn ctrl_o_opens_the_file_picker_on_any_layout() {
+    use kinekino_player_ui::shortcut;
+    use winit::keyboard::{KeyCode, ModifiersState, PhysicalKey};
+    let o = PhysicalKey::Code(KeyCode::KeyO);
+    assert_eq!(
+        shortcut(ModifiersState::CONTROL, o, false),
+        Some(Command::Open)
+    );
+    assert_eq!(
+        shortcut(ModifiersState::META, o, false),
+        Some(Command::Open)
+    );
+    assert_eq!(shortcut(ModifiersState::empty(), o, false), None);
+    assert_eq!(
+        shortcut(ModifiersState::CONTROL, o, true),
+        None,
+        "auto-repeat"
+    );
+    assert_eq!(
+        shortcut(ModifiersState::CONTROL | ModifiersState::ALT, o, false),
+        None
+    );
+    let p = PhysicalKey::Code(KeyCode::KeyP);
+    assert_eq!(shortcut(ModifiersState::CONTROL, p, false), None);
+    let mut c = Controller::new(FakeEngine::default());
+    assert_eq!(c.apply(Command::Open), Some(Effect::PickFile));
+}
