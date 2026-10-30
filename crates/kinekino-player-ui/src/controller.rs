@@ -12,6 +12,9 @@ pub const HIDE_AFTER: Duration = Duration::from_millis(2500);
 
 /// "Previous" within this many seconds of the start goes to the previous episode.
 pub const RESTART_WITHIN: f64 = 3.0;
+/// A dialog answered faster than this was never on screen.
+pub const NO_DIALOG_WITHIN: Duration = Duration::from_millis(400);
+const NO_DIALOG: &str = "파일 선택 창을 열 수 없습니다. xdg-desktop-portal 또는 zenity를 설치하거나 `kinekino watch <파일>`로 여세요.";
 
 /// Work only the window can do.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -72,6 +75,21 @@ impl<E: Engine> Controller<E> {
     }
 
     /// Opens `media`; its folder becomes the episode list.
+    /// The file dialog's answer. `None` that came back faster than a person can cancel
+    /// means no dialog was shown (no xdg-desktop-portal file chooser and no zenity on
+    /// this desktop), so the start screen says how else to open a file.
+    /// Returns whether the view changed.
+    pub fn picked(&mut self, media: Option<&Path>, took: Duration) -> bool {
+        match media {
+            Some(path) => self.open(path),
+            None if took < NO_DIALOG_WITHIN => {
+                self.view.status = NO_DIALOG.into();
+            }
+            None => return false,
+        }
+        true
+    }
+
     pub fn open(&mut self, media: &Path) {
         let files = siblings(media);
         let index = files

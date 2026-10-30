@@ -353,12 +353,9 @@ impl<E: Engine> App<E> {
                 }
                 Effect::Close => self.closing = true,
                 Effect::PickFile => {
-                    let picked = rfd::FileDialog::new()
-                        .add_filter("동영상", &["mkv", "mp4", "webm", "avi", "mov", "m4v", "ts"])
-                        .pick_file();
-                    if let Some(path) = picked {
-                        let mut shared = self.shared.borrow_mut();
-                        shared.controller.open(&path);
+                    let (picked, took) = crate::window::actions::pick_video();
+                    let mut shared = self.shared.borrow_mut();
+                    if shared.controller.picked(picked.as_deref(), took) {
                         shared.dirty = true;
                         if !shared.session.fits(&shared.controller.view) {
                             self.remount = true;
