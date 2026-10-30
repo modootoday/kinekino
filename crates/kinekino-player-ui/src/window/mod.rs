@@ -219,6 +219,7 @@ struct App<E: Engine> {
     window_id: Option<WindowId>,
     #[cfg(all(unix, not(target_os = "macos")))]
     x11: Option<crate::window::actions::x11::X11>,
+    #[cfg(all(unix, not(target_os = "macos")))]
     shown_title: String,
 }
 
@@ -519,6 +520,7 @@ pub fn run<E: Engine>(controller: Controller<E>, options: Options) -> Result<Rep
             window_id: None,
             #[cfg(all(unix, not(target_os = "macos")))]
             x11: crate::window::actions::x11::X11::connect(),
+            #[cfg(all(unix, not(target_os = "macos")))]
             shown_title: String::new(),
         };
         winit::event_loop::run_on_demand::EventLoopExtRunOnDemand::run_app_on_demand(
