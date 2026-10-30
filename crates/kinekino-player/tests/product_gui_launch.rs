@@ -207,7 +207,7 @@ mod configured_project {
     use super::*;
     use kinekino_player::{
         application::{
-            api::{ApplicationClient, PlayerSdk, Request, RequestContext, Response},
+            api::{ApplicationClient, PlayerSdk, ProjectClient, Request, RequestContext, Response},
             projects::InspectProject,
         },
         assembly::meari::product_viewer_launch::prepare_project,
