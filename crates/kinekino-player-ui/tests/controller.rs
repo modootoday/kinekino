@@ -177,3 +177,47 @@ fn ctrl_o_opens_the_file_picker_on_any_layout() {
     let mut c = Controller::new(FakeEngine::default());
     assert_eq!(c.apply(Command::Open), Some(Effect::PickFile));
 }
+
+#[test]
+fn fullscreen_controls_hide_after_idle_and_return_on_input() {
+    use kinekino_player_ui::HIDE_AFTER;
+    use std::time::{Duration, Instant};
+    let (dir, files) = folder("autohide");
+    let mut c = Controller::new(FakeEngine::default());
+    c.open(&files[0]);
+    let t0 = Instant::now();
+    let later = |d: Duration| t0 + d;
+    // Windowed: never hides.
+    assert!(!c.idle(later(HIDE_AFTER * 4)));
+    assert!(c.view.controls_visible);
+    c.view.fullscreen = true;
+    assert!(
+        !c.idle(later(HIDE_AFTER * 4)),
+        "clock restarts on entering fullscreen"
+    );
+    assert!(!c.idle(later(HIDE_AFTER * 5 - Duration::from_millis(1))));
+    assert!(
+        c.idle(later(HIDE_AFTER * 5)),
+        "hidden after the quiet period"
+    );
+    assert!(!c.view.controls_visible);
+    let transport = format!("{:?}", meari_props(&c.view)["transportClass"]);
+    assert!(transport.contains("aw-controls-hidden"), "{transport}");
+    assert!(c.input(later(HIDE_AFTER * 6)), "input shows them again");
+    assert!(c.view.controls_visible);
+    // Paused, status, or panel hold the controls.
+    for hold in 0..3 {
+        c.input(later(HIDE_AFTER * 6));
+        match hold {
+            0 => c.view.playing = false,
+            1 => c.view.status = "재생 명령 실패".into(),
+            _ => c.view.panel_open = true,
+        }
+        assert!(!c.idle(later(HIDE_AFTER * 9)));
+        assert!(c.view.controls_visible);
+        c.view.playing = true;
+        c.view.status.clear();
+        c.view.panel_open = false;
+    }
+    std::fs::remove_dir_all(dir).unwrap();
+}

@@ -279,6 +279,12 @@ impl<E: Engine> App<E> {
             }
         }
         self.observe();
+        {
+            let mut shared = self.shared.borrow_mut();
+            if shared.controller.idle(Instant::now()) {
+                shared.dirty = true;
+            }
+        }
         if Instant::now() >= self.next_poll {
             self.next_poll = Instant::now() + POLL;
             let mut shared = self.shared.borrow_mut();
@@ -334,6 +340,18 @@ impl<E: Engine> ApplicationHandler for App<E> {
         if matches!(event, WindowEvent::SurfaceResized(_)) {
             // A new box size re-renders the frame at that size on the next commit.
             self.shared.borrow_mut().dirty = true;
+        }
+        if matches!(
+            event,
+            WindowEvent::PointerMoved { .. }
+                | WindowEvent::PointerButton { .. }
+                | WindowEvent::KeyboardInput { .. }
+                | WindowEvent::MouseWheel { .. }
+        ) {
+            let mut shared = self.shared.borrow_mut();
+            if shared.controller.input(Instant::now()) {
+                shared.dirty = true;
+            }
         }
         match &event {
             WindowEvent::ModifiersChanged(m) => self.modifiers = m.state(),
