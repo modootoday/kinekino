@@ -163,11 +163,18 @@ pub fn fake_source_plugin() {
 }
 
 /// Desktop `player` process entry (bin moved from `kinekino-player`, ADR p1-port-inversion):
-/// installs the OS policy, then runs the host body. Errors print like an `anyhow` main.
+/// installs the OS policy, then runs the host body; plain viewing opens the Meari player
+/// window (same as `kinekino watch`). Errors print like an `anyhow` main.
 pub fn player() -> ExitCode {
     kinekino_platform::install();
     match kinekino_host::player_gui::main() {
-        Ok(()) => ExitCode::SUCCESS,
+        Ok(kinekino_host::player_gui::Desktop::Done) => ExitCode::SUCCESS,
+        Ok(kinekino_host::player_gui::Desktop::Watch { smoke }) => {
+            let argv: &[&str] = if smoke { &["watch", "--smoke"] } else { &["watch"] };
+            let (code, out) = watch::run(&args::Args::new(argv.iter().copied()));
+            println!("{out}");
+            ExitCode::from(code)
+        }
         Err(error) => {
             eprintln!("Error: {error:?}");
             ExitCode::FAILURE
