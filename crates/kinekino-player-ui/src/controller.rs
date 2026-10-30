@@ -128,6 +128,10 @@ impl<E: Engine> Controller<E> {
     /// Applies one user command; returns what the window must do, if anything.
     pub fn apply(&mut self, command: Command) -> Option<Effect> {
         let media = self.view.has_media;
+        // Any other command (a menu item, Esc, a click elsewhere) closes the ⋮ menu.
+        if !matches!(command, Command::More) {
+            self.view.menu_open = false;
+        }
         match command {
             Command::Open => return Some(Effect::PickFile),
             Command::Browse => {
@@ -135,7 +139,7 @@ impl<E: Engine> Controller<E> {
                     "작품 탐색은 소스 플러그인을 연결하면 사용할 수 있습니다.".into();
             }
             Command::More => {
-                self.view.status = "추가 메뉴는 아직 준비 중입니다.".into();
+                self.view.menu_open = !self.view.menu_open;
             }
             Command::PlayPause if media => {
                 let r = self.engine.command(&["cycle", "pause"]);
@@ -235,8 +239,12 @@ impl<E: Engine> Controller<E> {
     /// error/status, or an open panel keep it. True when the view changed.
     pub fn idle(&mut self, now: Instant) -> bool {
         let v = &self.view;
-        let may_hide =
-            v.fullscreen && v.has_media && v.playing && !v.panel_open && v.status.is_empty();
+        let may_hide = v.fullscreen
+            && v.has_media
+            && v.playing
+            && !v.panel_open
+            && !v.menu_open
+            && v.status.is_empty();
         let quiet = self
             .last_input
             .is_none_or(|t| now.saturating_duration_since(t) >= HIDE_AFTER);
