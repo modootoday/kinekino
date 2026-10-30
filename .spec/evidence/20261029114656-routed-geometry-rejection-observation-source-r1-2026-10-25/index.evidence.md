@@ -1,0 +1,20 @@
+---
+id: evidence:kinekino/20261029114656
+title: Private original Geometry rejection observation
+status: active
+created: 2026-10-29
+updated: 2026-10-29
+---
+# Private original Geometry rejection observation
+
+Frozen source2 SHA79570CBD10BC6D76D45F70F76513553A2A3600E634C673F22059AAB27DAB387B, predecessors2 SHA1F0450DD32D8C2DB33C656E835F4EDAC0D2FB7D10E6498DE206BC8D9AE5962C4, exact2.diff SHAF3F0398E36785F3C19DEED07A6462982DA316AB7BE988DB1A8F378AC294A90C0, exact3 SHA9BF156C64CD75B29CC4162AB4E61F0DC39A4DD7CB972400668D25BB654FDDE61. Exact predecessor is selected216 07B0721415730977E405F29620DD8DF0D94202BE7E310491C0CFA030EC8C158D geometry leaf; one new local geometry/rejection_observation.rs. UI typed consumer CCA64017 is NOT selected. Existing SDK/UI216 leaves and original errors remain frozen.
+
+Private geometry function keeps original validate_snapshot first and all visibility/plane/rect/clip/enclosing/positive/containment conditions/order, returning identical VisibleError::Geometry. Each former Geometry constructor calls reject with original borrowed snapshot, exact original branch group and original bounds only if already computed. Rejection helper does no validation/refresh/native operation or authority construction. Existing first-error Arc/wrapper/cleanup unchanged. No SDK/public getter/carrier/Ready/FinalV2 schema change, no new success.
+
+Only when existing diagnostics::enabled() (original fixture configures true before production prepare) and process-local AtomicBool first-attempt gate wins, helper serializes one diagnostic-only stderr JSON line. This is the first geometry rejection in the process, not per-frame or retry logging. No record when disabled; first attempt remains consumed even on I/O failure. MAX_BYTES8192 includes LF (payload length must be less). Newline kind native-routed-geometry-rejection/schema_version1/authority diagnostic_only. Original owned stderr.raw and export retain raw; this line grants no Ready/cleanup authority. Best-effort write errors do not panic, replace original functional failure or fabricate success; absent line remains insufficient diagnostic evidence. No periodic logging or budget changes.
+
+Fields: original branch plus first failing predicate (visibility/plane/missing_rect/nonrectangular_clip/integer_bounds/nonpositive_width/nonpositive_height/clip_left/top/right/bottom), optional already computed bounds, actual visibility/plane, optional physical rect, actual clip kind/rect, device_scale/layout_zoom, original geometry/layout/slot revisions, frame context/generations, document/window metadata. Strings capped128 Unicode chars with explicit truncated flag. Scalar finite value optional plus exact IEEE754 bits: nonfinite value null is explicitly identified by retained bits, never coerced to zero; finite negative zero bits preserved. No parent/lease/proof/OS handle saved. Derived branch predicates inspect only same immutable snapshot/bounds after original rejection. No overlap/fractional cause claim.
+
+Private exact2 rustfmt apply/check pass. New scalar/text fixture authored, uncompiled/unexecuted. Existing original guard and frame-identity fixtures selected unchanged as two regressions; exact3 total (not prior13 repetition). Need allocated fmt/native all-target type/lib+jobs no-run/current list/exact3 before actual diagnostic1. Overall cargo test/clippy gate incomplete; source-only packet is not runtime acceptance.
+
+Applied already-read modoo.today code-change-review-verification body9f73865f96ec0cefcf3a4023b294400258473640df3b1d2add03dcca8192d64b + required verdict-table9d9619a829ae24d73645ef5f7c8126c8257caeddac80800632866257008ad2a9 and test-fixture-and-mock-build a393f15faf68fee96c187509d0f22ed72987d8d1929afaf782d43bca80f3f100 (original references in SDK213 handoff). Decisions: failure evidence before repair, same original guards/errors, bounded metadata-only fixture and executed/authored distinction. No Cargo/native/network/media/GUI/userAI writes/source overlay/stage/commit/push in authoring slot.

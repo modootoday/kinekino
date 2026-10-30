@@ -1,0 +1,24 @@
+---
+id: evidence:kinekino/20261029114136
+title: "Canonical subtitle14 regression: CLI parity fixture first failure"
+status: active
+created: 2026-10-29
+updated: 2026-10-29
+---
+# Canonical subtitle14 regression: CLI parity fixture first failure
+
+Minimal source1 F3E888E5/effective14 8F378B33 classified the new command explicitly with the existing malformed-preflight InvalidArgument group. No loop/assertion/other classification/route was weakened. Canonical test leaf was adopted after fresh preimage; canonical14 remains uncommitted WIP. PM-assigned S22=source14+parents8 admitted protection203/carry172, fixed normal/held8A env5 and a new base. Card source was not applied.
+
+Observed fmt0 and exact original API matrix1pass. Whole package test returned101/414267ms: compilation4m40s;30 harness summaries reached1034pass/1fail/57ignored. First lib753pass/5ignored, including original matrix, SDK5 and Media6. Subsequent sdk_capability_parity harness1pass/1fail: `actual_cli_capabilities_schemas_and_unsupported_dispatch_match_injected_client`, line251 `unsupported exit: proposals.export_subtitles`, actual2/expected3. Later harnesses/doc tests and both planned strict commands did not execute. No retry/repair during this lease.
+
+The CLI parity test enumerates actual capabilities, but routes only existing segment-export and output-review commands through its malformed2→wellformed-unavailable3 fixture branch. The new subtitle command falls through with Request::new's empty payload, so expecting3 conflicts with its declared shape-first preflight. The failing check precedes response equality/unsupported-code checks, which were not reached for this row. Its CLI JSON was not separately persisted because the existing optional evidence directory was unset. Preserve the exact observed exit and original assertion, not an invented response. The earlier durable actual batch6pass remains valid and unchanged.
+
+Narrow reads found the explicit shared-contract expectation surfaces in api/tests.rs and sdk_capability_parity.rs; COMMANDS/schema/capability consumers and local_host are separate status/schema paths. A followup must check all these surfaces and retain malformed2 AND typed wellformed-unavailable3 assertions. output_review_fixture's proposal_id-only payload is not a valid subtitle export DTO; provide explicit full target/output path/format/loss fields and validate the typed target. This is a test-fixture contract extension, not authority to alter command routing or suppress errors.
+
+New download-owned env5 was supplied correctly:4 case directories executed,6 original tool close receipts reportEmpty. Metadata/audit does not generalize that subset to all subprocess families. Source S22 SHA/mtime/FI/absence restored; canonical14 retained. Original alias4 bytes/mtime restored through verified independent fresh copy/unlink/move (FI exceptions), new normal producer4 unchanged. Actual Cargo metadata39 executables preserved; independent EXE/PDB8 for normal2/lib/failing CLI parity. carry176 SHA7D17767632BB2E999F359E6B4E397E0807E743BA3C7EB552E75194641A78278E extends carry172 with4 fixed executables. Prior actual pins/copies unchanged.
+
+Final protection203/carry172 stat/FI/canonical22/root index-lock-WIP pins4 delta0;3 runner receipts terminal(0,0,101),18 regular logs exclusiveEOF, recorded resource/probe PID12 absent, writer0/pendingowner0. This is a recorded subset, not a complete descendant PID inventory. Historical known2/source/alias FI exceptions and all_cache_protected=false remain. No full cache rehash/inventory, stage/commit/push, actual batch rerun or Card implementation.
+
+Evidence: [test-only repair](../../../../runtime/development/accepted-subtitle-api-matrix-r1/HANDOFF.md), [exact pass](../../../../runtime/verification/accepted-subtitle-canonical-integration-r2/06-exact.stdout), [whole raw stdout](../../../../runtime/verification/accepted-subtitle-canonical-integration-r2/08-fulltest.stdout.jsonl), [results](../../../../runtime/verification/accepted-subtitle-canonical-integration-r2/11-results-summary.json), [probe receipts](../../../../runtime/verification/accepted-subtitle-canonical-integration-r2/11-download-close-receipts.json), [S22 restore](../../../../runtime/verification/accepted-subtitle-canonical-integration-r2/10-S-restored22.json), [final audit](../../../../runtime/verification/accepted-subtitle-canonical-integration-r2/13-final-audit.json).
+
+Source1 expectation repair remains meaningful and the exact case passed; whole integration remains incomplete. Next source-only packet requires typed CLI parity fixture and broad-enough narrow consumer search, then separately allocated exact parity→whole package→strict2. Preserve original r1/r2 failures. Applied modoo review9f73865f/verdict9d9619a8/fixturea393f15f definitions, original first cause and observed-versus-unverified boundaries.
