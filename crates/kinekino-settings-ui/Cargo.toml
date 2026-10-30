@@ -1,0 +1,24 @@
+[package]
+name = "kinekino-settings-ui"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+description = "Settings window (plan P6) rendered by Meari on every OS: one code path, no WebView."
+
+[dependencies]
+kinekino-core.workspace = true
+meari.workspace = true
+meari-native = { workspace = true, features = ["window"] }
+winit.workspace = true
+blitz-shell.workspace = true
+# meari-native pins rfd without a Linux backend; xdg-portal (pure Rust, D-Bus) satisfies it on Linux and is inert elsewhere.
+rfd = { workspace = true, features = ["xdg-portal"] }
+png.workspace = true
+serde_json.workspace = true
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+meari-native = { workspace = true, features = ["window"] }

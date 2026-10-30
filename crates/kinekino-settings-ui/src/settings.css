@@ -1,0 +1,19 @@
+/* Settings window layout derived only from tokens.css/components.css (no new values). */
+.aw-settings-root { height: 100dvh; display: flex; flex-direction: column; background: var(--aw-surface-panel); }
+.aw-settings-header { display: flex; align-items: center; gap: var(--aw-space-2); min-height: var(--aw-primary); padding: 0 var(--aw-space-4); background: var(--aw-surface-chrome); font-size: var(--aw-font-body); font-weight: var(--aw-font-semibold); }
+.aw-settings-body { flex: 1; min-height: 0; padding: var(--aw-space-3) var(--aw-space-4); overflow: auto; }
+.aw-settings-ledger { color: var(--aw-text-secondary); margin: 0 0 var(--aw-space-2); }
+.aw-settings-errors { display: flex; gap: var(--aw-space-2); margin: 0 0 var(--aw-space-2); padding: var(--aw-space-2) var(--aw-space-3); border: var(--aw-border-thin) solid var(--aw-warning-border); border-radius: var(--aw-radius-control); background: var(--aw-warning-surface); color: var(--aw-text); white-space: pre-line; }
+.aw-settings-errors[hidden] { display: none; }
+.aw-settings-row { display: grid; grid-template-columns: var(--aw-navigation) minmax(0, 1fr); gap: var(--aw-space-2); align-items: center; min-height: var(--aw-primary); border-bottom: var(--aw-border-thin) solid var(--aw-border); }
+.aw-settings-row label { color: var(--aw-text-secondary); }
+.aw-settings-choice { display: flex; align-items: center; gap: var(--aw-space-1); }
+.aw-settings-value { color: var(--aw-accent); margin-left: var(--aw-space-2); }
+.aw-settings-hint { color: var(--aw-text-muted); font-size: var(--aw-font-small); }
+.aw-settings-footer { display: flex; justify-content: flex-end; gap: var(--aw-space-2); padding: var(--aw-space-2) var(--aw-space-4); border-top: var(--aw-border-thin) solid var(--aw-border); background: var(--aw-surface-chrome); }
+.aw-settings-dialog { margin: 0 var(--aw-space-4) var(--aw-space-2); padding: var(--aw-space-3); border: var(--aw-border-thin) solid var(--aw-warning-border); border-radius: var(--aw-radius-window); background: var(--aw-warning-surface); }
+.aw-settings-dialog[hidden] { display: none; }
+.aw-settings-dialog p { display: flex; gap: var(--aw-space-2); margin: 0 0 var(--aw-space-2); }
+.aw-icon-undo { --aw-icon-source: url("../../../assets/design/icons/undo.svg"); }
+.aw-icon-warning { --aw-icon-source: url("../../../assets/design/icons/warning.svg"); color: var(--aw-accent); }
+.aw-icon-info { --aw-icon-source: url("../../../assets/design/icons/info.svg"); color: var(--aw-info-text); }

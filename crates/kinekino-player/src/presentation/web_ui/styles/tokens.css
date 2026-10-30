@@ -1,0 +1,31 @@
+/* Web projection of presentation/design_tokens.rs; changes require both-target review.
+   Faces: pinned Noto (SIL OFL-1.1), @font-face rules generated from the verified cache. */
+:root {
+  color-scheme: dark;
+  --aw-surface-video: #000; --aw-surface-preview: #060709; --aw-surface-input: #0b0c0e;
+  --aw-surface-chrome: #191b1f; --aw-surface-panel: #202329; --aw-surface-field: #1c1f25;
+  --aw-surface-selected: #2a2d34; --aw-surface-hover: #2b2f37; --aw-surface-pressed: #504123;
+  --aw-text: #eceef2; --aw-text-secondary: #b4bbc7; --aw-text-muted: #80858c; --aw-text-disabled: #686e79;
+  --aw-border: #414650; --aw-accent: #e8bc5a; --aw-focus: #f1d18a;
+  --aw-caption-hover: #3e434c; --aw-caption-pressed: #30343c; --aw-danger-hover: #c42b1c; --aw-danger-pressed: #9e1e16; --aw-on-danger: #fff;
+  --aw-info-surface: #19212d; --aw-info-border: #2b466a; --aw-info-text: #68a9ff;
+  --aw-space-1: 4px; --aw-space-inline: 6px; --aw-space-2: 8px; --aw-space-3: 12px; --aw-space-4: 16px;
+  --aw-control: 32px; --aw-primary: 40px; --aw-titlebar: 32px; --aw-caption-width: 42px;
+  --aw-navigation: 180px; --aw-navigation-rail: 48px; --aw-inspector: 300px; --aw-episode-panel: 260px; --aw-queue: 40px;
+  --aw-icon: 20px; --aw-caption-icon: 12px; --aw-start-mark: 96px; --aw-start-action: 150px;
+  --aw-transport-height: 56px; --aw-volume-width: 72px; --aw-seek-height: 3px; --aw-seek-thumb: 10px;
+  --aw-font-family: "Noto Sans", "Noto Sans KR", "Noto Sans JP", sans-serif; --aw-font-body: 13px; --aw-font-small: 11px; --aw-font-heading: 23px;
+  --aw-font-regular: 400; --aw-font-semibold: 600; --aw-leading-body: 1.5;
+  --aw-border-thin: 1px; --aw-border-focus: 2px; --aw-radius-small: 2px; --aw-radius-control: 5px; --aw-radius-window: 8px; --aw-radius-full: 9999px;
+  --aw-opacity-disabled: .65;
+  --aw-job-row-height: 48px; --aw-job-status-width: 112px; --aw-job-progress-width: 80px;
+  --aw-selected-border: var(--aw-accent); --aw-selected-surface: #29251d; --aw-stage-size: 24px;
+  --aw-review-text-height: 256px;
+  --aw-layer-queue: 10; --aw-layer-drawer: 20;
+  --aw-field-label-width: 72px; --aw-table-index-width: 48px; --aw-table-time-width: 132px;
+  --aw-draft-min-height: 96px; --aw-waveform-height: 64px;
+  --aw-warning-surface: #29251d; --aw-warning-border: #504123; --aw-syntax-number-width: 32px;
+  --aw-font-mono: ui-monospace, Consolas, monospace;
+  --aw-segment-opening: var(--aw-accent); --aw-segment-ending: #bca0eb;
+  --aw-segment-dot: 10px; --aw-badge: 24px; --aw-badge-max: 240px;
+}

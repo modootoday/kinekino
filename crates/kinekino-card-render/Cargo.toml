@@ -1,0 +1,22 @@
+[package]
+name = "kinekino-card-render"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[features]
+native = ["dep:meari-native"]
+
+[dependencies]
+meari = { workspace = true }
+meari-native = { workspace = true, optional = true }
+png = { workspace = true }
+serde.workspace = true
+serde_json.workspace = true
+
+[dev-dependencies]
+kinekino-media-contracts.workspace = true
+
+[lints]
+workspace = true
