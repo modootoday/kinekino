@@ -99,42 +99,82 @@ impl<E: Engine> App<E> {
         let Some(direction) = resize_direction(x, y, w, h, band) else {
             return false;
         };
+        if trace() {
+            eprintln!(
+                "{{\"resize_begin\":{{\"direction\":{direction},\"rect\":\"{rect:?}\",\"at\":[{x},{y}],\"band\":{band}}}}}"
+            );
+        }
         self.resizing = Some((direction, rect, root));
+        self.resized_to = None;
         true
     }
     /// While an edge drag runs, pointer moves size the window and the release ends it; none
     /// of these reach the document. `true` when the event was taken.
     pub(super) fn follow_resize(&mut self, event: &WindowEvent) -> bool {
-        let Some((direction, start, from)) = self.resizing else {
+        if self.resizing.is_none() {
             return false;
-        };
+        }
         match event {
             WindowEvent::PointerMoved { .. } => {
-                let (Some(x11), Some(id)) = (self.x11.as_ref(), self.window_id) else {
-                    return true;
-                };
-                let Ok(window) = u32::try_from(id.into_raw()) else {
-                    return true;
-                };
-                if let Ok((_, (x, y))) = x11.pointer(window) {
-                    let r = resized(start, direction, x - from.0, y - from.1, MIN_SIZE);
-                    if let Err(e) = x11.configure(window, r) {
-                        eprintln!("{{\"warning\":\"window resize failed\",\"detail\":{e:?}}}");
-                    }
-                }
+                self.step_resize();
                 true
             }
             WindowEvent::PointerButton {
                 state: ElementState::Released,
                 ..
             } => {
+                self.step_resize();
                 self.resizing = None;
+                self.resized_to = None;
                 true
             }
             WindowEvent::PointerLeft { .. } | WindowEvent::PointerEntered { .. } => true,
             _ => false,
         }
     }
+}
+
+impl<E: Engine> App<E> {
+    /// Sizes the window to the pointer's current screen position. Called on every pointer
+    /// move and on every tick while the drag runs: winit drops a motion whose position in
+    /// the window did not change, and a corner drag can leave it unchanged while the screen
+    /// position moves, so events alone are not enough. Ends the drag once the button is up.
+    pub(super) fn step_resize(&mut self) {
+        let Some((direction, start, from)) = self.resizing else {
+            return;
+        };
+        let (Some(x11), Some(id)) = (self.x11.as_ref(), self.window_id) else {
+            return;
+        };
+        let Ok(window) = u32::try_from(id.into_raw()) else {
+            return;
+        };
+        let Ok((_, (x, y), held)) = x11.pointer_state(window) else {
+            return;
+        };
+        let r = resized(start, direction, x - from.0, y - from.1, MIN_SIZE);
+        if trace() {
+            eprintln!(
+                "{{\"resize\":{{\"direction\":{direction},\"start\":\"{start:?}\",\"pointer\":[{x},{y}],\"from\":[{},{}],\"to\":\"{r:?}\",\"held\":{held}}}}}",
+                from.0, from.1
+            );
+        }
+        if self.resized_to != Some(r) {
+            if let Err(e) = x11.configure(window, r) {
+                eprintln!("{{\"warning\":\"window resize failed\",\"detail\":{e:?}}}");
+            }
+            self.resized_to = Some(r);
+        }
+        if !held {
+            self.resizing = None;
+            self.resized_to = None;
+        }
+    }
+}
+
+/// `KINEKINO_TRACE_RESIZE=1` prints every edge-drag step (desktop diagnosis).
+fn trace() -> bool {
+    std::env::var_os("KINEKINO_TRACE_RESIZE").is_some_and(|v| v == "1")
 }
 
 #[cfg(test)]
@@ -162,6 +202,109 @@ mod tests {
         assert_eq!(d(3.0, 590.0), Some(6));
         assert_eq!(d(0.0, 300.0), Some(7));
         assert_eq!(resize_direction(1.0, 1.0, 0.0, 0.0, 6.0), None);
+    }
+
+    /// Every corner and edge, dragged by each of the nine sign combinations of (dx, dy):
+    /// the dragged edges follow the pointer, the opposite edges never move.
+    #[test]
+    fn every_corner_and_edge_follows_all_nine_drag_directions() {
+        let start = Rect {
+            x: 200,
+            y: 100,
+            w: 1728,
+            h: 880,
+        };
+        for direction in 0..8u32 {
+            let west = matches!(direction, 0 | 6 | 7);
+            let east = matches!(direction, 2..=4);
+            let north = matches!(direction, 0..=2);
+            let south = matches!(direction, 4..=6);
+            for sx in [-1, 0, 1] {
+                for sy in [-1, 0, 1] {
+                    let (dx, dy) = (sx * 100, sy * 60);
+                    let r = resized(start, direction, dx, dy, MIN_SIZE);
+                    let ctx = format!("direction {direction}, d=({dx},{dy}) -> {r:?}");
+                    let (l, t) = (r.x, r.y);
+                    let (rt, b) = (r.x + r.w, r.y + r.h);
+                    let (sl, st, sr, sb) = (start.x, start.y, start.x + start.w, start.y + start.h);
+                    assert_eq!(l, if west { sl + dx } else { sl }, "left {ctx}");
+                    assert_eq!(rt, if east { sr + dx } else { sr }, "right {ctx}");
+                    assert_eq!(t, if north { st + dy } else { st }, "top {ctx}");
+                    assert_eq!(b, if south { sb + dy } else { sb }, "bottom {ctx}");
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn the_reported_bottom_right_shrinks_shrink_both_axes() {
+        let start = Rect {
+            x: 0,
+            y: 0,
+            w: 1728,
+            h: 880,
+        };
+        let r = |dx, dy| resized(start, 4, dx, dy, MIN_SIZE);
+        assert_eq!(
+            r(-200, -120),
+            Rect {
+                w: 1528,
+                h: 760,
+                ..start
+            }
+        );
+        assert_eq!(r(-200, 0), Rect { w: 1528, ..start });
+        assert_eq!(r(-100, 0), Rect { w: 1628, ..start });
+        assert_eq!(
+            r(-100, -60),
+            Rect {
+                w: 1628,
+                h: 820,
+                ..start
+            }
+        );
+        assert_eq!(r(0, -100), Rect { h: 780, ..start });
+    }
+
+    #[test]
+    fn left_and_top_shrinks_move_the_edge_and_keep_the_opposite_one() {
+        // At the screen's left edge (x = 0), as in the desktop check.
+        let start = Rect {
+            x: 0,
+            y: 0,
+            w: 1280,
+            h: 720,
+        };
+        assert_eq!(
+            resized(start, 7, 100, 0, MIN_SIZE),
+            Rect {
+                x: 100,
+                w: 1180,
+                ..start
+            }
+        );
+        assert_eq!(
+            resized(start, 1, 0, 50, MIN_SIZE),
+            Rect {
+                y: 50,
+                h: 670,
+                ..start
+            }
+        );
+        assert_eq!(
+            resized(start, 0, 100, 50, MIN_SIZE),
+            Rect {
+                x: 100,
+                y: 50,
+                w: 1180,
+                h: 670
+            }
+        );
+        // Past the minimum the size stops and the far edge still stays put.
+        let r = resized(start, 7, 1000, 0, MIN_SIZE);
+        assert_eq!((r.x + r.w, r.w), (1280, MIN_SIZE.0));
+        let r = resized(start, 1, 0, 1000, MIN_SIZE);
+        assert_eq!((r.y + r.h, r.h), (720, MIN_SIZE.1));
     }
 
     #[test]
