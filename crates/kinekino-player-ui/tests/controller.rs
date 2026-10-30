@@ -252,3 +252,66 @@ fn subtitle_cue_is_drawn_over_the_video_and_cleared() {
     assert!(!shown(&doc).contains("첫 줄"));
     std::fs::remove_dir_all(dir).unwrap();
 }
+
+#[test]
+fn player_keys_play_pause_and_leave_fullscreen() {
+    use kinekino_player_ui::shortcut;
+    use winit::keyboard::{KeyCode, ModifiersState, PhysicalKey};
+    let none = ModifiersState::empty();
+    let key = |k| PhysicalKey::Code(k);
+    assert_eq!(
+        shortcut(none, key(KeyCode::Space), false),
+        Some(Command::PlayPause)
+    );
+    assert_eq!(shortcut(none, key(KeyCode::Space), true), None);
+    assert_eq!(
+        shortcut(none, key(KeyCode::Escape), false),
+        Some(Command::ExitFullscreen)
+    );
+    assert_eq!(
+        shortcut(none, key(KeyCode::KeyF), false),
+        Some(Command::ToggleFullscreen)
+    );
+    let (dir, files) = folder("keys");
+    let mut c = Controller::new(FakeEngine::default());
+    c.open(&files[0]);
+    assert_eq!(c.apply(Command::ExitFullscreen), None, "windowed: nothing");
+    c.view.fullscreen = true;
+    assert_eq!(
+        c.apply(Command::ExitFullscreen),
+        Some(Effect::Fullscreen(false))
+    );
+    std::fs::remove_dir_all(dir).unwrap();
+}
+
+#[test]
+fn previous_restarts_the_first_or_a_running_episode() {
+    let (dir, files) = folder("previous");
+    let mut c = Controller::new(FakeEngine::default());
+    c.open(&files[1]);
+    assert_eq!(c.view.current, Some(0));
+    c.view.position = 0.5;
+    c.apply(Command::Previous);
+    assert_eq!(c.view.current, Some(0));
+    assert!(c.engine.commands.contains(&"seek 0 absolute".to_owned()));
+    c.apply(Command::Episode(2));
+    c.view.position = 42.0;
+    c.apply(Command::Previous);
+    assert_eq!(c.view.current, Some(2), "past 3 s: restart, not previous");
+    assert_eq!(c.view.position, 0.0);
+    c.apply(Command::Previous);
+    assert_eq!(c.view.current, Some(1), "near the start: previous episode");
+    std::fs::remove_dir_all(dir).unwrap();
+}
+
+#[test]
+fn raising_the_volume_unmutes() {
+    let mut c = Controller::new(FakeEngine::default());
+    c.apply(Command::Mute);
+    assert!(c.view.muted);
+    c.apply(Command::Volume(0.0));
+    assert!(c.view.muted, "zero keeps it muted");
+    c.apply(Command::Volume(60.0));
+    assert!(!c.view.muted);
+    assert_eq!(c.engine.commands.last().unwrap(), "set mute no");
+}

@@ -18,5 +18,9 @@ winit.workspace = true
 blitz-shell.workspace = true
 rfd = { workspace = true, features = ["xdg-portal"] }
 
+# EWMH window actions where Meari's platform port has no window state (X11).
+[target.'cfg(all(unix, not(target_os = "macos")))'.dependencies]
+x11rb.workspace = true
+
 [lints]
 workspace = true

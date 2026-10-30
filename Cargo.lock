@@ -2742,6 +2742,7 @@ dependencies = [
  "meari-shell",
  "rfd",
  "winit",
+ "x11rb",
 ]
 
 [[package]]

@@ -10,6 +10,9 @@ use std::time::{Duration, Instant};
 /// VIEW-10: controls hide after this long without input while playing (fullscreen overlay).
 pub const HIDE_AFTER: Duration = Duration::from_millis(2500);
 
+/// "Previous" within this many seconds of the start goes to the previous episode.
+pub const RESTART_WITHIN: f64 = 3.0;
+
 /// Work only the window can do.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Effect {
@@ -139,11 +142,16 @@ impl<E: Engine> Controller<E> {
                 self.report(r);
                 self.view.playing = !self.view.playing;
             }
-            Command::Previous if media => {
-                if let Some(i) = self.view.current.filter(|i| *i > 0) {
-                    self.play(i - 1);
+            // Like common players: past the first seconds (or on the first episode)
+            // "previous" restarts the current episode; otherwise it opens the one before.
+            Command::Previous if media => match self.view.current {
+                Some(i) if i > 0 && self.view.position < RESTART_WITHIN => self.play(i - 1),
+                _ => {
+                    let r = self.engine.command(&["seek", "0", "absolute"]);
+                    self.report(r);
+                    self.view.position = 0.0;
                 }
-            }
+            },
             Command::Next if media => {
                 if let Some(i) = self.view.current {
                     self.play(i + 1);
@@ -168,10 +176,19 @@ impl<E: Engine> Controller<E> {
                 self.view.volume = v;
                 let r = self.engine.command(&["set", "volume", &format!("{v:.0}")]);
                 self.report(r);
+                // Raising the volume while muted unmutes, as in common players.
+                if self.view.muted && v > 0.0 {
+                    self.view.muted = false;
+                    let r = self.engine.command(&["set", "mute", "no"]);
+                    self.report(r);
+                }
             }
             Command::ToggleEpisodes => self.view.panel_open = !self.view.panel_open,
             Command::ToggleFullscreen if media => {
                 return Some(Effect::Fullscreen(!self.view.fullscreen));
+            }
+            Command::ExitFullscreen if self.view.fullscreen => {
+                return Some(Effect::Fullscreen(false));
             }
             Command::Minimize => return Some(Effect::Minimize),
             Command::Maximize => return Some(Effect::Maximize(!self.view.maximized)),

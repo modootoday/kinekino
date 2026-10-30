@@ -15,4 +15,5 @@ pub use keys::shortcut;
 pub use session::{Command, Session, VIEWPORT, activate, meari_props, path_of};
 pub use source::{Episode, PRODUCT, View, clock};
 pub use texture::{VIDEO_ID, VideoTexture};
+pub use window::actions::{PortRefusal, WindowOps, perform};
 pub use window::{Options, Report, run};

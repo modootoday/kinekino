@@ -1,9 +1,12 @@
 //! The OS window: Meari's prepared native driver (winit + softbuffer) hosting the player
 //! document, with engine frames uploaded as the `<video>` texture each tick. One code path
-//! for every OS; window actions (minimize/maximize/fullscreen) use Meari's action port.
+//! for every OS; window actions (minimize/maximize/fullscreen) use Meari's action port, with
+//! an X11 fallback (`window::actions`); a failed action is logged and the player keeps running.
 use crate::controller::{Controller, Effect, Engine};
 use crate::session::Session;
 use crate::texture::VideoTexture;
+pub mod actions;
+use actions::{PortRefusal, WindowOps};
 use kinekino_core::playback::{RgbaFrame, VideoSurface};
 use kinekino_core::port::error::PortResult;
 use meari::application::host_callbacks::PendingCallback;
@@ -26,7 +29,7 @@ use std::time::{Duration, Instant};
 use winit::application::ApplicationHandler;
 use winit::event::{ElementState, WindowEvent};
 use winit::event_loop::{ActiveEventLoop, ControlFlow};
-use winit::keyboard::ModifiersState;
+use winit::keyboard::{KeyCode, ModifiersState, PhysicalKey};
 use winit::window::WindowId;
 
 const TICK: Duration = Duration::from_millis(16);
@@ -212,37 +215,97 @@ struct App<E: Engine> {
     remount: bool,
     closing: bool,
     capturing: bool,
+    /// The player's window (first window event); on X11 its raw id is the X window.
+    window_id: Option<WindowId>,
+    #[cfg(all(unix, not(target_os = "macos")))]
+    x11: Option<crate::window::actions::x11::X11>,
+    shown_title: String,
+}
+
+impl<E: Engine> WindowOps for App<E> {
+    fn port(&mut self, effect: &Effect) -> Result<(), PortRefusal> {
+        let action = match *effect {
+            Effect::Minimize => WindowAction::SetMinimized(true),
+            Effect::Maximize(on) => WindowAction::SetMaximized(on),
+            Effect::Fullscreen(on) => WindowAction::SetFullscreen(on),
+            _ => return Ok(()),
+        };
+        self.window(action)
+    }
+    #[cfg(all(unix, not(target_os = "macos")))]
+    fn fallback(&mut self, effect: &Effect) -> Option<Result<(), String>> {
+        let (x11, id) = (self.x11.as_ref()?, self.window_id?);
+        let window = u32::try_from(id.into_raw()).ok()?;
+        Some(match *effect {
+            Effect::Minimize => x11.minimize(window),
+            Effect::Maximize(on) => x11.set_maximized(window, on),
+            Effect::Fullscreen(on) => x11.set_fullscreen(window, on),
+            _ => Ok(()),
+        })
+    }
+    #[cfg(not(all(unix, not(target_os = "macos"))))]
+    fn fallback(&mut self, _: &Effect) -> Option<Result<(), String>> {
+        None
+    }
 }
 
 impl<E: Engine> App<E> {
-    fn window(&mut self, action: WindowAction) -> Result<(), String> {
+    fn window(&mut self, action: WindowAction) -> Result<(), PortRefusal> {
+        let refusal = |e: ActionError| match e {
+            ActionError::Unsupported => PortRefusal::Unsupported,
+            e => PortRefusal::Other(e.to_string()),
+        };
         let Some(port) = self.driver.window_actions() else {
-            return Err("window actions unavailable".into());
+            return Err(PortRefusal::Unsupported);
         };
-        let scope = match port.snapshot() {
-            Ok(s) => s.scope,
+        let snapshot = match port.snapshot() {
+            Ok(s) => s,
             Err(ActionError::NotReady) => return Ok(()),
-            Err(e) => return Err(e.to_string()),
+            Err(e) => return Err(refusal(e)),
         };
+        if !snapshot.capabilities.supports(action) {
+            return Err(PortRefusal::Unsupported);
+        }
         self.request += 1;
-        let id = NonZeroU64::new(self.request).ok_or("window request counter")?;
-        port.request(scope, id, action)
+        let id = NonZeroU64::new(self.request)
+            .ok_or_else(|| PortRefusal::Other("window request counter".into()))?;
+        port.request(snapshot.scope, id, action)
             .map(|_| ())
-            .map_err(|e| e.to_string())
+            .map_err(refusal)
+    }
+
+    /// The window manager's view of maximize/fullscreen where Meari's port has none (X11).
+    #[cfg(all(unix, not(target_os = "macos")))]
+    fn observe_fallback(&mut self) -> Option<(bool, bool)> {
+        let (x11, id) = (self.x11.as_ref()?, self.window_id?);
+        let window = u32::try_from(id.into_raw()).ok()?;
+        let title = &self.shared.borrow().controller.view.title;
+        if *title != self.shown_title && x11.set_title(window, &window_title(title)).is_ok() {
+            self.shown_title = title.clone();
+        }
+        x11.observe(window)
+    }
+    #[cfg(not(all(unix, not(target_os = "macos"))))]
+    fn observe_fallback(&mut self) -> Option<(bool, bool)> {
+        None
     }
 
     /// Mirrors the OS-observed maximize/fullscreen state into the view.
-    fn observe(&mut self) {
-        let Some(snapshot) = self.driver.window_actions().and_then(|p| p.snapshot().ok()) else {
+    fn observe(&mut self, poll: bool) {
+        let snapshot = self.driver.window_actions().and_then(|p| p.snapshot().ok());
+        let ported = snapshot.and_then(|s| {
+            Some((
+                s.observed.maximized?,
+                s.observed.borderless_monitor_coverage?,
+            ))
+        });
+        let Some((maximized, fullscreen)) =
+            ported.or_else(|| poll.then(|| self.observe_fallback()).flatten())
+        else {
             return;
         };
         let mut shared = self.shared.borrow_mut();
         let view = &mut shared.controller.view;
-        let maximized = snapshot.observed.maximized.unwrap_or(view.maximized);
-        let fullscreen = snapshot
-            .observed
-            .borderless_monitor_coverage
-            .unwrap_or(view.fullscreen);
         if (maximized, fullscreen) != (view.maximized, view.fullscreen) {
             view.maximized = maximized;
             view.fullscreen = fullscreen;
@@ -258,9 +321,13 @@ impl<E: Engine> App<E> {
         let effects = std::mem::take(&mut self.shared.borrow_mut().effects);
         for effect in effects {
             match effect {
-                Effect::Minimize => self.window(WindowAction::SetMinimized(true))?,
-                Effect::Maximize(on) => self.window(WindowAction::SetMaximized(on))?,
-                Effect::Fullscreen(on) => self.window(WindowAction::SetFullscreen(on))?,
+                Effect::Minimize | Effect::Maximize(_) | Effect::Fullscreen(_) => {
+                    if let Err(e) = crate::window::actions::perform(self, &effect) {
+                        eprintln!("{{\"warning\":\"window action failed\",\"detail\":{e:?}}}");
+                    }
+                    // Re-read the window manager state soon after a request.
+                    self.next_poll = Instant::now() + TICK * 4;
+                }
                 Effect::Close => self.closing = true,
                 Effect::PickFile => {
                     let picked = rfd::FileDialog::new()
@@ -278,7 +345,8 @@ impl<E: Engine> App<E> {
                 }
             }
         }
-        self.observe();
+        let poll = Instant::now() >= self.next_poll;
+        self.observe(poll);
         {
             let mut shared = self.shared.borrow_mut();
             if shared.controller.idle(Instant::now()) {
@@ -337,6 +405,7 @@ impl<E: Engine> ApplicationHandler for App<E> {
         self.driver.destroy_surfaces(event_loop);
     }
     fn window_event(&mut self, event_loop: &dyn ActiveEventLoop, id: WindowId, event: WindowEvent) {
+        self.window_id.get_or_insert(id);
         if matches!(event, WindowEvent::SurfaceResized(_)) {
             // A new box size re-renders the frame at that size on the next commit.
             self.shared.borrow_mut().dirty = true;
@@ -364,6 +433,13 @@ impl<E: Engine> ApplicationHandler for App<E> {
             }
             _ => {}
         }
+        // Space is the player's play/pause key: it must not also press a focused button.
+        if let WindowEvent::KeyboardInput { event: key, .. } = &event
+            && key.physical_key == PhysicalKey::Code(KeyCode::Space)
+        {
+            self.tick(event_loop);
+            return;
+        }
         self.driver.window_event(event_loop, id, event);
         self.tick(event_loop);
     }
@@ -375,6 +451,15 @@ impl<E: Engine> ApplicationHandler for App<E> {
         self.driver.about_to_wait(event_loop);
         self.tick(event_loop);
         event_loop.set_control_flow(ControlFlow::WaitUntil(Instant::now() + TICK));
+    }
+}
+
+/// The OS title bar text: the open file, then the product.
+fn window_title(title: &str) -> String {
+    if title.is_empty() {
+        crate::PRODUCT.to_owned()
+    } else {
+        format!("{title} — {}", crate::PRODUCT)
     }
 }
 
@@ -395,7 +480,7 @@ pub fn run<E: Engine>(controller: Controller<E>, options: Options) -> Result<Rep
             handle.clone(),
             LifecycleLimits::new(1, Duration::from_secs(2)).map_err(|e| format!("{e:?}"))?,
             WindowOptions {
-                title: crate::PRODUCT.into(),
+                title: window_title(&current.view.title),
             },
             None,
         )
@@ -431,6 +516,10 @@ pub fn run<E: Engine>(controller: Controller<E>, options: Options) -> Result<Rep
             remount: false,
             closing: false,
             capturing: false,
+            window_id: None,
+            #[cfg(all(unix, not(target_os = "macos")))]
+            x11: crate::window::actions::x11::X11::connect(),
+            shown_title: String::new(),
         };
         winit::event_loop::run_on_demand::EventLoopExtRunOnDemand::run_app_on_demand(
             &mut event_loop,
