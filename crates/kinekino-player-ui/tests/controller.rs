@@ -315,3 +315,68 @@ fn raising_the_volume_unmutes() {
     assert!(!c.view.muted);
     assert_eq!(c.engine.commands.last().unwrap(), "set mute no");
 }
+
+#[test]
+fn more_menu_opens_above_its_button_and_items_act() {
+    use meari_native::application::Renderer;
+    let (dir, files) = folder("menu");
+    let mut c = Controller::new(FakeEngine::default());
+    c.open(&files[0]);
+    let (mut session, mut doc) = Session::mount(&c.view).unwrap();
+    let mut click = |doc: &mut _, c: &mut Controller<FakeEngine>, id: &str| {
+        activate(doc, id).unwrap();
+        let effects: Vec<_> = session
+            .commands(doc)
+            .unwrap()
+            .into_iter()
+            .filter_map(|command| c.apply(command))
+            .collect();
+        doc.update_module_props(meari_props(&c.view)).unwrap();
+        effects
+    };
+    assert!(click(&mut doc, &mut c, "more").is_empty());
+    assert!(c.view.menu_open, "⋮ opens the menu");
+    let viewport = doc.viewport.clone();
+    let rgba = doc.renderer.rasterize(&viewport).unwrap();
+    if let Ok(path) = std::env::var("KK_MENU_PNG") {
+        let (w, h) = (viewport.width as u32, viewport.height as u32);
+        kinekino_settings_ui::write_png(path.as_ref(), w, h, &rgba).unwrap();
+    }
+    let base = &*doc.renderer.document;
+    let rect = |sel: &str| {
+        let id = base.query_selector(sel).unwrap().unwrap();
+        let node = base.get_node(id).unwrap();
+        let l = *node.final_layout();
+        let (mut x, mut y) = (l.location.x, l.location.y);
+        let mut parent = node.layout_parent.get();
+        while let Some(p) = parent {
+            let pn = base.get_node(p).unwrap();
+            x += pn.final_layout().location.x;
+            y += pn.final_layout().location.y;
+            parent = pn.layout_parent.get();
+        }
+        (x, y, l.size.width, l.size.height)
+    };
+    let (mx, my, mw, mh) = rect("#menu");
+    let (bx, by, bw, _) = rect("#more");
+    eprintln!("menu {mx},{my} {mw}x{mh}; more {bx},{by} {bw}");
+    assert!(mw >= 200.0 && mh >= 3.0 * 32.0, "menu has room for 3 items");
+    assert!(my + mh <= by, "menu sits above the ⋮ button");
+    assert!((mx + mw - (bx + bw)).abs() <= 1.0, "right edges align");
+    assert!(mx >= 0.0 && my >= 0.0, "menu inside the window");
+    // Items act and close the menu.
+    assert!(click(&mut doc, &mut c, "menuEpisodes").is_empty());
+    assert!(c.view.panel_open && !c.view.menu_open);
+    click(&mut doc, &mut c, "more");
+    assert_eq!(
+        click(&mut doc, &mut c, "menuFullscreen"),
+        [Effect::Fullscreen(true)]
+    );
+    assert!(!c.view.menu_open);
+    click(&mut doc, &mut c, "more");
+    assert_eq!(click(&mut doc, &mut c, "menuOpen"), [Effect::PickFile]);
+    click(&mut doc, &mut c, "more");
+    click(&mut doc, &mut c, "more");
+    assert!(!c.view.menu_open, "⋮ again closes it");
+    std::fs::remove_dir_all(dir).unwrap();
+}

@@ -32,7 +32,10 @@ fn row(title: &str, current: bool) -> (f32, f32) {
     let size = |sel: &str| {
         let id = base.query_selector(sel).unwrap().unwrap();
         let l = *base.get_node(id).unwrap().final_layout();
-        (l.size.width - l.padding.left - l.padding.right, l.size.width)
+        (
+            l.size.width - l.padding.left - l.padding.right,
+            l.size.width,
+        )
     };
     let (text, _) = size("#ep0 .aw-episode-row-title");
     let (_, row) = size("#ep0");

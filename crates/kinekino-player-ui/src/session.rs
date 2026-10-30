@@ -83,14 +83,14 @@ fn text(value: Option<&StateValue>) -> String {
 
 fn command(button: &str) -> Command {
     match button {
-        "open" => Command::Open,
+        "open" | "menuOpen" => Command::Open,
         "browse" => Command::Browse,
         "previous" => Command::Previous,
         "playPause" => Command::PlayPause,
         "next" => Command::Next,
         "mute" => Command::Mute,
-        "episodes" | "panelClose" => Command::ToggleEpisodes,
-        "fullscreen" => Command::ToggleFullscreen,
+        "episodes" | "panelClose" | "menuEpisodes" => Command::ToggleEpisodes,
+        "fullscreen" | "menuFullscreen" => Command::ToggleFullscreen,
         "more" => Command::More,
         "minimize" => Command::Minimize,
         "maximize" => Command::Maximize,
