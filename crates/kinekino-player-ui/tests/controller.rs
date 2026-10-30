@@ -339,7 +339,7 @@ fn more_menu_opens_above_its_button_and_items_act() {
     let viewport = doc.viewport.clone();
     let rgba = doc.renderer.rasterize(&viewport).unwrap();
     if let Ok(path) = std::env::var("KK_MENU_PNG") {
-        let (w, h) = (viewport.width as u32, viewport.height as u32);
+        let (w, h) = (viewport.width, viewport.height);
         kinekino_settings_ui::write_png(path.as_ref(), w, h, &rgba).unwrap();
     }
     let base = &*doc.renderer.document;
