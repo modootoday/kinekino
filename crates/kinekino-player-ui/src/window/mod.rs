@@ -6,6 +6,9 @@ use crate::controller::{Controller, Effect, Engine};
 use crate::session::Session;
 use crate::texture::VideoTexture;
 pub mod actions;
+mod caption;
+#[cfg(all(unix, not(target_os = "macos")))]
+mod edges;
 use actions::{PortRefusal, WindowOps};
 use kinekino_core::playback::{RgbaFrame, VideoSurface};
 use kinekino_core::port::error::PortResult;
@@ -221,6 +224,16 @@ struct App<E: Engine> {
     x11: Option<crate::window::actions::x11::X11>,
     #[cfg(all(unix, not(target_os = "macos")))]
     shown_title: String,
+    /// The OS frame was turned off; the app caption row is the title bar.
+    undecorated: bool,
+    /// An edge drag in progress: direction, start rectangle and start pointer (screen).
+    #[cfg(all(unix, not(target_os = "macos")))]
+    resizing: Option<(u32, edges::Rect, (i32, i32))>,
+    /// The last rectangle sent during the drag (no repeat requests for an unmoved pointer).
+    #[cfg(all(unix, not(target_os = "macos")))]
+    resized_to: Option<edges::Rect>,
+    /// Last press on the caption row, for double-click maximize.
+    caption_press: Option<Instant>,
 }
 
 impl<E: Engine> WindowOps for App<E> {
@@ -251,6 +264,15 @@ impl<E: Engine> WindowOps for App<E> {
 }
 
 impl<E: Engine> App<E> {
+    #[cfg(not(all(unix, not(target_os = "macos"))))]
+    fn begin_resize(&mut self, _: (f64, f64)) -> bool {
+        false
+    }
+    #[cfg(not(all(unix, not(target_os = "macos"))))]
+    fn follow_resize(&mut self, _: &WindowEvent) -> bool {
+        false
+    }
+
     fn window(&mut self, action: WindowAction) -> Result<(), PortRefusal> {
         let refusal = |e: ActionError| match e {
             ActionError::Unsupported => PortRefusal::Unsupported,
@@ -407,6 +429,26 @@ impl<E: Engine> ApplicationHandler for App<E> {
     }
     fn window_event(&mut self, event_loop: &dyn ActiveEventLoop, id: WindowId, event: WindowEvent) {
         self.window_id.get_or_insert(id);
+        if !self.undecorated {
+            self.undecorate();
+        }
+        if self.follow_resize(&event) {
+            self.tick(event_loop);
+            return;
+        }
+        if let WindowEvent::PointerButton {
+            state: ElementState::Pressed,
+            position,
+            primary: true,
+            button,
+            ..
+        } = &event
+            && button.clone().mouse_button() == Some(winit::event::MouseButton::Left)
+            && self.press(position.x, position.y)
+        {
+            self.tick(event_loop);
+            return;
+        }
         if matches!(event, WindowEvent::SurfaceResized(_)) {
             // A new box size re-renders the frame at that size on the next commit.
             self.shared.borrow_mut().dirty = true;
@@ -450,6 +492,8 @@ impl<E: Engine> ApplicationHandler for App<E> {
     }
     fn about_to_wait(&mut self, event_loop: &dyn ActiveEventLoop) {
         self.driver.about_to_wait(event_loop);
+        #[cfg(all(unix, not(target_os = "macos")))]
+        self.step_resize();
         self.tick(event_loop);
         event_loop.set_control_flow(ControlFlow::WaitUntil(Instant::now() + TICK));
     }
@@ -522,6 +566,12 @@ pub fn run<E: Engine>(controller: Controller<E>, options: Options) -> Result<Rep
             x11: crate::window::actions::x11::X11::connect(),
             #[cfg(all(unix, not(target_os = "macos")))]
             shown_title: String::new(),
+            undecorated: false,
+            #[cfg(all(unix, not(target_os = "macos")))]
+            resizing: None,
+            #[cfg(all(unix, not(target_os = "macos")))]
+            resized_to: None,
+            caption_press: None,
         };
         winit::event_loop::run_on_demand::EventLoopExtRunOnDemand::run_app_on_demand(
             &mut event_loop,
