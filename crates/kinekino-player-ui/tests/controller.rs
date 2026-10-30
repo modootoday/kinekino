@@ -11,6 +11,7 @@ struct FakeEngine {
     loaded: Vec<String>,
     commands: Vec<String>,
     time: f64,
+    subtitle: Option<String>,
 }
 impl VideoSurface for FakeEngine {
     fn frame_ready(&mut self) -> PortResult<bool> {
@@ -35,6 +36,11 @@ impl Engine for FakeEngine {
             "duration" => Some(1500.0),
             _ => None,
         }
+    }
+    fn text(&mut self, name: &str) -> Option<String> {
+        (name == "sub-text")
+            .then(|| self.subtitle.clone())
+            .flatten()
     }
 }
 
@@ -219,5 +225,30 @@ fn fullscreen_controls_hide_after_idle_and_return_on_input() {
         c.view.status.clear();
         c.view.panel_open = false;
     }
+    std::fs::remove_dir_all(dir).unwrap();
+}
+
+#[test]
+fn subtitle_cue_is_drawn_over_the_video_and_cleared() {
+    let (dir, files) = folder("subtitle");
+    let mut c = Controller::new(FakeEngine::default());
+    c.open(&files[0]);
+    let (_, mut doc) = Session::mount(&c.view).unwrap();
+    let shown = |doc: &meari_native::infrastructure::document::InteractiveDocument| -> String {
+        doc.elements()
+            .iter()
+            .flat_map(|e| e.text_runs.iter().map(|r| r.text.clone()))
+            .collect()
+    };
+    c.engine.subtitle = Some("첫 줄\n둘째 줄".into());
+    assert!(c.poll(), "a new cue re-projects");
+    assert!(!c.poll(), "same cue: nothing to do");
+    doc.update_module_props(meari_props(&c.view)).unwrap();
+    let text = shown(&doc);
+    assert!(text.contains("첫 줄") && text.contains("둘째 줄"), "{text}");
+    c.engine.subtitle = Some(String::new());
+    assert!(c.poll(), "cue ended");
+    doc.update_module_props(meari_props(&c.view)).unwrap();
+    assert!(!shown(&doc).contains("첫 줄"));
     std::fs::remove_dir_all(dir).unwrap();
 }

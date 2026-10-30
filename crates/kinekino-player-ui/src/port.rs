@@ -7,6 +7,10 @@ pub trait Engine: VideoSurface + 'static {
     fn load(&mut self, source: &str, start_secs: f64) -> PortResult<()>;
     fn command(&mut self, args: &[&str]) -> PortResult<()>;
     fn property(&mut self, name: &str) -> Option<f64>;
+    /// String properties (`sub-text`); engines without subtitles report none.
+    fn text(&mut self, _name: &str) -> Option<String> {
+        None
+    }
 }
 
 impl Engine for kinekino_libmpv::LibMpvSurface {
@@ -18,5 +22,8 @@ impl Engine for kinekino_libmpv::LibMpvSurface {
     }
     fn property(&mut self, name: &str) -> Option<f64> {
         self.property_f64(name)
+    }
+    fn text(&mut self, name: &str) -> Option<String> {
+        self.property_string(name)
     }
 }

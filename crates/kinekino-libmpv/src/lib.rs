@@ -67,6 +67,8 @@ impl LibMpvSurface {
             ("idle", "yes"),
             ("pause", "yes"),
             ("keep-open", "yes"),
+            // Subtitles are drawn by the player UI from `sub-text`, not burned into frames.
+            ("sub-visibility", "no"),
         ] {
             this.option(k, v)?;
         }
@@ -137,6 +139,29 @@ impl LibMpvSurface {
             )
         };
         (rc >= 0).then_some(v)
+    }
+
+    /// A string property (e.g. `sub-text`); None when unavailable.
+    pub fn property_string(&mut self, name: &str) -> Option<String> {
+        let n = c(name).ok()?;
+        let mut v: *mut c_char = std::ptr::null_mut();
+        // SAFETY: FORMAT_STRING writes an mpv-allocated C string we free with mpv_free.
+        let rc = unsafe {
+            (self.api.get_property)(
+                self.handle,
+                n.as_ptr(),
+                ffi::FORMAT_STRING,
+                (&mut v as *mut *mut c_char).cast::<c_void>(),
+            )
+        };
+        if rc < 0 || v.is_null() {
+            return None;
+        }
+        // SAFETY: v is a valid NUL-terminated string until freed below.
+        let text = unsafe { CStr::from_ptr(v) }.to_string_lossy().into_owned();
+        // SAFETY: v came from mpv_get_property(FORMAT_STRING).
+        unsafe { (self.api.free)(v.cast()) };
+        Some(text)
     }
 
     /// Drain events until `want` arrives; END_FILE first means the load failed.
