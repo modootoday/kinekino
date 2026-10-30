@@ -42,9 +42,6 @@ adblock = { workspace = true, features = ["embedded-domain-resolver"] }
 
 [target.'cfg(windows)'.dependencies]
 meari-native = { workspace = true, optional = true, features = ["window"] }
-eframe = { workspace = true, features = ["default_fonts", "glow"] }
-egui_extras = { workspace = true, features = ["svg", "image"] }
-egui_taffy = { workspace = true }
 wry = { workspace = true }
 webview2-com = { workspace = true }
 windows-core = { workspace = true }
