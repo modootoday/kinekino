@@ -41,6 +41,9 @@ pub mod x11 {
     use x11rb::rust_connection::RustConnection;
     use x11rb::wrapper::ConnectionExt as _;
 
+    /// A pointer position in physical pixels.
+    pub type Point = (i32, i32);
+
     pub struct X11 {
         conn: RustConnection,
         root: u32,
@@ -119,6 +122,68 @@ pub mod x11 {
             let maximized =
                 has("_NET_WM_STATE_MAXIMIZED_VERT") && has("_NET_WM_STATE_MAXIMIZED_HORZ");
             Some((maximized, has("_NET_WM_STATE_FULLSCREEN")))
+        }
+
+        /// Hands an edge resize to the window manager (`_NET_WM_MOVERESIZE`), as a
+        /// decorated frame would. `direction` is the EWMH code (0 top-left … 7 left).
+        /// The pointer relative to `window` and to the screen (physical pixels).
+        pub fn pointer(&self, window: u32) -> Result<(Point, Point), String> {
+            self.pointer_state(window).map(|(w, r, _)| (w, r))
+        }
+
+        /// As [`Self::pointer`], plus whether the left button is still held.
+        pub fn pointer_state(&self, window: u32) -> Result<(Point, Point, bool), String> {
+            use x11rb::protocol::xproto::KeyButMask;
+            let p = self
+                .conn
+                .query_pointer(window)
+                .map_err(|e| e.to_string())?
+                .reply()
+                .map_err(|e| e.to_string())?;
+            Ok((
+                (i32::from(p.win_x), i32::from(p.win_y)),
+                (i32::from(p.root_x), i32::from(p.root_y)),
+                p.mask.contains(KeyButMask::BUTTON1),
+            ))
+        }
+
+        /// `window`'s rectangle on the screen.
+        pub fn geometry(&self, window: u32) -> Result<crate::window::edges::Rect, String> {
+            let g = self
+                .conn
+                .get_geometry(window)
+                .map_err(|e| e.to_string())?
+                .reply()
+                .map_err(|e| e.to_string())?;
+            let at = self
+                .conn
+                .translate_coordinates(window, self.root, 0, 0)
+                .map_err(|e| e.to_string())?
+                .reply()
+                .map_err(|e| e.to_string())?;
+            Ok(crate::window::edges::Rect {
+                x: i32::from(at.dst_x),
+                y: i32::from(at.dst_y),
+                w: i32::from(g.width),
+                h: i32::from(g.height),
+            })
+        }
+
+        /// Moves and sizes `window` (an edge drag of the undecorated window). The press's
+        /// pointer grab belongs to winit's own X connection, so `_NET_WM_MOVERESIZE` from
+        /// this connection cannot hand the drag to the window manager; the player follows
+        /// the pointer and configures the window itself instead.
+        pub fn configure(&self, window: u32, r: crate::window::edges::Rect) -> Result<(), String> {
+            use x11rb::protocol::xproto::ConfigureWindowAux;
+            let aux = ConfigureWindowAux::new()
+                .x(r.x)
+                .y(r.y)
+                .width(r.w.max(1) as u32)
+                .height(r.h.max(1) as u32);
+            self.conn
+                .configure_window(window, &aux)
+                .map_err(|e| e.to_string())?;
+            self.conn.flush().map_err(|e| e.to_string())
         }
 
         /// The title bar text (`_NET_WM_NAME`, UTF-8).
