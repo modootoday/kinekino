@@ -3,7 +3,6 @@
 .c-hero h1{max-width:16ch}
 .c-hero .c-body>p:first-of-type{font-size:var(--t2);color:var(--mute)}
 .c-hero .c-body>ul{list-style:none;padding:0;margin:var(--s5) 0 0;display:flex;flex-wrap:wrap;gap:var(--s2) var(--s5);color:var(--mute);font-size:var(--t-0)}
-.c-hero .c-body>ul>li{margin:0}
 .c-hero .c-body>ul li::before{content:"✓";color:var(--ok);margin-inline-end:6px;font-weight:700}
 /* buttons: any paragraph that contains only links, in hero and cta */
 .c-hero .c-body>p:has(>a):not(:has(>:not(a))),.c-cta .c-body>p:has(>a):not(:has(>:not(a))){display:flex;flex-wrap:wrap;gap:var(--s3);margin:var(--s5) 0}

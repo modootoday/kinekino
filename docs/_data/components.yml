@@ -9,6 +9,8 @@ features:
   slots: { items: { required: true } }
 split:
   params: { visual: { allowed: [player-mock] }, scene: { allowed: [playback, timeline, review, settings, agent] } }
+code-split:   # copy + the section's sh code block as a terminal window (no visual include)
+  params: {}
 platform-list:
   slots: { items: { required: true } }
 timeline:

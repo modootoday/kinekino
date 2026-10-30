@@ -1,9 +1,9 @@
-/* split: copy + visual, or copy + the section's code block as a terminal window */
-.c-split:not(.has-visual) .c-body:has(>div.highlighter-rouge){display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);column-gap:var(--s7);align-items:start}
-.c-split:not(.has-visual) .c-body>*{grid-column:1}
-.c-split:not(.has-visual) .c-body>div.highlighter-rouge{grid-column:2;grid-row:1/span 6;align-self:center}
-@media (max-width:900px){.c-split:not(.has-visual) .c-body:has(>div.highlighter-rouge){display:block}}
+/* code-split: copy + the section's code block as a terminal window (split with a visual is the kit-checked c: split) */
+.c-code-split .c-body:has(>div.highlighter-rouge){display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);column-gap:var(--s7);align-items:start}
+.c-code-split .c-body>*{grid-column:1}
+.c-code-split .c-body>div.highlighter-rouge{grid-column:2;grid-row:1/span 6;align-self:center}
+@media (max-width:900px){.c-code-split .c-body:has(>div.highlighter-rouge){display:block}}
 /* terminal: any sh code block inside split / agent sections gets window chrome */
-.c-split div.language-sh pre,.c-split div.language-console pre{position:relative;padding-top:44px;box-shadow:0 24px 50px var(--shadow)}
-.c-split div.language-sh pre::before,.c-split div.language-console pre::before{content:"";position:absolute;top:14px;left:16px;width:10px;height:10px;border-radius:50%;background:#ff6b5a;box-shadow:16px 0 #f5c04a,32px 0 #5ccf6b}
-.c-split div.language-sh pre::after{content:"";position:absolute;left:0;right:0;top:36px;border-top:1px solid #2c2622}
+.c-split div.language-sh pre,.c-split div.language-console pre,.c-code-split div.language-sh pre,.c-code-split div.language-console pre{position:relative;padding-top:44px;box-shadow:0 24px 50px var(--shadow)}
+.c-split div.language-sh pre::before,.c-split div.language-console pre::before,.c-code-split div.language-sh pre::before,.c-code-split div.language-console pre::before{content:"";position:absolute;top:14px;left:16px;width:10px;height:10px;border-radius:50%;background:#ff6b5a;box-shadow:16px 0 #f5c04a,32px 0 #5ccf6b}
+.c-split div.language-sh pre::after,.c-code-split div.language-sh pre::after{content:"";position:absolute;left:0;right:0;top:36px;border-top:1px solid #2c2622}

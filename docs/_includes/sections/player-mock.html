@@ -1,8 +1,8 @@
 {%- comment -%}
 Visual component: illustrated player window, NOT a screenshot (labelled as such).
-Param scene: playback | timeline | review | settings | agent. Strings: _data/i18n/*.yml `mock.*`.
+Param section.scene (kit 1.1.1 visual include contract): playback | timeline | review | settings | agent. Strings: _data/i18n/*.yml `mock.*`.
 {%- endcomment -%}
-{%- include i18n.html -%}{%- assign M = t.mock | default: t0.mock -%}{%- assign sc = include.scene | default: "playback" -%}
+{%- include i18n.html -%}{%- assign M = t.mock | default: t0.mock -%}{%- assign sc = include.section.scene | default: "playback" -%}
 <figure class="mock mock-{{ sc }}" role="img" aria-label="{{ M.alt[sc] }}">
 <div class="mock-bar" aria-hidden="true"><i></i><i></i><i></i><span>kinekino — {{ M.title[sc] }}</span></div>
 <div class="mock-body" aria-hidden="true">

@@ -7,7 +7,7 @@ hero: { c: hero, visual: player-mock, scene: playback }
 sections:
   - { c: features, cols: 3 }
   - { c: split, visual: player-mock, scene: timeline }
-  - { c: split }
+  - { c: code-split }
   - { c: features, cols: 3 }
   - { c: platform-list }
   - { c: split, visual: player-mock, scene: settings }
