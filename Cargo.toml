@@ -24,7 +24,7 @@ bytes = "=1.12.1"
 cef = { version = "=156.2.0", default-features = false }
 chromiumoxide = { version = "0.9.1", default-features = false }
 eframe = { version = "=0.36.2", default-features = false }
-egui_extras = { version = "=0.36.2", default-features = false }
+egui_extras = { version = "=0.37.0", default-features = false }
 egui_taffy = "0.14"
 futures = "0.3"
 http = "=1.5.0"
