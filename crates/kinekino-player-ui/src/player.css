@@ -1,7 +1,7 @@
 /* Player window layout derived only from tokens.css/components.css/viewing.css (no new values). */
 .kk-player-root { height: 100dvh; }
-.kk-player-root .aw-player-shell { min-height: 0; grid-template-rows: minmax(0, 1fr) auto; }
-/* The OS frame carries the title and window buttons (settings ADR); no app caption row. */
+.kk-player-root .aw-player-shell { min-height: 0; }
+/* The window is undecorated: the app caption row (brand, title, window buttons) is the title bar. */
 .kk-player-root [hidden] { display: none; }
 .kk-player-root .aw-viewing-video { object-fit: contain; background: var(--aw-surface-video); }
 .kk-player-root .aw-viewing-video[hidden] { display: none; }
@@ -12,3 +12,6 @@
 .kk-player-root .kk-subtitle { position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: var(--aw-space-1); margin: 0 var(--aw-space-4) var(--aw-space-4); color: var(--aw-text); font-family: var(--aw-font-family); font-size: var(--aw-font-heading); line-height: var(--aw-leading-body); text-align: center; pointer-events: none; }
 .kk-player-root .kk-subtitle-line { padding: 0 var(--aw-space-2); border-radius: var(--aw-radius-small); background: var(--aw-surface-chrome); }
 .kk-player-root .kk-subtitle-line[hidden] { display: none; }
+/* The brand never shrinks; a long file title takes the ellipsis instead ("lo…" fix). */
+.kk-player-root .aw-window-brand .aw-icon-brand, .kk-player-root .aw-product-name, .kk-player-root .aw-window-captions { flex: 0 0 auto; }
+.kk-player-root .aw-window-context { flex: 0 1 auto; min-width: 0; }
