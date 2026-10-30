@@ -1,0 +1,23 @@
+[package]
+name = "kinekino-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[lints]
+workspace = true
+
+[features]
+card-review-export = ["kinekino-app/card-review-export"]
+validation-export-delivery-loss = ["kinekino-app/validation-export-delivery-loss"]
+
+[dependencies]
+kinekino-app.workspace = true
+
+[[bin]]
+name = "kinekino"
+path = "src/main.rs"
+
+[dev-dependencies]
+serde_json.workspace = true

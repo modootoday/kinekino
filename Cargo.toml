@@ -1,6 +1,6 @@
 [workspace]
-members = ["xtask", "crates/kinekino-player", "crates/kinekino-core", "crates/kinekino-platform", "crates/kinekino-platform-windows", "crates/kinekino-platform-unix", "crates/kinekino-ui-plugins", "crates/kinekino-media-contracts", "crates/kinekino-subtitles", "crates/kinekino-jobs", "crates/kinekino-process", "crates/kinekino-vad", "crates/kinekino-vad-executor", "crates/kinekino-vad-worker", "crates/kinekino-source-host", "crates/kinekino-card-render", "crates/kinekino-browser", "crates/kinekino-settings-ui", "crates/kinekino-inference", "crates/kinekino-inference-hf", "crates/kinekino-inference-local", "crates/kinekino-plugin-sdk", "crates/kinekino-libmpv", "crates/kinekino-player-ui"]
-default-members = ["crates/kinekino-player", "crates/kinekino-core", "crates/kinekino-platform", "crates/kinekino-platform-unix", "crates/kinekino-ui-plugins", "crates/kinekino-media-contracts", "crates/kinekino-subtitles", "crates/kinekino-jobs", "crates/kinekino-process", "crates/kinekino-vad", "crates/kinekino-vad-executor", "crates/kinekino-vad-worker", "crates/kinekino-browser", "crates/kinekino-settings-ui", "crates/kinekino-inference", "crates/kinekino-inference-hf", "crates/kinekino-inference-local", "crates/kinekino-plugin-sdk", "crates/kinekino-libmpv", "crates/kinekino-player-ui"]
+members = ["xtask", "crates/kinekino-player", "crates/kinekino-cli", "crates/kinekino-host", "crates/kinekino-core", "crates/kinekino-platform", "crates/kinekino-platform-windows", "crates/kinekino-platform-unix", "crates/kinekino-ui-plugins", "crates/kinekino-media-contracts", "crates/kinekino-subtitles", "crates/kinekino-jobs", "crates/kinekino-process", "crates/kinekino-vad", "crates/kinekino-vad-executor", "crates/kinekino-vad-worker", "crates/kinekino-source-host", "crates/kinekino-card-render", "crates/kinekino-browser", "crates/kinekino-app", "crates/kinekino-settings-ui", "crates/kinekino-inference", "crates/kinekino-inference-hf", "crates/kinekino-inference-local", "crates/kinekino-plugin-sdk", "crates/kinekino-libmpv", "crates/kinekino-player-ui"]
+default-members = ["crates/kinekino-player", "crates/kinekino-cli", "crates/kinekino-host", "crates/kinekino-host", "crates/kinekino-core", "crates/kinekino-platform", "crates/kinekino-platform-unix", "crates/kinekino-ui-plugins", "crates/kinekino-media-contracts", "crates/kinekino-subtitles", "crates/kinekino-jobs", "crates/kinekino-process", "crates/kinekino-vad", "crates/kinekino-vad-executor", "crates/kinekino-vad-worker", "crates/kinekino-browser", "crates/kinekino-app", "crates/kinekino-settings-ui", "crates/kinekino-inference", "crates/kinekino-inference-hf", "crates/kinekino-inference-local", "crates/kinekino-plugin-sdk", "crates/kinekino-libmpv", "crates/kinekino-player-ui"]
 exclude = ["vendor/meari", "tools/boundary-observation", "tools/engine-lab", "tools/model-review-bundle", "tools/model-spike", "tools/spec-maintenance", "tools/validation", "tools/visual-review"]
 resolver = "3"
 
@@ -50,6 +50,8 @@ serde_json = "1"
 ctor = "0.10.1"
 sha2 = "=0.10.9"
 url = "2"
+kinekino-app = { path = "crates/kinekino-app" }
+kinekino-host = { path = "crates/kinekino-host" }
 kinekino-browser = { path = "crates/kinekino-browser" }
 kinekino-card-render = { path = "crates/kinekino-card-render" }
 kinekino-core = { path = "crates/kinekino-core" }

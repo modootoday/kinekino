@@ -1,0 +1,59 @@
+[package]
+name = "kinekino-app"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[features]
+card-review-export = ["kinekino-host/card-review-export"]
+validation-export-delivery-loss = ["kinekino-host/validation-export-delivery-loss"]
+native-proposal-window = ["kinekino-host/native-proposal-window"]
+test-support = ["kinekino-host/test-support"]
+source-adapter-test-support = ["kinekino-host/source-adapter-test-support"]
+worker-ipc = ["kinekino-host/worker-ipc"]
+
+[dependencies]
+kinekino-browser.workspace = true
+kinekino-core.workspace = true
+kinekino-host.workspace = true
+kinekino-inference.workspace = true
+kinekino-platform.workspace = true
+kinekino-settings-ui.workspace = true
+kinekino-player-ui.workspace = true
+kinekino-libmpv.workspace = true
+kinekino-source-host.workspace = true
+kinekino-plugin-sdk = { workspace = true, features = ["fixture"] }
+kinekino-vad-worker.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+
+[[bin]]
+name = "player"
+path = "src/bin/player.rs"
+
+[[bin]]
+name = "fake-source-plugin"
+path = "src/bin/fake-source-plugin.rs"
+
+[[bin]]
+name = "kinekino-vad-worker"
+path = "src/bin/kinekino-vad-worker.rs"
+
+[[bin]]
+name = "owned-process-test-child"
+path = "src/bin/owned-process-test-child.rs"
+required-features = ["test-support"]
+
+[[bin]]
+name = "source-sdk-fixture-worker"
+path = "src/bin/source-sdk-fixture-worker.rs"
+required-features = ["source-adapter-test-support"]
+
+[[bin]]
+name = "media-source-worker"
+path = "src/bin/media-source-worker.rs"
+required-features = ["worker-ipc"]
+
+[lints]
+workspace = true

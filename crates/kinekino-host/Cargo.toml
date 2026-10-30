@@ -1,0 +1,31 @@
+[package]
+name = "kinekino-host"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[lints]
+workspace = true
+
+[features]
+card-review-export = ["kinekino-player/card-review-export"]
+validation-export-delivery-loss = ["kinekino-player/validation-export-delivery-loss"]
+native-proposal-window = ["kinekino-player/native-proposal-window"]
+test-support = ["kinekino-process/test-support"]
+source-adapter-test-support = ["kinekino-player/source-adapter-test-support", "dep:kinekino-source-host", "kinekino-source-host/parent-host"]
+worker-ipc = ["dep:kinekino-source-host", "kinekino-source-host/worker-ipc"]
+
+[dependencies]
+anyhow.workspace = true
+kinekino-player.workspace = true
+kinekino-jobs.workspace = true
+kinekino-process.workspace = true
+kinekino-platform.workspace = true
+kinekino-source-host = { workspace = true, optional = true }
+serde.workspace = true
+serde_json.workspace = true
+time = { workspace = true, features = ["formatting"] }
+
+[target.'cfg(windows)'.dev-dependencies]
+windows = { workspace = true, features = ["Win32_Foundation", "Win32_System_IO"] }
