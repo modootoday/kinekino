@@ -61,7 +61,7 @@ impl<E: Engine> App<E> {
             let view = &self.shared.borrow().controller.view;
             (!view.fullscreen, view.maximized)
         };
-        if windowed && !maximized && self.begin_resize() {
+        if windowed && !maximized && self.begin_resize((x, y)) {
             return true;
         }
         let shared = self.shared.borrow();

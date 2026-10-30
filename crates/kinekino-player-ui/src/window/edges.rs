@@ -73,7 +73,10 @@ pub fn resize_direction(x: f64, y: f64, width: f64, height: f64, band: f64) -> O
 impl<E: Engine> App<E> {
     /// Starts an edge drag when the press is in the invisible band along the window edge.
     /// Pointer and window size come from the X server in one unit (physical pixels).
-    pub(super) fn begin_resize(&mut self) -> bool {
+    /// `press` is the button event's own position (window-relative, physical pixels): the
+    /// event is handled a frame or more after the press, by when the pointer may already
+    /// have moved, so the band and the drag origin must not come from a later pointer query.
+    pub(super) fn begin_resize(&mut self, press: (f64, f64)) -> bool {
         let (Some(x11), Some(id)) = (self.x11.as_ref(), self.window_id) else {
             return false;
         };
@@ -86,24 +89,25 @@ impl<E: Engine> App<E> {
             .handle
             .try_with(|doc| doc.renderer.document.viewport().scale_f64())
             .unwrap_or(1.0);
-        let (Ok(((x, y), root)), Ok(rect)) = (x11.pointer(window), x11.geometry(window)) else {
+        // The window does not move while the button is down, so its geometry read now is
+        // the geometry at the press.
+        let Ok(rect) = x11.geometry(window) else {
             return false;
         };
         let band = RESIZE_BAND * scale;
-        let (x, y, w, h) = (
-            f64::from(x),
-            f64::from(y),
-            f64::from(rect.w),
-            f64::from(rect.h),
-        );
-        let Some(direction) = resize_direction(x, y, w, h, band) else {
-            return false;
-        };
+        let (x, y) = press;
+        let direction = resize_direction(x, y, f64::from(rect.w), f64::from(rect.h), band);
+        let root = press_root(rect, press);
         if trace() {
+            let now = x11.pointer(window).ok();
             eprintln!(
-                "{{\"resize_begin\":{{\"direction\":{direction},\"rect\":\"{rect:?}\",\"at\":[{x},{y}],\"band\":{band}}}}}"
+                "{{\"resize_begin\":{{\"direction\":{direction:?},\"rect\":\"{rect:?}\",\"press\":[{x},{y}],\"press_root\":[{},{}],\"pointer_now\":\"{now:?}\",\"band\":{band}}}}}",
+                root.0, root.1
             );
         }
+        let Some(direction) = direction else {
+            return false;
+        };
         self.resizing = Some((direction, rect, root));
         self.resized_to = None;
         true
@@ -170,6 +174,14 @@ impl<E: Engine> App<E> {
             self.resized_to = None;
         }
     }
+}
+
+/// The screen position of a press at `press` (window-relative) in a window at `rect`.
+pub fn press_root(rect: Rect, press: (f64, f64)) -> (i32, i32) {
+    (
+        rect.x + press.0.floor() as i32,
+        rect.y + press.1.floor() as i32,
+    )
 }
 
 /// `KINEKINO_TRACE_RESIZE=1` prints every edge-drag step (desktop diagnosis).
@@ -305,6 +317,59 @@ mod tests {
         assert_eq!((r.x + r.w, r.w), (1280, MIN_SIZE.0));
         let r = resized(start, 1, 0, 1000, MIN_SIZE);
         assert_eq!((r.y + r.h, r.h), (720, MIN_SIZE.1));
+    }
+
+    /// The drag origin is the press itself: however late the press is handled (the pointer
+    /// already moved on), the window ends where the pointer is.
+    #[test]
+    fn a_late_handled_press_ends_at_the_same_rect() {
+        let rect = Rect {
+            x: 100,
+            y: 60,
+            w: 1400,
+            h: 800,
+        };
+        let press = (1397.0, 797.0); // 3px inside the bottom-right corner
+        assert_eq!(
+            resize_direction(press.0, press.1, 1400.0, 800.0, RESIZE_BAND),
+            Some(4)
+        );
+        let origin = press_root(rect, press);
+        assert_eq!(origin, (1497, 857));
+        let end = (1297, 737); // dragged (-200, -120)
+        let r = resized(rect, 4, end.0 - origin.0, end.1 - origin.1, MIN_SIZE);
+        assert_eq!(
+            r,
+            Rect {
+                w: 1200,
+                h: 680,
+                ..rect
+            }
+        );
+        // Handled when the pointer had moved 25px left: the old code took this as the
+        // origin, lost the corner (bottom edge only) and the first 25px of the drag.
+        let late = (1372, 857);
+        assert_eq!(
+            resize_direction(1372.0 - 100.0, 797.0, 1400.0, 800.0, RESIZE_BAND),
+            Some(5)
+        );
+        assert_ne!(
+            resized(rect, 5, end.0 - late.0, end.1 - late.1, MIN_SIZE),
+            r
+        );
+        // Top, top-left and left presses 3px inside are edges, not the caption.
+        assert_eq!(
+            resize_direction(700.0, 3.0, 1400.0, 800.0, RESIZE_BAND),
+            Some(1)
+        );
+        assert_eq!(
+            resize_direction(3.0, 3.0, 1400.0, 800.0, RESIZE_BAND),
+            Some(0)
+        );
+        assert_eq!(
+            resize_direction(3.0, 400.0, 1400.0, 800.0, RESIZE_BAND),
+            Some(7)
+        );
     }
 
     #[test]
