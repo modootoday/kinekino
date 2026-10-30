@@ -1,0 +1,48 @@
+.aw-subtitle-tabs { display: flex; flex-wrap: wrap; align-items: center; gap: var(--aw-space-1); border-bottom: var(--aw-border-thin) solid var(--aw-border); padding: 0 var(--aw-space-2); background: var(--aw-surface-panel); border-radius: var(--aw-radius-control); }
+.aw-subtitle-tab { min-height: var(--aw-control); padding: var(--aw-space-2) var(--aw-space-4); border: 0; border-bottom: var(--aw-border-focus) solid transparent; background: transparent; color: var(--aw-text-secondary); }
+.aw-subtitle-tab[data-state="active"] { color: var(--aw-accent); border-bottom-color: var(--aw-accent); }
+.aw-subtitle-tab:hover { background: var(--aw-surface-hover); }
+.aw-subtitle-media { min-width: 0; overflow: hidden; border: var(--aw-border-thin) solid var(--aw-border); border-radius: var(--aw-radius-control); background: var(--aw-surface-video); }
+.aw-waveform-region { min-height: var(--aw-waveform-height); min-width: 0; overflow: auto; border: var(--aw-border-thin) solid var(--aw-border); border-radius: var(--aw-radius-control); background: var(--aw-surface-field); }
+.aw-cue-table-scroll { min-height: 0; min-width: 0; overflow: auto; border: var(--aw-border-thin) solid var(--aw-border); border-radius: var(--aw-radius-control); }
+.aw-cue-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.aw-cue-table th, .aw-cue-table td { padding: var(--aw-space-2); border-bottom: var(--aw-border-thin) solid var(--aw-border); border-right: var(--aw-border-thin) solid var(--aw-border); text-align: left; vertical-align: top; white-space: pre-wrap; overflow-wrap: anywhere; }
+.aw-cue-table th { background: var(--aw-surface-selected); color: var(--aw-text-secondary); font-weight: var(--aw-font-regular); }
+.aw-cue-table th:first-child { width: min(var(--aw-table-index-width), 8%); }
+.aw-cue-table th:nth-child(2), .aw-cue-table th:nth-child(3) { width: min(var(--aw-table-time-width), 20%); }
+.aw-cue-table tr[aria-selected="true"] { background: var(--aw-selected-surface); }
+.aw-cue-table tr[aria-selected="true"] td:first-child { box-shadow: inset var(--aw-border-focus) 0 var(--aw-accent); }
+.aw-cue-time { font-size: var(--aw-font-small); font-variant-numeric: tabular-nums; }
+.aw-cue-select { min-height: var(--aw-control); min-width: 100%; padding: 0; border: 0; background: transparent; color: var(--aw-text); }
+.aw-text-comparison dl { display: grid; grid-template-columns: var(--aw-field-label-width) minmax(0, 1fr); margin: 0; border: var(--aw-border-thin) solid var(--aw-border); border-radius: var(--aw-radius-control); overflow: hidden; }
+.aw-text-comparison dt, .aw-text-comparison dd { margin: 0; padding: var(--aw-space-2) var(--aw-space-3); border-bottom: var(--aw-border-thin) solid var(--aw-border); overflow-wrap: anywhere; white-space: pre-wrap; }
+.aw-text-comparison dt { background: var(--aw-surface-selected); border-right: var(--aw-border-thin) solid var(--aw-border); }
+.aw-text-comparison dt:nth-last-child(2), .aw-text-comparison dd:last-child { border-bottom: 0; }
+.aw-comparison-state { color: var(--aw-text-secondary); font-size: var(--aw-font-small); }
+.aw-path-field { display: grid; grid-template-columns: minmax(0, 1fr) var(--aw-control); gap: var(--aw-space-2); margin-bottom: var(--aw-space-2); }
+.aw-checkbox-field { display: flex; align-items: flex-start; gap: var(--aw-space-2); }
+.aw-checkbox-field input { accent-color: var(--aw-accent); }
+.aw-conversion-comparison { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--aw-space-2); }
+.aw-syntax-panel { min-width: 0; overflow: auto; border: var(--aw-border-thin) solid var(--aw-border); border-radius: var(--aw-radius-control); background: var(--aw-surface-panel); }
+.aw-syntax-row { display: grid; grid-template-columns: var(--aw-syntax-number-width) minmax(0, 1fr); border-bottom: var(--aw-border-thin) solid var(--aw-border); }
+.aw-syntax-row[aria-current="true"] { background: var(--aw-selected-surface); box-shadow: inset var(--aw-border-focus) 0 var(--aw-accent); }
+.aw-syntax-number { min-height: var(--aw-control); border: 0; border-right: var(--aw-border-thin) solid var(--aw-border); background: transparent; color: var(--aw-text-secondary); }
+.aw-syntax-content { min-width: 0; padding: var(--aw-space-2) var(--aw-space-3); }
+.aw-syntax-content p { margin: 0 0 var(--aw-space-2); }
+.aw-syntax-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+.aw-syntax-source { max-width: 100%; overflow: auto; font-size: var(--aw-font-small); font-variant-numeric: tabular-nums; padding: var(--aw-space-2); background: var(--aw-surface-field); }
+.aw-loss-notice { display: flex; gap: var(--aw-space-3); padding: var(--aw-space-3); border: var(--aw-border-thin) solid var(--aw-warning-border); border-radius: var(--aw-radius-control); background: var(--aw-warning-surface); }
+.aw-loss-notice .aw-icon { color: var(--aw-accent); }
+.aw-loss-notice h3 { margin: 0; font-size: var(--aw-font-body); }
+.aw-loss-notice ul { margin: var(--aw-space-2) 0 0; padding-left: var(--aw-space-4); }
+.aw-icon-warning { --aw-icon-source: url("../../../../../../assets/design/icons/warning.svg"); }
+@media (max-width: 979px) { .aw-conversion-comparison { grid-template-columns: minmax(0, 1fr); } }
+.aw-cue-edit-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--aw-space-4); }
+.aw-cue-edit-group { display: flex; flex-wrap: wrap; align-items: center; gap: var(--aw-space-2); }
+.aw-cue-edit-divider { align-self: stretch; min-height: var(--aw-control); border-left: var(--aw-border-thin) solid var(--aw-border); }
+.aw-icon-cue-split { --aw-icon-source: url("../../../../../../assets/design/icons/clip.svg"); }
+.aw-icon-cue-merge { --aw-icon-source: url("../../../../../../assets/design/icons/merge.svg"); }
+.aw-icon-cue-add { --aw-icon-source: url("../../../../../../assets/design/icons/plus.svg"); }
+.aw-icon-cue-delete { --aw-icon-source: url("../../../../../../assets/design/icons/delete.svg"); }
+.aw-icon-cue-undo { --aw-icon-source: url("../../../../../../assets/design/icons/undo.svg"); }
+.aw-icon-cue-redo { --aw-icon-source: url("../../../../../../assets/design/icons/redo.svg"); }

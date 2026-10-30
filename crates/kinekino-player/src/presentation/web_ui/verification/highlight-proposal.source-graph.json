@@ -1,0 +1,9 @@
+{
+  "entry": "studio/clips/highlight-proposal-panel.tsx",
+  "components": [
+    "studio/clips/highlight-proposal-panel.tsx",
+    "components/proposal-actions.tsx",
+    "components/proposal-source.tsx",
+    "components/proposal-output-review.tsx"
+  ]
+}

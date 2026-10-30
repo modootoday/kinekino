@@ -1,0 +1,49 @@
+/* Scoped projection of size::CARD_RAIL/CANDIDATE_ACTIONS and existing shared tokens. */
+.aw-clip-recommendation {
+  --aw-clip-recommendation-thumbnail-width: 132px;
+  --aw-clip-recommendation-actions-width: 240px;
+  display: grid;
+  grid-template-columns: var(--aw-control) var(--aw-clip-recommendation-thumbnail-width) minmax(0, 1fr) minmax(0, 1fr) var(--aw-clip-recommendation-actions-width);
+  align-items: center;
+  gap: var(--aw-space-2);
+  min-width: 0;
+  padding: var(--aw-space-3);
+  border: var(--aw-border-thin) solid var(--aw-border);
+  border-radius: var(--aw-radius-control);
+  background: var(--aw-surface-panel);
+  color: var(--aw-text);
+  font-family: var(--aw-font-family);
+  font-size: var(--aw-font-body);
+}
+.aw-clip-recommendation:hover { background: var(--aw-surface-hover); }
+.aw-clip-recommendation[data-preview-selected="true"] { background: var(--aw-selected-surface); box-shadow: inset var(--aw-border-focus) 0 0 var(--aw-selected-border); }
+.aw-clip-recommendation:focus-within { outline: var(--aw-border-focus) solid var(--aw-focus); outline-offset: calc(-1 * var(--aw-border-focus)); }
+.aw-clip-recommendation-inclusion, .aw-clip-recommendation-artwork, .aw-clip-recommendation-details, .aw-clip-recommendation-evidence, .aw-clip-recommendation-actions { min-width: 0; }
+.aw-clip-recommendation-inclusion { display: grid; justify-items: center; gap: var(--aw-space-1); }
+.aw-clip-recommendation-select { display: block; width: 100%; min-width: 0; padding: 0; border: var(--aw-border-thin) solid var(--aw-border); border-radius: var(--aw-radius-control); background: var(--aw-surface-video); color: var(--aw-text-secondary); }
+.aw-clip-recommendation-select:not(:disabled):active { background: var(--aw-surface-pressed); }
+.aw-clip-recommendation-thumbnail { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: var(--aw-radius-control); }
+.aw-clip-recommendation-placeholder { display: grid; place-items: center; padding: var(--aw-space-2); color: var(--aw-text-muted); font-size: var(--aw-font-small); overflow-wrap: anywhere; }
+.aw-clip-recommendation-details h3 { margin: 0 0 var(--aw-space-1); font-size: var(--aw-font-body); font-weight: var(--aw-font-semibold); overflow-wrap: anywhere; }
+.aw-clip-recommendation-time { display: flex; flex-wrap: wrap; gap: var(--aw-space-2); margin: 0; color: var(--aw-text-secondary); font-family: var(--aw-font-mono); font-size: var(--aw-font-small); font-variant-numeric: tabular-nums; }
+.aw-clip-recommendation-source-label, .aw-clip-recommendation-quality { margin: var(--aw-space-1) 0 0; color: var(--aw-text-muted); font-size: var(--aw-font-small); overflow-wrap: anywhere; }
+.aw-clip-recommendation-source { display: inline-flex; align-items: center; gap: var(--aw-space-1); min-height: var(--aw-control); max-width: 100%; padding: 0; border: 0; background: transparent; color: var(--aw-info-text); font: inherit; text-align: left; text-decoration: underline; overflow-wrap: anywhere; }
+.aw-clip-recommendation-source:disabled { color: var(--aw-text-disabled); }
+.aw-clip-recommendation-icon-source { --aw-icon-source: url("../../../../../../assets/design/icons/source-link.svg"); }
+.aw-clip-recommendation-icon-edit { --aw-icon-source: url("../../../../../../assets/design/icons/clip.svg"); }
+.aw-clip-recommendation-icon-exclude { --aw-icon-source: url("../../../../../../assets/design/icons/delete.svg"); }
+.aw-clip-recommendation-evidence-heading { margin: 0 0 var(--aw-space-1); color: var(--aw-text-muted); font-size: var(--aw-font-small); }
+.aw-clip-recommendation-evidence-kind { display: flex; align-items: center; gap: var(--aw-space-1); margin: 0 0 var(--aw-space-1); color: var(--aw-text); font-size: var(--aw-font-body); overflow-wrap: anywhere; }
+.aw-clip-recommendation-icon-evidence { --aw-icon-source: url("../../../../../../assets/design/icons/info.svg"); }
+.aw-clip-recommendation-evidence-kind[data-evidence-kind="subtitle"] .aw-clip-recommendation-icon-evidence { --aw-icon-source: url("../../../../../../assets/design/icons/subtitles.svg"); }
+.aw-clip-recommendation-evidence-kind[data-evidence-kind="scene"] .aw-clip-recommendation-icon-evidence { --aw-icon-source: url("../../../../../../assets/design/icons/track-video.svg"); }
+.aw-clip-recommendation-evidence-kind[data-evidence-kind="manual"] .aw-clip-recommendation-icon-evidence { --aw-icon-source: url("../../../../../../assets/design/icons/subject.svg"); }
+.aw-clip-recommendation-evidence-text { margin: 0; color: var(--aw-text-secondary); font-size: var(--aw-font-small); white-space: pre-wrap; overflow-wrap: anywhere; }
+.aw-clip-recommendation-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--aw-space-2); }
+.aw-clip-recommendation-actions .aw-button { min-height: var(--aw-control); padding: var(--aw-space-inline) var(--aw-space-2); }
+.aw-clip-recommendation-reason { margin: 0; color: var(--aw-text-muted); font-size: var(--aw-font-small); overflow-wrap: anywhere; }
+.aw-clip-recommendation-reason:empty { display: none; }
+@media (max-width: 979px) {
+  .aw-clip-recommendation { grid-template-columns: var(--aw-control) var(--aw-clip-recommendation-thumbnail-width) minmax(0, 1fr); }
+  .aw-clip-recommendation-evidence, .aw-clip-recommendation-actions { grid-column: 2 / -1; }
+}

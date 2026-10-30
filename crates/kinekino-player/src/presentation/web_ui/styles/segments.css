@@ -1,0 +1,22 @@
+.aw-segment-media { min-width: 0; overflow: hidden; border: var(--aw-border-thin) solid var(--aw-border); border-radius: var(--aw-radius-control); background: var(--aw-surface-video); }
+.aw-segment-timeline { min-width: 0; overflow: auto; }
+.aw-segment-candidates { min-width: 0; border: var(--aw-border-thin) solid var(--aw-border); border-radius: var(--aw-radius-control); overflow: hidden; }
+.aw-segment-candidates > header { display: flex; flex-wrap: wrap; align-items: center; gap: var(--aw-space-2); padding: var(--aw-space-2) var(--aw-space-3); border-bottom: var(--aw-border-thin) solid var(--aw-border); }
+.aw-segment-candidates h2 { margin: 0; font-size: var(--aw-font-body); font-weight: var(--aw-font-semibold); }
+.aw-segment-table-scroll { overflow: auto; }
+.aw-segment-table { width: 100%; border-collapse: collapse; }
+.aw-segment-table th, .aw-segment-table td { padding: var(--aw-space-2); border-bottom: var(--aw-border-thin) solid var(--aw-border); text-align: left; vertical-align: middle; }
+.aw-segment-table th { padding-top: var(--aw-space-1); padding-bottom: var(--aw-space-1); background: var(--aw-surface-field); color: var(--aw-text-secondary); font-weight: var(--aw-font-regular); }
+.aw-segment-table tr:last-child td { border-bottom: 0; }
+.aw-segment-table tr[aria-selected="true"] { background: var(--aw-selected-surface); }
+.aw-segment-table tr[aria-selected="true"] td:first-child { box-shadow: inset var(--aw-border-focus) 0 var(--aw-accent); }
+.aw-segment-time { min-width: var(--aw-table-time-width); font-family: var(--aw-font-mono); font-size: var(--aw-font-small); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.aw-segment-kind, .aw-segment-actions { display: inline-flex; align-items: center; gap: var(--aw-space-2); white-space: nowrap; }
+.aw-segment-kind { color: var(--aw-text); }
+.aw-segment-dot { width: var(--aw-segment-dot); height: var(--aw-segment-dot); border-radius: var(--aw-radius-full); background: var(--aw-text-muted); }
+.aw-segment-kind[data-kind="opening"] .aw-segment-dot { background: var(--aw-segment-opening); }
+.aw-segment-kind[data-kind="ending"] .aw-segment-dot { background: var(--aw-segment-ending); }
+.aw-segment-badge { display: inline-flex; align-items: center; min-height: var(--aw-badge); max-width: var(--aw-badge-max); padding: var(--aw-space-1) var(--aw-space-3); border-radius: var(--aw-radius-full); background: var(--aw-surface-selected); color: var(--aw-text-secondary); }
+.aw-segment-badge[data-kind="opening"] { color: var(--aw-segment-opening); }
+.aw-segment-badge[data-kind="ending"] { color: var(--aw-segment-ending); }
+.aw-icon-segment-delete { --aw-icon-source: url("../../../../../../assets/design/icons/delete.svg"); }

@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "purpose": "Fixed comparison inputs and acceptance boundaries; not an executable SDK policy or a rendered demo",
+  "status": {
+    "source_authored": true,
+    "parser_executed": false,
+    "runtime_verified": false,
+    "visual_verified": false
+  },
+  "source_graphs": {
+    "product": "studio/application.source-graph.json",
+    "explicit_empty": "verification/studio-frame-empty.source-graph.json"
+  },
+  "slot_bindings": {
+    "productName": "Central product identity configuration",
+    "contextLabel": "Existing presentation context",
+    "workspaceId": "Explicit active workspace selection; no router registration implied",
+    "workspace": "Trusted declared graph subtree of the existing product editor; same SDK session",
+    "inspector": "Trusted declared graph subtree of the corresponding inspector; same SDK selection",
+    "queueSummaryLabel": "Actual typed job state; no fabricated counts",
+    "queueDetailsLabel": "Actual typed job detail or explicit unsupported state"
+  },
+  "slot_contract": {
+    "required_named": ["navigation", "workspace", "inspector", "queue"],
+    "placements_per_named_slot": 1,
+    "inspector_children_placements": 1,
+    "empty_source_expression": "null",
+    "missing_is_empty": false,
+    "empty_semantics_status": "Requested bounded ReactNode empty profile; Meari public contract and rejection evidence pending",
+    "arbitrary_html_or_executable_input": false
+  },
+  "layout_inputs": [
+    {"id": "wide-open", "viewport": {"width": 1440, "height": 900}, "narrow": false, "inspectorOpen": true},
+    {"id": "narrow-closed", "viewport": {"width": 760, "height": 760}, "narrow": true, "inspectorOpen": false},
+    {"id": "narrow-open", "viewport": {"width": 760, "height": 760}, "narrow": true, "inspectorOpen": true}
+  ],
+  "identity_comparisons": [
+    "Same slot placement and graph identity: preserve state/useId, editor input and callback ownership across scalar prop updates",
+    "Wide/narrow transition: preserve one inspector subtree; hidden is not disposal",
+    "Explicit replacement: revoke the old slot event export and reject stale events; retain unrelated shell state",
+    "Empty slot: no hidden replacement element, duplicate shell, fake editor or inferred first selection",
+    "Foreign owner, stale generation, cycles and excessive depth/node/byte budgets: bounded typed rejection"
+  ],
+  "phase_dependencies": {
+    "P1a": ["ReactNode named attributes and child projection", "Explicit null slot semantics", "Bounded graph ownership and stable placement"],
+    "P1b": ["Original InspectorDock children", "Boolean onOpenChange", "Controlled nonmodal/modal, asChild, forceMount, hidden and focus semantics"],
+    "P2": ["Original navigation-item props.workspaceId string capture", "Router registration and tab selection"]
+  },
+  "sdk_baseline": {
+    "source_inventory": "runtime/quality-review/product-native-main-r1/final-source-inventory.json",
+    "source_inventory_sha256": "4F4AE9DCEB4A222F89B5730E3990C08CFE2DED6690F2A9144DF52B25376B0F0E",
+    "binary_sha256_accepted_by_pm": "6610D2FFD801020882E62B46F8BE26244CB72202F1A91E972E3B8C34146FDC6F",
+    "reuse_scope": "Existing proposal startup/frame/close/store and style/font evidence only; not shell visual acceptance"
+  },
+  "visual_reference": {
+    "screen_index": ".spec/artifacts/design/screens.md",
+    "composition": ".spec/sots/player/presentation/shared/screen-composition.md",
+    "chrome_rules": ".agents/rules/window-chrome.md",
+    "all_thirteen_screen_groups_remain_required": true
+  }
+}

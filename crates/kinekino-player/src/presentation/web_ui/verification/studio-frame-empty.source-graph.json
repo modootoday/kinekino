@@ -1,0 +1,8 @@
+{
+  "entry": "verification/studio-frame-empty.tsx",
+  "components": [
+    "verification/studio-frame-empty.tsx",
+    "studio/frame.tsx",
+    "components/window-chrome.tsx"
+  ]
+}

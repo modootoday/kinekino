@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "status": "product-route-contract-not-runtime-registered",
+  "router_owner": "meari-react-router-compatibility",
+  "view_routes": [
+    {"id":"view.start","path":"/","source":"viewing/player.tsx"},
+    {"id":"view.browse","path":"/browse/:category","source":null},
+    {"id":"view.watch","path":"/watch/:sourceId","source":null}
+  ],
+  "studio_routes": [
+    {"id":"studio.segments","workspace":"SEG","path":"/studio/segments","source":"studio/segments/workspace.tsx"},
+    {"id":"studio.subtitles.speech","workspace":"SUB","path":"/studio/subtitles/speech","source":"studio/subtitles/speech-workspace.tsx"},
+    {"id":"studio.subtitles.speakers","workspace":"SUB","path":"/studio/subtitles/speakers","source":null},
+    {"id":"studio.subtitles.ocr","workspace":"SUB","path":"/studio/subtitles/ocr","source":null},
+    {"id":"studio.subtitles.correction","workspace":"SUB","path":"/studio/subtitles/correction","source":"studio/subtitles/correction-workspace.tsx"},
+    {"id":"studio.subtitles.conversion","workspace":"SUB","path":"/studio/subtitles/conversion","source":"studio/subtitles/conversion-workspace.tsx"},
+    {"id":"studio.objects","workspace":"OBJ","path":"/studio/objects","source":null},
+    {"id":"studio.shorts.manual","workspace":"CLIP","path":"/studio/shorts/manual","source":null},
+    {"id":"studio.shorts.recommendations","workspace":"CLIP","path":"/studio/shorts/recommendations","source":null},
+    {"id":"studio.shorts.batch","workspace":"CLIP","path":"/studio/shorts/batch","source":null},
+    {"id":"studio.frames.original","workspace":"FRAME","path":"/studio/frames/original","source":null},
+    {"id":"studio.frames.thumbnail","workspace":"FRAME","path":"/studio/frames/thumbnail","source":null},
+    {"id":"studio.cards","workspace":"CARD","path":"/studio/cards","source":null},
+    {"id":"studio.assets-2d","workspace":"A2D","path":"/studio/assets-2d","source":null},
+    {"id":"studio.projection.depth","workspace":"PROJ","path":"/studio/projection/depth","source":null},
+    {"id":"studio.projection.package","workspace":"PROJ","path":"/studio/projection/package","source":null},
+    {"id":"studio.video-save","workspace":"SAVE","path":"/studio/video-save","source":null},
+    {"id":"studio.models","workspace":"MODEL","path":"/studio/models","source":null},
+    {"id":"studio.jobs","workspace":"JOB","path":"/studio/jobs","source":"studio/jobs/application.tsx"},
+    {"id":"studio.exports","workspace":"OUT","path":"/studio/exports","source":null}
+  ],
+  "selection_query_keys": ["project","source","proposal","cue","job","model"],
+  "forbidden_url_payloads": ["draft_text","raw_generated_text","local_file_path","signed_media_url","authorization"],
+  "scope_audit": {"studio_catalog_count":20,"historical_r158_count":25,"job_status_tabs_before":6,"job_pages_after":1,"approved_studio_images":19,"speaker_subview_added":1,"approved_viewing_images":6,"catalog_alignment_unmapped_count":0,"status":"resolved-job-status-filter-reclassification-not-feature-removal"}
+}

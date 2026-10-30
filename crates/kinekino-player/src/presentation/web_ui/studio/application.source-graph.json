@@ -1,0 +1,12 @@
+{
+  "entry": "studio/application.tsx",
+  "components": [
+    "studio/application.tsx",
+    "studio/frame.tsx",
+    "components/window-chrome.tsx",
+    "studio/navigation.tsx",
+    "studio/navigation-item.tsx",
+    "studio/inspector-dock.tsx",
+    "studio/queue-footer.tsx"
+  ]
+}

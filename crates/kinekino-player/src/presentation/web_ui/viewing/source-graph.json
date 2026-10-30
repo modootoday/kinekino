@@ -1,0 +1,14 @@
+{
+  "entry": "viewing/read-panel.tsx",
+  "components": [
+    "viewing/read-panel.tsx",
+    "viewing/catalog-browser.tsx",
+    "viewing/episode-navigation.tsx",
+    "viewing/player.tsx",
+    "viewing/player-frame.tsx",
+    "viewing/native-transport-bar.tsx",
+    "viewing/start-screen.tsx",
+    "components/window-chrome.tsx",
+    "components/transport-bar.tsx"
+  ]
+}
