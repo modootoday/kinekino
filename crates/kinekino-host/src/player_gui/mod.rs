@@ -1,9 +1,16 @@
-#[cfg(windows)]
-use kinekino_player::presentation;
 use kinekino_player::{application, infrastructure};
 
+/// What the `player` process should do after the host body returns.
+#[derive(Debug, PartialEq, Eq)]
+pub enum Desktop {
+    /// The host ran a native proposal/product window to completion.
+    Done,
+    /// Plain viewing: run the Meari player window (`kinekino watch`).
+    Watch { smoke: bool },
+}
+
 /// Desktop player process body (was `kinekino-player/src/main.rs`); entry: `kinekino_app::player`.
-pub fn main() -> anyhow::Result<()> {
+pub fn main() -> anyhow::Result<Desktop> {
     #[cfg(windows)]
     {
         let args: Vec<_> = std::env::args().collect();
@@ -28,7 +35,7 @@ pub fn main() -> anyhow::Result<()> {
         )
         .map_err(|error| anyhow::anyhow!("{:?}: {}", error.code, error.message))?;
         if mode == application::launch::DesktopMode::DesignPreview {
-            return presentation::run_preview(application::launch::validation_position(&args)?);
+            anyhow::bail!("the egui design preview was removed; the player UI is Meari (`kinekino watch`)");
         }
         #[cfg(feature = "native-proposal-window")]
         let viewer_initialization_started = std::time::Instant::now();
@@ -166,7 +173,7 @@ pub fn main() -> anyhow::Result<()> {
             }
             drop(outcome);
             drop(local_host);
-            return Ok(());
+            return Ok(Desktop::Done);
         }
         #[cfg(feature = "native-proposal-window")]
         if mode == application::launch::DesktopMode::NativeViewer {
@@ -187,7 +194,7 @@ pub fn main() -> anyhow::Result<()> {
                     eprintln!("{}", retained.report());
                     std::process::exit(1);
                 }
-                return Ok(());
+                return Ok(Desktop::Done);
             }
             let outcome =
                 kinekino_player::assembly::meari::product_viewer_launch::run_product_viewer_with_project(
@@ -208,22 +215,21 @@ pub fn main() -> anyhow::Result<()> {
                 // Original endpoint/native owners remain in outcome at this abnormal boundary.
                 std::process::exit(1);
             }
-            return Ok(());
+            return Ok(Desktop::Done);
         }
-        presentation::run_with_native_playback(
-            args.iter().any(|arg| arg == "--smoke-test"),
-            start_url,
-            application::launch::validation_position(&args)?,
-            client,
-            paths,
-            Some(status_publisher),
-            Some(control_binder),
-        )?;
+        // The egui/WebView player screen is gone: plain viewing is the Meari player window.
+        let _ = (start_url, client, paths, status_publisher, control_binder);
         drop(local_host);
+        return Ok(Desktop::Watch {
+            smoke: args.iter().any(|arg| arg == "--smoke-test"),
+        });
     }
     #[cfg(not(windows))]
-    anyhow::bail!("The desktop player currently supports Windows only");
-    Ok(())
+    {
+        return Ok(Desktop::Watch {
+            smoke: std::env::args().any(|arg| arg == "--smoke-test"),
+        });
+    }
 }
 
 #[cfg(all(windows, feature = "native-proposal-window"))]
