@@ -1,0 +1,5 @@
+---
+layout: twin
+twin_of: features.md
+permalink: /features/index.md
+---

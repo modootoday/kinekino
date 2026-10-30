@@ -1,0 +1,5 @@
+{%- comment -%}URL of page `ref` in the current language, falling back to the default language when that translation does not exist (partial languages).{%- endcomment -%}
+{%- assign _c = site.pages | where: "ref", include.ref | where_exp: "p", "p.layout != 'twin'" -%}
+{%- assign _p = _c | where: "lang", page.lang | first -%}
+{%- unless _p %}{% assign _p = _c | where: "lang", site.default_lang | first %}{% endunless -%}
+{{- _p.url | relative_url -}}

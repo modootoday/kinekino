@@ -1,0 +1,7 @@
+# Header navigation (theme nav component). Titles mirror _data/i18n/<lang>.yml nav.*
+- {title: '기능', url: /ko/features/}
+- {title: '활용 사례', url: /ko/use-cases/}
+- {title: 'AI 에이전트', url: /ko/agents/}
+- {title: '플랫폼', url: /ko/platforms/}
+- {title: '로드맵', url: /ko/roadmap/}
+- {title: '다운로드', url: /ko/download/}

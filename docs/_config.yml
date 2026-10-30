@@ -1,0 +1,35 @@
+# GitHub Pages builds this directory with Jekyll; no build step. Theme: jekyll-theme-modootoday (md-components v1),
+# pinned to a main commit until v1.0.0 is tagged; then switch to @v1.0.0.
+# Only plugins on https://pages.github.com/versions/ are used (no jekyll-polyglot).
+title: kinekino
+description: "A cross-OS Rust video player with a cat mascot, built to be driven by people, CLI scripts and AI agents."
+url: "https://kinekino.com"
+baseurl: ""
+lang: en
+default_lang: en          # served at /, x-default target, fallback for missing UI strings
+# languages: see _data/languages.yml (single source; add one entry + _data/i18n/<code>.yml + /<code>/ folder)
+permalink: pretty
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+remote_theme: modootoday/jekyll-theme-modootoday@a542c00c23a381544a276bf527cbf0c40c53a0f6
+plugins: [jekyll-remote-theme, jekyll-seo-tag, jekyll-sitemap, jekyll-relative-links]
+modootoday:
+  color_scheme: auto
+  components: [callout, badge, code-copy, nav, theme-toggle]
+  languages: [en, ko]        # keep in sync with _data/languages.yml (check_site.py)
+  language_switcher: header
+  seo: false                 # jekyll-seo-tag in _includes/head-custom.html
+  nav: main
+sass: { silence_deprecations: [import, global-builtin] }
+relative_links: { enabled: true }
+twitter: { card: summary_large_image }
+defaults:
+  - scope: { path: "" }
+    values: { layout: doc, lang: en, image: /assets/img/mascot/preview-1.png }
+  - scope: { path: "ko" }
+    values: { lang: ko }
+# Setting exclude replaces Jekyll's defaults, so they are listed again.
+# spec/ and continuation/ hold repository docs that are not part of the site.
+exclude: [Gemfile, Gemfile.lock, node_modules, vendor/bundle, vendor/cache, vendor/gems, vendor/ruby, spec, continuation]

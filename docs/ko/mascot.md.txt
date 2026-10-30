@@ -1,0 +1,5 @@
+---
+layout: twin
+twin_of: mascot.md
+permalink: /ko/mascot/index.md
+---

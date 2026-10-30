@@ -1,0 +1,5 @@
+---
+layout: twin
+twin_of: settings.md
+permalink: /settings/index.md
+---

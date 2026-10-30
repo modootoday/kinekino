@@ -1,0 +1,39 @@
+{%- comment -%}
+Visual component: illustrated player window, NOT a screenshot (labelled as such).
+Param scene: playback | timeline | review | settings | agent. Strings: _data/i18n/*.yml `mock.*`.
+{%- endcomment -%}
+{%- include i18n.html -%}{%- assign M = t.mock | default: t0.mock -%}{%- assign sc = include.scene | default: "playback" -%}
+<figure class="mock mock-{{ sc }}" role="img" aria-label="{{ M.alt[sc] }}">
+<div class="mock-bar" aria-hidden="true"><i></i><i></i><i></i><span>kinekino — {{ M.title[sc] }}</span></div>
+<div class="mock-body" aria-hidden="true">
+{%- if sc == "settings" %}
+<div class="mock-set">
+<nav class="ms-nav"><b class="on">{{ M.s_inf }}</b><b>{{ M.s_play }}</b><b>{{ M.s_sub }}</b><b>{{ M.s_agent }}</b><b>{{ M.s_priv }}</b></nav>
+<div class="ms-main">
+<p class="ms-h">{{ M.s_mode }}</p>
+<div class="ms-seg"><span class="on">{{ M.s_cloud }}</span><span>{{ M.s_lf }}</span><span>{{ M.s_lo }}</span></div>
+<p class="ms-h">{{ M.s_budget }}</p>
+<div class="ms-row"><span>{{ M.s_task }}</span><code>$0.50</code></div><div class="ms-row"><span>{{ M.s_month }}</span><code>$10.00</code></div>
+<div class="ms-meter"><i style="width:38%"></i></div>
+<p class="ms-h">{{ M.s_consent }}</p>
+<div class="ms-row"><span>{{ M.s_scope }}</span><code>project</code></div>
+<div class="ms-row"><span>{{ M.s_diar }}</span><span class="ms-tog"></span></div>
+</div></div>
+{%- elsif sc == "agent" %}
+<div class="mock-term"><code><em>$</em> kinekino capabilities --json | jq '.commands | length'</code><code class="o">58</code><code><em>$</em> kinekino schema subtitles.convert</code><code class="o">{ "input": "path", "to": "srt|vtt" … }</code><code><em>$</em> kinekino mcp serve <span class="pl">{{ M.planned }}</span></code><code class="o">tools: playback.open · subtitles.edit_cues · jobs.submit</code></div>
+{%- else %}
+<div class="mock-video"><div class="mock-scene"></div><p class="mock-sub">{{ M.sub }}</p>{% if sc == "playback" %}<span class="mock-ep">{{ M.ep }}</span>{% endif %}<span class="mock-peek">{% include cat.svg size="40" id="peek" %}</span></div>
+{%- if sc == "review" %}
+<aside class="mock-side"><b>{{ M.r_title }}</b>
+<div class="mp"><span>{{ M.r_p1 }}</span><i class="ok">✓</i><i>✕</i></div><div class="mp"><span>{{ M.r_p2 }}</span><i class="ok">✓</i><i>✕</i></div><div class="mp done"><span>{{ M.r_p3 }}</span><i class="ok">✓</i></div></aside>
+{%- else %}
+<aside class="mock-side"><b>{{ M.log }}</b><code>playback.open <em>ok</em></code><code>playback.seek 00:12:04 <em>ok</em></code><code>subtitles.edit_cues r7 <em>ok</em></code><code>jobs.submit render_short <em>queued</em></code></aside>
+{%- endif %}
+{%- if sc == "timeline" %}
+<div class="mock-tracks"><div class="tk"><b>V</b><i style="left:4%;width:30%"></i><i style="left:36%;width:22%" class="sel"></i><i style="left:60%;width:34%"></i></div><div class="tk sb"><b>S</b><i style="left:6%;width:10%"></i><i style="left:19%;width:14%"></i><i style="left:38%;width:9%"></i><i style="left:50%;width:12%"></i><i style="left:66%;width:16%"></i></div><div class="tk sp"><b>♪</b><i style="left:2%;width:40%"></i><i style="left:46%;width:48%"></i></div><span class="ph" style="left:44%"></span><span class="rg">{{ M.range }}</span></div>
+{%- endif %}
+<div class="mock-ctl"><span class="play">▶</span><div class="tl"><div class="tl-in"></div><div class="tl-cue" style="left:22%"></div><div class="tl-cue" style="left:47%"></div><div class="tl-cue" style="left:71%"></div></div><span class="tc">12:04 / 23:40</span></div>
+{%- endif %}
+</div>
+<figcaption class="mock-tag">{{ M.label }}</figcaption>
+</figure>

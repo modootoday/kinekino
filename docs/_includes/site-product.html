@@ -1,0 +1,24 @@
+{%- comment -%}
+kinekino extension on jekyll-theme-modootoday (md-components v1, final). Input is the kit's modootoday/markdown/components.html output.
+  include.html      converted body (alerts, badges done by the kit)
+  include.hero      front matter `hero:` {c, visual, scene, mascot}: style of the part before the first ## (kit: section.mt-hero)
+  include.sections  front matter `sections:` (kit rule: item i = i-th top-level ##; count checked by modootoday-check)
+                    item: {c, visual, scene, cols, mascot}; c is registered in _data/components.yml
+  include.title     fallback H1 when the hero part has none
+Adds: li.c-lk (item is exactly one link), strong.c-title + span.c-sep for "**T**: " list items, the kit's
+p.mt-actions on link-only paragraphs (modootoday/actions.html), and an optional visual from _includes/sections/.
+Split only on top-level "\n<h2 " (as the kit's modootoday/markdown/sections.html), so ## nested in alerts/lists never split.
+{%- endcomment -%}
+{%- assign _h = include.html -%}
+{%- assign _lk = _h | split: '<li><a ' -%}{%- capture _h -%}{%- for _p in _lk -%}{%- if forloop.first -%}{{ _p }}{%- else -%}{%- assign _it = _p | split: '</li>' | first -%}{%- assign _na = _it | split: '<a ' | size -%}{%- assign _ne = _it | strip | append: '§' -%}{%- if _na == 1 and _ne contains '</a>§' -%}<li class="c-lk"><a {{ _p }}{%- else -%}<li><a {{ _p }}{%- endif -%}{%- endif -%}{%- endfor -%}{%- endcapture -%}
+{%- assign _h = _h | replace: '<li><strong>', '<li><strong class="c-title">' | replace: '</strong>: ', '</strong><span class="c-sep">: </span>' -%}
+{%- capture _h %}{% include modootoday/actions.html html=_h %}{% endcapture -%}
+{%- assign _nl = "
+" -%}{%- assign _sep = _nl | append: "<h2 " -%}
+{%- assign _parts = _h | prepend: _nl | split: _sep -%}
+{%- for _p in _parts -%}
+{%- if forloop.first -%}{%- assign _s = include.hero -%}{%- assign _x = _p -%}{%- unless _x contains "<h1" -%}{%- capture _x -%}<h1>{{ include.title }}</h1>{{ _x }}{%- endcapture -%}{%- endunless -%}
+{%- else -%}{%- assign _k = forloop.index0 | minus: 1 -%}{%- assign _s = include.sections[_k] -%}{%- assign _x = '<h2 ' | append: _p -%}{%- endif -%}
+{%- assign _c = _s.c | default: "prose" -%}{%- assign _v = _s.visual -%}
+<section class="{% if forloop.first %}mt-hero{% else %}mt-section mt-c-{{ _c }}{% if _c == 'cta' %} mt-cta{% endif %}{% if _s.cols %} mt-cols-{{ _s.cols }}{% endif %}{% endif %} c-sec c-{{ _c }}{% if _v %} has-visual{% endif %}{% if _s.cols %} cols-{{ _s.cols }}{% endif %}" data-section="{{ _s.name | default: forloop.index0 }}"{% unless forloop.first %} data-c="{{ _c }}"{% endunless %}><div class="wrap c-in"><div class="c-body">{{ _x }}</div>{% if _s.mascot %}<span class="c-mascot" aria-hidden="true">{% include cat.svg size="112" id="cta" %}</span>{% endif %}{% if _v %}<div class="c-visual">{% include sections/{{ _v }}.html scene=_s.scene %}</div>{% endif %}</div></section>
+{%- endfor -%}

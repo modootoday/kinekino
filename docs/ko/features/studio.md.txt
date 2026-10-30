@@ -1,0 +1,5 @@
+---
+layout: twin
+twin_of: studio.md
+permalink: /ko/features/studio/index.md
+---

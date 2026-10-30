@@ -1,0 +1,10 @@
+---
+layout: default
+---
+{%- comment -%}kinekino doc layout on jekyll-theme-modootoday (md-components v1): the kit's modootoday/markdown/components.html converts
+alerts and status badges, then site-product.html splits sections (kit rule: item i = i-th top-level ##) and adds the
+site's visuals. The theme's `default` layout is the page shell.{%- endcomment -%}
+{%- include modootoday/config.html -%}
+{%- assign _badges = mt_badges -%}{%- if page.badges == false -%}{%- assign _badges = false -%}{%- endif -%}
+{%- capture html %}{% include modootoday/markdown/components.html content=content lang=page.lang badges=_badges %}{% endcapture -%}
+<article class="page page-{{ page.ref }}">{% include site-product.html html=html hero=page.hero sections=page.sections title=page.title %}</article>

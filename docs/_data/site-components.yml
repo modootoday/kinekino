@@ -1,0 +1,17 @@
+# kinekino extensions on top of the theme registry (_data/components.yml). Checked by _src/check_site.py.
+# hero: front matter `hero: {c, visual, scene, mascot}` styles the part before the first `##` (section.mt-hero).
+hero:
+  hero:  { desc: "First screen: H1, lead, link-only paragraph = CTA buttons (first primary), list = trust strip.", params: { visual: { allowed: [player-mock], required: true }, scene: { allowed: [playback, timeline, review, settings, agent], required: true } } }
+  split: { desc: "Intro copy with an optional visual.", params: { visual: { allowed: [player-mock] }, scene: { allowed: [playback, timeline, review, settings, agent] } } }
+  prose: { desc: "Plain intro." }
+  cta:   { desc: "Intro as a download panel.", params: { mascot: { allowed: [true, false] } } }
+visual:
+  player-mock: { desc: "Illustrated app window, labelled as a mockup (never a screenshot).", requires: scene, i18n: mock, a11y: "figure role=img + aria-label (mock.alt.<scene>); inner chrome aria-hidden; visible label mock.label" }
+markdown:  # standard syntax the layouts style (no markup in the body)
+  callout:       { syntax: "> [!NOTE|TIP|IMPORTANT|WARNING|CAUTION]", by: "theme modootoday/markdown/components.html", i18n: callout }
+  status-badge:  { syntax: "`status:available|partial|planned`", by: "theme modootoday/markdown/components.html (span.mt-badge)", i18n: status }
+  actions:       { syntax: "paragraph containing only links (hero, cta)", by: "theme modootoday/actions.html (p.mt-actions)" }
+  terminal:      { syntax: "fenced ```sh block inside a split section", by: CSS }
+  list-status:   { syntax: "- text `status:x`", by: CSS, a11y: "symbol + badge text, not colour only" }
+  list-links:    { syntax: "- [Label](url) (every item only a link)", by: "site-product.html li.c-lk + CSS" }
+  card:          { syntax: "- **Title**: text `status:x` inside features / platform-list", by: "site-product.html strong.c-title + CSS" }

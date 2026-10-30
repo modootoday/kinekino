@@ -1,0 +1,71 @@
+language: English
+languages:
+  label: Language
+theme:
+  toggle: Dark mode
+code:
+  copy: Copy
+  copied: Copied
+skip: Skip to content
+footer: Mockup. Not deployed. Names and dates may change.
+md_twin: Markdown for agents
+nav:
+  label: Main
+  features: Features
+  use-cases: Use cases
+  agents: AI agents
+  platforms: Platforms
+  roadmap: Roadmap
+  download: Download
+foot_nav:
+  settings: Settings & privacy
+  cli: CLI reference
+  mascot: Mascot
+callout:
+  note: Note
+  tip: Tip
+  important: Important
+  warning: Warning
+  caution: Caution
+status:
+  available: Available
+  partial: Partial
+  planned: Planned
+mock:
+  label: UI mockup, not a screenshot
+  title:
+    playback: Player
+    timeline: Timeline
+    review: Review
+    settings: Settings
+    agent: Agent
+  alt:
+    playback: 'Illustration of the planned player: video, subtitle line, controls and a command log.'
+    timeline: 'Illustration of the planned timeline: video, subtitle and audio tracks with a selected clip range.'
+    review: 'Illustration of the planned review panel: AI proposals to accept or reject next to the video.'
+    settings: 'Illustration of the planned settings page: inference mode, cost budget and consent scope.'
+    agent: Illustration of a terminal calling the kinekino CLI and the planned MCP server.
+  sub: Subtitles you can edit, line by line.
+  log: Command log
+  ep: Episode 3 · next in 0:12
+  range: Range 12:04–12:31 → short
+  r_title: AI proposals
+  r_p1: Speaker 2 → “Mina”
+  r_p2: Fix cue 41 timing
+  r_p3: Translate cues 1–60
+  s_inf: Inference
+  s_play: Playback
+  s_sub: Subtitles
+  s_agent: Agents
+  s_priv: Privacy
+  s_mode: Mode
+  s_cloud: Cloud
+  s_lf: Local first
+  s_lo: Local only
+  s_budget: Cost budget
+  s_task: Per task
+  s_month: Per month
+  s_consent: Consent
+  s_scope: Scope
+  s_diar: Speaker diarization
+  planned: planned

@@ -1,0 +1,18 @@
+# kinekino section components, in the jekyll-theme-modootoday registry format (md-components v1, final):
+#   name: { params: { key: { allowed: [...], required: bool } }, slots: { slot: { required, min, max } } }
+# Pages pick them in front matter: `sections:` item i styles the i-th top-level `##` (the hero is not counted);
+# the part before the first `##` is styled by `hero:` (site extension, see _data/site-components.yml).
+# Checked by the theme's modootoday-check (counts, params, slots) and _src/check_site.py (hero, visuals).
+prose: {}
+features:
+  params: { cols: { allowed: [2, 3] } }
+  slots: { items: { required: true } }
+split:
+  params: { visual: { allowed: [player-mock] }, scene: { allowed: [playback, timeline, review, settings, agent] } }
+platform-list:
+  slots: { items: { required: true } }
+timeline:
+  slots: { items: { required: true } }
+cta:
+  params: { mascot: { allowed: [true, false] } }
+  slots: { actions: { required: true } }

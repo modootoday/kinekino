@@ -1,0 +1,10 @@
+{%- comment -%}Theme hook (jekyll-theme-modootoday): site head tags. The theme already prints title, description,
+color-scheme, its CSS, the Markdown twin link and llms.txt describedby. SEO comes from jekyll-seo-tag (modootoday.seo: false).{%- endcomment -%}
+{%- include i18n.html -%}
+{%- if page.noindex %}<meta name="robots" content="noindex">{% endif %}
+<meta name="theme-color" content="#14110f">
+{% seo title=false %}
+<link rel="icon" href="{{ '/assets/img/favicon.svg' | relative_url }}" type="image/svg+xml">
+{%- include alternates.html %}
+<link rel="stylesheet" href="{{ '/assets/css/site.css' | relative_url }}">
+<script src="{{ '/assets/js/site.js' | relative_url }}" defer></script>

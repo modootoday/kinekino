@@ -1,0 +1,23 @@
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--t1)/1.7 var(--font);-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-underline-offset:3px}a:hover{text-decoration-thickness:2px}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:4px}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 var(--s5)}.row{display:flex;align-items:center;gap:var(--s4);flex-wrap:wrap}
+h1,h2,h3{line-height:1.2;letter-spacing:-.01em;text-wrap:balance}
+h1{font-size:var(--t5);margin:0 0 var(--s4);font-weight:800}
+h2{font-size:var(--t4);margin:0 0 var(--s3);font-weight:750}
+h3{font-size:var(--t3);margin:var(--s6) 0 var(--s2)}
+p,li{max-width:70ch}p{margin:0 0 var(--s4)}
+img{max-width:100%;height:auto;border-radius:var(--r-s)}
+table{border-collapse:collapse;width:100%;display:block;overflow-x:auto;margin:var(--s4) 0 var(--s5);font-size:.95rem}
+th,td{border-bottom:1px solid var(--line2);padding:10px 12px;text-align:start;vertical-align:top}th{color:var(--mute);font-weight:600;font-size:var(--t-0)}
+code{font-family:var(--mono);font-size:.9em;background:var(--surface2);padding:.1em .35em;border-radius:6px}
+pre code{background:none;padding:0}
+pre{background:var(--mock);color:#f4ede6;padding:var(--s4);border-radius:var(--r-s);overflow-x:auto;border:1px solid var(--line2);font-size:.9rem;line-height:1.6}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.foot{border-top:1px solid var(--line);padding:var(--s6) 0;color:var(--mute);font-size:var(--t-0);background:var(--bg2)}
+.foot .row{justify-content:space-between}.foot a{color:var(--mute)}.foot a:hover{color:var(--fg)}.foot-nav{display:flex;gap:var(--s4);flex-wrap:wrap;width:100%}
+.nav a{color:var(--mute);text-decoration:none;padding:6px 10px;border-radius:999px;font-size:.95rem;transition:background .15s,color .15s}
+.nav a:hover{color:var(--fg);background:var(--hover)}.nav a[aria-current]{color:var(--fg);background:var(--surface2);box-shadow:inset 0 0 0 1px var(--line2)}
+@media (max-width:860px){.nav{order:3;width:100%;margin:0 0 var(--s2);overflow-x:auto;flex-wrap:nowrap}.nav a{white-space:nowrap}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.js .reveal{opacity:1;transform:none}}

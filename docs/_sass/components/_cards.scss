@@ -1,0 +1,14 @@
+/* features / platform-list: the section list becomes cards. "- **Title**: text `status:x`" */
+.c-features .c-body>ul,.c-platform-list .c-body>ul{list-style:none;padding:0;margin:var(--s5) 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:var(--s4)}
+.cols-2 .c-body>ul{grid-template-columns:repeat(2,minmax(0,1fr))}.cols-3 .c-body>ul{grid-template-columns:repeat(3,minmax(0,1fr))}
+.c-features .c-body>ul>li,.c-platform-list .c-body>ul>li{position:relative;max-width:none;background:var(--surface);border:1px solid var(--line2);border-radius:var(--r);padding:var(--s5);padding-bottom:calc(var(--s5) + 34px);color:var(--mute);font-size:.97rem;transition:border-color .15s,transform .15s,box-shadow .15s}
+.c-features .c-body>ul>li:hover,.c-platform-list .c-body>ul>li:hover{border-color:color-mix(in srgb,var(--cat) 60%,var(--line2));transform:translateY(-2px);box-shadow:0 12px 30px var(--shadow)}
+.c-features li>strong:first-child,.c-platform-list li>strong:first-child{display:block;color:var(--fg);font-size:var(--t2);margin-bottom:6px}
+.c-features li>strong:first-child a{color:inherit;text-decoration:none}
+.c-features li>strong:first-child a::after{content:"";position:absolute;inset:0;border-radius:var(--r)}
+.c-features li:has(>strong a):hover>strong a{color:var(--accent)}
+.c-features li>.mt-badge,.c-platform-list li>.mt-badge{position:absolute;inset-inline-start:var(--s5);bottom:var(--s4)}
+.c-platform-list .c-body>ul>li>strong:first-child::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;background:var(--cat);margin-inline-end:10px;vertical-align:1px}
+@media (max-width:900px){.cols-3 .c-body>ul{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.cols-2 .c-body>ul,.cols-3 .c-body>ul{grid-template-columns:1fr}}
+.c-features .c-sep,.c-platform-list .c-sep,.c-timeline .c-sep{display:none}

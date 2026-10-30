@@ -1,0 +1,5 @@
+---
+layout: twin
+twin_of: inference.md
+permalink: /features/inference/index.md
+---

@@ -1,0 +1,6 @@
+/* callout: kit modootoday/markdown/components.html output (blockquote.mt-callout.mt-callout-<type>) */
+blockquote{margin:var(--s5) 0;padding:var(--s3) var(--s5);border-inline-start:4px solid var(--line2);color:var(--mute)}
+.mt-callout{background:var(--surface);border:1px solid var(--line2);border-inline-start:4px solid var(--c,var(--note));border-radius:var(--r-s);color:var(--fg);max-width:70ch}
+.mt-callout p{margin:0 0 var(--s2)}.mt-callout p:last-child{margin:0}
+.mt-callout-title{font-weight:800;color:var(--c,var(--note));font-size:var(--t-0);text-transform:uppercase;letter-spacing:.05em}
+.mt-callout-note{--c:var(--note)}.mt-callout-tip{--c:var(--tip)}.mt-callout-important{--c:var(--imp)}.mt-callout-warning{--c:var(--warn)}.mt-callout-caution{--c:var(--caut)}

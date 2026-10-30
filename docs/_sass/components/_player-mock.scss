@@ -1,0 +1,29 @@
+/* player-mock (visual). Fixed dark palette: it depicts the app window. */
+.mock{margin:0;position:relative;background:var(--mock);border:1px solid #3a322c;border-radius:14px;overflow:hidden;box-shadow:0 30px 70px var(--shadow);color:#f4ede6;font-size:.8rem}
+.mock-bar{display:flex;gap:6px;align-items:center;padding:9px 12px;background:#1d1916;color:#bfb3a7}.mock-bar i{width:10px;height:10px;border-radius:50%;background:#3a322c}.mock-bar span{margin-inline-start:8px}
+.mock-body{display:grid;grid-template-columns:1fr 34%;grid-template-rows:1fr auto auto}
+.mock-video{position:relative;aspect-ratio:16/9;overflow:hidden}
+.mock-scene{position:absolute;inset:0;background:radial-gradient(120% 80% at 70% 30%,#e8582c66,transparent 60%),radial-gradient(90% 70% at 20% 90%,#3a6ea866,transparent 60%),linear-gradient(160deg,#2a1f1a,#0e0c0b);animation:drift 14s ease-in-out infinite alternate}
+.mock-sub{position:absolute;left:0;right:0;bottom:10px;margin:0 auto;width:max-content;max-width:90%;background:#000b;color:#fff;padding:3px 10px;border-radius:6px}
+.mock-ep{position:absolute;right:10px;bottom:44px;background:#e8582c;color:#fff;padding:3px 10px;border-radius:999px;font-weight:700;font-size:.72rem}
+.mock-peek{position:absolute;right:8px;top:6px;opacity:.9}
+.mock-side{grid-row:1/4;grid-column:2;background:#16120f;border-inline-start:1px solid #2c2622;padding:10px;display:flex;flex-direction:column;gap:7px;color:#bfb3a7;font-size:.72rem;min-width:0}
+.mock-side b{color:#f4ede6;font-size:.78rem}.mock-side code{background:none;padding:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mock-side em{color:#7fd08a;font-style:normal}
+.mp{display:flex;gap:6px;align-items:center;background:#221d19;border-radius:8px;padding:6px 8px}.mp span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mp i{font-style:normal;width:20px;height:20px;display:grid;place-items:center;border-radius:6px;background:#2c2622}.mp i.ok{background:#1f3322;color:#7fd08a}.mp.done{opacity:.55}
+.mock-tracks{position:relative;grid-column:1;padding:8px 10px 4px;background:#14110f;display:flex;flex-direction:column;gap:5px}
+.tk{position:relative;height:16px;background:#1d1916;border-radius:4px;padding-inline-start:20px}.tk b{position:absolute;left:5px;top:0;font-size:.65rem;color:#bfb3a7}
+.tk i{position:absolute;top:2px;bottom:2px;border-radius:3px;background:#3a6ea8}.tk.sb i{background:#b9aea4}.tk.sp i{background:#5e8a52}.tk i.sel{background:#e8582c;box-shadow:0 0 0 2px #ffb37a}
+.ph{position:absolute;top:2px;bottom:0;width:2px;background:#ffb37a}.rg{align-self:flex-start;margin-top:2px;background:#e8582c;color:#fff;border-radius:999px;padding:1px 8px;font-size:.68rem}
+.mock-ctl{grid-column:1;display:flex;align-items:center;gap:10px;padding:8px 12px;background:#1a1613;color:#bfb3a7;font-size:.75rem}.play{color:#f4ede6}
+.tl{position:relative;flex:1;height:6px;background:#3a322c;border-radius:3px}.tl-in{position:absolute;inset:0 49% 0 0;background:#e8582c;border-radius:3px}.tl-cue{position:absolute;top:-3px;width:2px;height:12px;background:#ffb37a}
+.mock-tag{position:absolute;inset-inline-end:10px;top:5px;background:#000c;color:#ffb37a;border:1px dashed #ffb37a;font-size:.7rem;padding:2px 8px;border-radius:999px;z-index:2}
+.mock-set{display:grid;grid-template-columns:30% 1fr;min-height:300px;grid-column:1/3}
+.ms-nav{background:#16120f;padding:12px 8px;display:flex;flex-direction:column;gap:4px;border-inline-end:1px solid #2c2622}.ms-nav b{font-weight:500;color:#bfb3a7;padding:6px 8px;border-radius:6px}.ms-nav b.on{background:#2a2420;color:#f4ede6;box-shadow:inset 3px 0 #e8582c}
+.ms-main{padding:14px 16px 16px;display:flex;flex-direction:column;gap:7px}.ms-h{margin:6px 0 0;color:#bfb3a7;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em}
+.ms-seg{display:flex;background:#1d1916;border-radius:8px;padding:3px}.ms-seg span{flex:1;text-align:center;padding:5px;border-radius:6px;color:#bfb3a7}.ms-seg .on{background:#e8582c;color:#fff;font-weight:700}
+.ms-row{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #221d19;padding:3px 0}.ms-row code{background:#221d19;color:#ffb37a}
+.ms-meter{height:6px;background:#2c2622;border-radius:3px}.ms-meter i{display:block;height:100%;background:linear-gradient(90deg,#7fd08a,#ecc66a);border-radius:3px}
+.ms-tog{width:30px;height:16px;border-radius:999px;background:#3a322c;position:relative}.ms-tog::after{content:"";position:absolute;left:2px;top:2px;width:12px;height:12px;border-radius:50%;background:#bfb3a7}
+.mock-term{grid-column:1/3;padding:16px;display:flex;flex-direction:column;gap:6px;min-height:260px;font-family:var(--mono)}.mock-term code{background:none;padding:0;color:#f4ede6;white-space:pre-wrap;word-break:break-word}.mock-term code.o{color:#9d9288}.mock-term em{color:#e8582c;font-style:normal}.mock-term .pl{border:1px dashed #ecc66a;color:#ecc66a;border-radius:999px;padding:0 6px;font-size:.7rem;font-family:var(--font)}
+@keyframes drift{to{background-position:30px -20px,-20px 10px,0 0;filter:hue-rotate(-12deg)}}
+@media (max-width:640px){.mock-body{grid-template-columns:1fr}.mock-side{grid-row:auto;grid-column:auto;border-inline-start:0;border-top:1px solid #2c2622}.mock-tracks,.mock-ctl{grid-column:auto}.mock-set{grid-template-columns:1fr;grid-column:auto}.ms-nav{flex-direction:row;overflow:auto}}

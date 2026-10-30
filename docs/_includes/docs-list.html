@@ -1,0 +1,3 @@
+{%- comment -%}Sets `docs`: every Markdown page with a nav_order in language `include.lang` (default: site.default_lang), in order.{%- endcomment -%}
+{%- assign dl = include.lang | default: site.default_lang -%}
+{%- assign docs = site.pages | where_exp: "p", "p.nav_order" | where: "lang", dl | where_exp: "p", "p.layout != 'twin'" | sort: "nav_order" -%}
