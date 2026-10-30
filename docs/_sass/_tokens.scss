@@ -1,0 +1,35 @@
+/* Design tokens. Components use only these variables. Dark is the default; light follows the OS unless the theme
+   toggle (jekyll-theme-modootoday, html[data-theme]) forces a scheme. */
+:root{
+  --bg:#13100e;--bg2:#1b1714;--surface:#221d19;--surface2:#2a2420;--hover:#2d2622;
+  --fg:#f5eee7;--mute:#bfb3a7;--line:#2c2622;--line2:#3d352f;
+  --cat:#e8582c;--cat-ear:#b8401c;--accent:#ffb37a;--on-cat:#fff;--ink:#1a1412;
+  --ok:#7fd08a;--ok-bg:#1f3322;--part:#ecc66a;--part-bg:#3a3020;--plan:#b9aea4;--plan-bg:#2c2622;
+  --note:#7fb0ff;--tip:#7fd08a;--imp:#c49bff;--warn:#ecc66a;--caut:#ff8a7a;
+  --shadow:#0009;--mock:#0d0b0a;
+  --max:1120px;--r:16px;--r-s:10px;
+  --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;--s8:72px;
+  --t-0:.875rem;--t1:1rem;--t2:1.125rem;--t3:1.35rem;--t4:clamp(1.6rem,3.2vw,2.15rem);--t5:clamp(2.2rem,5.4vw,3.6rem);
+  --font:"Pretendard Variable",Pretendard,system-ui,-apple-system,"Segoe UI","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  --mono:ui-monospace,"JetBrains Mono",Consolas,monospace;
+  color-scheme:dark;
+}
+@mixin kk-light{
+  --bg:#fbf8f5;--bg2:#f3ede7;--surface:#fff;--surface2:#f6f1ec;--hover:#efe7df;
+  --fg:#1d1714;--mute:#5d534b;--line:#e6ddd4;--line2:#d6cabe;
+  --accent:#b8401c;--ok:#23753a;--ok-bg:#e3f3e6;--part:#8a6200;--part-bg:#fbf0d4;--plan:#5d534b;--plan-bg:#eee7e0;
+  --note:#2457c5;--tip:#23753a;--imp:#6b3fc2;--warn:#8a6200;--caut:#b3261e;--shadow:#3a2a1a33;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){@include kk-light}}
+:root[data-theme="light"]{@include kk-light}
+/* Kit semantic tokens (--mt-*) mapped onto the site palette, so theme components (header, nav, language menu,
+   theme toggle, callouts, badges, code copy) match. Triple :root outranks the kit's scheme selectors. */
+:root:root:root{
+  --mt-background:var(--bg);--mt-foreground:var(--fg);--mt-muted:var(--bg2);--mt-muted-foreground:var(--mute);
+  --mt-card:var(--surface);--mt-card-foreground:var(--fg);--mt-primary:var(--cat);--mt-primary-foreground:var(--on-cat);--mt-brand:var(--cat);
+  --mt-accent:var(--hover);--mt-accent-foreground:var(--fg);--mt-border:var(--line);--mt-ring:var(--accent);
+  --mt-note:var(--note);--mt-tip:var(--tip);--mt-important:var(--imp);--mt-warning:var(--warn);--mt-caution:var(--caut);
+  --mt-status-available:var(--ok);--mt-status-partial:var(--part);--mt-status-planned:var(--plan);
+  --mt-font-sans:var(--font);--mt-font-mono:var(--mono);--mt-radius:var(--r-s);--mt-radius-lg:var(--r);
+}

@@ -1,0 +1,6 @@
+{%- comment -%}Sets `t` (strings for page.lang), `t0` (default-language fallback), `lp` (URL prefix), `ld` (language entry from _data/languages.yml). Use: {{ t.key | default: t0.key }}{%- endcomment -%}
+{%- assign t0 = site.data.i18n[site.default_lang] -%}
+{%- assign t = site.data.i18n[page.lang] | default: t0 -%}
+{%- assign ld = site.data.languages | where: "code", page.lang | first -%}
+{%- assign lp = "" -%}{%- if page.lang != site.default_lang -%}{%- assign lp = "/" | append: page.lang -%}{%- endif -%}
+{%- assign llp = "" -%}{%- if ld.full -%}{%- assign llp = lp -%}{%- endif -%}

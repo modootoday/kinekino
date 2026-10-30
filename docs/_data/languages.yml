@@ -1,0 +1,5 @@
+# Single source of truth for site languages (order = menu order after the default).
+# code: URL folder and hreflang; name: endonym; en: English name; dir: ltr|rtl (optional, default ltr);
+# full: true = every page must exist in this language (check_site.py); false = home required, other pages fall back.
+- { code: en, name: English, en: English, full: true }
+- { code: ko, name: 한국어, en: Korean, full: true }

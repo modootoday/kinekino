@@ -1,0 +1,8 @@
+/* status badge (kit md-components v1): `status:available|partial|planned` -> span.mt-badge.mt-badge-* with an
+   aria-hidden symbol span and the i18n label. Text + symbol, not color only. Site look on top of the kit badge. */
+.mt-badge{display:inline-flex;align-items:center;gap:5px;font-size:.78rem;font-weight:700;line-height:1;padding:5px 10px;border-radius:999px;white-space:nowrap;vertical-align:2px;border:1px solid currentColor}
+.mt-badge>[aria-hidden]{font-size:.8em}
+.mt-badge-available{color:var(--ok);background:var(--ok-bg)}
+.mt-badge-partial{color:var(--part);background:var(--part-bg)}
+.mt-badge-planned{color:var(--plan);background:var(--plan-bg);border-style:dashed}
+td .mt-badge{vertical-align:0}

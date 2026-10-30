@@ -1,0 +1,11 @@
+.cat-hero{max-width:80vw;height:auto;filter:drop-shadow(0 24px 30px #0008)}
+.cat-hero .cat-body{transform-origin:50% 90%;animation:breathe 3.2s ease-in-out infinite}
+.cat-hero .cat-tail{transform-origin:78px 84px;animation:tail 2.4s ease-in-out infinite}
+.cat .eye{transform-box:fill-box;transform-origin:center;animation:blink 5.5s infinite}
+.cat .eyes{transition:transform .12s ease-out}
+.flip{display:flex;gap:8px;flex-wrap:wrap}.flip img{width:min(120px,22vw);height:auto;border-radius:12px;background:#0e0c0b;animation:hop 2.4s ease-in-out infinite;animation-delay:calc(var(--i)*.15s)}
+@keyframes breathe{50%{transform:scale(1.03,.97)}}@keyframes tail{50%{transform:rotate(-14deg)}}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}@keyframes glow{50%{transform:scale(1.12);opacity:.7}}
+@keyframes hop{50%{transform:translateY(-6px)}}
+@media (max-width:760px){.hero-grid{grid-template-columns:1fr}.stage{order:-1;min-height:240px}.cat-hero{width:200px}.nav{order:3;width:100%;margin:0 0 8px}}
+@keyframes sheet{from{transform:translateY(24px);opacity:0}}

@@ -1,0 +1,5 @@
+/* cta */
+.c-cta .c-in{position:relative}
+.c-cta .c-body{background:linear-gradient(135deg,color-mix(in srgb,var(--cat) 18%,var(--surface)),var(--surface));border:1px solid var(--line2);border-radius:calc(var(--r) + 4px);padding:var(--s6);padding-inline-end:140px}
+.c-mascot{position:absolute;inset-inline-end:calc(var(--s5) + var(--s5));top:50%;transform:translateY(-50%);opacity:.9}
+@media (max-width:640px){.c-cta .c-body{padding-inline-end:var(--s6)}.c-mascot{display:none}}

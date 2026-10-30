@@ -1,0 +1,12 @@
+/* Site chrome on jekyll-theme-modootoday: the theme's header (title, nav from _data/nav/main*.yml, globe language
+   menu, theme toggle) and <main>, styled to the kinekino look. The page body is full-bleed sections (.wrap inside). */
+.mt-body{background:var(--bg);color:var(--fg);font-family:var(--font)}
+.mt-header{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.mt-header-inner{max-width:var(--max);min-height:64px;padding-inline:20px}
+.mt-site-title{display:inline-flex;gap:var(--s2);align-items:center;color:var(--fg);font-weight:800;text-decoration:none;font-size:1.15rem}
+.mt-site-title::before{content:"";width:30px;height:30px;background:url("../img/favicon.svg") center/contain no-repeat;flex:none}
+.mt-nav a{color:var(--mute);text-decoration:none;font-weight:600;font-size:.95rem}
+.mt-nav a:hover,.mt-nav a[aria-current]{color:var(--fg)}
+.mt-main{max-width:none;padding:0}
+.mt-skip:focus{z-index:30}
+@media (min-width:761px){.mt-site-title{margin-inline-end:auto}}

@@ -1,0 +1,5 @@
+---
+layout: twin
+twin_of: download.md
+permalink: /download/index.md
+---

@@ -1,0 +1,9 @@
+/* section shell (site-product.html): every part of a page */
+.c-sec{padding:var(--s8) 0;border-top:1px solid var(--line)}
+.c-sec:first-child{border-top:0;padding-top:var(--s7)}
+.c-sec:nth-child(even){background:var(--bg2)}
+.c-body>h2+p,.c-body>h1+p{color:var(--mute);font-size:var(--t2)}
+.c-prose .c-body,.c-timeline .c-body{max-width:820px}
+.c-in.has-visual,.has-visual>.c-in{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:var(--s7);align-items:center}
+.c-visual{min-width:0}
+@media (max-width:900px){.has-visual>.c-in{grid-template-columns:1fr;gap:var(--s6)}}

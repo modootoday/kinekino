@@ -1,0 +1,5 @@
+---
+layout: twin
+twin_of: cli.md
+permalink: /ko/cli/index.md
+---

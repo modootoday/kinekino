@@ -1,0 +1,7 @@
+# Header navigation (theme nav component). Titles mirror _data/i18n/<lang>.yml nav.*
+- {title: 'Features', url: /features/}
+- {title: 'Use cases', url: /use-cases/}
+- {title: 'AI agents', url: /agents/}
+- {title: 'Platforms', url: /platforms/}
+- {title: 'Roadmap', url: /roadmap/}
+- {title: 'Download', url: /download/}

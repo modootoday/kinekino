@@ -1,0 +1,19 @@
+---
+layout: null
+lang: ko
+permalink: /ko/llms.txt
+---
+{%- include i18n.html -%}
+# {{ site.title }}
+
+> {{ site.description }}
+
+kinekino is a cross-OS Rust video player with a cat mascot. Every page below has its Markdown source at `<page>/index.md`. All of them in one file: [llms-full.txt]({{ '/llms-full.txt' | prepend: lp | absolute_url }}).
+
+## Docs
+{% include docs-list.html lang=page.lang %}{% for p in docs %}{% include twin-url.html page=p %}
+- [{{ p.title }}]({{ twin.url | default: p.url | absolute_url }}): {{ p.description }}{% endfor %}
+
+## Optional
+
+- [Home]({{ "/" | absolute_url }})

@@ -1,0 +1,71 @@
+language: 한국어
+languages:
+  label: 언어
+theme:
+  toggle: 다크 모드
+code:
+  copy: 복사
+  copied: 복사됨
+skip: 본문으로 건너뛰기
+footer: 시안입니다. 배포 전이며 이름과 일정은 바뀔 수 있어요.
+md_twin: 에이전트용 마크다운
+nav:
+  label: 주 메뉴
+  features: 기능
+  use-cases: 활용 사례
+  agents: AI 에이전트
+  platforms: 플랫폼
+  roadmap: 로드맵
+  download: 다운로드
+foot_nav:
+  settings: 설정·개인정보
+  cli: CLI 레퍼런스
+  mascot: 마스코트
+callout:
+  note: 참고
+  tip: 팁
+  important: 중요
+  warning: 경고
+  caution: 주의
+status:
+  available: 사용 가능
+  partial: 일부 구현
+  planned: 계획
+mock:
+  label: UI 목업이며 실제 화면이 아닙니다
+  title:
+    playback: 플레이어
+    timeline: 타임라인
+    review: 리뷰
+    settings: 설정
+    agent: 에이전트
+  alt:
+    playback: '계획된 플레이어 그림: 영상, 자막 한 줄, 컨트롤, 명령 로그.'
+    timeline: '계획된 타임라인 그림: 영상·자막·오디오 트랙과 선택된 클립 구간.'
+    review: '계획된 리뷰 패널 그림: 영상 옆에서 AI 제안을 수락하거나 거절.'
+    settings: '계획된 설정 화면 그림: 추론 모드, 비용 한도, 동의 범위.'
+    agent: 터미널에서 kinekino CLI와 계획된 MCP 서버를 호출하는 그림.
+  sub: 한 줄씩 고칠 수 있는 자막.
+  log: 명령 로그
+  ep: 3화 · 0:12 뒤 다음 화
+  range: 구간 12:04–12:31 → 쇼츠
+  r_title: AI 제안
+  r_p1: 화자 2 → “미나”
+  r_p2: 41번 큐 시간 보정
+  r_p3: 1–60번 큐 번역
+  s_inf: 추론
+  s_play: 재생
+  s_sub: 자막
+  s_agent: 에이전트
+  s_priv: 개인정보
+  s_mode: 모드
+  s_cloud: 클라우드
+  s_lf: 로컬 우선
+  s_lo: 로컬만
+  s_budget: 비용 한도
+  s_task: 작업당
+  s_month: 월간
+  s_consent: 동의
+  s_scope: 범위
+  s_diar: 화자 분리
+  planned: 계획
