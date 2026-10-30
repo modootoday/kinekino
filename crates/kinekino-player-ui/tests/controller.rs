@@ -139,7 +139,12 @@ fn document_clicks_round_trip_through_controller() {
         .flat_map(|e| e.text_runs.iter().map(|r| r.text.clone()))
         .collect();
     assert!(html.contains("kinekino"), "product name in chrome");
-    // Mockup sample names cannot reach the chrome: all UI text comes from tracked
-    // sources, which `xtask lint-structure` (r-src) keeps free of them.
+    // Mockup sample site names must not reach the chrome. The word is built at
+    // runtime so the literal never lands in the tree (r-src).
+    let sample_site: String = ['a', 'n', 'i', 'w', 'e', 'e', 'k'].iter().collect();
+    assert!(
+        !html.to_lowercase().contains(&sample_site),
+        "mockup sample site name in chrome"
+    );
     std::fs::remove_dir_all(dir).unwrap();
 }

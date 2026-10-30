@@ -113,12 +113,39 @@ mod tests {
             && p.y >= 0
             && p.x <= mask.width_px as i32
             && p.y <= mask.height_px as i32));
-        let serialized = points
-            .iter()
-            .map(|p| format!("{},{}", p.x, p.y))
-            .collect::<Vec<_>>()
-            .join(" ");
-        assert!(serialized.split(' ').count() >= 3);
+        let fixture: serde_json::Value = serde_json::from_str(include_str!(
+            "../../../tests/fixtures/sample-subject-mask.json"
+        ))
+        .unwrap();
+        let n = points.len();
+        let twice_area: i64 = (0..n)
+            .map(|i| {
+                let (a, b) = (&points[i], &points[(i + 1) % n]);
+                i64::from(a.x) * i64::from(b.y) - i64::from(b.x) * i64::from(a.y)
+            })
+            .sum();
+        let bbox = [
+            points.iter().map(|p| p.x).min().unwrap(),
+            points.iter().map(|p| p.y).min().unwrap(),
+            points.iter().map(|p| p.x).max().unwrap(),
+            points.iter().map(|p| p.y).max().unwrap(),
+        ];
+        let observed = serde_json::json!({
+            "width_px": mask.width_px,
+            "height_px": mask.height_px,
+            "points": n,
+            "bbox": bbox,
+            "twice_signed_area": twice_area,
+            "first": [points[0].x, points[0].y],
+            "last": [points[n - 1].x, points[n - 1].y],
+        });
+        for (key, value) in observed.as_object().unwrap() {
+            assert_eq!(&fixture[key], value, "mask fixture field {key}");
+        }
+        assert!(
+            points.windows(2).all(|w| w[0] != w[1]),
+            "no repeated vertices"
+        );
         assert!(
             super::super::LiveWorkspaceProvider
                 .snapshot(WorkspaceId::Obj)
