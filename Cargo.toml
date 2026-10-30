@@ -48,7 +48,7 @@ raw-window-handle = { version = "0.6.2", features = ["std"] }
 x11rb = "0.13.2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-ctor = "0.10.1"
+ctor = "1.0.13"
 sha2 = "=0.10.9"
 url = "2"
 kinekino-app = { path = "crates/kinekino-app" }
