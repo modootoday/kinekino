@@ -20,7 +20,7 @@ blitz-shell = { package = "meari-shell", version = "0.1.0", default-features = f
 rfd = { version = "=0.17.2", default-features = false }
 adblock = { version = "0.13.3", default-features = false }
 anyhow = "1"
-base64 = "=0.22.1"
+base64 = "=0.23.1"
 bytes = "=1.12.1"
 cef = { version = "=156.2.0", default-features = false }
 chromiumoxide = { version = "0.9.1", default-features = false }
