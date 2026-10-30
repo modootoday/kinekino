@@ -170,7 +170,11 @@ pub fn player() -> ExitCode {
     match kinekino_host::player_gui::main() {
         Ok(kinekino_host::player_gui::Desktop::Done) => ExitCode::SUCCESS,
         Ok(kinekino_host::player_gui::Desktop::Watch { smoke }) => {
-            let argv: &[&str] = if smoke { &["watch", "--smoke"] } else { &["watch"] };
+            let argv: &[&str] = if smoke {
+                &["watch", "--smoke"]
+            } else {
+                &["watch"]
+            };
             let (code, out) = watch::run(&args::Args::new(argv.iter().copied()));
             println!("{out}");
             ExitCode::from(code)

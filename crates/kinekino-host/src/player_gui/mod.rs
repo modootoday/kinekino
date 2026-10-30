@@ -35,7 +35,9 @@ pub fn main() -> anyhow::Result<Desktop> {
         )
         .map_err(|error| anyhow::anyhow!("{:?}: {}", error.code, error.message))?;
         if mode == application::launch::DesktopMode::DesignPreview {
-            anyhow::bail!("the egui design preview was removed; the player UI is Meari (`kinekino watch`)");
+            anyhow::bail!(
+                "the egui design preview was removed; the player UI is Meari (`kinekino watch`)"
+            );
         }
         #[cfg(feature = "native-proposal-window")]
         let viewer_initialization_started = std::time::Instant::now();
@@ -220,16 +222,10 @@ pub fn main() -> anyhow::Result<Desktop> {
         // The egui/WebView player screen is gone: plain viewing is the Meari player window.
         let _ = (start_url, client, paths, status_publisher, control_binder);
         drop(local_host);
-        return Ok(Desktop::Watch {
-            smoke: args.iter().any(|arg| arg == "--smoke-test"),
-        });
     }
-    #[cfg(not(windows))]
-    {
-        return Ok(Desktop::Watch {
-            smoke: std::env::args().any(|arg| arg == "--smoke-test"),
-        });
-    }
+    Ok(Desktop::Watch {
+        smoke: std::env::args().any(|arg| arg == "--smoke-test"),
+    })
 }
 
 #[cfg(all(windows, feature = "native-proposal-window"))]
