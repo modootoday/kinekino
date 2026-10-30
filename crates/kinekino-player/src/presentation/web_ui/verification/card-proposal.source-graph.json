@@ -1,0 +1,9 @@
+{
+  "entry": "studio/cards/proposal-panel.tsx",
+  "components": [
+    "studio/cards/proposal-panel.tsx",
+    "components/proposal-actions.tsx",
+    "components/proposal-source.tsx",
+    "components/proposal-output-review.tsx"
+  ]
+}

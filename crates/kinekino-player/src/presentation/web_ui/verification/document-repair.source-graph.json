@@ -1,0 +1,7 @@
+{
+  "entry": "studio/subtitles/document-repair.tsx",
+  "components": [
+    "studio/subtitles/document-repair.tsx",
+    "verification/proposal-review-intent.tsx"
+  ]
+}

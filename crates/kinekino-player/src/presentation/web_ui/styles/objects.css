@@ -1,0 +1,31 @@
+/* OBJ-only tokens project approved native dimensions; shared tokens stay authoritative. */
+.aw-subject-workspace, .aw-subject-row { --aw-subject-thumbnail-width: 44px; --aw-subject-thumbnail-height: 40px; }
+.aw-subject-workspace { --aw-subject-preview-min: 320px; }
+.aw-subject-preview { position: relative; flex-shrink: 0; min-height: var(--aw-subject-preview-min); border: var(--aw-border-thin) solid var(--aw-border); border-radius: var(--aw-radius-control); overflow: hidden; background: var(--aw-surface-video); }
+.aw-subject-canvas { min-height: var(--aw-subject-preview-min); min-width: 0; }
+.aw-subject-tools-position { position: absolute; top: var(--aw-space-2); left: var(--aw-space-2); }
+.aw-subject-modes-position { position: absolute; top: var(--aw-space-2); right: var(--aw-space-2); }
+.aw-subject-tool-rail { display: flex; flex-direction: column; gap: var(--aw-space-1); padding: var(--aw-space-1); border: var(--aw-border-thin) solid var(--aw-border); border-radius: var(--aw-radius-control); background: var(--aw-surface-panel); }
+.aw-subject-view-modes { display: flex; flex-wrap: wrap; gap: var(--aw-space-1); padding: var(--aw-space-1); border: var(--aw-border-thin) solid var(--aw-border); border-radius: var(--aw-radius-control); background: var(--aw-surface-panel); }
+.aw-subject-mode[aria-pressed="true"], .aw-subject-tool[aria-pressed="true"] { color: var(--aw-accent); border-color: var(--aw-accent); background: var(--aw-surface-selected); }
+.aw-subject-transport, .aw-subject-tracking { min-width: 0; border: var(--aw-border-thin) solid var(--aw-border); border-radius: var(--aw-radius-control); background: var(--aw-surface-preview); }
+.aw-subject-tracking { overflow: auto; }
+.aw-subject-list { display: flex; flex-direction: column; gap: var(--aw-space-inline); list-style: none; margin: 0; padding: 0; }
+.aw-subject-row { display: flex; align-items: center; gap: var(--aw-space-inline); padding: var(--aw-space-inline); border: var(--aw-border-thin) solid var(--aw-border); border-radius: var(--aw-radius-control); background: var(--aw-surface-panel); }
+.aw-subject-row[data-selected="true"] { border-color: var(--aw-accent); }
+.aw-subject-row-select { flex: 1; display: flex; align-items: center; gap: var(--aw-space-inline); min-width: 0; padding: 0; border: 0; background: transparent; color: var(--aw-text); text-align: left; }
+.aw-subject-row-select:focus-visible { outline: var(--aw-border-focus) solid var(--aw-focus); outline-offset: var(--aw-border-focus); }
+.aw-subject-row-select:disabled { color: var(--aw-text-disabled); }
+.aw-subject-thumbnail { flex-shrink: 0; display: grid; place-items: center; width: var(--aw-subject-thumbnail-width); height: var(--aw-subject-thumbnail-height); overflow: hidden; border-radius: var(--aw-radius-control); background: var(--aw-surface-preview); }
+.aw-subject-row-text { display: flex; flex-direction: column; min-width: 0; overflow-wrap: anywhere; }
+.aw-subject-icon-select { --aw-icon-source: url("../../../../../../assets/design/icons/selection-pointer.svg"); }
+.aw-subject-icon-include { --aw-icon-source: url("../../../../../../assets/design/icons/plus.svg"); }
+.aw-subject-icon-exclude { --aw-icon-source: url("../../../../../../assets/design/icons/mask-exclude.svg"); }
+.aw-subject-icon-brush { --aw-icon-source: url("../../../../../../assets/design/icons/brush-add.svg"); }
+.aw-subject-icon-erase { --aw-icon-source: url("../../../../../../assets/design/icons/eraser.svg"); }
+.aw-subject-icon-menu { --aw-icon-source: url("../../../../../../assets/design/icons/more-vertical.svg"); }
+.aw-subject-operation, .aw-subject-range, .aw-subject-footer-actions { display: flex; align-items: center; gap: var(--aw-space-2); flex-wrap: wrap; }
+.aw-subject-operation > .aw-button, .aw-subject-footer-actions > .aw-button { flex: 1; }
+.aw-subject-range { justify-content: space-between; padding: var(--aw-space-2); border: var(--aw-border-thin) solid var(--aw-border); border-radius: var(--aw-radius-control); background: var(--aw-surface-input); }
+.aw-subject-opacity { width: 100%; accent-color: var(--aw-accent); }
+.aw-subject-row-text > [hidden], .aw-subject-opacity[hidden] { display: none; }

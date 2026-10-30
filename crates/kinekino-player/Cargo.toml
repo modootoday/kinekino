@@ -1,0 +1,57 @@
+[package]
+name = "kinekino-player"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+source-adapter-test-support = []
+validation-export-delivery-loss = []
+native-proposal-window = ["dep:meari-native", "dep:ttf-parser"]
+card-review-export = ["native-proposal-window", "dep:kinekino-card-render", "kinekino-card-render/native"]
+native-observer-test-support = ["native-proposal-window", "meari-native/test-support"]
+
+[dependencies]
+kinekino-source-host = { workspace = true, features = ["parent-host"] }
+kinekino-core.workspace = true
+raw-window-handle.workspace = true
+kinekino-process.workspace = true
+meari = { workspace = true }
+kinekino-ui-plugins.workspace = true
+kinekino-media-contracts.workspace = true
+kinekino-card-render = { workspace = true, optional = true }
+ttf-parser = { workspace = true, optional = true, features = ["std"] }
+kinekino-subtitles.workspace = true
+kinekino-jobs.workspace = true
+kinekino-vad.workspace = true
+kinekino-vad-executor.workspace = true
+time = { workspace = true, features = ["formatting"] }
+anyhow = { workspace = true }
+serde.workspace = true
+serde_json.workspace = true
+base64 = { workspace = true }
+sha2.workspace = true
+png = { workspace = true }
+url.workspace = true
+image = { workspace = true, features = ["png"] }
+tokio = { workspace = true, features = ["rt", "net", "io-util", "sync", "time", "macros"] }
+adblock = { workspace = true, features = ["embedded-domain-resolver"] }
+
+[target.'cfg(windows)'.dependencies]
+meari-native = { workspace = true, optional = true, features = ["window"] }
+eframe = { workspace = true, features = ["default_fonts", "glow"] }
+egui_extras = { workspace = true, features = ["svg", "image"] }
+egui_taffy = { workspace = true }
+wry = { workspace = true }
+webview2-com = { workspace = true }
+windows-core = { workspace = true }
+windows = { workspace = true, features = ["Win32_Security", "Win32_Security_Authorization", "Win32_Security_Cryptography", "Win32_Storage_FileSystem", "Win32_System_Threading", "Win32_System_Pipes", "Win32_System_IO", "Win32_System_Com", "Win32_System_Com_StructuredStorage", "Win32_Graphics_Gdi", "Win32_UI_HiDpi", "Win32_UI_Shell", "Win32_UI_Shell_Common", "Win32_UI_WindowsAndMessaging", "Win32_UI_Input_KeyboardAndMouse"] }
+
+
+[dev-dependencies]
+ctor.workspace = true
+kinekino-platform.workspace = true
+kinekino-vad-worker.workspace = true

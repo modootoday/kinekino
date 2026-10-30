@@ -1,0 +1,4 @@
+{
+  "entry": "verification/subtitle-convert-intent.tsx",
+  "components": ["verification/subtitle-convert-intent.tsx"]
+}
