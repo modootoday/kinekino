@@ -1,0 +1,22 @@
+---
+id: evidence:kinekino/20261029114134
+title: Accepted subtitle CLI parity and canonical integration r3
+status: active
+created: 2026-10-29
+updated: 2026-10-29
+---
+# Accepted subtitle CLI parity and canonical integration r3
+
+Canonical15 remains uncommitted at root 3f5687f until PM commits explicit paths. This lease adopted only tests/sdk_capability_parity.rs from source1 B82E69DA6A28ED939FD17C2497B137585BC9E4C7AEBFA88B6663828576D83947; effective15 F821487998E9E6683BD198AC16B0AA923DA2B25BBBFC44F166EAAD136394CA6F plus committed parents8 supplied S23. Existing assertions, routes and capability policy remain unchanged. The typed fixture distinguishes malformed input from valid input reaching an unavailable adapter; it does not prove real acceptance or publication.
+
+PM explicitly assigned this lease despite Meari's separate D-drive mirror cleanup failure. Its five originally absent files remain, normalMirrorRestoration=false. SDK C-drive S/T are separate: relevant ancestors have no reparse points (PM audit), all nine present compared leaves are ordinary Archive files without links, corresponding files have separate FileIDs, and cross-volume hardlinks cannot share them. Four counterpart hashes match; SDK registration_pins.rs is absent. Cargo's relative Meari path and lock pin match the intended C mirror. No Meari cleanup was retried or represented as restored.
+
+Observed sequential results: fmt0/6094ms; exact CLI parity1pass/55588ms including compilation; whole package0/164738ms, 38 summaries totaling1156pass/0fail/76ignored (including doc tests); strict default0/12480ms; strict native-observer-test-support0/18169ms. All used conservative2/mask3/BelowNormal, offline/locked/j1/thread1 with fresh resource admission. Exact and full use distinct new parity directories. Persisted subtitle rows in each show malformed exit2/invalid_argument and typed valid unavailable exit3/unsupported, each equal to SDK responses. Historical r1/r2 failures remain preserved; actual subtitle batch6 was not rerun. Ignored tests are not claimed executed.
+
+The new download env5/base exercised four existing owned-process cases. Six original tool close receipts are Empty: four nonforced, two forced (client-drop/run-unwind). This describes that subset only. Cargo metadata records39 executables;12 EXE/PDB copies cover normal player/CLI, their test harnesses, library and parity harness. Normal artifacts were fresh=true and supplied from source-equivalent r2 copies, not newly compiled producers. Two parity CLI pins are also preserved. New carry190 extends prior carry176 with these14 independent copies.
+
+S23 SHA/mtime/FileID/original absence restored. Alias4 bytes/mtime restored through independent copies and exact unlink/move, with FileID changes explicit. Original normal producer4 SHA/mtime/FileID unchanged. Canonical23 hashes and root index/library index/lock/application-WIP pins are unchanged from admitted state; root CLI parity leaf remains adopted WIP. Protection203/carry176 final length/mtime/FileID deltas0 (entry hashes checked); no all-cache claim. Regular exclusive EOF22;16 recorded identities no longer live. PID53384 was reused by conhost with a different creation time and was not terminated. Initial PID-only audit stopped on that reuse; corrected identity-aware audit preserves the distinction. Writer0/pending SDK owner0; Meari cleanup pending5 remains separate.
+
+Evidence root: runtime/verification/accepted-subtitle-canonical-integration-r3. See 00-admission.json, 13-receipts5.json, 09-harness-summaries.json, 14-subtitle-parity4.json, 10-S-restored23.json, 10-alias-restored4.json, 13-final-audit.json, 14-original-producer4-final.json and carry-fixed190.json. Root stage/commit/push0; Card/GUI/model expansion0.
+
+Applied modoo.today skill sources retained in the source packet: modootoday/software-qa/test-fixture-and-mock-build (body SHA a393f15faf68fee96c187509d0f22ed72987d8d1929afaf782d43bca80f3f100), code-change-review-verification (9f73865f96ec0cefcf3a4023b294400258473640df3b1d2add03dcca8192d64b), required verdict-table reference (9d9619a829ae24d73645ef5f7c8126c8257caeddac80800632866257008ad2a9). Application: definition-based malformed/typed fixtures, unchanged assertions, consumer-surface review, original failure preservation and explicit actual-versus-synthetic limits. Rust-only test implementation; PowerShell used only for resource/file/receipt orchestration.
