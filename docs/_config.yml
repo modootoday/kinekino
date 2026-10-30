@@ -13,7 +13,7 @@ markdown: kramdown
 kramdown:
   input: GFM
   syntax_highlighter: rouge
-remote_theme: modootoday/jekyll-theme-modootoday@a542c00c23a381544a276bf527cbf0c40c53a0f6
+remote_theme: modootoday/jekyll-theme-modootoday@73a456c088eb0b82f889600a8eb89caec2a5e5cd
 plugins: [jekyll-remote-theme, jekyll-seo-tag, jekyll-sitemap, jekyll-relative-links]
 modootoday:
   color_scheme: auto

@@ -39,7 +39,7 @@ $L: ".c-sec:not(.c-features):not(.c-platform-list):not(.c-timeline):not(.c-hero)
 
 /* list-links: every item is only a link -> chips (site-product.html marks li.c-lk only when the item is exactly one link) */
 #{$L} ul:not(:has(>li:not(.c-lk))):not(:has(>li>a:not(:only-child))){display:flex;flex-wrap:wrap;gap:var(--s2)}
-#{$L} ul:not(:has(>li:not(.c-lk))):not(:has(>li>a:not(:only-child)))>li{padding:0}
+#{$L} ul:not(:has(>li:not(.c-lk))):not(:has(>li>a:not(:only-child)))>li{padding:0;margin:0}
 #{$L} ul:not(:has(>li:not(.c-lk))):not(:has(>li>a:not(:only-child)))>li::before{content:none}
 #{$L} ul:not(:has(>li:not(.c-lk))):not(:has(>li>a:not(:only-child)))>li>a{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:8px 16px;border:1px solid var(--line2);border-radius:999px;background:var(--surface);color:var(--fg);text-decoration:none;font-weight:600;transition:border-color .15s,transform .15s}
 #{$L} ul:not(:has(>li:not(.c-lk))):not(:has(>li>a:not(:only-child)))>li>a::after{content:"→";color:var(--accent)}
