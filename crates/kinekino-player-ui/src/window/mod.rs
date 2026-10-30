@@ -6,6 +6,9 @@ use crate::controller::{Controller, Effect, Engine};
 use crate::session::Session;
 use crate::texture::VideoTexture;
 pub mod actions;
+mod caption;
+#[cfg(all(unix, not(target_os = "macos")))]
+mod edges;
 use actions::{PortRefusal, WindowOps};
 use kinekino_core::playback::{RgbaFrame, VideoSurface};
 use kinekino_core::port::error::PortResult;
@@ -223,48 +226,11 @@ struct App<E: Engine> {
     shown_title: String,
     /// The OS frame was turned off; the app caption row is the title bar.
     undecorated: bool,
-    /// Physical surface size, for the edge resize band.
-    surface: (f64, f64),
+    /// An edge drag in progress: direction, start rectangle and start pointer (screen).
+    #[cfg(all(unix, not(target_os = "macos")))]
+    resizing: Option<(u32, edges::Rect, (i32, i32))>,
     /// Last press on the caption row, for double-click maximize.
     caption_press: Option<Instant>,
-}
-
-/// Two caption presses within this time maximize/restore, as on OS title bars.
-const DOUBLE_CLICK: Duration = Duration::from_millis(400);
-
-/// What a press at a point of the document lands on.
-#[derive(Debug, PartialEq, Eq)]
-enum PressTarget {
-    /// The caption row background: drag moves the window.
-    Caption,
-    Other,
-}
-
-fn press_target(
-    doc: &meari_native::infrastructure::document::InteractiveDocument,
-    x: f64,
-    y: f64,
-) -> PressTarget {
-    use blitz_dom::local_name;
-    let base = &*doc.renderer.document;
-    let scale = base.viewport().scale_f64().max(f64::MIN_POSITIVE);
-    let Some(hit) = base.hit((x / scale) as f32, (y / scale) as f32) else {
-        return PressTarget::Other;
-    };
-    let mut node = base.get_node(hit.node_id);
-    while let Some(n) = node {
-        if n.element_data()
-            .is_some_and(|e| e.name.local == local_name!("button"))
-        {
-            return PressTarget::Other;
-        }
-        let class = n.attr(local_name!("class")).unwrap_or("");
-        if class.split_whitespace().any(|c| c == "aw-window-chrome") {
-            return PressTarget::Caption;
-        }
-        node = n.parent.and_then(|p| base.get_node(p));
-    }
-    PressTarget::Other
 }
 
 impl<E: Engine> WindowOps for App<E> {
@@ -295,81 +261,12 @@ impl<E: Engine> WindowOps for App<E> {
 }
 
 impl<E: Engine> App<E> {
-    /// Turns the OS frame off once the window exists (Meari creates it decorated).
-    fn undecorate(&mut self) {
-        let done = self.shared.borrow().handle.try_with(|doc| {
-            doc.renderer
-                .document
-                .shell_provider
-                .set_window_decorations(false)
-        });
-        self.undecorated = done.is_ok();
-    }
-
-    /// A left press: edge resize, caption drag or double-click maximize. `true` when the
-    /// press was taken here and must not reach the document.
-    fn press(&mut self, x: f64, y: f64) -> bool {
-        let (windowed, maximized) = {
-            let view = &self.shared.borrow().controller.view;
-            (!view.fullscreen, view.maximized)
-        };
-        if windowed && !maximized && self.begin_resize(x, y) {
-            return true;
-        }
-        let shared = self.shared.borrow();
-        let target = shared
-            .handle
-            .try_with(|doc| press_target(doc, x, y))
-            .unwrap_or(PressTarget::Other);
-        if !windowed || target != PressTarget::Caption {
-            return false;
-        }
-        let now = Instant::now();
-        let double = self
-            .caption_press
-            .is_some_and(|t| now.duration_since(t) <= DOUBLE_CLICK);
-        if double {
-            drop(shared);
-            self.caption_press = None;
-            self.shared
-                .borrow_mut()
-                .run(crate::session::Command::Maximize);
-            return true;
-        }
-        self.caption_press = Some(now);
-        let _ = shared
-            .handle
-            .try_with(|doc| doc.renderer.document.shell_provider.drag_window());
-        true
-    }
-
-    /// Edge resize of the undecorated window, handed to the window manager (X11).
-    #[cfg(all(unix, not(target_os = "macos")))]
-    fn begin_resize(&mut self, x: f64, y: f64) -> bool {
-        let (Some(x11), Some(id)) = (self.x11.as_ref(), self.window_id) else {
-            return false;
-        };
-        let Ok(window) = u32::try_from(id.into_raw()) else {
-            return false;
-        };
-        let scale = self
-            .shared
-            .borrow()
-            .handle
-            .try_with(|doc| doc.renderer.document.viewport().scale_f64())
-            .unwrap_or(1.0);
-        let band = crate::window::actions::RESIZE_BAND * scale;
-        let (w, h) = self.surface;
-        let Some(direction) = crate::window::actions::resize_direction(x, y, w, h, band) else {
-            return false;
-        };
-        if let Err(e) = x11.begin_resize(window, direction) {
-            eprintln!("{{\"warning\":\"window resize failed\",\"detail\":{e:?}}}");
-        }
-        true
+    #[cfg(not(all(unix, not(target_os = "macos"))))]
+    fn begin_resize(&mut self) -> bool {
+        false
     }
     #[cfg(not(all(unix, not(target_os = "macos"))))]
-    fn begin_resize(&mut self, _: f64, _: f64) -> bool {
+    fn follow_resize(&mut self, _: &WindowEvent) -> bool {
         false
     }
 
@@ -532,8 +429,9 @@ impl<E: Engine> ApplicationHandler for App<E> {
         if !self.undecorated {
             self.undecorate();
         }
-        if let WindowEvent::SurfaceResized(size) = &event {
-            self.surface = (f64::from(size.width), f64::from(size.height));
+        if self.follow_resize(&event) {
+            self.tick(event_loop);
+            return;
         }
         if let WindowEvent::PointerButton {
             state: ElementState::Pressed,
@@ -664,7 +562,8 @@ pub fn run<E: Engine>(controller: Controller<E>, options: Options) -> Result<Rep
             #[cfg(all(unix, not(target_os = "macos")))]
             shown_title: String::new(),
             undecorated: false,
-            surface: (0.0, 0.0),
+            #[cfg(all(unix, not(target_os = "macos")))]
+            resizing: None,
             caption_press: None,
         };
         winit::event_loop::run_on_demand::EventLoopExtRunOnDemand::run_app_on_demand(

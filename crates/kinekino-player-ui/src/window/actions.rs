@@ -30,34 +30,6 @@ pub fn perform(ops: &mut dyn WindowOps, effect: &Effect) -> Result<(), String> {
     }
 }
 
-/// Width of the invisible resize band along each edge of the undecorated window
-/// (physical pixels, scaled by the window's scale factor).
-pub const RESIZE_BAND: f64 = 6.0;
-
-/// The EWMH `_NET_WM_MOVERESIZE` direction for a press at (`x`, `y`) in a `width`×`height`
-/// window, or `None` away from the edges. Corners take a wider band so they are easy to hit.
-pub fn resize_direction(x: f64, y: f64, width: f64, height: f64, band: f64) -> Option<u32> {
-    if width <= 0.0 || height <= 0.0 {
-        return None;
-    }
-    let corner = band * 2.0;
-    let (left, right) = (x < band, x >= width - band);
-    let (top, bottom) = (y < band, y >= height - band);
-    let (near_l, near_r) = (x < corner, x >= width - corner);
-    let (near_t, near_b) = (y < corner, y >= height - corner);
-    Some(match () {
-        _ if (top && near_l) || (left && near_t) => 0,
-        _ if (top && near_r) || (right && near_t) => 2,
-        _ if (bottom && near_r) || (right && near_b) => 4,
-        _ if (bottom && near_l) || (left && near_b) => 6,
-        _ if top => 1,
-        _ if right => 3,
-        _ if bottom => 5,
-        _ if left => 7,
-        _ => return None,
-    })
-}
-
 /// EWMH requests to the X server for the player's own window (winit's X11 `WindowId` is
 /// the X window id). Not used under Wayland.
 #[cfg(all(unix, not(target_os = "macos")))]
@@ -68,6 +40,9 @@ pub mod x11 {
     };
     use x11rb::rust_connection::RustConnection;
     use x11rb::wrapper::ConnectionExt as _;
+
+    /// A pointer position in physical pixels.
+    pub type Point = (i32, i32);
 
     pub struct X11 {
         conn: RustConnection,
@@ -151,20 +126,57 @@ pub mod x11 {
 
         /// Hands an edge resize to the window manager (`_NET_WM_MOVERESIZE`), as a
         /// decorated frame would. `direction` is the EWMH code (0 top-left … 7 left).
-        pub fn begin_resize(&self, window: u32, direction: u32) -> Result<(), String> {
-            let pointer = self
+        /// The pointer relative to `window` and to the screen (physical pixels).
+        pub fn pointer(&self, window: u32) -> Result<(Point, Point), String> {
+            let p = self
                 .conn
-                .query_pointer(self.root)
+                .query_pointer(window)
                 .map_err(|e| e.to_string())?
                 .reply()
                 .map_err(|e| e.to_string())?;
-            // The press grabbed the pointer for this client; the WM needs it back.
-            self.conn
-                .ungrab_pointer(x11rb::CURRENT_TIME)
+            Ok((
+                (i32::from(p.win_x), i32::from(p.win_y)),
+                (i32::from(p.root_x), i32::from(p.root_y)),
+            ))
+        }
+
+        /// `window`'s rectangle on the screen.
+        pub fn geometry(&self, window: u32) -> Result<crate::window::edges::Rect, String> {
+            let g = self
+                .conn
+                .get_geometry(window)
+                .map_err(|e| e.to_string())?
+                .reply()
                 .map_err(|e| e.to_string())?;
-            let (x, y) = (pointer.root_x as i32 as u32, pointer.root_y as i32 as u32);
-            // Button 1, source indication 1 (a normal application).
-            self.message(window, "_NET_WM_MOVERESIZE", [x, y, direction, 1, 1])
+            let at = self
+                .conn
+                .translate_coordinates(window, self.root, 0, 0)
+                .map_err(|e| e.to_string())?
+                .reply()
+                .map_err(|e| e.to_string())?;
+            Ok(crate::window::edges::Rect {
+                x: i32::from(at.dst_x),
+                y: i32::from(at.dst_y),
+                w: i32::from(g.width),
+                h: i32::from(g.height),
+            })
+        }
+
+        /// Moves and sizes `window` (an edge drag of the undecorated window). The press's
+        /// pointer grab belongs to winit's own X connection, so `_NET_WM_MOVERESIZE` from
+        /// this connection cannot hand the drag to the window manager; the player follows
+        /// the pointer and configures the window itself instead.
+        pub fn configure(&self, window: u32, r: crate::window::edges::Rect) -> Result<(), String> {
+            use x11rb::protocol::xproto::ConfigureWindowAux;
+            let aux = ConfigureWindowAux::new()
+                .x(r.x)
+                .y(r.y)
+                .width(r.w.max(1) as u32)
+                .height(r.h.max(1) as u32);
+            self.conn
+                .configure_window(window, &aux)
+                .map_err(|e| e.to_string())?;
+            self.conn.flush().map_err(|e| e.to_string())
         }
 
         /// The title bar text (`_NET_WM_NAME`, UTF-8).
@@ -202,21 +214,6 @@ mod tests {
             fallback,
             fell_back: false,
         }
-    }
-
-    #[test]
-    fn edges_and_corners_map_to_ewmh_directions() {
-        let d = |x, y| resize_direction(x, y, 800.0, 600.0, 6.0);
-        assert_eq!(d(400.0, 300.0), None);
-        assert_eq!(d(2.0, 2.0), Some(0));
-        assert_eq!(d(400.0, 1.0), Some(1));
-        assert_eq!(d(798.0, 8.0), Some(2));
-        assert_eq!(d(799.0, 300.0), Some(3));
-        assert_eq!(d(795.0, 599.0), Some(4));
-        assert_eq!(d(400.0, 597.0), Some(5));
-        assert_eq!(d(3.0, 590.0), Some(6));
-        assert_eq!(d(0.0, 300.0), Some(7));
-        assert_eq!(resize_direction(1.0, 1.0, 0.0, 0.0, 6.0), None);
     }
 
     #[test]
