@@ -273,12 +273,6 @@ pub fn build(episodes: &[Episode]) -> String {
         ));
     }
     let click = |id: &str| format!("onClick={{() => set{id}Count(p => p + 1)}}");
-    let caption = |id: &str, label: &str, icon: &str, class: &str| {
-        format!(
-            "<button id=\"{id}\" className=\"{class}\" aria-label={label} {}><span className={icon} aria-hidden=\"true\"></span></button>",
-            click(id)
-        )
-    };
     format!(
         r#"import {{ useState }} from "react";
 type Props = {{ {types} }};
@@ -287,16 +281,6 @@ export function KinekinoPlayer(props: Props) {{
   const [volumeAt, setVolumeAt] = useState("");
   return <div id="player" className={{props.rootClass}}>
   <main className={{props.frameClass}}>
-    <div className="aw-viewing-chrome" hidden={{props.fullscreen}}>
-      <div className="aw-window-chrome" role="banner">
-        <div className="aw-window-brand"><span className="aw-icon aw-icon-brand" aria-hidden="true"></span><span className="aw-product-name">{PRODUCT}</span><span id="context" className="aw-window-context" title={{props.context}}>{{props.context}}</span></div>
-        <div className="aw-window-captions" aria-label="창 제어">
-          {min}
-          {max}
-          {close}
-        </div>
-      </div>
-    </div>
     <div className="aw-viewing-stage">
       <video id="video" className="aw-viewing-video" tabIndex="-1" aria-hidden="true" hidden={{props.noMedia}}></video>
       <p id="subtitle" className="kk-subtitle" aria-live="polite" hidden={{props.noSubtitle}}><span className="kk-subtitle-line">{{props.subtitle1}}</span><span className="kk-subtitle-line" hidden={{props.noSubtitle2}}>{{props.subtitle2}}</span></p>
@@ -344,24 +328,6 @@ export function KinekinoPlayer(props: Props) {{
   </div>;
 }}
 "#,
-        min = caption(
-            "minimize",
-            "\"최소화\"",
-            "\"aw-icon aw-icon-minimize\"",
-            "aw-caption"
-        ),
-        max = caption(
-            "maximize",
-            "{props.maximizeLabel}",
-            "{props.maximizeIcon}",
-            "aw-caption"
-        ),
-        close = caption(
-            "close",
-            "\"닫기\"",
-            "\"aw-icon aw-icon-close\"",
-            "aw-caption aw-caption-close"
-        ),
         c_open = click("open"),
         c_browse = click("browse"),
         prev = icon_button(
