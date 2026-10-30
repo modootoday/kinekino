@@ -1,0 +1,16 @@
+[package]
+name = "kinekino-ui-plugins"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+meari = { workspace = true }
+kinekino-media-contracts.workspace = true
+kinekino-subtitles.workspace = true
+serde_json.workspace = true
+serde = { workspace = true }
+
+[lints]
+workspace = true
