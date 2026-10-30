@@ -18,3 +18,9 @@
    a fitting title lost its tail whenever its width had a fractional part. */
 .kk-player-root .aw-window-brand .aw-icon-brand, .kk-player-root .aw-product-name, .kk-player-root .aw-window-captions { flex: 0 0 auto; }
 .kk-player-root .aw-window-context { flex: 1 1 0; min-width: 0; }
+/* Episode rows: like the caption title, a title box that only hugs its text is rounded to
+   whole pixels while the ellipsis check uses the unrounded advance, painting "01 · lo…".
+   The title takes the rest of the row; the "재생 중" marker keeps its own width. */
+.kk-player-root .aw-episode-row { display: flex; }
+.kk-player-root .aw-episode-row-title { flex: 1 1 0; min-width: 0; text-align: left; }
+.kk-player-root .aw-episode-current-marker { flex: 0 0 auto; }
