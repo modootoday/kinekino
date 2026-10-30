@@ -1,10 +1,7 @@
 use super::{Failure, Mode, Probe, Stage, owner, window};
 use kinekino_player::application::api::ProjectClient;
 use kinekino_player::{
-    application::{
-        api::RequestContext,
-        projects::InspectProject,
-    },
+    application::{api::RequestContext, projects::InspectProject},
     domain::api_values::DecimalU64,
     infrastructure::local_host::{EndpointClient, TransportOptions},
 };
