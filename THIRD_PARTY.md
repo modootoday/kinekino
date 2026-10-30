@@ -1,11 +1,11 @@
-# Source provenance for this temporary private snapshot
+# Source provenance
 
 - Meari upstream: https://github.com/modootoday/meari
 - Original recorded upstream/local base: `0844f6c24caf224617ca8abbb2dd75695a971b99`.
-- `vendor/meari` is an unmodified `git archive` of Meari `main` at `dab9c74` (`crates/` layout:
-  `crates/meari`, `crates/meari-native`, `crates/meari-paint`, `crates/meari-dom`, ...). The workspace
-  patches `blitz-paint`/`blitz-dom` to `vendor/meari/crates/meari-paint` and `vendor/meari/crates/meari-dom`.
-- Original Meari MIT/Apache license files and NOTICE files are retained with their source.
+- Meari is consumed from crates.io (`meari`, `meari-native`, `meari-dom`, `meari-paint`, `meari-shell`,
+  `meari-html`, `meari-platform` 0.1.0; MIT OR Apache-2.0). `meari-dom`/`meari-shell` are imported under the
+  `blitz-dom`/`blitz-shell` names. No Meari source is vendored in this repository.
+- Meari's MIT/Apache license and NOTICE files ship inside its published crates.
 - Fonts: Noto Sans, Noto Sans KR and Noto Sans JP, SIL Open Font License 1.1. They are **not embedded**
   in any binary and not stored in this repository. `kinekino fonts fetch` downloads them from
   `google/fonts` at the pinned revision `6157dfaa640c` (`meari::domain::design::fonts::REVISION`),

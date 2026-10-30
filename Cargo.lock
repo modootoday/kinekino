@@ -445,106 +445,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "blitz-dom"
-version = "0.3.0-beta.4"
-dependencies = [
- "accesskit 0.25.1",
- "app_units",
- "atomic_refcell",
- "bitflags 2.13.2",
- "blitz-traits",
- "color",
- "cssparser 0.38.0",
- "cursor-icon",
- "debug_timer",
- "euclid",
- "html-escape",
- "icu_locale_core",
- "icu_properties",
- "icu_segmenter",
- "image",
- "keyboard-types",
- "kurbo 0.13.1",
- "linebender_resource_handle",
- "markup5ever 0.40.0",
- "meari-platform",
- "objc2 0.6.5",
- "parley",
- "percent-encoding",
- "rayon",
- "selectors 0.41.0",
- "skrifa 0.44.0",
- "slotmap",
- "smallvec",
- "stylo",
- "stylo_dom",
- "stylo_static_prefs",
- "stylo_taffy",
- "stylo_traits",
- "svgtypes 0.16.1",
- "taffy 0.15.0",
- "thin-vec",
- "thread_local",
- "url",
- "usvg 0.48.1",
- "web-time",
-]
-
-[[package]]
-name = "blitz-html"
-version = "0.3.0-beta.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eddd638e05f3f3efb9f2d37f0406e7834ea023727e1678524488aa70eb639615"
-dependencies = [
- "blitz-dom",
- "blitz-traits",
- "html5ever 0.40.1",
- "xml5ever",
-]
-
-[[package]]
-name = "blitz-paint"
-version = "0.3.0-beta.4"
-dependencies = [
- "anyrender",
- "anyrender_svg",
- "blitz-dom",
- "blitz-traits",
- "bytemuck",
- "color",
- "euclid",
- "kurbo 0.13.1",
- "parley",
- "peniko",
- "skrifa 0.44.0",
- "smallvec",
- "stylo",
- "taffy 0.15.0",
- "usvg 0.48.1",
-]
-
-[[package]]
-name = "blitz-shell"
-version = "0.3.0-beta.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d80b952b007a4bd82012583da8540d95cfd276b3c790ded39299fce728864fdb"
-dependencies = [
- "android-activity",
- "anyrender",
- "arboard",
- "atomic_refcell",
- "blitz-dom",
- "blitz-paint",
- "blitz-traits",
- "futures-util",
- "keyboard-types",
- "wasm-bindgen",
- "web-sys",
- "web-time",
- "winit 0.31.0-beta.3",
-]
-
-[[package]]
 name = "blitz-traits"
 version = "0.3.0-beta.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3296,14 +3196,14 @@ dependencies = [
 name = "kinekino-player-ui"
 version = "0.1.0"
 dependencies = [
- "blitz-dom",
- "blitz-shell",
  "kinekino-core",
  "kinekino-libmpv",
  "kinekino-settings-ui",
  "linebender_resource_handle",
  "meari",
+ "meari-dom",
  "meari-native",
+ "meari-shell",
  "rfd",
  "winit 0.31.0-beta.3",
 ]
@@ -3330,10 +3230,10 @@ dependencies = [
 name = "kinekino-settings-ui"
 version = "0.1.0"
 dependencies = [
- "blitz-shell",
  "kinekino-core",
  "meari",
  "meari-native",
+ "meari-shell",
  "png 0.18.1",
  "rfd",
  "serde_json",
@@ -3602,6 +3502,8 @@ dependencies = [
 [[package]]
 name = "meari"
 version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a2f18549a291123b53df98655a8bc823f7e425b0e1d1256f68ddaf65c52f3981"
 dependencies = [
  "meari-platform",
  "oxc_allocator",
@@ -3618,24 +3520,86 @@ dependencies = [
 ]
 
 [[package]]
+name = "meari-dom"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9bcea70228a4ca546f69dd5485beb7a2a2e3fb676934f968dbd989cba3ffce19"
+dependencies = [
+ "accesskit 0.25.1",
+ "app_units",
+ "atomic_refcell",
+ "bitflags 2.13.2",
+ "blitz-traits",
+ "color",
+ "cssparser 0.38.0",
+ "cursor-icon",
+ "debug_timer",
+ "euclid",
+ "html-escape",
+ "icu_locale_core",
+ "icu_properties",
+ "icu_segmenter",
+ "image",
+ "keyboard-types",
+ "kurbo 0.13.1",
+ "linebender_resource_handle",
+ "markup5ever 0.40.0",
+ "meari-platform",
+ "objc2 0.6.5",
+ "parley",
+ "percent-encoding",
+ "rayon",
+ "selectors 0.41.0",
+ "skrifa 0.44.0",
+ "slotmap",
+ "smallvec",
+ "stylo",
+ "stylo_dom",
+ "stylo_static_prefs",
+ "stylo_taffy",
+ "stylo_traits",
+ "svgtypes 0.16.1",
+ "taffy 0.15.0",
+ "thin-vec",
+ "thread_local",
+ "url",
+ "usvg 0.48.1",
+ "web-time",
+]
+
+[[package]]
+name = "meari-html"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6875d50f8de876238ebd535e7a4205a50eb68a227c048adfff0fd218e78c835e"
+dependencies = [
+ "blitz-traits",
+ "html5ever 0.40.1",
+ "meari-dom",
+ "xml5ever",
+]
+
+[[package]]
 name = "meari-native"
 version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3ea18e748eb4379aa94e2105176a8316a0bea103f3765dccebd676ec73a572f4"
 dependencies = [
  "accesskit 0.25.1",
  "accesskit_xplat",
  "anyrender",
  "anyrender_vello_cpu",
- "blitz-dom",
- "blitz-html",
- "blitz-paint",
- "blitz-shell",
  "blitz-traits",
  "cssparser 0.38.0",
  "dioxus-shadcn-primitives",
  "image",
  "keyboard-types",
  "meari",
+ "meari-dom",
+ "meari-html",
+ "meari-paint",
  "meari-platform",
+ "meari-shell",
  "oxc_allocator",
  "oxc_ast",
  "oxc_parser",
@@ -3662,12 +3626,58 @@ dependencies = [
 ]
 
 [[package]]
+name = "meari-paint"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8aff42171a6aabd858a080c6ceaa42521aae03895371ea26ff808f45b1fb42bd"
+dependencies = [
+ "anyrender",
+ "anyrender_svg",
+ "blitz-traits",
+ "bytemuck",
+ "color",
+ "euclid",
+ "kurbo 0.13.1",
+ "meari-dom",
+ "parley",
+ "peniko",
+ "skrifa 0.44.0",
+ "smallvec",
+ "stylo",
+ "taffy 0.15.0",
+ "usvg 0.48.1",
+]
+
+[[package]]
 name = "meari-platform"
 version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "84c1f55b059ad6d75054079e6f6def7c20bdb8aaf3b89ab932379995091939b4"
 dependencies = [
  "raw-window-handle",
  "serde_json",
  "windows",
+ "winit 0.31.0-beta.3",
+]
+
+[[package]]
+name = "meari-shell"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bc981600c9cf3f9bced309647708c039f6e1c10817cf3bb0df19a9fac0dbeddb"
+dependencies = [
+ "android-activity",
+ "anyrender",
+ "arboard",
+ "atomic_refcell",
+ "blitz-traits",
+ "futures-util",
+ "keyboard-types",
+ "meari-dom",
+ "meari-paint",
+ "wasm-bindgen",
+ "web-sys",
+ "web-time",
  "winit 0.31.0-beta.3",
 ]
 
