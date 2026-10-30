@@ -3178,7 +3178,7 @@ dependencies = [
 name = "kinekino-inference-hf"
 version = "0.1.0"
 dependencies = [
- "base64 0.22.1",
+ "base64 0.23.1",
  "kinekino-core",
  "kinekino-inference",
  "serde_json",
@@ -3257,7 +3257,7 @@ version = "0.1.0"
 dependencies = [
  "adblock",
  "anyhow",
- "base64 0.22.1",
+ "base64 0.23.1",
  "ctor",
  "eframe",
  "egui_extras",
