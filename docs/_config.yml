@@ -1,5 +1,5 @@
 # GitHub Pages builds this directory with Jekyll; no build step. Theme: jekyll-theme-modootoday (md-components v1),
-# pinned to a main commit until v1.0.0 is tagged; then switch to @v1.0.0.
+# pinned to the v1.1.0 release tag (GitHub Pages standard: github-pages 232 + jekyll-remote-theme).
 # Only plugins on https://pages.github.com/versions/ are used (no jekyll-polyglot).
 title: kinekino
 description: "A cross-OS Rust video player with a cat mascot, built to be driven by people, CLI scripts and AI agents."
@@ -13,18 +13,17 @@ markdown: kramdown
 kramdown:
   input: GFM
   syntax_highlighter: rouge
-remote_theme: modootoday/jekyll-theme-modootoday@73a456c088eb0b82f889600a8eb89caec2a5e5cd
-plugins: [jekyll-remote-theme, jekyll-seo-tag, jekyll-sitemap, jekyll-relative-links]
+remote_theme: modootoday/jekyll-theme-modootoday@v1.1.0
+plugins: [jekyll-remote-theme, jekyll-sitemap, jekyll-relative-links]
 modootoday:
   color_scheme: auto
   components: [callout, badge, code-copy, nav, theme-toggle]
   languages: [en, ko]        # keep in sync with _data/languages.yml (check_site.py)
   language_switcher: header
-  seo: false                 # jekyll-seo-tag in _includes/head-custom.html
   nav: main
+  theme_color: "#14110f"   # one colour for light and dark (was a meta tag in head-custom.html)
 sass: { silence_deprecations: [import, global-builtin] }
 relative_links: { enabled: true }
-twitter: { card: summary_large_image }
 defaults:
   - scope: { path: "" }
     values: { layout: doc, lang: en, image: /assets/img/mascot/preview-1.png }
