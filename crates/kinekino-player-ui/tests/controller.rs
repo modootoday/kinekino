@@ -380,3 +380,20 @@ fn more_menu_opens_above_its_button_and_items_act() {
     assert!(!c.view.menu_open, "⋮ again closes it");
     std::fs::remove_dir_all(dir).unwrap();
 }
+
+#[test]
+fn a_file_dialog_that_never_showed_explains_how_to_open() {
+    use std::time::Duration;
+    let mut c = Controller::new(FakeEngine::default());
+    assert!(
+        !c.picked(None, Duration::from_secs(3)),
+        "a real cancel is silent"
+    );
+    assert!(c.view.status.is_empty());
+    assert!(c.picked(None, Duration::from_millis(5)));
+    assert!(c.view.status.contains("zenity"), "{}", c.view.status);
+    let (dir, files) = folder("picked");
+    assert!(c.picked(Some(&files[0]), Duration::from_secs(2)));
+    assert!(c.view.has_media);
+    std::fs::remove_dir_all(dir).unwrap();
+}
