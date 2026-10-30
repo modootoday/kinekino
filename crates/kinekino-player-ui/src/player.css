@@ -25,6 +25,9 @@
 .kk-player-root .aw-episode-row-title { flex: 1 1 0; min-width: 0; text-align: left; }
 .kk-player-root .aw-episode-current-marker { flex: 0 0 auto; }
 /* ⋮ (더 보기) menu: a popup anchored above the button, over the video. */
+.kk-player-root .kk-toast { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; display: flex; justify-content: center; margin: 0 var(--aw-space-4) var(--aw-space-4); pointer-events: none; }
+.kk-player-root .kk-toast-text { padding: var(--aw-space-2) var(--aw-space-3); border: var(--aw-border-thin) solid var(--aw-border); border-radius: var(--aw-radius-control); background: var(--aw-surface-panel); color: var(--aw-text); font-family: var(--aw-font-family); font-size: var(--aw-font-body); line-height: var(--aw-leading-body); text-align: center; }
+.kk-player-root .kk-toast[hidden] { display: none; }
 .kk-player-root .kk-more { position: relative; display: flex; }
 .kk-player-root .kk-menu { position: absolute; right: 0; bottom: calc(100% + var(--aw-space-2)); z-index: 3; display: flex; flex-direction: column; gap: var(--aw-space-1); min-width: 220px; padding: var(--aw-space-1); border: var(--aw-border-thin) solid var(--aw-border); border-radius: var(--aw-radius-control); background: var(--aw-surface-panel); }
 .kk-player-root .kk-menu[hidden] { display: none; }

@@ -10,7 +10,7 @@ mod styles;
 mod texture;
 mod window;
 
-pub use controller::{Controller, Effect, Engine, HIDE_AFTER, siblings};
+pub use controller::{Controller, Effect, Engine, HIDE_AFTER, NOTICE_FOR, siblings};
 pub use keys::shortcut;
 pub use session::{Command, Session, VIEWPORT, activate, meari_props, path_of};
 pub use source::{Episode, PRODUCT, View, clock};
