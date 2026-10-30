@@ -197,6 +197,16 @@ pub mod x11 {
     }
 }
 
+/// Shows the file dialog (xdg-desktop-portal, else zenity, on Linux); returns the choice
+/// and how long the dialog took to answer.
+pub(crate) fn pick_video() -> (Option<std::path::PathBuf>, std::time::Duration) {
+    let started = std::time::Instant::now();
+    let picked = rfd::FileDialog::new()
+        .add_filter("동영상", &["mkv", "mp4", "webm", "avi", "mov", "m4v", "ts"])
+        .pick_file();
+    (picked, started.elapsed())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -250,14 +260,4 @@ mod tests {
         assert_eq!(perform(&mut ops, &Effect::Minimize), Err("stale".into()));
         assert!(!ops.fell_back);
     }
-}
-
-/// Shows the file dialog (xdg-desktop-portal, else zenity, on Linux); returns the choice
-/// and how long the dialog took to answer.
-pub(crate) fn pick_video() -> (Option<std::path::PathBuf>, std::time::Duration) {
-    let started = std::time::Instant::now();
-    let picked = rfd::FileDialog::new()
-        .add_filter("동영상", &["mkv", "mp4", "webm", "avi", "mov", "m4v", "ts"])
-        .pick_file();
-    (picked, started.elapsed())
 }
