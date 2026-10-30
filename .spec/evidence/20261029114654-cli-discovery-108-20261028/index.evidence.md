@@ -21,7 +21,7 @@ R138입력고정:2270snapshot종료0,2384파일/inventoryE720A96EBCF03B3655952B5
 
 소스변경 없이 R137 고정입력을 사용한다.2266 custody terminal0 확인 후2267 기본구성 cli_discovery_inventory no-run 종료0(10.638초). fixed-r137/discovery 실행파일 SHA3AE761BA7211AA0801BD3913AFD30850D46CBC0AE1F5BF206AB832669D00B946/PDB를 보존했다. 시험이 사용하는 실제 cache CLI SHA73F244180BA698A920F7D3FE6D29926CF584863934CADA087191CD2AD0E5CF0E는 fixed-r137/native-bins와 같으며 시험 중 다른 producer를 시작하지 않는다.
 
-2268 기존6시험을 직렬 실행 중이다. 기본108명령의 고유성·각schema/지원상태,초기화한project/proposal/job저장소의불변성,구성된review저장소의4분할schema/지원상태와원fixture동일성을검사한다. 광고된기능실행·미디어decode·모델추론·GUI검증은하지않는다. optional frame설정은별도지정하지않았다. raw fixture/출력은 C:/workspaces/com.kinekino.player/runtime/build-cache/tmp/discovery-r137-r1에보존하며로그/receipt는기존source375-datalab-b0-r1-logs에남긴다. 이경로는삭제가능캐시로간주하지않는원검증증거다.
+2268 기존6시험을 직렬 실행 중이다. 기본108명령의 고유성·각schema/지원상태,초기화한project/proposal/job저장소의불변성,구성된review저장소의4분할schema/지원상태와원fixture동일성을검사한다. 광고된기능실행·미디어decode·모델추론·GUI검증은하지않는다. optional frame설정은별도지정하지않았다. raw fixture/출력은 <원 호스트 저장소>/runtime/build-cache/tmp/discovery-r137-r1에보존하며로그/receipt는기존source375-datalab-b0-r1-logs에남긴다. 이경로는삭제가능캐시로간주하지않는원검증증거다.
 
 아직전체통과로계상하지않는다. 기능전체인수/카드worker실패·ACK미관측/전체TI09/GUI·AI품질0/9·기존소유권/WIP/private overlay/보류유지. 기존 modootoday/software-qa/code-change-review-verification(9F73865F96EC0CEFCF3A4023B294400258473640DF3B1D2ADD03DCCA8192D64B),verdict-table(9D9619A829AE24D73645EF5F7C8126C8257CAEDDAC80800632866257008AD2A9)을적용해discovery상태일치와실제기능인수를구분한다.
 

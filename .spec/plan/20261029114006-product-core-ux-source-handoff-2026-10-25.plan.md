@@ -9,7 +9,7 @@ updated: 2026-10-29
 
 ## build-host 이관용 UI 체크포인트
 
-전체 이관 권위는 [호스트 이관 정본](../player/host-migration-build-host.md)이다. 원본은 `D:/workspace/@myso-kr/com.kinekino.player`, 대상은 사용자 지정 `C:/workspaces/com.kinekino.player`다. 현재 호스트의 D cache/TMP 정책은 유지하며 대상 C 루트와 혼동하지 않는다. WARP 연결/모드/라우팅 변경0, cloudflared 전송·dots 제어·heavy는 중앙 배정 전0이다.
+전체 이관 권위는 [호스트 이관 정본](../player/host-migration-build-host.md)이다. 원본은 `D:/workspace/@myso-kr/com.kinekino.player`, 대상은 사용자 지정 `<원 호스트 저장소>`다. 현재 호스트의 D cache/TMP 정책은 유지하며 대상 C 루트와 혼동하지 않는다. WARP 연결/모드/라우팅 변경0, cloudflared 전송·dots 제어·heavy는 중앙 배정 전0이다.
 
 사용자 최종 결정에 따라 기존 빌드 캐시는 전송하지 않고 대상에서 새로 빌드한다. 각 target/ 및 runtime/build-cache/는 재생성 캐시로 제외한다. runtime/development/의 실제 선택 소스·manifest·정본을 캐시로 오분류하지 않는다. UI 담당의 별도 보존 필수 runtime EXE는 없다. mpv·역사 verifier 등 혼재 필수 EXE의 별도 보존 목록은 PM/SDK 정본을 따른다. 구 검증 EXE/PDB를 UI 재현에 필수 도구로 지정하거나 대상 검증 바이너리로 재사용하지 않는다.
 
@@ -26,10 +26,10 @@ PM 이관 정본의 다음 합성375 후보 A09B51AC.../계획190 SHA082C68B4...
 
 먼저 동일 선택 소스의 대상 합성·toolchain·Cargo target/build/TMP/TEMP 경로를 확인하고 기존 SDK recipe의 전체 feature/admission/190 집합을 유지한다. 아래는 원30 factory의 정확 등록명용 재현 명령이며 현재 실행 지시나 성공 근거가 아니다. 최소 source feature만 표시한 것으로 원 SDK 전체 feature 조건을 축소하지 않는다.
 
-경로 대응은 원본 루트 아래 `runtime/development/...`, `.spec/...`, `.agents/...`, 제품 소스·필수 폰트/SVG 자산의 상대 경로를 유지해 대상 루트에 놓는 방식이다. 예를 들어 원 `D:/workspace/@myso-kr/com.kinekino.player/runtime/development/product-catalog-final-actions-r1/source1.json`은 대상 `C:/workspaces/com.kinekino.player/runtime/development/product-catalog-final-actions-r1/source1.json`이다. 원 JSON은 보존하고 source 절대경로를 갱신한 실행용 manifest는 SDK가 새 핀으로 발행한다. Dot은 대상 PC 수신 준비만 소유하며 원본 설정·전송은 PM 범위다.
+경로 대응은 원본 루트 아래 `runtime/development/...`, `.spec/...`, `.agents/...`, 제품 소스·필수 폰트/SVG 자산의 상대 경로를 유지해 대상 루트에 놓는 방식이다. 예를 들어 원 `D:/workspace/@myso-kr/com.kinekino.player/runtime/development/product-catalog-final-actions-r1/source1.json`은 대상 `<원 호스트 저장소>/runtime/development/product-catalog-final-actions-r1/source1.json`이다. 원 JSON은 보존하고 source 절대경로를 갱신한 실행용 manifest는 SDK가 새 핀으로 발행한다. Dot은 대상 PC 수신 준비만 소유하며 원본 설정·전송은 PM 범위다.
 
 ```text
-Set-Location -LiteralPath 'C:\workspaces\com.kinekino.player'
+Set-Location -LiteralPath '<원 호스트 저장소>'
 cargo test -p kinekino-player --lib --features native-proposal-window assembly::meari::viewer_callbacks::tests::native_playback::actual_catalog_root_factory_and_owned_callbacks_accept_nonempty_rows_and_captured_values -- --exact --nocapture --test-threads=1
 ```
 

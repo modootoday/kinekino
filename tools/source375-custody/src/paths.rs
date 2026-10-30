@@ -26,12 +26,21 @@ pub fn source(root: &Path, raw: &str, relative: &Path) -> Result<PathBuf, String
     if let Some(tail) = normalized.strip_prefix("D:/workspace/@myso-kr/com.kinekino.player/") {
         return Ok(root.join(safe_relative(tail)?));
     }
-    if normalized.starts_with("C:/Users/<user>/AppData/Local/CodexBuildCache/")
+    if is_user_build_cache(&normalized)
         && relative.starts_with("vendor/meari/crates/meari/assets/fonts/pretendard")
     {
         return Ok(root.join(relative));
     }
     Err(format!("unmapped historical source: {raw}"))
+}
+/// `C:/Users/<any user>/AppData/Local/CodexBuildCache/...`, without naming an account.
+fn is_user_build_cache(normalized: &str) -> bool {
+    normalized
+        .strip_prefix("C:/Users/")
+        .and_then(|rest| rest.split_once('/'))
+        .is_some_and(|(user, tail)| {
+            !user.is_empty() && tail.starts_with("AppData/Local/CodexBuildCache/")
+        })
 }
 #[cfg(test)]
 mod tests {
@@ -56,11 +65,20 @@ mod tests {
         assert!(
             source(
                 Path::new("C:/root"),
-                "C:/Users/<user>/AppData/Local/CodexBuildCache/x",
+                "C:/Users/someone/AppData/Local/CodexBuildCache/x",
                 Path::new("src/lib.rs")
             )
             .is_err()
         );
+    }
+    #[test]
+    fn any_user_build_cache_maps_only_pinned_fonts() {
+        let root = Path::new("C:/root");
+        let font = Path::new("vendor/meari/crates/meari/assets/fonts/pretendard/a.otf");
+        let raw = "C:/Users/someone/AppData/Local/CodexBuildCache/f/a.otf";
+        assert_eq!(source(root, raw, font).unwrap(), root.join(font));
+        assert!(source(root, "C:/Users//AppData/Local/CodexBuildCache/a", font).is_err());
+        assert!(source(root, "C:/Users/someone/Desktop/a.otf", font).is_err());
     }
     #[test]
     fn pinned_private_payload_is_not_a_public_destination() {

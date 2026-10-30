@@ -11,11 +11,11 @@ updated: 2026-10-29
 
 R145는 2324 fmt check,2326 기본 all-targets strict,2327 lib/Jobs/clip_project_cli/CLI no-run,2328 실제시험1개/21CLI(12.82초),2330 Product145/2331 Core18/2332 Native26/2333 OS1,2334 정상2bins,2335 사후2399입력내용·FileID동일을 모두 종료0으로 확인했다. 전체190의 group-return.txt 4개에서 execution_result/producer_integrity=Ok(())와 동일 R145 SOURCE hash를 직접 확인했다. Core/Native/OS는 기존622/624고정producer의 실제 재실행이며 새 컴파일로 표시하지 않는다. R144 첫 strict 실패와 2329 exact runner의 출력 상위디렉터리 누락 경로오류(exit1,시험 전)를 보존했다. 2330은 상위디렉터리를 준비한 별도 재실행이다.
 
-R145 input-r145는2399파일/inventory A239F296F2B3461CE6D6EF34FEE807904CD3B328F6EA88CC2CE5DB8B94ACA8E2,SOURCE.md E596476A5BBC74E3A68A6428BEB69629A6D2286901C29CEF0116A5980573BBB6이다. CLI는R144와동일bytes A66D7F2A6555924179B4E402970EE86320FE41762363B1D788B33D980594D210. 정상GUI는5EA69100A56C932980EACA35F656D8C99E8E5408D9BB1BF874C83A76162045EC. exe/PDB를 mirror/runtime/verification/fixed-r145/clip-cli 및 native-bins에 보존했다. 실제여정증거는 C:/workspaces/com.kinekino.player/runtime/verification/source-sdk-r145-clip-cli-r1/actual 이다.
+R145 input-r145는2399파일/inventory A239F296F2B3461CE6D6EF34FEE807904CD3B328F6EA88CC2CE5DB8B94ACA8E2,SOURCE.md E596476A5BBC74E3A68A6428BEB69629A6D2286901C29CEF0116A5980573BBB6이다. CLI는R144와동일bytes A66D7F2A6555924179B4E402970EE86320FE41762363B1D788B33D980594D210. 정상GUI는5EA69100A56C932980EACA35F656D8C99E8E5408D9BB1BF874C83A76162045EC. exe/PDB를 mirror/runtime/verification/fixed-r145/clip-cli 및 native-bins에 보존했다. 실제여정증거는 <원 호스트 저장소>/runtime/verification/source-sdk-r145-clip-cli-r1/actual 이다.
 
 21CLI는 기본/구성 capability·3명령schema·생성·저장·head/과거조회·중복/stale/foreign source/root주입·endpoint/serve혼합거절을 포함한다. 별도typed저장소에서3메서드의결과를일치시켰으며 최초발행bytes의사후동일성을확인했다. 매CLI가새프로세스에서저장소를재열었다. 이 성공은 합성 미디어 선언의 프로젝트 저장 지원이며 media custody/실제렌더/encoder/전체111명령discovery재인수/전체제품GUI/AI품질승인이 아니다. 다음은 실제 source preflight·도구chain pin·encoder 및 원Jobs renderer 연결이다. 아래 WIP/미실행 표시는 당시 관측으로 보존한다.
 
-R144 실제 CLI 통과/첫 strict 실패:2321 no-run 종료0(189979ms),고정CLI SHA256 A66D7F2A6555924179B4E402970EE86320FE41762363B1D788B33D980594D210/fixed-r144/clip-cli와시험exe/PDB보존.2322 실제시험1개/21CLI호출 통과12.53초,3typed메서드동등·발행1/edit1→발행2/edit3·매CLI재열기·과거조회·중복/stale/foreign/root주입/endpoint/serve혼합거절·원발행bytes보존. evidence C:/workspaces/com.kinekino.player/runtime/verification/source-sdk-r144-clip-cli-r1/actual/verification.json. 원발행SHA62e3333f2f85d18bcf492cffa2b6c500e80484e767a505dc180e51763eebb1d3.2323 strict는새시험의private owned_process_evidence가공개미사용항목live/elapsed_ms를dead_code로만들어2오류실패했다. 외부blitz-paint deprecation1도별도보존. 제품실행실패와구분한다. preimage-r144-clip-test-visibility에시험보존후R145에서기존card_project_cli와동일한pub mod경계로수정했으며allow는추가하지않았다.2324fmt종료0/2325snapshot진행중,재검증전이다.
+R144 실제 CLI 통과/첫 strict 실패:2321 no-run 종료0(189979ms),고정CLI SHA256 A66D7F2A6555924179B4E402970EE86320FE41762363B1D788B33D980594D210/fixed-r144/clip-cli와시험exe/PDB보존.2322 실제시험1개/21CLI호출 통과12.53초,3typed메서드동등·발행1/edit1→발행2/edit3·매CLI재열기·과거조회·중복/stale/foreign/root주입/endpoint/serve혼합거절·원발행bytes보존. evidence <원 호스트 저장소>/runtime/verification/source-sdk-r144-clip-cli-r1/actual/verification.json. 원발행SHA62e3333f2f85d18bcf492cffa2b6c500e80484e767a505dc180e51763eebb1d3.2323 strict는새시험의private owned_process_evidence가공개미사용항목live/elapsed_ms를dead_code로만들어2오류실패했다. 외부blitz-paint deprecation1도별도보존. 제품실행실패와구분한다. preimage-r144-clip-test-visibility에시험보존후R145에서기존card_project_cli와동일한pub mod경계로수정했으며allow는추가하지않았다.2324fmt종료0/2325snapshot진행중,재검증전이다.
 
 R144 입력 고정:2320 snapshot 종료0,2399파일/inventory SHA256 85ABBF3F0ECA35F883D940A990C82358781CAB39821676D06076371A922A5469,SOURCE.md SHA256 2AEC5967D427666667D840C240F2132BABC9CA8FEC6FA64315DD2D63A901B998.2321 기본 lib/Jobs/새 clip_project_cli/CLI no-run 실행 중이다. 새 입력을 R143 typed 선언의 컴파일 성공으로 대체하지 않는다.
 
@@ -38,7 +38,7 @@ ApplicationClient에 create_clip_project/save_clip_project/inspect_clip_project�
 - input-r143/SOURCE.md SHA256 3A174A84DE10A66E85AD38F89058D5FA044912F63E286B8616AA2DF01C52AE90.
 - 2315-source-sdk-r143-typed-no-run: 기본 lib·Jobs·CLI 컴파일 실행 중. 종료 결과 전에는 통과로 계상하지 않는다.
 
-로그 root는 C:/workspaces/com.kinekino.player/runtime/verification/source375-datalab-b0-r1-logs이며 mirror는 C:/workspaces/com.kinekino.player/runtime/development/source-sdk-integration-r1이다. C-only native 캐시/tmp, conservative2 producer를 유지한다.
+로그 root는 <원 호스트 저장소>/runtime/verification/source375-datalab-b0-r1-logs이며 mirror는 <원 호스트 저장소>/runtime/development/source-sdk-integration-r1이다. C-only native 캐시/tmp, conservative2 producer를 유지한다.
 
 ## 남은 연결과 인수
 

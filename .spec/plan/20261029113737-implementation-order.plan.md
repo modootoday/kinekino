@@ -36,7 +36,7 @@ F2의 독립 저자원 소스 작업은 F1이나 다른 모델 선정 때문에 
 - manifest의 source slash를 정규화해 old D root→대상 C root로 custody 매핑한다. old C font/license5는 canonical Meari 폰트/라이선스의 동일SHA로 해소한다. 원 절대경로·원FileID는 역사로 보존하고 대상 위치·bytes/hash/fileidentity·preimage/absence를 별도 발행한다.
 - 기존 source375 selected source와 canonical diff를 path별로 고정한다. 과거 union/branch/pending/WIP3를 자동 overlay하지 않는다. root HEAD만 빌드한 것을 선택375 검증으로 부르지 않는다. 한 통합 stage에서 원본/부재를 보존하고 단계 종료 후 정확 복원한다. 새 source stage는 원 restore자료·역사 manifest가 아닌 명시 새 목적지여야 한다.
 - root/Meari Cargo.lock·필수 local dependencies/fonts/assets·toolchain exact release/commit/host·MSVC/linker/windows SDK의 실제 사용 경로·환경을 고정한다. 현재 관측 rustc/cargo1.99.1은 준비 근거이고 동일 source 정상빌드 성공이 아니다. --locked --offline 기본, missing dependency이면 정확히 기록하고 다운로드 보류를 우회하지 않는다.
-- C:/workspaces/com.kinekino.player/runtime/build-cache/{native,meari-native,resource-runner,tmp}의 workspace 문맥을 사용한다. 별도문서도구는 충돌 없는 전용 tool namespace를 같은cache루트에 둔다. launcher의 CARGO_TARGET_DIR·--target-dir·TMP/TEMP와 실제 JSON target/build directory가 일치해야 한다. --manifest-path만으로 workspace config가 바뀐다고 가정하지 않는다.
+- <원 호스트 저장소>/runtime/build-cache/{native,meari-native,resource-runner,tmp}의 workspace 문맥을 사용한다. 별도문서도구는 충돌 없는 전용 tool namespace를 같은cache루트에 둔다. launcher의 CARGO_TARGET_DIR·--target-dir·TMP/TEMP와 실제 JSON target/build directory가 일치해야 한다. --manifest-path만으로 workspace config가 바뀐다고 가정하지 않는다.
 - Cargo가 보고한 원산출물 EXE/PDB/package/features/fresh/source pin/bytes/hash/FileID/mtime을 등록한다. 모든 통과 산출물의 독립 복사를 반복하지 않는다. 실패 증거/필요재현파일은 예산 안에서 정확히 보존한다. group 시작/종료 hash·매실행 metadata와 writer/stream 반환을 기록한다.
 
 ## 인수 ID 연결

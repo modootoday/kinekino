@@ -19,7 +19,7 @@ runtime/verification/source375-datalab-b0-r1-logs/126-review-source-process-test
 | 완성 temp sync 뒤 최종 link 직전 | .../review-source-files-2132-1 /22480 | parent 강제종료 exit1. .export-22480-0.tmp를 보존. 새 store는 NeedsInput으로 거절하고 원 temp bytes 동일. 빈 history로 초기화/덮어쓰기/자동삭제하지 않음 |
 | case write reservation 보유 중 | .../review-source-files-2132-2 /10344 | child 생존 중 다른 프로세스의 reader/writer 모두 RevisionConflict. 종료·wait 뒤 예약 재획득, 기존 replay없음 확인 후 publication 및 새 read에서 replay 성공 |
 
-각 fixture의 child.stdout/stderr/ready/parent-termination.json과 transaction 파일을 보존한다. 위 mapping은 실제 디렉터리의 child receipt/고유 tmp/parent 종료 PID와 시험 결과를 함께 확인했다. 마지막 두 행의 ...는 같은 C:/workspaces/com.kinekino.player/runtime/build-cache/tmp 부모다.
+각 fixture의 child.stdout/stderr/ready/parent-termination.json과 transaction 파일을 보존한다. 위 mapping은 실제 디렉터리의 child receipt/고유 tmp/parent 종료 PID와 시험 결과를 함께 확인했다. 마지막 두 행의 ...는 같은 <원 호스트 저장소>/runtime/build-cache/tmp 부모다.
 
 127 fmt --check exit0/2457ms.128 root --all-targets --features native-proposal-window -- -D warnings exit0/18892ms. 기존 paint deprecation warning을 원로그에 보존했다. locked/offline/jobs1/CPU2/BelowNormal/C native/tmp와 기존 toolchain 유지.
 

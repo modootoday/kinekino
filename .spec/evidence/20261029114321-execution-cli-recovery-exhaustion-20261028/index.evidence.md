@@ -24,7 +24,7 @@ R90 SOURCEFCF681AEC0A0C95E159CE0019C6E40122698BD8BE51BBDC839CE4FC0C19635DE,inven
 |1833/1834/1835|최종Native/default strict·fmtcheck|각exit0|
 |1836|최종custody|exit0·2333content/identity동일|
 
-원raw는mirror/runtime/verification/execution-cli-r90-{exhausted,repeat-fault}-r1. 소진사례원hostpid34680의원작업root는C:/workspaces/com.kinekino.player/runtime/build-cache/tmp/frame-owned-34680-1793140591224126100-4. 각세대자동요청없음·이전세대거절·명시요청단일진행·원미디어guard보유·원sentinel불변을확인했다. 마지막generation16/retry_requestedtrue/retry_consumedtrue/attempt_budget_exhaustedtrue와phase=running을관측했고추가generation16요청은resource_exhausted로거절됐다. receipt0000..0016은원sentinel,최종receipt0017/PNG는없다. 새ownedframe root는원작업하나뿐이다. EXHAUSTED.json은원관측/root목록/final_receipt_recordedfalse/cleanup_completefalse를보존한다.
+원raw는mirror/runtime/verification/execution-cli-r90-{exhausted,repeat-fault}-r1. 소진사례원hostpid34680의원작업root는<원 호스트 저장소>/runtime/build-cache/tmp/frame-owned-34680-1793140591224126100-4. 각세대자동요청없음·이전세대거절·명시요청단일진행·원미디어guard보유·원sentinel불변을확인했다. 마지막generation16/retry_requestedtrue/retry_consumedtrue/attempt_budget_exhaustedtrue와phase=running을관측했고추가generation16요청은resource_exhausted로거절됐다. receipt0000..0016은원sentinel,최종receipt0017/PNG는없다. 새ownedframe root는원작업하나뿐이다. EXHAUSTED.json은원관측/root목록/final_receipt_recordedfalse/cleanup_completefalse를보존한다.
 
 EOF후stderr는pipe/dispatch Joined와원SDK TerminalAckPending1/workerExitPending(loop_finishedfalse)를구분했다. host는정리미완료를보고한상태에서원pending을보유하고비정상exit10으로종료했으며시험supervisor의강제kill은없었다. PROCESS.json의originalwait/streamsjoined/forcedfalse는원host프로세스관측이다. 이를원SDKworkerjoin·최종receipt저장·작업terminal/ACK성공으로승격하지않는다. 프로세스종료후원operation의재개·관리복구는지원/검증되지않았고원최종receipt가없으므로family정리성공도새롭게계상하지않는다.
 

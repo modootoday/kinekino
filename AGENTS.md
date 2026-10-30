@@ -1,12 +1,12 @@
 # 2026-10-29 임시 비공개 이관 적용
 
-이 clone은 다른 단말용 전달본이다. 아래 원 호스트의 C:/workspaces/com.kinekino.player 및 D 정책은 역사 기록으로 보존한다. 이 clone의 빌드 경로는 clone 루트/runtime/build-cache 아래 native·meari-native·resource-runner·tmp로 고정하고 D 드라이브를 가정하지 않는다. 전역 설정은 변경하지 않는다.
+이 clone은 다른 단말용 전달본이다. 아래 원 호스트의 <원 호스트 저장소> 및 D 정책은 역사 기록으로 보존한다. 이 clone의 빌드 경로는 clone 루트/runtime/build-cache 아래 native·meari-native·resource-runner·tmp로 고정하고 D 드라이브를 가정하지 않는다. 전역 설정은 변경하지 않는다.
 원 .spec 정본은 이관 사본 docs/spec에 대응한다. 담당별 소유권·private overlay·미검증·보류는 docs/continuation/HANDOFF.md를 읽는다. 사용자 요청은 이 임시 PRIVATE 저장소 업로드만 허용하며 기존 구현 goal은 paused다. 원 저장소/Meari push, 추론·다운로드·수동 GUI·WARP 보류는 유지한다. Python maintenance는 사용자가 명시 요청한 정리용 기존 예외다.
 
 ---
 # 최상위 프로젝트 규칙
 
-- **2026-10-26 사용자 후속 지시 — build-host:** 이 호스트는 D 드라이브 없는 NVMe SSD 환경이다. 이 호스트의 빌드 산출물·증분 캐시·빌드 임시 파일은 실제 `C:/workspaces/com.kinekino.player/runtime/build-cache` 아래로 통합한다. 아래 2026-10-25의 실제 D 경로 의무와 HDD I/O 전제는 이 호스트에 적용하지 않는다. 제품 workspace는 `native`, 독립 Meari workspace는 `meari-native`, 실행기 bootstrap은 `resource-runner`로 빌드 문맥을 분리하고 `tmp`를 임시 경로로 사용한다. 프로젝트 Cargo 설정 및 runner의 `CARGO_TARGET_DIR`·명시 `--target-dir`·`TMP`·`TEMP`를 해당 문맥과 일치시킨다. 전역 Cargo/Rustup·다른 프로젝트는 변경하지 않는다. 원 호스트의 D 정책·역사 manifest/FileID·원 증거는 보존한다. 검증 중 producer 독점 및 무거운 작업 1개 중앙 배정은 유지하며, 병렬도 증가는 새 호스트 실측 후 별도로 판단한다.
+- **2026-10-26 사용자 후속 지시 — Windows 검증 호스트:** 이 호스트는 D 드라이브 없는 NVMe SSD 환경이다. 이 호스트의 빌드 산출물·증분 캐시·빌드 임시 파일은 실제 `<원 호스트 저장소>/runtime/build-cache` 아래로 통합한다. 아래 2026-10-25의 실제 D 경로 의무와 HDD I/O 전제는 이 호스트에 적용하지 않는다. 제품 workspace는 `native`, 독립 Meari workspace는 `meari-native`, 실행기 bootstrap은 `resource-runner`로 빌드 문맥을 분리하고 `tmp`를 임시 경로로 사용한다. 프로젝트 Cargo 설정 및 runner의 `CARGO_TARGET_DIR`·명시 `--target-dir`·`TMP`·`TEMP`를 해당 문맥과 일치시킨다. 전역 Cargo/Rustup·다른 프로젝트는 변경하지 않는다. 원 호스트의 D 정책·역사 manifest/FileID·원 증거는 보존한다. 검증 중 producer 독점 및 무거운 작업 1개 중앙 배정은 유지하며, 병렬도 증가는 새 호스트 실측 후 별도로 판단한다.
 
 - **2026-10-25 사용자 지시: 이 프로젝트의 빌드 산출물·증분 캐시·빌드 임시 파일은 D 드라이브의 비공개 `runtime/build-cache` 아래로 통합한다.** C 캐시 우선 사용이라는 이전 자원 정책보다 이 지시가 우선한다. 로컬 Cargo 설정뿐 아니라 담당 runner의 `CARGO_TARGET_DIR`·명시 `--target-dir`·`TMP`·`TEMP`도 실제 D 경로를 사용하도록 맞춘다. 기존 캐시는 필수 증거·소스·실제 표본을 구분해 정리·이전하고 경로/파일 식별 변경을 검증 기록에 반영한다. HDD I/O와 무거운 빌드는 중앙에서 직렬 배정한다. 전역 Rustup/Cargo 설정과 무관한 프로젝트는 임의로 변경하지 않는다.
 

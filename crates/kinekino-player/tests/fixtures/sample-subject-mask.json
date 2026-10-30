@@ -1,0 +1,21 @@
+{
+  "note": "Synthetic subject mask for the design-sample frame (public fixture, no mockup art). Geometry the sample polygon must keep.",
+  "width_px": 1672,
+  "height_px": 941,
+  "points": 55,
+  "bbox": [
+    417,
+    93,
+    764,
+    941
+  ],
+  "twice_signed_area": 370141,
+  "first": [
+    488,
+    187
+  ],
+  "last": [
+    506,
+    234
+  ]
+}

@@ -19,4 +19,4 @@ R146 시험/strict 완료:2339 기본 lib/Jobs/CLI no-run 종료0(192597ms),2340
 
 새시험4개는 정확한과거발행pin·음수clock/track순서독립·원lease수명, 손상/foreign발행의파일open전거절, source SHA/크기/기간/clock/track불일치거절과lease회수, 취소/원NeedsInput오류보존을 다룬다. 합성 sourcelease의 대조 성공을 실제custody로 표시하지 않는다. 실제 native adapter·bounded hash/probe·관측SHA/선택source작성 연결·encoder/subtitle/output/Jobs가 남는다. render_short 미지원 유지.
 
-기존 modootoday QA fixture/코드검증 스킬의 적용 출처와 해시는 공통계약에 기록했다. 실제단계별실행결과는원로그 C:/workspaces/com.kinekino.player/runtime/verification/source375-datalab-b0-r1-logs 에 보존한다.
+기존 modootoday QA fixture/코드검증 스킬의 적용 출처와 해시는 공통계약에 기록했다. 실제단계별실행결과는원로그 <원 호스트 저장소>/runtime/verification/source375-datalab-b0-r1-logs 에 보존한다.

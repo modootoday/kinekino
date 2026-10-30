@@ -19,7 +19,7 @@ Root HEAD d13cbfca140e41863b4d0bd27930be3f57a1123f/Meari0844f6c24caf224617ca8abb
 
 stable MSVC cargo AA5B8980BE3681899FDE765BA47E2ED361463AE9DD8EE7CD1963C18D23743A0F/rustc BA03E3BA03A73D9FEF19AB3659140F94B43615EC1D587FE9BEFC9AED3BD5AA72/custody78DD39F4DBB8C47CD0242B43A7E766CC92CD1DB17087F640E2BB64B6D94672D9를 재확인했다. Pretendard Regular6D0AF5258997AEC7354A6E340FC2325BA321C410CA48B3AF858C8C3D6E92A324/SemiBold5E1C548732AF70873103066C16E1369B9A8A871F0B38C321A1D5BC73E43CEA2D/JP B14698ED6D82737F45E918D079BCA6FC498A107BCB094B56C5229DBDDF3246D3도 원 핀과 일치했다.
 
-제품 CARGO_TARGET_DIR는 실제 C:/workspaces/com.kinekino.player/runtime/build-cache/native/source-sdk-integration-r1,TMP/TEMP는 runtime/build-cache/tmp다. Meari 원 producer는 meari-native 문맥을 유지한다. global Cargo/Rustup 설정·다른 프로젝트 변경0,새 설치/네트워크0. NVMe에서도 원 heavy1·conservative2/CPU2/BelowNormal·locked/offline/-j1을 유지하고 매 exec handle terminal 확인 뒤 다음 heavy를 배정했다.
+제품 CARGO_TARGET_DIR는 실제 <원 호스트 저장소>/runtime/build-cache/native/source-sdk-integration-r1,TMP/TEMP는 runtime/build-cache/tmp다. Meari 원 producer는 meari-native 문맥을 유지한다. global Cargo/Rustup 설정·다른 프로젝트 변경0,새 설치/네트워크0. NVMe에서도 원 heavy1·conservative2/CPU2/BelowNormal·locked/offline/-j1을 유지하고 매 exec handle terminal 확인 뒤 다음 heavy를 배정했다.
 
 ## 실제 gate
 

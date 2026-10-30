@@ -40,7 +40,7 @@ SDK 후속 검증은 기존333 중 Cnative 직접파일26의 새Dpath/bytes/mtim
 
 PM 복사는 robocopy exit1로 완료됐다. SDK가 보호26개 총7,528,194,853B의 D 실제 SHA256/크기/mtime을 원333 권위와 대조해 26/26 일치를 확인했다. C 원본의 크기/mtime/FileID도 원기록과 같았으며, D 검증 후 메타데이터를 다시 확인했다. 새 볼륨 identity는 `runtime/verification/cache-custody-d-migration-r1/05-volumes.json`, old→new26은 `02-native26-d-verified.json`에 보존했다. 후계333 `03-active-protection333-d-epoch.json` SHA는 `9C66DE1D0DCDC50F6E3FD78EB070AC1DB10DE1A912CE208C7878F2A3191C0A5C`다. 나머지307행은 그대로 유지했다. C 원본 삭제·junction·추가복사·Cargo는 수행하지 않았고 hardlink topology 보존은 입증하지 않았다.
 
-최신 사용자 결정에 따라 기존 빌드 캐시는 build-host으로 전송하지 않는다. 대상 `C:/workspaces/com.kinekino.player`에서 새 빌드하며 로컬26 검증은 원격 선행 gate가 아니다. [SDK 원격 인계](../../../plans/player/remote-sdk-handoff-2026-10-25.md)에 전송 제외/별도 필수자료/소스375 및 exact190/재현 순서와 미검증 범위를 기록했다. 현재 PC WARP는 변경하지 않는다. 이전 절의 로컬 D target은 현재 PC 정책이며 대상 PC의 C root와 구분한다.
+최신 사용자 결정에 따라 기존 빌드 캐시는 build-host으로 전송하지 않는다. 대상 `<원 호스트 저장소>`에서 새 빌드하며 로컬26 검증은 원격 선행 gate가 아니다. [SDK 원격 인계](../../../plans/player/remote-sdk-handoff-2026-10-25.md)에 전송 제외/별도 필수자료/소스375 및 exact190/재현 순서와 미검증 범위를 기록했다. 현재 PC WARP는 변경하지 않는다. 이전 절의 로컬 D target은 현재 PC 정책이며 대상 PC의 C root와 구분한다.
 
 ### 스킬 적용 기록
 

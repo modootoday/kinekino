@@ -651,7 +651,7 @@ source375의 root/Meari fmt·type·strict와 제품 no-run은 실제 통과했�
 
 ## 새 호스트 경로 확정 — 2026-10-26
 
-사용자가 D 없는 SSD 호스트에 맞춘 캐시 최적화를 지시하여 C:/workspaces/com.kinekino.player/runtime/build-cache를 확정했다. root native/Meari meari-native/runner resource-runner 문맥 분리 및 tmp 통합을 적용했다. Cargo metadata의 기본 경로(환경 override 없이)와 명시 runner 경로, 자식 환경 상속을 확인했다. 실행기 fmt/test34/strict Clippy/build 및 child smoke 통과는 실행기 범위다. source375 private overlay/전체190/새 정상 제품 bins는 미실행으로 유지한다. 아래 원 호스트 D/HDD 기록은 역사다. [결정](../../adrs/player/adr-datalab-build-cache-2026-10-26.md), [검증](../../evidence/environment/datalab-cache-paths-20261026.md).
+사용자가 D 없는 SSD 호스트에 맞춘 캐시 최적화를 지시하여 <원 호스트 저장소>/runtime/build-cache를 확정했다. root native/Meari meari-native/runner resource-runner 문맥 분리 및 tmp 통합을 적용했다. Cargo metadata의 기본 경로(환경 override 없이)와 명시 runner 경로, 자식 환경 상속을 확인했다. 실행기 fmt/test34/strict Clippy/build 및 child smoke 통과는 실행기 범위다. source375 private overlay/전체190/새 정상 제품 bins는 미실행으로 유지한다. 아래 원 호스트 D/HDD 기록은 역사다. [결정](../../adrs/player/adr-datalab-build-cache-2026-10-26.md), [검증](../../evidence/environment/datalab-cache-paths-20261026.md).
 
 ## 판정
 

@@ -13,7 +13,7 @@ updated: 2026-10-29
 
 원 패키지는 `.spec/artifacts/quality-review/sdk-text-results-r3`이며 package SHA659B3CB6757259D8E770F6D3C96C4A77DAFBAB43C6EA540BCC7E0C58E4EB0197, historical companion SHA7A7CD05EAFA6294E846C8080C976600EA135AA91E9DA315AC9F770E45F624B10/16566bytes다. Sintel의 기존 Gemma270/Llama1B/Qwen0.6 × correction/cards/highlights9개다. 모델·원문·candidate raw를 새로 생성하지 않았다.
 
-verifier는 C:/workspaces/com.kinekino.player/runtime/quality-review/historical-import-2026-10-19-r1/player-review-sdk-export.exe, SHA E00C1726603EF7D0167C6D58DEB79E694071044C20A2723DE8ABE8A504F45E41다. 기존 고정 Rust 도구를 이 호스트에서 실행했으며 새로 빌드했다고 주장하지 않는다. 역사 D 경로/FileID는 원 pin에 유지하고 실제 C 경로를 명시했다. CLI는 정상22F9AC6B876D7A39EA04C7699BCCBBCCF6B5BCB2285F831BC29CAF1216A2CDFC이며 evidence용 사본과 실제 target의 SHA가 같다.
+verifier는 <원 호스트 저장소>/runtime/quality-review/historical-import-2026-10-19-r1/player-review-sdk-export.exe, SHA E00C1726603EF7D0167C6D58DEB79E694071044C20A2723DE8ABE8A504F45E41다. 기존 고정 Rust 도구를 이 호스트에서 실행했으며 새로 빌드했다고 주장하지 않는다. 역사 D 경로/FileID는 원 pin에 유지하고 실제 C 경로를 명시했다. CLI는 정상22F9AC6B876D7A39EA04C7699BCCBBCCF6B5BCB2285F831BC29CAF1216A2CDFC이며 evidence용 사본과 실제 target의 SHA가 같다.
 
 원 AGENTS·package objects·세 모델 결과 manifest는 시험이 시작 시 pin하고 끝에서 다시 해시 대조한다. 새 evidence는 `runtime/verification/actual9-historical-cli-datalab-r1`이다. 이 경로의 input-pins.json SHA E5DFCCED193122E79F4C74503A9AC1EDD41327949A0014439D3EB373BCDB7C8A를 보존했다. workspace/proposals/projects 사본에서만 기술적 수정·누락/변조·불완전 publication을 주입했으며 원 저장소/판정/실제9는 수정하지 않았다.
 
