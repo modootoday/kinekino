@@ -2,7 +2,7 @@ use super::{Failure, Mode, Probe, Stage, owner, window};
 use kinekino_player::application::api::ProjectClient;
 use kinekino_player::{
     application::{
-        api::{ApplicationClient, RequestContext},
+        api::RequestContext,
         projects::InspectProject,
     },
     domain::api_values::DecimalU64,

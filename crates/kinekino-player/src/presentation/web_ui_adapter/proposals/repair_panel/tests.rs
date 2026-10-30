@@ -7,7 +7,7 @@ use super::*;
 use crate::application::api::{ProposalClient, ReviewClient};
 use crate::{
     application::{
-        api::{ApplicationClient, PlayerSdk, RequestContext},
+        api::{PlayerSdk, RequestContext},
         proposals::{CreateProposal, InspectProposal},
     },
     domain::{api_values::DecimalU64, proposals::*},
