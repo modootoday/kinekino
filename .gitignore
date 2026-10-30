@@ -61,3 +61,6 @@
 **/*.pth
 !/docs/spec/**/runtime/
 !/docs/spec/**/runtime/*.md
+
+# Private design mockups, demo artwork and other non-public notes (kept locally, never committed).
+/.spec.local/
