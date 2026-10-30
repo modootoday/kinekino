@@ -1,0 +1,166 @@
+name: CI
+
+# By hand only, as in specfold: no run on every push or pull request (ADR 0010).
+# Jobs: lint (fmt, clippy, lint-structure, spec check), Windows compile gate,
+# tests on Linux and macOS, and the docs/ Jekyll build when the site exists.
+# Linux (lint, test, site) is the pass/fail gate. Windows and macOS are advisory:
+# off by default, chosen per run, and continue-on-error so they never fail the run.
+on:
+  workflow_dispatch:
+    inputs:
+      linux:
+        description: Linux gate (lint, tests, site)
+        type: boolean
+        default: true
+      windows:
+        description: Windows compile check (advisory)
+        type: boolean
+        default: false
+      macos:
+        description: macOS tests (advisory)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  # .cargo/config.toml pins jobs=1 and a shared ../.cargo-target for the dev box.
+  # Runners get their own in-repo target (rust-cache saves it) and all cores.
+  CARGO_TARGET_DIR: target
+  CARGO_BUILD_JOBS: "4"
+  SPECFOLD_VERSION: v0.2.6
+
+jobs:
+  lint:
+    if: inputs.linux
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+      - name: Toolchain from rust-toolchain.toml
+        run: rustup toolchain install && rustup show active-toolchain
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - run: mkdir -p runtime/build-cache/tmp
+      - run: cargo fmt --all --check
+      - run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - run: cargo xtask lint-structure
+      - name: Install specfold (checksum-verified release)
+        run: bash .github/scripts/install-specfold.sh "$SPECFOLD_VERSION" "$RUNNER_TEMP/specfold"
+      - name: spec check
+        run: KINEKINO_SPEC_BIN="$RUNNER_TEMP/specfold/spec" cargo xtask spec-check
+
+  windows-gate:
+    # Compile check only; Windows tests run in the last phase (P8). Advisory.
+    if: inputs.windows
+    continue-on-error: true
+    runs-on: windows-2022
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+      - name: Toolchain from rust-toolchain.toml
+        shell: bash
+        run: rustup toolchain install && rustup show active-toolchain
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - shell: bash
+        run: mkdir -p runtime/build-cache/tmp
+      - name: clippy (Windows gate crates)
+        shell: bash
+        run: bash .github/scripts/windows-gate.sh
+
+  test:
+    if: inputs.linux
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+      - name: Toolchain from rust-toolchain.toml
+        run: rustup toolchain install && rustup show active-toolchain
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - run: mkdir -p runtime/build-cache/tmp
+      # Playback tests need mpv, libmpv and ffmpeg and fail (never skip) without them.
+      # Runner-only system packages; nothing is bundled or committed (mpv-install guide).
+      - name: Install mpv, libmpv and ffmpeg
+        run: |
+          if [ "$RUNNER_OS" = "macOS" ]; then
+            brew install mpv ffmpeg
+            echo "KINEKINO_LIBMPV=$(brew --prefix mpv)/lib/libmpv.2.dylib" >> "$GITHUB_ENV"
+          else
+            sudo apt-get update && sudo apt-get install -y --no-install-recommends mpv libmpv2 ffmpeg xvfb
+          fi
+      - run: cargo test --workspace --locked --no-fail-fast
+
+  test-macos:
+    # Advisory: same steps as test; a failure is reported but does not fail the run.
+    if: inputs.macos
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, macos-15-intel]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+      - name: Toolchain from rust-toolchain.toml
+        run: rustup toolchain install && rustup show active-toolchain
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - run: mkdir -p runtime/build-cache/tmp
+      # Playback tests need mpv, libmpv and ffmpeg and fail (never skip) without them.
+      # Runner-only system packages; nothing is bundled or committed (mpv-install guide).
+      - name: Install mpv, libmpv and ffmpeg
+        run: |
+          if [ "$RUNNER_OS" = "macOS" ]; then
+            brew install mpv ffmpeg
+            echo "KINEKINO_LIBMPV=$(brew --prefix mpv)/lib/libmpv.2.dylib" >> "$GITHUB_ENV"
+          else
+            sudo apt-get update && sudo apt-get install -y --no-install-recommends mpv libmpv2 ffmpeg xvfb
+          fi
+      - run: cargo test --workspace --locked --no-fail-fast
+
+  site:
+    if: inputs.linux
+    # Pages serves main:/docs with the github-pages gem (as specfold); this only proves it builds.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+      - id: has
+        run: if [ -f docs/Gemfile ]; then echo "site=true" >> "$GITHUB_OUTPUT"; else echo "no docs/Gemfile; skipped" >> "$GITHUB_STEP_SUMMARY"; fi
+      - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
+        if: steps.has.outputs.site == 'true'
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+          working-directory: docs
+      - name: jekyll build
+        if: steps.has.outputs.site == 'true'
+        working-directory: docs
+        run: bundle exec jekyll build --destination "$RUNNER_TEMP/site"
