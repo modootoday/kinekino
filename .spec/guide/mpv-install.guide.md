@@ -3,7 +3,7 @@ id: guide:kinekino/mpv-install
 title: mpv 설치 — Unix 재생 백엔드
 status: active
 created: 2026-10-30
-updated: 2026-10-30
+updated: 2026-10-31
 ---
 # mpv 설치 — Unix 재생 백엔드
 
@@ -55,6 +55,12 @@ kinekino는 mpv 바이너리를 번들하거나 저장소에 커밋하지 않는
 ## 플레이어 창 스모크
 
 `kinekino watch <file> --smoke --capture out.png`: 창을 열고 영상 프레임이 올라오면 PNG를 쓰고 닫는다. 화면이 없는 Linux에서는 `xvfb-run -a`로 감싼다.
+
+### 플레이어 창 동작
+
+- **파일 열기:** Ctrl+O(macOS Cmd+O). 물리 키 기준이라 한글 입력 배열에서도 동작하고, Alt 조합·키 반복은 무시한다.
+- **컨트롤 자동 숨김:** 전체 화면에서 재생 중이고 패널·상태 메시지가 없으면 입력이 2.5초 없을 때 컨트롤을 숨긴다. 포인터·버튼·키·휠 입력으로 다시 보인다. 일시 정지·미디어 없음·오류 상태에서는 숨기지 않는다.
+- **자막 오버레이:** mpv 자체 자막 렌더링은 끄고(`sub-visibility=no`), libmpv `sub-text` 속성을 읽어 현재 자막(최대 두 줄)을 영상 위 가운데에 Meari UI로 그린다. 에피소드를 바꾸면 지운다.
 
 ### 라이선스 고지
 
