@@ -24,8 +24,9 @@ use std::path::PathBuf;
 use std::rc::Rc;
 use std::time::{Duration, Instant};
 use winit::application::ApplicationHandler;
-use winit::event::WindowEvent;
+use winit::event::{ElementState, WindowEvent};
 use winit::event_loop::{ActiveEventLoop, ControlFlow};
+use winit::keyboard::ModifiersState;
 use winit::window::WindowId;
 
 const TICK: Duration = Duration::from_millis(16);
@@ -88,15 +89,19 @@ struct Shared<E: Engine> {
 }
 
 impl<E: Engine> Shared<E> {
+    fn run(&mut self, command: crate::session::Command) {
+        if let Some(effect) = self.controller.apply(command) {
+            self.effects.push(effect);
+        }
+        self.dirty = true;
+    }
+
     fn collect(&mut self) {
         let handle = self.handle.clone();
         match handle.try_with(|doc| self.session.commands(doc)) {
             Ok(Ok(commands)) => {
                 for command in commands {
-                    if let Some(effect) = self.controller.apply(command) {
-                        self.effects.push(effect);
-                    }
-                    self.dirty = true;
+                    self.run(command);
                 }
             }
             Ok(Err(e)) => self.failure = Some(e),
@@ -202,6 +207,7 @@ struct App<E: Engine> {
     capture: Option<PathBuf>,
     next_poll: Instant,
     request: u64,
+    modifiers: ModifiersState,
     frames: u64,
     remount: bool,
     closing: bool,
@@ -329,6 +335,17 @@ impl<E: Engine> ApplicationHandler for App<E> {
             // A new box size re-renders the frame at that size on the next commit.
             self.shared.borrow_mut().dirty = true;
         }
+        match &event {
+            WindowEvent::ModifiersChanged(m) => self.modifiers = m.state(),
+            WindowEvent::KeyboardInput { event: key, .. } if key.state == ElementState::Pressed => {
+                if let Some(command) =
+                    crate::keys::shortcut(self.modifiers, key.physical_key, key.repeat)
+                {
+                    self.shared.borrow_mut().run(command);
+                }
+            }
+            _ => {}
+        }
         self.driver.window_event(event_loop, id, event);
         self.tick(event_loop);
     }
@@ -391,6 +408,7 @@ pub fn run<E: Engine>(controller: Controller<E>, options: Options) -> Result<Rep
             capture: capture.take(),
             next_poll: Instant::now(),
             request: 0,
+            modifiers: ModifiersState::default(),
             frames: 0,
             remount: false,
             closing: false,
