@@ -1,0 +1,10 @@
+/* Player window layout derived only from tokens.css/components.css/viewing.css (no new values). */
+.kk-player-root { height: 100dvh; }
+.kk-player-root .aw-player-shell { min-height: 0; }
+.kk-player-root [hidden] { display: none; }
+.kk-player-root .aw-viewing-video { object-fit: contain; background: var(--aw-surface-video); }
+.kk-player-root .aw-viewing-video[hidden] { display: none; }
+.kk-player-root .aw-viewing-start { grid-row: 1 / span 2; }
+.aw-icon-volume-zero { --aw-icon-source: url("../../../assets/design/icons/volume-zero.svg"); }
+.aw-icon-more { --aw-icon-source: url("../../../assets/design/icons/more-vertical.svg"); }
+.kk-player-root .aw-time-label { font-variant-numeric: tabular-nums; }

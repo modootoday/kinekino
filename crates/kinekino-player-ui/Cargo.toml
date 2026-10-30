@@ -1,0 +1,22 @@
+[package]
+name = "kinekino-player-ui"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+description = "Player window (plan P6) rendered by Meari on every OS, with libmpv frames uploaded as a Meari raster texture."
+
+[dependencies]
+kinekino-core.workspace = true
+kinekino-settings-ui.workspace = true
+meari.workspace = true
+meari-native = { workspace = true, features = ["window"] }
+blitz-dom.workspace = true
+linebender_resource_handle.workspace = true
+kinekino-libmpv.workspace = true
+winit.workspace = true
+blitz-shell.workspace = true
+rfd = { workspace = true, features = ["xdg-portal"] }
+
+[lints]
+workspace = true
