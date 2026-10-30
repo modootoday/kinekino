@@ -265,7 +265,7 @@ impl<E: Engine> WindowOps for App<E> {
 
 impl<E: Engine> App<E> {
     #[cfg(not(all(unix, not(target_os = "macos"))))]
-    fn begin_resize(&mut self) -> bool {
+    fn begin_resize(&mut self, _: (f64, f64)) -> bool {
         false
     }
     #[cfg(not(all(unix, not(target_os = "macos"))))]
