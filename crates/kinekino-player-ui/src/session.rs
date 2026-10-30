@@ -25,6 +25,8 @@ pub enum Command {
     Mute,
     ToggleEpisodes,
     ToggleFullscreen,
+    /// Esc: leave fullscreen (nothing when windowed).
+    ExitFullscreen,
     More,
     Minimize,
     Maximize,

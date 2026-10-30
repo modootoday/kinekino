@@ -1,6 +1,7 @@
 /* Player window layout derived only from tokens.css/components.css/viewing.css (no new values). */
 .kk-player-root { height: 100dvh; }
-.kk-player-root .aw-player-shell { min-height: 0; }
+.kk-player-root .aw-player-shell { min-height: 0; grid-template-rows: minmax(0, 1fr) auto; }
+/* The OS frame carries the title and window buttons (settings ADR); no app caption row. */
 .kk-player-root [hidden] { display: none; }
 .kk-player-root .aw-viewing-video { object-fit: contain; background: var(--aw-surface-video); }
 .kk-player-root .aw-viewing-video[hidden] { display: none; }
