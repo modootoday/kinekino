@@ -5,7 +5,7 @@ mod browse;
 mod jobs;
 pub use crate::port::Engine;
 use crate::session::Command;
-use crate::source::{Episode, View};
+use crate::source::{PlaylistItem, View};
 use jobs::{Job, Level, Pending, Reply};
 use kinekino_core::port::error::PortResult;
 use kinekino_core::source::{SourceError, SourceItem, SourceItemKind, StreamCandidate};
@@ -179,12 +179,13 @@ impl<E: Engine> Controller<E> {
             .iter()
             .position(|f| f.file_name() == media.file_name())
             .unwrap_or(0);
-        self.view.episodes = files
+        self.view.playlist = files
             .iter()
             .enumerate()
-            .map(|(i, f)| Episode {
+            .map(|(i, f)| PlaylistItem {
                 number: format!("{:02}", i + 1),
                 title: stem(f),
+                duration: String::new(),
             })
             .collect();
         self.view.work = media
@@ -209,12 +210,13 @@ impl<E: Engine> Controller<E> {
             .cloned()
             .collect();
         let index = queue.iter().position(|i| *i == chosen).unwrap_or(0);
-        self.view.episodes = queue
+        self.view.playlist = queue
             .iter()
             .enumerate()
-            .map(|(i, e)| Episode {
+            .map(|(i, e)| PlaylistItem {
                 number: format!("{:02}", i + 1),
                 title: e.title.clone(),
+                duration: String::new(),
             })
             .collect();
         self.view.work = self
@@ -394,7 +396,7 @@ impl<E: Engine> Controller<E> {
                     self.play(i + 1);
                 }
             }
-            Command::Episode(i) => self.play(i),
+            Command::Item(i) => self.play(i),
             Command::Mute => {
                 self.view.muted = !self.view.muted;
                 let value = if self.view.muted { "yes" } else { "no" };
@@ -420,7 +422,7 @@ impl<E: Engine> Controller<E> {
                     self.report(r);
                 }
             }
-            Command::ToggleEpisodes => self.view.panel_open = !self.view.panel_open,
+            Command::TogglePlaylist => self.view.panel_open = !self.view.panel_open,
             Command::ToggleFullscreen if media => {
                 return Some(Effect::Fullscreen(!self.view.fullscreen));
             }

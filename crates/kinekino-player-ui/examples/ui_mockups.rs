@@ -11,7 +11,7 @@
 //! ```
 use kinekino_core::playback::{RgbaFrame, VideoSurface};
 use kinekino_core::port::error::PortResult;
-use kinekino_player_ui::{Controller, Engine, Episode, Options, View, run};
+use kinekino_player_ui::{Controller, Engine, PlaylistItem, Options, View, run};
 use std::path::PathBuf;
 
 /// Screens of the design drafts that the current player can already show.
@@ -93,7 +93,7 @@ impl Engine for StillEngine {
 fn playing(view: &mut View) {
     view.title = "샘플 재생목록 · 03 별이 머무는 밤".into();
     view.work = "샘플 재생목록".into();
-    view.episodes = [
+    view.playlist = [
         "새로운 시작",
         "낯선 길",
         "별이 머무는 밤",
@@ -103,9 +103,10 @@ fn playing(view: &mut View) {
     ]
     .iter()
     .enumerate()
-    .map(|(i, t)| Episode {
+    .map(|(i, t)| PlaylistItem {
         number: format!("{:02}", i + 1),
         title: (*t).into(),
+        duration: ["23:40", "24:00", "24:00", "23:55", "24:10", "26:30"][i].into(),
     })
     .collect();
     view.current = Some(2);

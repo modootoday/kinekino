@@ -24,7 +24,7 @@ pub enum Command {
     PlayPause,
     Next,
     Mute,
-    ToggleEpisodes,
+    TogglePlaylist,
     ToggleFullscreen,
     /// Esc: leave fullscreen (nothing when windowed).
     ExitFullscreen,
@@ -32,7 +32,7 @@ pub enum Command {
     Minimize,
     Maximize,
     Close,
-    Episode(usize),
+    Item(usize),
     /// 작품 탐색: open the listed row.
     BrowseItem(usize),
     BrowseMore,
@@ -48,7 +48,7 @@ pub enum Command {
 }
 
 pub struct Session {
-    episodes: usize,
+    items: usize,
     counts: BTreeMap<String, i64>,
     seek_at: String,
     volume_at: String,
@@ -99,7 +99,7 @@ fn command(button: &str) -> Command {
         "playPause" => Command::PlayPause,
         "next" => Command::Next,
         "mute" => Command::Mute,
-        "episodes" | "panelClose" | "menuEpisodes" => Command::ToggleEpisodes,
+        "episodes" | "panelClose" | "menuEpisodes" => Command::TogglePlaylist,
         "fullscreen" | "menuFullscreen" => Command::ToggleFullscreen,
         "more" => Command::More,
         "minimize" => Command::Minimize,
@@ -114,7 +114,7 @@ fn command(button: &str) -> Command {
 impl Session {
     /// Mounts the window for `view` (episode rows fixed until the next mount).
     pub fn mount(view: &View) -> Result<(Self, InteractiveDocument), String> {
-        let tsx = source::build(&view.episodes);
+        let tsx = source::build(&view.playlist);
         let entry = BuildPath::try_from(ENTRY.to_owned())?;
         let graph = meari::parse_module_graph(&entry, &BTreeMap::from([(entry.clone(), tsx)]))
             .map_err(|e| format!("{e:?}"))?;
@@ -128,7 +128,7 @@ impl Session {
             styles.assets,
         )?;
         let session = Self {
-            episodes: view.episodes.len(),
+            items: view.playlist.len(),
             counts: BTreeMap::new(),
             seek_at: String::new(),
             volume_at: String::new(),
@@ -139,7 +139,7 @@ impl Session {
 
     /// Whether `view` still fits this mount (same episode rows); otherwise remount.
     pub fn fits(&self, view: &View) -> bool {
-        view.episodes.len() == self.episodes
+        view.playlist.len() == self.items
     }
 
     /// Controls used since the last call.
@@ -149,7 +149,7 @@ impl Session {
         let ids = BUTTONS
             .iter()
             .map(|b| (*b).to_owned())
-            .chain((0..self.episodes).map(|i| format!("ep{i}")))
+            .chain((0..self.items).map(|i| format!("ep{i}")))
             .chain((0..BROWSE_ROWS).map(|i| format!("br{i}")));
         for id in ids {
             let now = count(state.get(&format!("{id}Count")));
@@ -157,7 +157,7 @@ impl Session {
             for _ in seen..now {
                 let index = |p: &str| id.strip_prefix(p).and_then(|i| i.parse().ok());
                 out.push(match (index("ep"), index("br")) {
-                    (Some(i), _) => Command::Episode(i),
+                    (Some(i), _) => Command::Item(i),
                     (_, Some(i)) => Command::BrowseItem(i),
                     _ if id == "browseSearch" => Command::BrowseSearch(text(state.get("queryAt"))),
                     _ => command(&id),

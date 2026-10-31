@@ -1,6 +1,6 @@
 //! Episode panel rows on the headless raster: a short episode name is shown whole, not
 //! "01 · lo…" (same rounded-box vs. unrounded-advance ellipsis as the caption title).
-use kinekino_player_ui::{Episode, Session, View, meari_props};
+use kinekino_player_ui::{PlaylistItem, Session, View, meari_props};
 use meari_native::application::Renderer;
 
 /// Width of the first row's title text box and of the row itself.
@@ -9,14 +9,16 @@ fn row(title: &str, current: bool) -> (f32, f32) {
         title: title.into(),
         has_media: true,
         panel_open: true,
-        episodes: vec![
-            Episode {
+        playlist: vec![
+            PlaylistItem {
                 number: "01".into(),
                 title: title.into(),
+                duration: String::new(),
             },
-            Episode {
+            PlaylistItem {
                 number: "02".into(),
                 title: "next".into(),
+                duration: String::new(),
             },
         ],
         current: current.then_some(0),

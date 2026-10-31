@@ -19,7 +19,7 @@
    a fitting title lost its tail whenever its width had a fractional part. */
 .kk-player-root .aw-window-brand .aw-icon-brand, .kk-player-root .aw-product-name, .kk-player-root .aw-window-captions { flex: 0 0 auto; }
 .kk-player-root .aw-window-context { flex: 1 1 0; min-width: 0; }
-/* Episode rows: like the caption title, a title box that only hugs its text is rounded to
+/* Playlist rows: like the caption title, a title box that only hugs its text is rounded to
    whole pixels while the ellipsis check uses the unrounded advance, painting "01 · lo…".
    The title takes the rest of the row; the "재생 중" marker keeps its own width. */
 .kk-player-root .aw-episode-row { display: flex; }
@@ -60,3 +60,19 @@
 .aw-connection-status.kk-mood-idle { background-image: url("../../../assets/design/icons/mascot-idle.png"); }
 .aw-connection-status.kk-mood-loading { background-image: url("../../../assets/design/icons/mascot-loading.png"); }
 .aw-connection-status.kk-mood-error { background-image: url("../../../assets/design/icons/mascot-error.png"); }
+/* Playlist: docked inside the stage (below the title bar, above the transport), so the
+   window buttons never move. Columns: marker, number, title, duration (PotPlayer-style list). */
+.kk-player-root .kk-docked > :not(.kk-playlist) { margin-right: var(--aw-episode-panel); }
+.kk-player-root .kk-playlist { position: absolute; top: 0; right: 0; bottom: 0; width: var(--aw-episode-panel); z-index: 2; min-height: 0; overflow: hidden; border-left: var(--aw-border-thin) solid var(--aw-border); background: var(--aw-surface-panel); }
+.kk-player-root .kk-playlist[hidden] { display: none; }
+.kk-player-root .kk-playlist > .aw-catalog-browser { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.kk-player-root .kk-playlist .aw-catalog-lists { flex: 1 1 auto; min-height: 0; overflow: auto; }
+.kk-player-root .kk-pl-row { gap: var(--aw-space-2); align-items: center; }
+.kk-player-root .kk-pl-mark { flex: 0 0 16px; display: flex; color: var(--aw-accent); }
+.kk-player-root .kk-pl-num { flex: 0 0 auto; min-width: 24px; color: var(--aw-text-secondary); font-variant-numeric: tabular-nums; }
+.kk-player-root .kk-pl-dur { flex: 0 0 auto; color: var(--aw-text-secondary); font-size: var(--aw-font-small); font-variant-numeric: tabular-nums; }
+.kk-player-root .kk-pl-row[aria-current="true"] .kk-pl-num { color: var(--aw-accent); }
+.kk-player-root .kk-pl-filter { display: flex; padding: 0 var(--aw-space-2) var(--aw-space-2); }
+.kk-player-root .kk-pl-filter .aw-text-input { flex: 1 1 auto; min-width: 0; }
+.kk-player-root .kk-pl-tools { flex: 0 0 auto; display: flex; gap: var(--aw-space-1); padding: var(--aw-space-2); border-top: var(--aw-border-thin) solid var(--aw-border); }
+.kk-player-root .kk-pl-tools .aw-button { flex: 1 1 0; min-width: 0; padding-left: 0; padding-right: 0; white-space: nowrap; }
