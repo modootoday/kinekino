@@ -140,7 +140,7 @@ fn playables_become_the_queue_and_resolve() {
     assert!(c.view.has_media && !c.view.browsing);
     assert_eq!(c.view.title, "Show One 2");
     assert_eq!(c.view.work, "Show One");
-    assert_eq!(c.view.episodes.len(), 3);
+    assert_eq!(c.view.playlist.len(), 3);
     assert_eq!(c.engine.loaded, vec!["http://127.0.0.1:9/s1-e2.mp4"]);
     assert!(
         c.engine
@@ -152,7 +152,7 @@ fn playables_become_the_queue_and_resolve() {
     // Episode 3 does not resolve: the current one keeps playing, a notice says why.
     assert_eq!(c.view.title, "Show One 2");
     assert!(c.view.notice.contains("재생할 수 없습니다"));
-    go(&mut c, Command::Episode(0));
+    go(&mut c, Command::Item(0));
     assert_eq!(
         c.engine.loaded.last().unwrap(),
         "http://127.0.0.1:9/s1-e1.mp4"
@@ -165,6 +165,30 @@ fn without_sources_the_start_screen_says_so() {
     go(&mut c, Command::Browse);
     assert!(!c.view.browsing);
     assert!(c.view.status.contains("소스 플러그인"));
+}
+
+#[test]
+fn the_browse_button_shows_only_with_a_browse_plugin() {
+    let hidden = |c: &Controller<FakeEngine>| {
+        meari_props(&c.view).get("noBrowsePlugin").cloned()
+    };
+    let bare = Controller::new(FakeEngine::default());
+    assert!(!bare.view.has_browse_plugin);
+    assert_eq!(hidden(&bare), Some(meari::domain::Value::Bool(true)));
+    struct NoSources;
+    impl Catalog for NoSources {
+        fn sources(&self) -> Vec<SourceItem> {
+            Vec::new()
+        }
+        fn browse(&self, _: &SourceRef, _: u32) -> Result<SourcePage, SourceError> {
+            Err(SourceError::Unsupported(kinekino_core::source::SourceCapability::Browse))
+        }
+    }
+    let empty = Controller::new(FakeEngine::default()).with_catalog(Box::new(NoSources));
+    assert_eq!(hidden(&empty), Some(meari::domain::Value::Bool(true)));
+    let with = Controller::new(FakeEngine::default()).with_catalog(Box::new(Fake));
+    assert!(with.view.has_browse_plugin);
+    assert_eq!(hidden(&with), Some(meari::domain::Value::Bool(false)));
 }
 
 #[test]

@@ -25,7 +25,7 @@ fn folder_becomes_episodes_and_commands_drive_engine() {
     let (dir, files) = folder("engine");
     let mut c = Controller::new(FakeEngine::default());
     c.open(&files[0]);
-    let titles: Vec<_> = c.view.episodes.iter().map(|e| e.title.as_str()).collect();
+    let titles: Vec<_> = c.view.playlist.iter().map(|e| e.title.as_str()).collect();
     assert_eq!(titles, ["01", "02", "03"], "videos only, sorted");
     assert_eq!(c.view.current, Some(1));
     assert!(c.view.has_media && c.view.playing);
@@ -34,7 +34,7 @@ fn folder_becomes_episodes_and_commands_drive_engine() {
     c.apply(Command::Next);
     assert_eq!(c.view.current, Some(2), "no episode after the last");
     c.apply(Command::Previous);
-    c.apply(Command::Episode(0));
+    c.apply(Command::Item(0));
     assert_eq!(c.view.title, "01");
     c.engine.time = 30.0;
     assert!(c.poll());
@@ -64,7 +64,7 @@ fn folder_becomes_episodes_and_commands_drive_engine() {
     assert_eq!(c.apply(Command::Minimize), Some(Effect::Minimize));
     assert_eq!(c.apply(Command::Open), Some(Effect::PickFile));
     assert_eq!(c.apply(Command::Close), Some(Effect::Close));
-    assert_eq!(c.apply(Command::ToggleEpisodes), None);
+    assert_eq!(c.apply(Command::TogglePlaylist), None);
     assert!(c.view.panel_open);
     std::fs::remove_dir_all(dir).unwrap();
 }
@@ -256,7 +256,7 @@ fn previous_restarts_the_first_or_a_running_episode() {
     c.apply(Command::Previous);
     assert_eq!(c.view.current, Some(0));
     assert!(c.engine.commands.contains(&"seek 0 absolute".to_owned()));
-    c.apply(Command::Episode(2));
+    c.apply(Command::Item(2));
     c.view.position = 42.0;
     c.apply(Command::Previous);
     assert_eq!(c.view.current, Some(2), "past 3 s: restart, not previous");

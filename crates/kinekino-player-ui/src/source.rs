@@ -1,4 +1,4 @@
-//! Player view model → bounded Meari TSX source. Episode rows are fixed per mount; every
+//! Player view model → bounded Meari TSX source. Playlist rows are fixed per mount; every
 //! changing value is a typed prop, so playback ticks update props without a remount.
 use crate::catalog::BROWSE_ROWS;
 use std::collections::BTreeMap;
@@ -7,7 +7,7 @@ use std::collections::BTreeMap;
 pub const PRODUCT: &str = "kinekino";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Episode {
+pub struct PlaylistItem {
     pub number: String,
     pub title: String,
 }
@@ -17,7 +17,7 @@ pub struct Episode {
 pub struct View {
     pub title: String,
     pub work: String,
-    pub episodes: Vec<Episode>,
+    pub playlist: Vec<PlaylistItem>,
     pub current: Option<usize>,
     pub has_media: bool,
     pub playing: bool,
@@ -46,10 +46,15 @@ pub struct View {
     pub browse_listing: u64,
     pub browse_more: bool,
     pub browse_status: String,
+    /// Which mascot state the status line shows (design: mascot-preset-reference app-state
+    /// combos): "" none, "loading", "error", "idle".
+    pub browse_mood: &'static str,
     /// The search field (shown inside an open source).
     pub browse_search: bool,
     /// Rows drawn as a grid of tiles instead of a list (kept across listings).
     pub browse_grid: bool,
+    /// A connected plugin offers browsing; without one, 작품 탐색 is not shown.
+    pub has_browse_plugin: bool,
 }
 
 impl Default for View {
@@ -57,7 +62,7 @@ impl Default for View {
         Self {
             title: String::new(),
             work: String::new(),
-            episodes: Vec::new(),
+            playlist: Vec::new(),
             current: None,
             has_media: false,
             playing: false,
@@ -79,8 +84,10 @@ impl Default for View {
             browse_listing: 0,
             browse_more: false,
             browse_status: String::new(),
+            browse_mood: "",
             browse_search: false,
             browse_grid: false,
+            has_browse_plugin: false,
         }
     }
 }
@@ -165,6 +172,10 @@ pub fn props(view: &View) -> BTreeMap<String, Prop> {
             Prop::Bool(view.has_media || view.browsing),
         ),
         ("noBrowse".to_owned(), Prop::Bool(!view.browsing)),
+        (
+            "noBrowsePlugin".to_owned(),
+            Prop::Bool(!view.has_browse_plugin),
+        ),
         // Kept laid out (visibility, not display) so the search field always has its
         // text editor: Meari creates it at layout and refuses an unlaid controlled input.
         (
@@ -182,6 +193,14 @@ pub fn props(view: &View) -> BTreeMap<String, Prop> {
         (
             "browseStatus".to_owned(),
             Prop::Text(view.browse_status.clone()),
+        ),
+        (
+            "browseStatusClass".to_owned(),
+            Prop::Text(if view.browse_mood.is_empty() {
+                "aw-connection-status".to_owned()
+            } else {
+                format!("aw-connection-status kk-mood-{}", view.browse_mood)
+            }),
         ),
         (
             "noBrowseStatus".to_owned(),
@@ -251,10 +270,14 @@ pub fn props(view: &View) -> BTreeMap<String, Prop> {
         ),
         (
             "rootClass".to_owned(),
+            t("kk-player-root aw-viewing-read-root aw-viewing-panel-closed"),
+        ),
+        (
+            "stageClass".to_owned(),
             t(if view.panel_open && !view.fullscreen {
-                "kk-player-root aw-viewing-read-root"
+                "aw-viewing-stage kk-docked"
             } else {
-                "kk-player-root aw-viewing-read-root aw-viewing-panel-closed"
+                "aw-viewing-stage"
             }),
         ),
         (
@@ -340,7 +363,7 @@ pub fn props(view: &View) -> BTreeMap<String, Prop> {
         );
         out.insert(format!("noBr{i}"), Prop::Bool(row.is_none()));
     }
-    for i in 0..view.episodes.len() {
+    for i in 0..view.playlist.len() {
         let current = view.current == Some(i);
         out.insert(format!("cur{i}"), Prop::Bool(current));
         out.insert(
@@ -372,9 +395,9 @@ fn icon_button(id: &str, label: &str, icon: &str, extra: &str) -> String {
 }
 
 /// TSX for a window with `episodes` fixed rows.
-pub fn build(episodes: &[Episode]) -> String {
+pub fn build(episodes: &[PlaylistItem]) -> String {
     let mut types = String::from(
-        "context: string; title: string; work: string; status: string; notice: string; noNotice: boolean; hasMedia: boolean; noMedia: boolean; hideStart: boolean; noBrowse: boolean; browseClass: string; browseHeading: string; browseStatus: string; noBrowseStatus: boolean; noBrowseMore: boolean; noBrowseSearch: boolean; searchClass: string; rowsClass: string; layoutIcon: string; layoutLabel: string; fullscreen: boolean; panelOpen: boolean; noMenu: boolean; menuPanelLabel: string; subtitle1: string; subtitle2: string; noSubtitle: boolean; noSubtitle2: boolean; rootClass: string; frameClass: string; transportClass: string; playIcon: string; playLabel: string; volumeIcon: string; maximizeIcon: string; maximizeLabel: string; fullscreenLabel: string; position: string; duration: string; seek: string; volume: string;",
+        "context: string; title: string; work: string; status: string; notice: string; noNotice: boolean; hasMedia: boolean; noMedia: boolean; hideStart: boolean; noBrowse: boolean; noBrowsePlugin: boolean; browseClass: string; browseHeading: string; browseStatus: string; browseStatusClass: string; noBrowseStatus: boolean; noBrowseMore: boolean; noBrowseSearch: boolean; searchClass: string; rowsClass: string; layoutIcon: string; layoutLabel: string; fullscreen: boolean; panelOpen: boolean; noMenu: boolean; menuPanelLabel: string; subtitle1: string; subtitle2: string; noSubtitle: boolean; noSubtitle2: boolean; rootClass: string; stageClass: string; frameClass: string; transportClass: string; playIcon: string; playLabel: string; volumeIcon: string; maximizeIcon: string; maximizeLabel: string; fullscreenLabel: string; position: string; duration: string; seek: string; volume: string;",
     );
     let mut state = String::new();
     let mut rows = String::new();
@@ -399,7 +422,7 @@ pub fn build(episodes: &[Episode]) -> String {
             "  const [ep{i}Count, setep{i}Count] = useState(0);\n"
         ));
         rows.push_str(&format!(
-            "<button id=\"ep{i}\" role=\"radio\" className=\"aw-button aw-episode-row\" aria-checked={{props.aria{i}}} aria-current={{props.aria{i}}} onClick={{() => setep{i}Count(p => p + 1)}}><span className=\"aw-episode-row-title\">{} · {}</span><span className=\"aw-episode-current-marker\" hidden={{!props.cur{i}}}><span className=\"aw-icon aw-icon-play\" aria-hidden=\"true\"></span>재생 중</span></button>\n",
+            "<button id=\"ep{i}\" role=\"radio\" className=\"aw-button aw-episode-row kk-pl-row\" aria-checked={{props.aria{i}}} aria-current={{props.aria{i}}} onClick={{() => setep{i}Count(p => p + 1)}}><span className=\"kk-pl-mark\"><span className=\"aw-icon aw-icon-play\" aria-hidden=\"true\" hidden={{!props.cur{i}}}></span></span><span className=\"kk-pl-num\">{}</span><span className=\"aw-episode-row-title\">{}</span></button>\n",
             jsx_text(&e.number),
             jsx_text(&e.title)
         ));
@@ -430,7 +453,7 @@ export function KinekinoPlayer(props: Props) {{
         </div>
       </div>
     </div>
-    <div className="aw-viewing-stage">
+    <div className={{props.stageClass}}>
       <video id="video" className="aw-viewing-video" tabIndex="-1" aria-hidden="true" hidden={{props.noMedia}}></video>
       <p id="subtitle" className="kk-subtitle" aria-live="polite" hidden={{props.noSubtitle}}><span className="kk-subtitle-line">{{props.subtitle1}}</span><span className="kk-subtitle-line" hidden={{props.noSubtitle2}}>{{props.subtitle2}}</span></p>
       <p id="notice" className="kk-toast" role="status" hidden={{props.noNotice}}><span className="kk-toast-text">{{props.notice}}</span></p>
@@ -440,7 +463,7 @@ export function KinekinoPlayer(props: Props) {{
           <h1 className="aw-start-title">{PRODUCT}</h1>
           <div className="aw-start-actions">
             <button id="open" className="aw-button aw-button-outline-accent" {c_open}><span className="aw-icon aw-icon-folder" aria-hidden="true"></span>파일 열기</button>
-            <button id="browse" className="aw-button" {c_browse}><span className="aw-icon aw-icon-search" aria-hidden="true"></span>작품 탐색</button>
+            <button id="browse" className="aw-button" hidden={{props.noBrowsePlugin}} {c_browse}><span className="aw-icon aw-icon-search" aria-hidden="true"></span>작품 탐색</button>
           </div>
           <p className="aw-start-shortcut">Ctrl+O로 파일 열기</p>
           <p id="status" className="aw-connection-status" role="status">{{props.status}}</p>
@@ -450,12 +473,20 @@ export function KinekinoPlayer(props: Props) {{
         <div className="aw-catalog-browser kk-browse-panel">
           <div className="aw-episode-heading"><h2>{{props.browseHeading}}</h2><div className="kk-heading-actions">{browse_layout}{browse_back}</div></div>
           <div className={{props.searchClass}} role="search"><input id="browseQuery" className="aw-text-input" type="text" disabled={{props.noBrowseSearch}} aria-label="검색어" placeholder="검색어" value={{queryAt}} onChange={{event => setQueryAt(event.currentTarget.value)}}/><button id="browseSearch" className="aw-button" disabled={{props.noBrowseSearch}} {c_browse_search}><span className="aw-icon aw-icon-search" aria-hidden="true"></span>검색</button></div>
-          <p id="browseStatus" className="aw-connection-status" role="status" hidden={{props.noBrowseStatus}}>{{props.browseStatus}}</p>
+          <p id="browseStatus" className={{props.browseStatusClass}} role="status" hidden={{props.noBrowseStatus}}>{{props.browseStatus}}</p>
           <div id="browseLists" className="aw-catalog-lists"><div id="browseRows" className={{props.rowsClass}} role="list" aria-label="목록">
 {browse_rows}          </div></div>
           <button id="browseMore" className="aw-button" hidden={{props.noBrowseMore}} {c_browse_more}>더 보기</button>
         </div>
       </section>
+      <aside id="panel" className="aw-episode-panel kk-playlist" aria-label="재생목록" hidden={{!props.panelOpen}}>
+        <div className="aw-catalog-browser">
+          <div className="aw-episode-heading"><h2>재생목록</h2>{panel_close}</div>
+          <p className="aw-episode-title">{{props.work}}</p>
+          <div className="aw-episode-body aw-catalog-lists"><div role="radiogroup" aria-label="재생 항목">
+{rows}          </div></div>
+        </div>
+      </aside>
     </div>
     <section id="transport" className={{props.transportClass}} aria-label="재생 제어">
       <div className="aw-seek-range"><input id="seek" className="aw-range-input" type="range" data-meari-range-parts="compact" min="0" max="1000" step="1" value={{props.seek}} aria-label="재생 위치" disabled={{props.noMedia}} onChange={{event => setSeekAt(event.currentTarget.value)}}/></div>
@@ -480,18 +511,12 @@ export function KinekinoPlayer(props: Props) {{
               <button id="menuFullscreen" className="aw-button kk-menu-item" role="menuitem" {c_menu_fullscreen}><span className="aw-icon aw-icon-fullscreen" aria-hidden="true"></span>{{props.fullscreenLabel}}<span className="kk-menu-key">F</span></button>
             </div>
           </div>
+          <span className="aw-divider"></span>
+          <span className="kk-engine-label" title="재생 엔진">네이티브</span>
         </div>
       </div>
     </section>
   </main>
-  <aside id="panel" className="aw-episode-panel" aria-label="재생목록" hidden={{!props.panelOpen}}>
-    <div className="aw-catalog-browser">
-      <div className="aw-episode-heading"><h2>재생목록</h2>{panel_close}</div>
-      <p className="aw-episode-title">{{props.work}}</p>
-      <div className="aw-episode-body aw-catalog-lists"><div role="radiogroup" aria-label="재생 항목">
-{rows}      </div></div>
-    </div>
-  </aside>
   </div>;
 }}
 "#,
