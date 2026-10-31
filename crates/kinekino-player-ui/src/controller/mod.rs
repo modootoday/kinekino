@@ -1,11 +1,12 @@
 //! Player behaviour without a window: commands → engine calls and view changes, engine
 //! polling → view. The window host only forwards `Effect`s it cannot do itself.
-use crate::catalog::{BROWSE_ROWS, Catalog, STREAM_HEADERS};
+use crate::catalog::{Catalog, STREAM_HEADERS};
+mod browse;
 mod jobs;
 pub use crate::port::Engine;
 use crate::session::Command;
 use crate::source::{Episode, View};
-use jobs::{Job, Pending, Reply, Then};
+use jobs::{Job, Level, Pending, Reply};
 use kinekino_core::port::error::PortResult;
 use kinekino_core::source::{SourceError, SourceItem, SourceItemKind, StreamCandidate};
 use std::path::{Path, PathBuf};
@@ -86,7 +87,7 @@ pub struct Controller<E: Engine> {
     /// The plugin call in flight, if any.
     pending: Option<Pending>,
     /// Opened listings, outermost first, with the page shown.
-    trail: Vec<(SourceItem, u32)>,
+    trail: Vec<Level>,
     /// Rows currently shown (sources at the top level).
     listing: Vec<SourceItem>,
     next_page: Option<u32>,
@@ -129,49 +130,6 @@ impl<E: Engine> Controller<E> {
         self
     }
 
-    fn show(&mut self, heading: String, items: Vec<SourceItem>, next: Option<u32>) {
-        self.view.browsing = true;
-        self.view.browse_heading = heading;
-        self.view.browse_rows = items
-            .iter()
-            .take(BROWSE_ROWS)
-            .map(|i| i.title.clone())
-            .collect();
-        self.view.browse_more = next.is_some();
-        self.view.browse_status.clear();
-        self.listing = items;
-        self.next_page = next;
-    }
-
-    fn show_sources(&mut self) {
-        let sources = self
-            .catalog
-            .as_ref()
-            .map(|c| c.sources())
-            .unwrap_or_default();
-        if sources.is_empty() {
-            self.view.browsing = false;
-            self.view.status = NO_SOURCES.into();
-            return;
-        }
-        self.trail.clear();
-        self.show(BROWSE_TITLE.into(), sources, None);
-    }
-
-    /// Asks for `page` under `item` off the UI thread; `then` says how the trail changes
-    /// once it arrives. A refusal keeps the shown listing and says why.
-    fn list(&mut self, item: SourceItem, page: u32, then: Then) {
-        let Some(catalog) = &self.catalog else {
-            return;
-        };
-        let at = item.reference.clone();
-        let job = Job::List { item, page, then };
-        self.pending = Some(Pending::start(catalog, job, move |c| {
-            Reply::Page(c.browse(&at, page))
-        }));
-        self.view.browse_status = LOADING.into();
-    }
-
     /// Takes the answer of the call in flight; `wait` blocks up to that long (tests).
     /// True when the view changed.
     pub fn settle(&mut self, wait: Option<Duration>) -> bool {
@@ -180,21 +138,7 @@ impl<E: Engine> Controller<E> {
         };
         let job = self.pending.take().map(|p| p.job);
         match (job, answer) {
-            (Some(Job::List { item, page, then }), Ok(Reply::Page(Ok(p)))) => {
-                self.show(item.title.clone(), p.items, p.next_page);
-                match then {
-                    Then::Push => self.trail.push((item, page)),
-                    Then::Page => {
-                        if let Some(top) = self.trail.last_mut() {
-                            top.1 = page;
-                        }
-                    }
-                    Then::Stay => {}
-                }
-            }
-            (Some(Job::List { .. }), Ok(Reply::Page(Err(e)))) => {
-                self.view.browse_status = browse_error(&e);
-            }
+            (Some(Job::List { level, then }), Ok(Reply::Page(r))) => self.listed(level, then, r),
             (Some(Job::Resolve { index }), Ok(Reply::Streams(r))) => self.resolved(index, r),
             _ => self.cannot_play("소스 플러그인이 응답 없이 끝났습니다."),
         }
@@ -205,42 +149,6 @@ impl<E: Engine> Controller<E> {
     pub fn finish(&mut self) {
         while self.pending.is_some() {
             self.settle(Some(Duration::from_secs(10)));
-        }
-    }
-
-    fn browse(&mut self, command: &Command) {
-        match *command {
-            Command::BrowseItem(i) => {
-                let Some(item) = self.listing.get(i).cloned() else {
-                    return;
-                };
-                if item.kind == SourceItemKind::Playable {
-                    self.open_playlist(i);
-                    return;
-                }
-                self.list(item, 1, Then::Push);
-            }
-            Command::BrowseMore => {
-                let (Some(next), Some((item, _))) = (self.next_page, self.trail.last().cloned())
-                else {
-                    return;
-                };
-                self.list(item, next, Then::Page);
-            }
-            Command::BrowseBack => {
-                if self.trail.pop().is_none() {
-                    self.view.browsing = false;
-                    return;
-                }
-                match self.trail.last().cloned() {
-                    Some((item, page)) => self.list(item, page, Then::Stay),
-                    None => {
-                        self.pending = None;
-                        self.show_sources();
-                    }
-                }
-            }
-            _ => {}
         }
     }
 
@@ -312,7 +220,7 @@ impl<E: Engine> Controller<E> {
         self.view.work = self
             .trail
             .last()
-            .map_or_else(String::new, |(s, _)| s.title.clone());
+            .map_or_else(String::new, |l| l.item.title.clone());
         self.files = queue.into_iter().map(Media::Remote).collect();
         self.generation += 1;
         self.play(index);
@@ -451,9 +359,10 @@ impl<E: Engine> Controller<E> {
         match command {
             Command::Open => return Some(Effect::PickFile),
             Command::Browse => self.show_sources(),
-            Command::BrowseItem(_) | Command::BrowseMore | Command::BrowseBack => {
-                self.browse(&command)
-            }
+            Command::BrowseItem(_)
+            | Command::BrowseMore
+            | Command::BrowseBack
+            | Command::BrowseSearch(_) => self.browse(&command),
             // Esc in the browse view goes one level back (windowed).
             Command::ExitFullscreen if self.view.browsing && !self.view.fullscreen => {
                 self.browse(&Command::BrowseBack)
