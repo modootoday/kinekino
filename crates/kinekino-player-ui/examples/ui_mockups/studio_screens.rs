@@ -33,7 +33,7 @@ fn overview() -> String {
         "{}{}{}{}{}{}",
         head("AI 제작", ""),
         stage("flex: 1", ""),
-        transport("00:00 / 23:42", 2, &["volume", "fullscreen"]),
+        playbar("00:00 / 23:42", 2),
         strip(10, "", &[(2, 6, "ks-range"), (86, 7, "ks-range")], None),
         ruler(&["00:00", "05:00", "10:00", "15:00", "20:00", "23:42"]),
         table(&[90, 120, 20, 120, 0, 90, 70], &["구간", "시작", "", "끝", "", "", ""], &[
@@ -72,7 +72,7 @@ fn skip() -> String {
     let main = c(&[
         &h("구간 감지", "오프닝 엔딩 제어", "오프닝과 엔딩 구간을 감지하고 건너뛰기 설정을 관리합니다."),
         &stage("flex: 1", r#"<div className="ks-overlay" style="right: 12px; bottom: 12px"><span>3초 후 오프닝 건너뛰기</span><span className="ks-btn ks-outline">이번에는 보기</span></div>"#),
-        &transport("00:28 / 23:40", 2, &["subtitles", "fullscreen"]),
+        &playbar("00:28 / 23:40", 2),
         &ruler(&MARKS),
         &strip(12, "", &[(3, 7, "ks-range"), (86, 7, "ks-range-violet")], Some(2)),
         &row(&c(&[&chip("", "OP 00:32 - 01:58"), GROW, &chip("ks-chip-violet", "ED 22:05 - 23:35")])),
@@ -97,8 +97,8 @@ fn subtitles() -> String {
         &h("자막", "음성 인식", "음성을 인식해 자막을 만들고 시간과 문장을 다듬습니다."),
         &tabs(&SUB_TABS, 0),
         &stage("flex: 1", r#"<div className="ks-caption"><span>오늘 밤에는 별이 정말 많네.</span></div>"#),
-        &transport("03:12 / 23:40", 14, &["volume", "fullscreen"]),
-        r#"<div className="ks-wave-wrap">"#, r#"<div className="ks-wave ks-wave-green"></div>"#, "</div>",
+        &playbar("03:12 / 23:40", 14),
+        &audio_lane("", 44, 10, Some(54), &["03:08", "03:10", "03:12", "03:14", "03:16", "03:18"]),
         &row(&c(&[&btn("", "clip", "분할"), &btn("", "merge", "병합"), &btn("", "plus", "추가"), &btn("", "delete", "삭제"), &btn("", "undo", "되돌리기"), &btn("", "redo", "다시 실행")])),
         &table(&[40, 90, 90, 0, 0], &["#", "시작", "끝", "인식 문장", "교정안"], &[
             cells(&["12", "03:10.2", "03:12.8", "오늘 밤에는 별이 정말 많내.", &input("오늘 밤에는 별이 정말 많네.")]),
@@ -121,8 +121,8 @@ fn ocr() -> String {
         &h("자막", "화면 OCR", "화면에 새겨진 글자를 찾아 자막으로 옮깁니다."),
         &tabs(&SUB_TABS, 1),
         &stage("flex: 1", r#"<div className="ks-caption"><span>호수 마을에 어서 오세요</span></div><div className="ks-box" style="left: 28%; right: 28%; bottom: 8px; height: 34px"></div>"#),
-        &transport("05:41 / 23:40", 24, &["volume", "fullscreen"]),
-        &p("ks-muted", "감지된 글자 (3개)"),
+        &playbar("05:41 / 23:40", 24),
+        &seg(&["감지된 글자 (3)", "낮은 신뢰도 (1)"], 0),
         &table(&[90, 90, 0, 70, 90], &["시작", "끝", "감지된 글자", "신뢰도", "상태"], &[
             cells(&["05:40.1", "05:43.0", "호수 마을에 어서 오세요", "96%", &chip("", "확인")]),
             cells(&["07:02.4", "07:04.2", "마을 회관", "88%", &chip("ks-chip-gray", "후보")]),
@@ -143,20 +143,23 @@ fn correction() -> String {
     let main = c(&[
         &h("자막", "교정", "인식된 자막의 오탈자와 띄어쓰기를 고칩니다."),
         &tabs(&SUB_TABS, 2),
-        &stage("flex: 0 0 220px", r#"<div className="ks-caption"><span>오늘 밤에는 별이 정말 많네.</span></div>"#),
+        &stage("flex: 1", r#"<div className="ks-caption"><span>오늘 밤에는 별이 정말 많네.</span></div>"#),
+        &playbar("00:12 / 23:40", 1),
+        &audio_lane("", 40, 12, Some(52), &["00:10", "00:11", "00:12", "00:13", "00:14", "00:15"]),
         &table(&[40, 0, 0, 160, 120], &["#", "원문", "교정안", "근거", "작업"], &[
             cells(&["12", "오늘 밤에는 별이 정말 <b className=\"ks-err\">많내</b>.", "오늘 밤에는 별이 정말 <b className=\"ks-hl\">많네</b>.", "맞춤법", &row(&c(&[&btn("ks-primary ks-sm", "", "수락"), &btn("ks-sm", "", "거절")]))]),
             cells(&["18", "<b className=\"ks-err\">어 떻게</b> 알았어?", "<b className=\"ks-hl\">어떻게</b> 알았어?", "띄어쓰기", &row(&c(&[&btn("ks-primary ks-sm", "", "수락"), &btn("ks-sm", "", "거절")]))]),
             cells(&["25", "등대 까지 걸어가자.", "등대<b className=\"ks-hl\">까지</b> 걸어가자.", "띄어쓰기", &row(&c(&[&btn("ks-primary ks-sm", "", "수락"), &btn("ks-sm", "", "거절")]))]),
         ], Some(0)),
-        &row(&c(&[&p("ks-muted", "교정 후보 3개 · 수락 0"), GROW, &btn("", "", "모두 거절"), &btn("ks-primary", "", "모두 수락")])),
     ]);
     let insp = c(&[
         &insp_title("text-document", "교정 옵션"),
         &sec("검사 항목", &c(&[&check(true, "맞춤법"), &check(true, "띄어쓰기"), &check(false, "문체 통일"), &check(true, "고유명사 보호")])),
         &sec("고유명사", &c(&[&input("등대, 호수 마을"), &p("ks-small", "쉼표로 구분")])),
         &sec("적용 범위", &c(&[&radio(true, "현재 회차"), &radio(false, "모든 회차")])),
-        &btn("ks-primary ks-wide", "refresh", "다시 검사"),
+        &p("ks-muted", "교정 후보 3개 · 수락 0"),
+        &row(&c(&[&btn("ks-outline ks-grow", "", "모두 거절"), &btn("ks-primary ks-grow", "", "모두 수락")])),
+        &btn("ks-wide", "refresh", "다시 검사"),
     ]);
     frame(1, &main, &insp, &queue(1, &[("자막 교정", "1화 · 교정 후보 3개", "검토 대기")], false))
 }
@@ -206,7 +209,8 @@ fn subject() -> String {
         &h("피사체", "인식과 분할", "인물과 사물을 찾아 마스크로 분리하고 장면을 따라 추적합니다."),
         &row(&c(&[&seg(&["원본", "마스크", "합성"], 0), GROW, &btn("", "eye", "외곽선"), &btn("", "refresh", "다시 계산")])),
         &format!(r#"<div className="ks-row ks-grow" style="align-items: stretch">{view}</div>"#),
-        &transport("08:14 / 23:40", 35, &["volume", "fullscreen"]),
+        &playbar("08:14 / 23:40", 35),
+        &ruler(&MARKS),
         &strip(12, "", &[(30, 22, "ks-range"), (62, 6, "ks-range-violet")], Some(35)),
         &row(&c(&[&chip("", "추적 08:02 - 13:10"), GROW, &chip("ks-chip-violet", "재확인 필요 14:40")])),
     ]);
@@ -235,12 +239,13 @@ fn short() -> String {
     );
     let main = c(&[
         &h("숏폼", "세로 영상 만들기", "장면을 골라 세로 화면으로 다시 구성합니다."),
+        &tabs(&[("clip", "수동"), ("refresh", "AI 추천"), ("list", "일괄")], 0),
         &views,
-        &transport("03:10 / 23:40", 13, &["volume"]),
+        &transport("03:10 / 23:40", 13, &["volume", "minus"]),
         &ruler(&["03:00", "03:10", "03:20", "03:30", "03:40", "03:50"]),
         &track("track-video", "영상", &strip(8, "", &[(10, 50, "ks-range")], Some(14))),
         &track("track-subtitle", "자막", r#"<div className="ks-clips"><span style="left: 12%; width: 18%">오늘 밤에는…</span><span style="left: 34%; width: 22%">저기 호수…</span></div>"#),
-        &track("track-audio", "오디오", r#"<div className="ks-wave" style="height: 26px"></div>"#),
+        &track("track-audio", "오디오", &audio_lane("ks-lane-green ks-lane-small", 10, 50, Some(14), &[])),
     ]);
     let insp = c(&[
         &insp_title("clip", "숏폼 설정"),
@@ -260,7 +265,9 @@ fn short_recommend() -> String {
     };
     let main = c(&[
         &h("숏폼", "추천 장면", "대사, 음악, 화면 변화를 보고 숏폼으로 쓸 만한 장면을 추천합니다."),
-        &stage("flex: 0 0 240px", ""),
+        &tabs(&[("clip", "수동"), ("refresh", "AI 추천"), ("list", "일괄")], 1),
+        &stage("flex: 0 0 200px", ""),
+        &playbar("03:10 / 23:40", 13),
         &strip(12, "", &[(12, 4, "ks-range"), (46, 5, "ks-range"), (78, 4, "ks-range")], None),
         &cand("1", "03:10 - 03:50", "92", "대사 밀도 높음 · 배경음 상승 · 밤하늘 전경", "", true),
         &cand("2", "10:42 - 11:20", "85", "인물 클로즈업 · 감정 대사", "sunset", false),
@@ -279,6 +286,7 @@ fn short_recommend() -> String {
 fn short_batch() -> String {
     let main = c(&[
         &h("숏폼", "일괄 만들기", "여러 회차에서 같은 규칙으로 숏폼을 만듭니다."),
+        &tabs(&[("clip", "수동"), ("refresh", "AI 추천"), ("list", "일괄")], 2),
         &table(&[24, 70, 0, 90, 90, 110], &["", "회차", "추천 장면", "길이", "후보", "상태"], &[
             cells(&[&check(true, ""), "1화", "03:10 - 03:50 · 밤하늘 전경", "00:40", "3개", &chip("", "준비됨")]),
             cells(&[&check(true, ""), "2화", "07:22 - 07:58 · 호숫가 대화", "00:36", "2개", &chip("", "준비됨")]),
@@ -305,9 +313,11 @@ fn raw_frame() -> String {
     };
     let main = c(&[
         &h("스냅샷", "원본 프레임", "자막과 효과 없이 원본 프레임을 그대로 저장합니다."),
+        &tabs(&[("image", "원본 프레임"), ("cards", "썸네일 편집")], 0),
         &stage("flex: 1", ""),
         &transport("12:04.18 / 23:40", 51, &["previous", "next"]),
         &row(&c(&[&fr("이전 · 12:04.14", "", false), &fr("현재 · 12:04.18", "", true), &fr("다음 · 12:04.22", "", false)])),
+        &row(&c(&[&btn("ks-grow", "previous", "이전 프레임"), &btn("ks-grow", "lock", "프레임 고정"), &btn("ks-grow", "next", "다음 프레임")])),
         &p("ks-muted", "저장 대기 (2)"),
         &table(&[110, 0, 110, 90], &["시간", "파일 이름", "크기", "상태"], &[
             cells(&["12:04.18", "ep01_120418.png", "1920 × 1080", &chip("", "대기")]),
@@ -326,7 +336,9 @@ fn raw_frame() -> String {
 fn snapshot() -> String {
     let main = c(&[
         &h("스냅샷", "꾸미기", "프레임에 제목과 글자를 얹어 이미지로 저장합니다."),
+        &tabs(&[("image", "원본 프레임"), ("cards", "썸네일 편집")], 1),
         &stage("flex: 1", r#"<div className="ks-box" style="left: 10%; top: 12%; width: 46%; height: 22%"></div><div className="ks-overlay ks-title-text" style="left: 11%; top: 15%"><span>별이 쏟아지는 밤</span></div>"#),
+        &row(&c(&[&p("ks-muted", "선택된 프레임"), &p("ks-hl", "PTS 08:24.120"), GROW, &btn("ks-sm", "previous", "이전 프레임"), &btn("ks-sm", "next", "다음 프레임"), &btn("ks-sm", "copy", "원본 비교")])),
         &strip(10, "", &[(40, 10, "ks-range")], Some(45)),
     ]);
     let sw = |col: &str| format!(r#"<span className="ks-swatch" style="background: {col}"></span>"#);
@@ -401,6 +413,7 @@ fn projection() -> String {
         &row(&c(&[GROW, &seg(&["정면", "측면", "위", "자유"], 3)])),
         &format!(r#"<div className="ks-col ks-grow ks-space">{planes}</div>"#),
         &row(&c(&[&p("ks-l", "카메라 시점"), &format!(r#"<div className="ks-col" style="flex: 1">{}</div>"#, slider(62))])),
+        &row(&c(&[&btn("", "eye", "시점 미리보기"), &btn("", "move-view", "대상 도구"), GROW, &btn("", "info", "검증"), &btn("ks-primary", "export", "내보내기")])),
     ]);
     let insp = c(&[
         &insp_title("cube", "깊이 맵 설정"),
@@ -444,9 +457,9 @@ fn projection_package() -> String {
 fn download() -> String {
     let main = c(&[
         &h("영상 저장", "", "선택한 회차를 보관용 파일로 저장합니다."),
-        &p("ks-muted", "별빛 여행 · 3화"),
+        &row(&c(&[&i("folder"), &p("ks-title", "별빛 여행 · 03화")])),
         &stage("flex: 1", ""),
-        &transport("00:00 / 23:40", 0, &["volume", "fullscreen"]),
+        &playbar("00:00 / 23:40", 0),
         &p("ks-muted", "트랙 선택"),
         &table(&[24, 90, 0, 120], &["", "종류", "트랙", "상태"], &[
             cells(&[&check(true, ""), "영상", &sel("1080p · H.264"), &chip("", "저장 가능")]),
@@ -515,7 +528,7 @@ fn export() -> String {
     let main = c(&[
         &h("내보내기 확인", "", "선택한 숏폼 클립을 내보내기 전에 설정을 확인하세요."),
         &stage("flex: 1", ""),
-        &transport("00:00 / 00:30", 0, &["volume", "fullscreen"]),
+        &playbar("00:00 / 00:30", 0),
         &format!(r#"<div className="ks-card" style="flex: 0 0 auto"><h3>내보내기 요약</h3><div className="ks-row">{}<div className="ks-col" style="gap: 2px"><b>숏폼 클립 01</b><span className="ks-small">원본: 예시 회차 00:32 - 01:02 · 30초</span></div></div>{}{}{}{}</div>"#,
             pic("", "flex: 0 0 90px; height: 50px", ""), f("출력 형식", "MP4 (H.264, AAC)"), f("해상도", "1080 × 1920 (세로)"), f("자막", "한국어 (영상에 포함)"), f("오디오", "원본 오디오 포함")),
     ]);
@@ -532,7 +545,7 @@ fn export() -> String {
 fn viewing_skip() -> String {
     let body = format!(r#"<div className="ks-view">{}<div className="ks-vbar">{}</div></div>"#,
         stage("flex: 1", r#"<div className="ks-overlay" style="right: 16px; top: 14px"><span className="ks-hl">AI 구간</span><span className="ks-small">· 수동 확인</span></div><div className="ks-overlay ks-skipbtn" style="right: 16px; bottom: 34px"><span>오프닝 건너뛰기</span></div><span className="ks-small ks-overlay-plain" style="right: 18px; bottom: 16px">00:32 - 01:58</span>"#),
-        c(&[&strip(1, "", &[(2, 6, "ks-range"), (92, 6, "ks-range-violet")], Some(4)), &row(&c(&[&i("previous"), &i("pause"), &i("next"), &p("", "01:06 / 24:00"), GROW, &i("volume"), &slider(70), &i("list"), &i("fullscreen")]))]));
+        c(&[r#"<div className="ks-oped"><span>OP</span><span>ED</span></div>"#, &strip(1, "", &[(2, 6, "ks-range"), (92, 6, "ks-range-violet")], Some(4)), &row(&c(&[&i("previous"), &i("pause"), &i("next"), &p("", "01:06 / 24:00"), GROW, &i("volume"), r#"<span className="ks-vol">"#, &slider(70), "</span>", &i("list"), &i("fullscreen")]))]));
     shell(&body, "별빛 여행 · 03화")
 }
 
