@@ -36,7 +36,7 @@ rel:
 
 ### 검증
 - `python3 docs/_src/check_site.py [_site]`: 모든 `ref`가 `languages`의 각 언어에 정확히 1개, 모든 페이지에 트윈 스텁, i18n 키가 기본 언어와 일치, front matter `title/description/ref`, 빌드 산출물을 주면 내부 링크와 `<html lang>`. 오류가 있으면 종료 코드 1. PyYAML 필요.
-- 빌드: Specfold의 Ruby 3.3.6 환경(`source /tmp/mm/rbenv.sh`, `/tmp`라 재시작 시 사라질 수 있음) 후 `cd docs && BUNDLE_GEMFILE=$PWD/Gemfile bundle exec jekyll build -d /tmp/kk-site`, 끝나면 `Gemfile.lock` 삭제.
+- 빌드: Ruby 3.3.6과 `github-pages` gem이 `PATH`에 있는 환경(`bundle check` 통과)에서 `cd docs && BUNDLE_GEMFILE=$PWD/Gemfile bundle exec jekyll build -d <임시 폴더>`, 끝나면 임시 폴더와 `Gemfile.lock`을 지운다.
 
 ### 다이나믹 요소와 접근성
 - 마스코트는 인라인 SVG(정면, 단색 둥근 눈, 일체형 몸체): 숨쉬기, 꼬리, 깜박임은 CSS, 포인터 따라보는 눈과 살짝 패럴랙스는 `assets/js/site.js`(외부 CDN 없음). 프리셋 갤러리는 `assets/mascot/sheets`에서 자른 PNG. GLB(약 5MB)와 three.js는 쓰지 않았다.
