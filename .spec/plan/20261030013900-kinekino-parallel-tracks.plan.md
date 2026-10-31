@@ -31,7 +31,7 @@ rel:
 |P4|제작 executor(cards, shorts, assets, package_projection)|player studio·jobs|B 4단계 후|player 대량 이동과 겹침|
 |P2|Linux mpv 재생 어댑터|platform-unix·player playback|C 승인 필요 + B|mpv 설치 승인, player 겹침|
 |P3|BrowserProviderPort|browser·player catalog|B + 브라우저 엔진 병합 대기|`feat/browser-engines` 미병합|
-|P6 나머지|GUI 셸·설정 페이지 GUI·Meari 연결|app·player·vendor/meari|B|설정 창·플레이어 창(Meari) 병합(2026-10-31). 작품 탐색은 재생·비동기·검색·스크롤까지 병합. 남은 것: 기존 player 화면 제거·목록 외 보기·파일 끌어놓기|
+|P6 나머지|GUI 셸·설정 페이지 GUI·Meari 연결|app·player·vendor/meari|B|설정 창·플레이어 창(Meari) 병합(2026-10-31). 작품 탐색은 재생·비동기·검색·스크롤·격자 보기까지 병합. 남은 것: 기존 player 화면 제거·파일 끌어놓기|
 |P7|실 HF API 평가|-|C 승인 게이트|실호출·과금, 사용자 시각 확인|
 |P8|Windows·macOS 재검증|-|C 환경|DATALAB·macOS 장비|
 |push·CI|원격 반영|-|C 승인|첫 push는 사용자 승인|

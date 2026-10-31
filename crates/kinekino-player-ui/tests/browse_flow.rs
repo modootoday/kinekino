@@ -332,3 +332,15 @@ fn search_button_reads_the_typed_query() {
         vec![Command::BrowseSearch(String::new())]
     );
 }
+
+#[test]
+fn the_layout_button_switches_rows_to_a_grid_and_keeps_it() {
+    let mut c = Controller::new(FakeEngine::default()).with_catalog(Box::new(Fake));
+    go(&mut c, Command::Browse);
+    go(&mut c, Command::BrowseLayout);
+    assert!(c.view.browse_grid);
+    go(&mut c, Command::BrowseItem(0));
+    assert!(c.view.browse_grid, "the layout survives a new listing");
+    go(&mut c, Command::BrowseLayout);
+    assert!(!c.view.browse_grid);
+}

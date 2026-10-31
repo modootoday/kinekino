@@ -30,7 +30,7 @@ macro_rules! asset {
     };
 }
 /// Every icon the stylesheets name must be declared, used here or not.
-const ICONS: [(&str, &[u8]); 17] = [
+const ICONS: [(&str, &[u8]); 18] = [
     asset!("assets/design/icons/brand.svg"),
     asset!("assets/design/window/minimize.svg"),
     asset!("assets/design/window/maximize.svg"),
@@ -45,6 +45,7 @@ const ICONS: [(&str, &[u8]); 17] = [
     asset!("assets/design/icons/volume.svg"),
     asset!("assets/design/icons/volume-zero.svg"),
     asset!("assets/design/icons/list.svg"),
+    asset!("assets/design/icons/cards.svg"),
     asset!("assets/design/icons/fullscreen.svg"),
     asset!("assets/design/icons/more-vertical.svg"),
     asset!("assets/design/icons/start-mark.svg"),
