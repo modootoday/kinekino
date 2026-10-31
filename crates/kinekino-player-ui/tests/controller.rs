@@ -441,3 +441,97 @@ fn esc_closes_the_menu_before_leaving_fullscreen() {
     );
     std::fs::remove_dir_all(dir).unwrap();
 }
+
+mod browse {
+    use super::FakeEngine;
+    use kinekino_core::source::{SourceError, SourceItem, SourcePage, SourceRef};
+    use kinekino_player_ui::{BROWSE_ROWS, Catalog, Command, Controller, Session, meari_props};
+
+    fn item(provider: &str, id: &str, title: &str) -> SourceItem {
+        SourceItem {
+            reference: SourceRef {
+                provider: provider.into(),
+                id: id.into(),
+            },
+            title: title.into(),
+        }
+    }
+
+    /// Synthetic catalog: one source; its root has 20 items in pages of `BROWSE_ROWS`.
+    struct Fake;
+    impl Catalog for Fake {
+        fn sources(&self) -> Vec<SourceItem> {
+            vec![item("com.example.fixture", "", "com.example.fixture")]
+        }
+        fn browse(&self, at: &SourceRef, page: u32) -> Result<SourcePage, SourceError> {
+            match at.id.as_str() {
+                "" => {
+                    let from = (page as usize - 1) * BROWSE_ROWS;
+                    let items = (from..20.min(from + BROWSE_ROWS))
+                        .map(|i| item(&at.provider, &format!("w{i}"), &format!("Work {i}")))
+                        .collect();
+                    Ok(SourcePage {
+                        items,
+                        next_page: (from + BROWSE_ROWS < 20).then_some(page + 1),
+                    })
+                }
+                _ => Err(SourceError::Unsupported(
+                    kinekino_core::source::SourceCapability::Browse,
+                )),
+            }
+        }
+    }
+
+    #[test]
+    fn without_sources_the_start_screen_says_so() {
+        let mut c = Controller::new(FakeEngine::default());
+        c.apply(Command::Browse);
+        assert!(!c.view.browsing);
+        assert!(c.view.status.contains("소스 플러그인"));
+    }
+
+    #[test]
+    fn browse_lists_sources_then_pages_then_goes_back() {
+        let mut c = Controller::new(FakeEngine::default()).with_catalog(Box::new(Fake));
+        c.apply(Command::Browse);
+        assert!(c.view.browsing);
+        assert_eq!(c.view.browse_rows, vec!["com.example.fixture"]);
+        c.apply(Command::BrowseItem(0));
+        assert_eq!(c.view.browse_heading, "com.example.fixture");
+        assert_eq!(c.view.browse_rows.len(), BROWSE_ROWS);
+        assert!(c.view.browse_more);
+        c.apply(Command::BrowseMore);
+        assert_eq!(c.view.browse_rows.first().unwrap(), "Work 12");
+        assert!(!c.view.browse_more);
+        // A refusing item keeps the listing and shows why.
+        c.apply(Command::BrowseItem(0));
+        assert_eq!(c.view.browse_rows.first().unwrap(), "Work 12");
+        assert!(!c.view.browse_status.is_empty());
+        c.apply(Command::BrowseBack);
+        assert_eq!(c.view.browse_rows, vec!["com.example.fixture"]);
+        // Esc (windowed) steps back out of the view.
+        c.apply(Command::ExitFullscreen);
+        assert!(!c.view.browsing);
+    }
+
+    #[test]
+    fn browse_rows_are_clickable_in_the_document() {
+        let mut c = Controller::new(FakeEngine::default()).with_catalog(Box::new(Fake));
+        c.apply(Command::Browse);
+        let (mut session, mut doc) = Session::mount(&c.view).unwrap();
+        doc.update_module_props(meari_props(&c.view)).unwrap();
+        kinekino_player_ui::activate(&mut doc, "br0").unwrap();
+        let commands = session.commands(&doc).unwrap();
+        assert_eq!(commands, vec![Command::BrowseItem(0)]);
+        for command in commands {
+            c.apply(command);
+        }
+        doc.update_module_props(meari_props(&c.view)).unwrap();
+        kinekino_player_ui::activate(&mut doc, "browseMore").unwrap();
+        kinekino_player_ui::activate(&mut doc, "browseBack").unwrap();
+        assert_eq!(
+            session.commands(&doc).unwrap(),
+            vec![Command::BrowseBack, Command::BrowseMore]
+        );
+    }
+}
