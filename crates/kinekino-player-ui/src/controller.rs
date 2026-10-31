@@ -12,6 +12,11 @@ pub const HIDE_AFTER: Duration = Duration::from_millis(2500);
 
 /// "Previous" within this many seconds of the start goes to the previous episode.
 pub const RESTART_WITHIN: f64 = 3.0;
+/// A dialog answered faster than this was never on screen.
+pub const NO_DIALOG_WITHIN: Duration = Duration::from_millis(400);
+/// A notice over the playing video disappears after this long.
+pub const NOTICE_FOR: Duration = Duration::from_secs(4);
+const NO_DIALOG: &str = "파일 선택 창을 열 수 없습니다. xdg-desktop-portal 또는 zenity를 설치하거나 `kinekino watch <파일>`로 여세요.";
 
 /// Work only the window can do.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -58,6 +63,7 @@ pub struct Controller<E: Engine> {
     /// Bumped when the episode rows change (the window remounts).
     pub generation: u64,
     last_input: Option<Instant>,
+    notice_since: Option<Instant>,
 }
 
 impl<E: Engine> Controller<E> {
@@ -68,10 +74,31 @@ impl<E: Engine> Controller<E> {
             files: Vec::new(),
             generation: 0,
             last_input: None,
+            notice_since: None,
         }
     }
 
     /// Opens `media`; its folder becomes the episode list.
+    /// The file dialog's answer. `None` that came back faster than a person can cancel
+    /// means no dialog was shown (no xdg-desktop-portal file chooser and no zenity on
+    /// this desktop), so the start screen says how else to open a file.
+    /// Returns whether the view changed.
+    pub fn picked(&mut self, media: Option<&Path>, took: Duration) -> bool {
+        match media {
+            Some(path) => self.open(path),
+            // The start screen has a status line; over a playing video it is a toast.
+            None if took < NO_DIALOG_WITHIN && self.view.has_media => {
+                self.view.notice = NO_DIALOG.into();
+                self.notice_since = Some(Instant::now());
+            }
+            None if took < NO_DIALOG_WITHIN => {
+                self.view.status = NO_DIALOG.into();
+            }
+            None => return false,
+        }
+        true
+    }
+
     pub fn open(&mut self, media: &Path) {
         let files = siblings(media);
         let index = files
@@ -128,6 +155,10 @@ impl<E: Engine> Controller<E> {
     /// Applies one user command; returns what the window must do, if anything.
     pub fn apply(&mut self, command: Command) -> Option<Effect> {
         let media = self.view.has_media;
+        // Any other command (a menu item, Esc, a click elsewhere) closes the ⋮ menu.
+        if !matches!(command, Command::More) {
+            self.view.menu_open = false;
+        }
         match command {
             Command::Open => return Some(Effect::PickFile),
             Command::Browse => {
@@ -135,7 +166,7 @@ impl<E: Engine> Controller<E> {
                     "작품 탐색은 소스 플러그인을 연결하면 사용할 수 있습니다.".into();
             }
             Command::More => {
-                self.view.status = "추가 메뉴는 아직 준비 중입니다.".into();
+                self.view.menu_open = !self.view.menu_open;
             }
             Command::PlayPause if media => {
                 let r = self.engine.command(&["cycle", "pause"]);
@@ -235,8 +266,12 @@ impl<E: Engine> Controller<E> {
     /// error/status, or an open panel keep it. True when the view changed.
     pub fn idle(&mut self, now: Instant) -> bool {
         let v = &self.view;
-        let may_hide =
-            v.fullscreen && v.has_media && v.playing && !v.panel_open && v.status.is_empty();
+        let may_hide = v.fullscreen
+            && v.has_media
+            && v.playing
+            && !v.panel_open
+            && !v.menu_open
+            && v.status.is_empty();
         let quiet = self
             .last_input
             .is_none_or(|t| now.saturating_duration_since(t) >= HIDE_AFTER);
@@ -245,8 +280,15 @@ impl<E: Engine> Controller<E> {
             // Restart the clock so controls stay for a full period after e.g. resuming.
             self.last_input = Some(now);
         }
+        let expired = self
+            .notice_since
+            .is_some_and(|t| now.saturating_duration_since(t) >= NOTICE_FOR);
+        if expired {
+            self.notice_since = None;
+            self.view.notice.clear();
+        }
         let changed = visible != self.view.controls_visible;
         self.view.controls_visible = visible;
-        changed
+        changed || expired
     }
 }
