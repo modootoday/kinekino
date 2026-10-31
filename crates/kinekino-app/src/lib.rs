@@ -91,7 +91,7 @@ pub fn entry_with(args: Args, env: Env, legacy: fn() -> u8) -> ExitCode {
     }
     let routed = match args.first() {
         Some("settings") => Some(settings::run(&args, &env)),
-        Some("watch") => Some(watch::run(&args)),
+        Some("watch") => Some(watch::run(&args, &env)),
         Some("adblock") => Some(adblock_cli::run(&args)),
         Some("fonts") => Some(match (args.get(1), args.get(2)) {
             // Pinned Noto UI fonts (OFL-1.1): SHA-256 verified download into the font cache.
@@ -175,7 +175,8 @@ pub fn player() -> ExitCode {
             } else {
                 &["watch"]
             };
-            let (code, out) = watch::run(&args::Args::new(argv.iter().copied()));
+            let (code, out) =
+                watch::run(&args::Args::new(argv.iter().copied()), &Env::from_process());
             println!("{out}");
             ExitCode::from(code)
         }
