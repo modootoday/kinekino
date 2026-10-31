@@ -126,6 +126,7 @@ impl<E: Engine> Controller<E> {
 
     /// Source plugins behind 작품 탐색.
     pub fn with_catalog(mut self, catalog: Box<dyn Catalog>) -> Self {
+        self.view.has_browse_plugin = !catalog.sources().is_empty();
         self.catalog = Some(Arc::from(catalog));
         self
     }

@@ -168,6 +168,30 @@ fn without_sources_the_start_screen_says_so() {
 }
 
 #[test]
+fn the_browse_button_shows_only_with_a_browse_plugin() {
+    let hidden = |c: &Controller<FakeEngine>| {
+        meari_props(&c.view).get("noBrowsePlugin").cloned()
+    };
+    let bare = Controller::new(FakeEngine::default());
+    assert!(!bare.view.has_browse_plugin);
+    assert_eq!(hidden(&bare), Some(meari::domain::Value::Bool(true)));
+    struct NoSources;
+    impl Catalog for NoSources {
+        fn sources(&self) -> Vec<SourceItem> {
+            Vec::new()
+        }
+        fn browse(&self, _: &SourceRef, _: u32) -> Result<SourcePage, SourceError> {
+            Err(SourceError::Unsupported(kinekino_core::source::SourceCapability::Browse))
+        }
+    }
+    let empty = Controller::new(FakeEngine::default()).with_catalog(Box::new(NoSources));
+    assert_eq!(hidden(&empty), Some(meari::domain::Value::Bool(true)));
+    let with = Controller::new(FakeEngine::default()).with_catalog(Box::new(Fake));
+    assert!(with.view.has_browse_plugin);
+    assert_eq!(hidden(&with), Some(meari::domain::Value::Bool(false)));
+}
+
+#[test]
 fn browse_lists_sources_then_pages_then_goes_back() {
     let mut c = Controller::new(FakeEngine::default()).with_catalog(Box::new(Fake));
     go(&mut c, Command::Browse);
