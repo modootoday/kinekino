@@ -363,6 +363,7 @@ impl<E: Engine> Controller<E> {
             | Command::BrowseMore
             | Command::BrowseBack
             | Command::BrowseSearch(_) => self.browse(&command),
+            Command::BrowseLayout => self.view.browse_grid = !self.view.browse_grid,
             // Esc in the browse view goes one level back (windowed).
             Command::ExitFullscreen if self.view.browsing && !self.view.fullscreen => {
                 self.browse(&Command::BrowseBack)
