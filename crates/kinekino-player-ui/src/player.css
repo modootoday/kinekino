@@ -84,3 +84,9 @@
 /* 작품 탐색 list mode uses the playlist's flat 45px rows (grid mode keeps tiles). */
 .kk-player-root .kk-browse-panel [role="list"]:not(.kk-grid) { gap: 0; }
 .kk-player-root .kk-browse-panel [role="list"]:not(.kk-grid) .aw-episode-row { height: 45px; min-height: 45px; padding: 0 15px; border: 0; border-bottom: var(--aw-border-thin) solid #34363a; border-radius: 0; background: transparent; font-size: 14px; }
+/* Draft consistency (measured at 1/1.24): field-style search box, 44px start actions. */
+.kk-player-root .kk-browse-search .aw-text-input { height: 40px; min-height: 40px; padding: 0 var(--aw-space-3); border: var(--aw-border-thin) solid #383b42; border-radius: var(--aw-radius-control); background: var(--aw-surface-field); }
+.kk-player-root .kk-browse-search .aw-button { height: 40px; padding: 0 var(--aw-space-4); }
+.kk-player-root .kk-browse-panel { padding: var(--aw-space-4); gap: var(--aw-space-3); }
+.aw-start-title { font-weight: 400; }
+.aw-start-actions .aw-button { height: 44px; padding: 0 var(--aw-space-4); }
