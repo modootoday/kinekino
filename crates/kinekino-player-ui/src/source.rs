@@ -55,6 +55,8 @@ pub struct View {
     pub browse_search: bool,
     /// Rows drawn as a grid of tiles instead of a list (kept across listings).
     pub browse_grid: bool,
+    /// A connected plugin offers browsing; without one, 작품 탐색 is not shown.
+    pub has_browse_plugin: bool,
 }
 
 impl Default for View {
@@ -87,6 +89,7 @@ impl Default for View {
             browse_mood: "",
             browse_search: false,
             browse_grid: false,
+            has_browse_plugin: false,
         }
     }
 }
@@ -171,6 +174,10 @@ pub fn props(view: &View) -> BTreeMap<String, Prop> {
             Prop::Bool(view.has_media || view.browsing),
         ),
         ("noBrowse".to_owned(), Prop::Bool(!view.browsing)),
+        (
+            "noBrowsePlugin".to_owned(),
+            Prop::Bool(!view.has_browse_plugin),
+        ),
         // Kept laid out (visibility, not display) so the search field always has its
         // text editor: Meari creates it at layout and refuses an unlaid controlled input.
         (
@@ -392,7 +399,7 @@ fn icon_button(id: &str, label: &str, icon: &str, extra: &str) -> String {
 /// TSX for a window with `episodes` fixed rows.
 pub fn build(episodes: &[PlaylistItem]) -> String {
     let mut types = String::from(
-        "context: string; title: string; work: string; status: string; notice: string; noNotice: boolean; hasMedia: boolean; noMedia: boolean; hideStart: boolean; noBrowse: boolean; browseClass: string; browseHeading: string; browseStatus: string; browseStatusClass: string; noBrowseStatus: boolean; noBrowseMore: boolean; noBrowseSearch: boolean; searchClass: string; rowsClass: string; layoutIcon: string; layoutLabel: string; fullscreen: boolean; panelOpen: boolean; noMenu: boolean; menuPanelLabel: string; subtitle1: string; subtitle2: string; noSubtitle: boolean; noSubtitle2: boolean; rootClass: string; stageClass: string; frameClass: string; transportClass: string; playIcon: string; playLabel: string; volumeIcon: string; maximizeIcon: string; maximizeLabel: string; fullscreenLabel: string; position: string; duration: string; seek: string; volume: string;",
+        "context: string; title: string; work: string; status: string; notice: string; noNotice: boolean; hasMedia: boolean; noMedia: boolean; hideStart: boolean; noBrowse: boolean; noBrowsePlugin: boolean; browseClass: string; browseHeading: string; browseStatus: string; browseStatusClass: string; noBrowseStatus: boolean; noBrowseMore: boolean; noBrowseSearch: boolean; searchClass: string; rowsClass: string; layoutIcon: string; layoutLabel: string; fullscreen: boolean; panelOpen: boolean; noMenu: boolean; menuPanelLabel: string; subtitle1: string; subtitle2: string; noSubtitle: boolean; noSubtitle2: boolean; rootClass: string; stageClass: string; frameClass: string; transportClass: string; playIcon: string; playLabel: string; volumeIcon: string; maximizeIcon: string; maximizeLabel: string; fullscreenLabel: string; position: string; duration: string; seek: string; volume: string;",
     );
     let mut state = String::new();
     let mut rows = String::new();
@@ -459,7 +466,7 @@ export function KinekinoPlayer(props: Props) {{
           <h1 className="aw-start-title">{PRODUCT}</h1>
           <div className="aw-start-actions">
             <button id="open" className="aw-button aw-button-outline-accent" {c_open}><span className="aw-icon aw-icon-folder" aria-hidden="true"></span>파일 열기</button>
-            <button id="browse" className="aw-button" {c_browse}><span className="aw-icon aw-icon-search" aria-hidden="true"></span>작품 탐색</button>
+            <button id="browse" className="aw-button" hidden={{props.noBrowsePlugin}} {c_browse}><span className="aw-icon aw-icon-search" aria-hidden="true"></span>작품 탐색</button>
           </div>
           <p className="aw-start-shortcut">Ctrl+O로 파일 열기</p>
           <p id="status" className="aw-connection-status" role="status">{{props.status}}</p>

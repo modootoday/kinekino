@@ -126,7 +126,8 @@ fn browsing(view: &mut View, heading: &str, rows: usize) {
 fn view_for(screen: &str) -> Option<View> {
     let mut v = View::default();
     match screen {
-        "start" => {}
+        "start" | "start-no-plugin" => {}
+        "start-with-plugin" => v.has_browse_plugin = true,
         "playback" => playing(&mut v),
         "playlist" => {
             playing(&mut v);

@@ -92,3 +92,7 @@ the eyeless first frame; the eyes-open frame is now the idle mascot state only.
 - The panel docks inside the video stage, below the title bar and above the full-width transport, so the window buttons never move (draft `v2/viewing/native-player-playback`).
 - Rows show a current-item marker, number, title and duration. The host type is a generic `PlaylistItem` (playable item); `View.playlist` replaces the old site-shaped field names.
 - A list filter field and a bottom toolbar (추가 · 삭제 · 정렬 · 반복 · 무작위) are drawn disabled ("아직 연결되지 않음"). Out of scope for now: multi-select, drag reorder, the context menu, collapsing items that have a sub-list, and detaching the panel.
+
+## 작품 탐색 only with a browse plugin
+
+- `View.has_browse_plugin` is true only when the attached catalog lists at least one source; otherwise the start screen offers only 파일 열기. The host knows just this flag, with no plugin names or site shapes. Mockups: `start-no-plugin`, `start-with-plugin`.
