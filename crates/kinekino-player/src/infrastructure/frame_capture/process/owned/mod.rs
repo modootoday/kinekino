@@ -1,6 +1,7 @@
 //! The same SDK call owns the original family until physical closure and a final receipt.
 //! Pending cleanup never detaches a worker or serializes/drops an incomplete owner.
 mod launch;
+pub(crate) use launch::evidence_base;
 pub(crate) mod operation;
 mod output_drain;
 mod receipt;
@@ -218,6 +219,9 @@ impl Session {
         if self.deadline.operation_remaining(Instant::now()).is_zero() {
             return Err(timeout());
         }
+        // Success leaves nothing to investigate: drop the evidence root now. Failure
+        // paths return earlier and keep it, because the error names `evidence_root`.
+        let _ = std::fs::remove_dir_all(&self.sink.root);
         Ok(ProcessOutput { stdout, stderr })
     }
 }

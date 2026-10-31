@@ -1,0 +1,135 @@
+---
+id: adr:kinekino/20261031111316
+title: UI mockups and mascot brand icons
+status: active
+created: 2026-10-31T11:13:16Z
+updated: 2026-10-31T12:25:00Z
+rel:
+  governs: [crates/kinekino-player-ui/examples/ui_mockups.rs, tools/brand-icons/derive.py, crates/kinekino-player-ui/src/player.css, crates/kinekino-player-ui/src/styles.rs, docs/_includes/head-custom.html, assets/design/brand-source/kinekino-mark.svg, assets/design/brand-source/kinekino-mark-f_1.6.svg, assets/design/brand-source/kinekino-mark-f_3.3.svg, assets/design/brand-source/combo_scared-v7.png, crates/kinekino-settings-ui/src/styles.rs]
+---
+
+# UI mockups and mascot brand icons
+
+## Context
+
+The design drafts show the player in states that are hard to reach by hand: a playlist
+open mid-playback, two subtitle lines, the overflow menu, an empty or failing source. To
+compare the drafts with the real renderer, every state has to be drawn by meari itself, not
+redrawn in an image editor, and without real media or private catalogue names.
+
+The drafts also use a placeholder product name and a play-triangle mark. kinekino already has
+a finished mascot: the orange cat with a V-notch top, dark-orange inner ears, oval black eyes
+and a light band along the bottom edge, drawn as the animated logo and rigged as the 3D model
+in `assets/mascot`. The player and the site only used the triangle and an older SVG favicon.
+
+## Decision
+
+Mockups are an example binary, `ui_mockups`, in `kinekino-player-ui`. It fills a `View`
+with a preset state and hands it to the normal `window::run`, with a still engine that paints
+a procedural frame and reports a fixed position, duration and subtitle cue. Nothing in the
+library changes to support it, so a mockup is always the product renderer and goes stale the
+moment the product does. Run `cargo run -p kinekino-player-ui --example ui_mockups -- --list`
+to see the screens and pass `<screen> out.png` to capture one. All text in it is invented
+(`샘플 재생목록`, `예시 항목 NN`, `샘플 소스 A`).
+
+The logo and the mascot are one character in two roles. The mascot part-layer guide
+(`.spec/guide/mascot-part-layers.guide.md`) says "정지 상태는 모든 weights 0, eyes.scale 0 →
+단색 유지": at rest the mark is the plain body with no eyes, inner ears or band, and that rest
+state is the logo. The reveal layer brings the eyes and details in, and the app-state combos in
+`.spec/guide/mascot-preset-reference.guide.md` (`loading`, `success`, `error`, `notification`,
+`offline`, idle) move them. So the logo is shown where nothing is happening, and a situational
+mascot only where the screen carries a state.
+
+`tools/brand-icons/derive.py` copies shapes or rasterises frames from the brand files kept
+verbatim in `assets/design/brand-source/`; it draws nothing:
+
+- logo, from `kinekino-mark.svg` (the logo's first frame, eyeless): `docs/assets/img/favicon.svg`
+  on the logo's dark plate, `assets/design/icons/logo.svg` without the plate, app icon PNGs
+  from 16 to 512 px and `kinekino.ico` under `assets/design/app-icon`, and the site's
+  `favicon.ico`, PNG favicons, `apple-touch-icon.png`, 192/512 icons and `site.webmanifest`.
+  The 16 and 24 px sizes are the same eyeless shape rendered small;
+- `mascot-idle.png` from frame `kinekino-mark-f_1.6.svg` (revealed, eyes open);
+- `mascot-loading.png` from frame `kinekino-mark-f_3.3.svg` (mid-blink; `loading` is blinks);
+- `mascot-error.png`, the last panel (t = 2.0 s) of the 3D render `combo_scared-v7.png`, with
+  the render background keyed out. `scared` is the state machine's fatal-error combo; no render
+  of the `error` combo's worried eyes exists, so this is the nearest frame.
+
+Rerun it whenever the logo or a frame changes. The settings asset path now declares `.png`
+files as images so the 3D render can be served.
+
+| Screen | Shows |
+| --- | --- |
+| Title bar, start screen | logo |
+| Browse, no sources (mockup only; the product shows this on the start screen status) | idle |
+| Browse, loading a listing | loading |
+| Browse, source error | error |
+| Everything else | logo in the title bar only |
+
+The browse status line carries `kk-mood-{idle,loading,error}`, set by the controller.
+
+## Not decided here
+
+The native window and tray icon are set in `window/*`, which is being changed on another
+branch; wiring `assets/design/app-icon` there is left for after that lands. Draft screens
+with no product counterpart (web browse tabs and ad-block chip, the skip overlay with AI
+segments, the AI studio tabs) are not mocked: they would need host features, not states.
+
+## Correction (2026-10-31)
+
+The first version of this change derived every icon from the previous
+`docs/assets/img/favicon.svg`, an early cat silhouette that is a different design from the
+finished mascot (no V-notch body, no inner ears, no highlight band). It was taken as the
+mascot without comparing it with
+the logo frames. The derivation now reads the logo frame above, the old favicon was replaced
+by the derived one, and every icon, favicon and mockup capture was regenerated and checked
+by eye at 16, 24 and 32 px.
+
+A second correction followed: the first fix used the eyes-open frame as the logo. The logo is
+the eyeless first frame; the eyes-open frame is now the idle mascot state only.
+
+## Playlist panel (same pattern as the draft's list panel)
+
+- The panel docks inside the video stage, below the title bar and above the full-width transport, so the window buttons never move.
+- It follows the draft `v2/viewing/native-player-playback` (a 1.5x render; values in CSS px):
+  - heading "재생목록" with close (42px), then the list title (46px)
+  - flat 45px rows split by 1px lines (#34363a) on #1b1e22, each with a number column and a title
+  - the current row has a 2px amber left bar, ▶, amber text and a #2f2a23 background
+- The transport ends with the small engine label "네이티브", as in the draft. 작품 탐색 list mode uses the same flat rows.
+- The host type is a generic `PlaylistItem` (playable item).
+- Not in the draft and so not drawn; candidates for later: a list filter, a toolbar (add, remove, sort, repeat, shuffle), multi-select, drag reorder, a context menu, collapsing items that have a sub-list, and detaching the panel.
+
+## 작품 탐색 only with a browse plugin
+
+- `View.has_browse_plugin` is true only when the attached catalog lists at least one source; otherwise the start screen offers only 파일 열기. The host knows just this flag, with no plugin names or site shapes. Mockups: `start-no-plugin`, `start-with-plugin`.
+
+## 스튜디오 편집 기능 목업 범위
+
+- 범위: `examples/ui_mockups/studio.rs`의 공통 프레임(제목 표시줄 로고, 스튜디오 내비, 본문, 인스펙터, 작업 대기열 바)과 screens.md의 스튜디오 화면 20개(overview, skip, subtitles, ocr, correction, convert, subject, short, short-recommend, short-batch, raw-frame, snapshot, cards, asset2d, projection, projection-package, download, models, queue, export), 시청 화면 2개(viewing-skip, viewing-web).
+- 목업은 props 없이 고정 TSX로 마운트하고(`Mockup`, 세션 `fixed`) 실제 상태와 연결하지 않는다. 컨트롤은 정적이다.
+- 호스트에 없는 기능(모델 실행, 대기열 처리, 내보내기, 3D 투영, 웹 탐색)은 목업 그림으로만 표현한다.
+- 비범위: 실제 편집 기능 구현, 상호작용, 툴팁·도움말, 초안 일러스트 재현(그라데이션 그림으로 대체), 3D 원근 표현, 실제 외부 사이트 이름·연결.
+- 마스코트: 제목 표시줄·시작 화면은 정지 상태 로고, 빈 상태는 idle 프레임, 오류는 error 프레임을 쓴다.
+
+## Form-control and spacing tokens (consistency pass)
+
+- Draft PNGs are 1586x992, i.e. 1280x800 logical at a 1/1.24 scale (not 1/1.5). All measurements below use 1/1.24.
+- Studio mockups share one `:root` token block (`--ks-*`) in `studio.css`; screens do not set their own sizes.
+  - Controls: select/input 32px tall, 12px horizontal padding, 5px radius, field surface #1d1f25 with a #383b42 border; primary buttons 40px; search box 44px; chips 28px rectangular field-style; table-row buttons 24px (`--ks-control-sm`).
+  - Layout: navigation 200px (items 42px, 4px gap), inspector 340px with 16px padding, field label column 88px, main padding 16/20px, field gap 10px, block gap 14px.
+  - Type: body 13, label 12, small 11, card title 14 (600), heading 22.
+  - Toggle 36x20, checkbox 16, slider track 4 / thumb 14.
+- Player screens (`player.css`): the browse search box is a 40px field-surface input with a matching 40px button and the panel has 16px padding; start actions are 44px tall and the start title uses regular weight.
+- Unchanged by this pass: the playlist panel pattern, logo/mascot rules, the browse-button condition, the host/plugin boundary, and the fixed 1280x720 mockup window.
+
+## Shared playbar and audio lane (missing-region pass)
+
+- Every studio screen whose draft shows a playback bar uses one `playbar()` part: play, time, progress, volume level, subtitles, speed (1.0x), more, fullscreen. Screens with frame stepping keep `transport()` with previous/next.
+- Waveform areas use one `audio_lane()` part: amplitude bars (accent inside the selection), selection tint, playhead and an optional time ruler; `ks-lane-green` / `ks-lane-small` variants serve the short-form audio track.
+- Correction keeps the video, playbar, audio lane and table in the 720px window by moving the bulk accept/reject actions into the inspector.
+- Mode tabs are shown wherever the draft has them (short: manual / AI / batch; snapshot: raw frame / thumbnail edit).
+- `.ks-overlay` must stay `position: absolute` (the token pass had dropped it, hiding stage overlays).
+
+## Inspector scrolling
+
+- The studio right settings panel scrolls vertically (`overflow-y: auto`) when its content is taller than the window; the main editor and the queue bar stay fixed.
+- In the fixed 1280x720 mockup a clipped last action (e.g. correction's "다시 검사") is expected and is not a layout defect.

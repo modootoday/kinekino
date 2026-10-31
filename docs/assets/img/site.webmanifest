@@ -1,0 +1,24 @@
+{
+  "name": "kinekino",
+  "short_name": "kinekino",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    },
+    {
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "theme_color": "#0E0E10",
+  "background_color": "#0E0E10",
+  "display": "browser"
+}

@@ -19,7 +19,7 @@
    a fitting title lost its tail whenever its width had a fractional part. */
 .kk-player-root .aw-window-brand .aw-icon-brand, .kk-player-root .aw-product-name, .kk-player-root .aw-window-captions { flex: 0 0 auto; }
 .kk-player-root .aw-window-context { flex: 1 1 0; min-width: 0; }
-/* Episode rows: like the caption title, a title box that only hugs its text is rounded to
+/* Playlist rows: like the caption title, a title box that only hugs its text is rounded to
    whole pixels while the ellipsis check uses the unrounded advance, painting "01 · lo…".
    The title takes the rest of the row; the "재생 중" marker keeps its own width. */
 .kk-player-root .aw-episode-row { display: flex; }
@@ -49,3 +49,44 @@
 .kk-player-root .kk-browse-search .aw-button { flex: none; white-space: nowrap; }
 .kk-player-root .kk-heading-actions { display: flex; gap: var(--aw-space-1); }
 .kk-player-root .kk-browse-search.kk-collapsed { visibility: hidden; height: 0; min-height: 0; overflow: hidden; }
+/* Logo: the mascot at rest, eyeless (logo/kinekino-mark.svg via tools/brand-icons/derive.py).
+   Title bar and start screen carry no situation, so they show the logo. */
+.aw-icon.aw-icon-brand { background: url("../../../assets/design/icons/logo.svg") center / contain no-repeat; mask: none; }
+.aw-start-mark { background: url("../../../assets/design/icons/logo.svg") center / contain no-repeat; mask: none; }
+/* Situational mascot: the logo revealed and moved per app state (mascot-preset-reference). */
+.aw-connection-status.kk-mood-idle,
+.aw-connection-status.kk-mood-loading,
+.aw-connection-status.kk-mood-error { padding-top: 76px; background: top center / 64px 64px no-repeat; }
+.aw-connection-status.kk-mood-idle { background-image: url("../../../assets/design/icons/mascot-idle.png"); }
+.aw-connection-status.kk-mood-loading { background-image: url("../../../assets/design/icons/mascot-loading.png"); }
+.aw-connection-status.kk-mood-error { background-image: url("../../../assets/design/icons/mascot-error.png"); }
+/* Playlist: docked inside the stage (below the title bar, above the full-width transport)
+   so the window buttons never move. Same pattern as the draft's list panel
+   (v2/viewing/native-player-playback, 1.5x render; values below are its CSS px):
+   42px header, 46px list title, 45px flat rows split by 1px lines, current row amber. */
+.kk-player-root .kk-docked > :not(.kk-playlist) { margin-right: var(--aw-episode-panel); }
+.kk-player-root .kk-playlist { position: absolute; top: 0; right: 0; bottom: 0; width: var(--aw-episode-panel); z-index: 2; min-height: 0; overflow: hidden; border-left: var(--aw-border-thin) solid #34363a; background: #1b1e22; }
+.kk-player-root .kk-playlist[hidden] { display: none; }
+.kk-player-root .kk-playlist > .aw-catalog-browser { display: flex; flex-direction: column; gap: 0; height: 100%; min-height: 0; padding: 0; }
+.kk-player-root .kk-playlist .aw-episode-heading { height: 42px; padding: 0 6px 0 15px; border-bottom: var(--aw-border-thin) solid #34363a; }
+.kk-player-root .kk-playlist .aw-episode-heading h2 { font-size: 15px; font-weight: var(--aw-font-semibold); color: var(--aw-text); }
+.kk-player-root .kk-playlist .aw-episode-title { height: 46px; display: flex; align-items: center; padding: 0 15px; border-bottom: var(--aw-border-thin) solid #34363a; font-size: 14px; font-weight: var(--aw-font-semibold); color: var(--aw-text); }
+.kk-player-root .kk-playlist .aw-catalog-lists { flex: 1 1 auto; min-height: 0; overflow: auto; }
+.kk-player-root .kk-playlist [role="radiogroup"] { display: flex; flex-direction: column; gap: 0; }
+.kk-player-root .kk-playlist .kk-pl-row { height: 45px; min-height: 45px; gap: 0; align-items: center; padding: 0; border: 0; border-left: 2px solid transparent; border-bottom: var(--aw-border-thin) solid #34363a; border-radius: 0; background: transparent; color: var(--aw-text); font-size: 14px; }
+.kk-player-root .kk-playlist .kk-pl-row[aria-current="true"] { border-left-color: var(--aw-accent); background: #2f2a23; color: var(--aw-accent); }
+.kk-player-root .kk-pl-mark { flex: 0 0 31px; display: flex; justify-content: flex-end; padding-right: 4px; color: var(--aw-accent); }
+.kk-player-root .kk-pl-mark .aw-icon { width: 10px; height: 10px; }
+.kk-player-root .kk-pl-num { flex: 0 0 38px; color: var(--aw-text-secondary); font-variant-numeric: tabular-nums; }
+.kk-player-root .kk-pl-row[aria-current="true"] .kk-pl-num { color: var(--aw-accent); }
+/* Draft: the playback engine named small at the transport's right end. */
+.kk-player-root .kk-engine-label { padding: 0 var(--aw-space-2); color: var(--aw-text-secondary); font-size: var(--aw-font-small); white-space: nowrap; }
+/* 작품 탐색 list mode uses the playlist's flat 45px rows (grid mode keeps tiles). */
+.kk-player-root .kk-browse-panel [role="list"]:not(.kk-grid) { gap: 0; }
+.kk-player-root .kk-browse-panel [role="list"]:not(.kk-grid) .aw-episode-row { height: 45px; min-height: 45px; padding: 0 15px; border: 0; border-bottom: var(--aw-border-thin) solid #34363a; border-radius: 0; background: transparent; font-size: 14px; }
+/* Draft consistency (measured at 1/1.24): field-style search box, 44px start actions. */
+.kk-player-root .kk-browse-search .aw-text-input { height: 40px; min-height: 40px; padding: 0 var(--aw-space-3); border: var(--aw-border-thin) solid #383b42; border-radius: var(--aw-radius-control); background: var(--aw-surface-field); }
+.kk-player-root .kk-browse-search .aw-button { height: 40px; padding: 0 var(--aw-space-4); }
+.kk-player-root .kk-browse-panel { padding: var(--aw-space-4); gap: var(--aw-space-3); }
+.aw-start-title { font-weight: 400; }
+.aw-start-actions .aw-button { height: 44px; padding: 0 var(--aw-space-4); }

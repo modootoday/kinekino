@@ -44,6 +44,8 @@ const SMOKE_LIMIT: Duration = Duration::from_secs(20);
 pub struct Options {
     pub smoke: bool,
     pub capture: Option<PathBuf>,
+    /// Design review only: draw this fixed document instead of the player.
+    pub mockup: Option<crate::session::Mockup>,
 }
 
 /// What a run showed, for `--smoke` JSON and tests.
@@ -124,7 +126,7 @@ impl<E: Engine> Shared<E> {
         }
         let props = self
             .dirty
-            .then(|| crate::session::meari_props(&self.controller.view));
+            .then(|| self.session.props(&self.controller.view));
         self.dirty = false;
         let capture = self.capture.take();
         let shown = self.controller.view.browse_listing;
@@ -516,7 +518,7 @@ pub fn run<E: Engine>(controller: Controller<E>, options: Options) -> Result<Rep
     let mut capture = options.capture.clone();
     loop {
         let mut current = controller.take().ok_or("player controller lost")?;
-        let (session, document) = Session::mount(&current.view)?;
+        let (session, document) = Session::mount_with(&current.view, options.mockup.as_ref())?;
         current.view.status.clear();
         let handle = NativeDocumentHandle::new(document, 1).map_err(|e| e.to_string())?;
         let preparation = NativeWindowPreparation::<NoChild>::new(
