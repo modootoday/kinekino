@@ -49,8 +49,9 @@
 .kk-player-root .kk-browse-search .aw-button { flex: none; white-space: nowrap; }
 .kk-player-root .kk-heading-actions { display: flex; gap: var(--aw-space-1); }
 .kk-player-root .kk-browse-search.kk-collapsed { visibility: hidden; height: 0; min-height: 0; overflow: hidden; }
-/* Brand mark: the mascot symbol (derived by tools/brand-icons/derive.py) replaces the play triangle. */
-.aw-icon-brand { --aw-icon-source: url("../../../assets/design/icons/mascot-mark.svg"); }
-.aw-start-mark { mask: url("../../../assets/design/icons/mascot-mark.svg") center / contain no-repeat; opacity: 0.55; }
+/* Brand mark: the finished mascot (eyes-open front frame of the logo, derived by
+   tools/brand-icons/derive.py) in full colour replaces the play triangle. */
+.aw-icon.aw-icon-brand { background: url("../../../assets/design/icons/mascot-small.svg") center / contain no-repeat; mask: none; }
+.aw-start-mark { background: url("../../../assets/design/icons/mascot-color.svg") center / contain no-repeat; mask: none; }
 /* Empty and error states in the browse panel carry the full-colour mascot above the message. */
 .aw-connection-status { padding-top: 76px; background: url("../../../assets/design/icons/mascot-color.svg") top center / 64px 64px no-repeat; }

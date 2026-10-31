@@ -18,7 +18,7 @@
       "sizes": "512x512"
     }
   ],
-  "theme_color": "#141414",
-  "background_color": "#141414",
+  "theme_color": "#0E0E10",
+  "background_color": "#0E0E10",
   "display": "browser"
 }
