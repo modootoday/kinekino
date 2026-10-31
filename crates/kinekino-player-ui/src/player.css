@@ -49,9 +49,14 @@
 .kk-player-root .kk-browse-search .aw-button { flex: none; white-space: nowrap; }
 .kk-player-root .kk-heading-actions { display: flex; gap: var(--aw-space-1); }
 .kk-player-root .kk-browse-search.kk-collapsed { visibility: hidden; height: 0; min-height: 0; overflow: hidden; }
-/* Brand mark: the finished mascot (eyes-open front frame of the logo, derived by
-   tools/brand-icons/derive.py) in full colour replaces the play triangle. */
-.aw-icon.aw-icon-brand { background: url("../../../assets/design/icons/mascot-small.svg") center / contain no-repeat; mask: none; }
-.aw-start-mark { background: url("../../../assets/design/icons/mascot-color.svg") center / contain no-repeat; mask: none; }
-/* Empty and error states in the browse panel carry the full-colour mascot above the message. */
-.aw-connection-status { padding-top: 76px; background: url("../../../assets/design/icons/mascot-color.svg") top center / 64px 64px no-repeat; }
+/* Logo: the mascot at rest, eyeless (logo/kinekino-mark.svg via tools/brand-icons/derive.py).
+   Title bar and start screen carry no situation, so they show the logo. */
+.aw-icon.aw-icon-brand { background: url("../../../assets/design/icons/logo.svg") center / contain no-repeat; mask: none; }
+.aw-start-mark { background: url("../../../assets/design/icons/logo.svg") center / contain no-repeat; mask: none; }
+/* Situational mascot: the logo revealed and moved per app state (mascot-preset-reference). */
+.aw-connection-status.kk-mood-idle,
+.aw-connection-status.kk-mood-loading,
+.aw-connection-status.kk-mood-error { padding-top: 76px; background: top center / 64px 64px no-repeat; }
+.aw-connection-status.kk-mood-idle { background-image: url("../../../assets/design/icons/mascot-idle.png"); }
+.aw-connection-status.kk-mood-loading { background-image: url("../../../assets/design/icons/mascot-loading.png"); }
+.aw-connection-status.kk-mood-error { background-image: url("../../../assets/design/icons/mascot-error.png"); }

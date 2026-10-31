@@ -5,7 +5,7 @@ status: active
 created: 2026-10-31T11:13:16Z
 updated: 2026-10-31T12:25:00Z
 rel:
-  governs: [crates/kinekino-player-ui/examples/ui_mockups.rs, tools/brand-icons/derive.py, crates/kinekino-player-ui/src/player.css, crates/kinekino-player-ui/src/styles.rs, docs/_includes/head-custom.html, assets/design/brand-source/kinekino-mark-f_1.6.svg]
+  governs: [crates/kinekino-player-ui/examples/ui_mockups.rs, tools/brand-icons/derive.py, crates/kinekino-player-ui/src/player.css, crates/kinekino-player-ui/src/styles.rs, docs/_includes/head-custom.html, assets/design/brand-source/kinekino-mark.svg, assets/design/brand-source/kinekino-mark-f_1.6.svg, assets/design/brand-source/kinekino-mark-f_3.3.svg, assets/design/brand-source/combo_scared-v7.png, crates/kinekino-settings-ui/src/styles.rs]
 ---
 
 # UI mockups and mascot brand icons
@@ -32,28 +32,40 @@ moment the product does. Run `cargo run -p kinekino-player-ui --example ui_mocku
 to see the screens and pass `<screen> out.png` to capture one. All text in it is invented
 (`샘플 재생목록`, `예시 항목 NN`, `샘플 소스 A`).
 
-All brand files are derived from one source, `assets/design/brand-source/kinekino-mark-f_1.6.svg`:
-a verbatim copy of the eyes-open front frame (t = 1.6 s) of the mascot's animated logo,
-the frame the 3D model's front view matches. `tools/brand-icons/derive.py` reads the body,
-inner-ear, lower-band, tail-tip and eye shapes and colours from that file and recombines them,
-so no new artwork is drawn. It writes:
+The logo and the mascot are one character in two roles. The mascot part-layer guide
+(`.spec/guide/mascot-part-layers.guide.md`) says "정지 상태는 모든 weights 0, eyes.scale 0 →
+단색 유지": at rest the mark is the plain body with no eyes, inner ears or band, and that rest
+state is the logo. The reveal layer brings the eyes and details in, and the app-state combos in
+`.spec/guide/mascot-preset-reference.guide.md` (`loading`, `success`, `error`, `notification`,
+`offline`, idle) move them. So the logo is shown where nothing is happening, and a situational
+mascot only where the screen carries a state.
 
-- `docs/assets/img/favicon.svg`: full-colour mark on the logo's dark rounded plate;
-- `assets/design/icons/mascot-color.svg`: full-colour mark without plate;
-- `assets/design/icons/mascot-small.svg`: the same shapes for 16 and 24 px, without the tail
-  tip and with ears and eyes scaled up around their own centres so they stay visible;
-- `assets/design/icons/mascot-mark.svg`: a one-colour mask with eyes and inner ears cut out,
-  for places that need a monochrome mark;
-- app icon PNGs from 16 to 512 px plus `kinekino.ico` under `assets/design/app-icon`, and the
-  site's `favicon.ico`, PNG favicons, `apple-touch-icon.png`, 192/512 icons and
-  `site.webmanifest`.
+`tools/brand-icons/derive.py` copies shapes or rasterises frames from the brand files kept
+verbatim in `assets/design/brand-source/`; it draws nothing:
 
-Rerun it whenever the logo changes.
+- logo, from `kinekino-mark.svg` (the logo's first frame, eyeless): `docs/assets/img/favicon.svg`
+  on the logo's dark plate, `assets/design/icons/logo.svg` without the plate, app icon PNGs
+  from 16 to 512 px and `kinekino.ico` under `assets/design/app-icon`, and the site's
+  `favicon.ico`, PNG favicons, `apple-touch-icon.png`, 192/512 icons and `site.webmanifest`.
+  The 16 and 24 px sizes are the same eyeless shape rendered small;
+- `mascot-idle.png` from frame `kinekino-mark-f_1.6.svg` (revealed, eyes open);
+- `mascot-loading.png` from frame `kinekino-mark-f_3.3.svg` (mid-blink; `loading` is blinks);
+- `mascot-error.png`, the last panel (t = 2.0 s) of the 3D render `combo_scared-v7.png`, with
+  the render background keyed out. `scared` is the state machine's fatal-error combo; no render
+  of the `error` combo's worried eyes exists, so this is the nearest frame.
 
-In the player, the title bar shows `mascot-small.svg`, the start screen shows `mascot-color.svg`
-(both in colour, replacing the earlier mask), and browse
-status messages (no sources, source errors) show the colour mascot above the text. The site
-head links the new favicon set and manifest.
+Rerun it whenever the logo or a frame changes. The settings asset path now declares `.png`
+files as images so the 3D render can be served.
+
+| Screen | Shows |
+| --- | --- |
+| Title bar, start screen | logo |
+| Browse, no sources (mockup only; the product shows this on the start screen status) | idle |
+| Browse, loading a listing | loading |
+| Browse, source error | error |
+| Everything else | logo in the title bar only |
+
+The browse status line carries `kk-mood-{idle,loading,error}`, set by the controller.
 
 ## Not decided here
 
@@ -71,3 +83,6 @@ mascot without comparing it with
 the logo frames. The derivation now reads the logo frame above, the old favicon was replaced
 by the derived one, and every icon, favicon and mockup capture was regenerated and checked
 by eye at 16, 24 and 32 px.
+
+A second correction followed: the first fix used the eyes-open frame as the logo. The logo is
+the eyeless first frame; the eyes-open frame is now the idle mascot state only.
