@@ -23,6 +23,7 @@ fn empty_browse_slots_are_not_drawn() {
     assert_eq!(height("#br1"), 0.0);
     assert_eq!(height("#browseMore"), 0.0);
     assert_eq!(height("#start"), 0.0);
+    assert_eq!(height(".kk-browse-search"), 0.0, "no search over the source list");
 }
 
 #[test]
@@ -55,4 +56,27 @@ fn leaving_browse_for_an_episode_needs_a_remount() {
     assert!(session.fits(&view));
     let viewport = doc.viewport.clone();
     doc.renderer.rasterize(&viewport).unwrap();
+}
+
+#[test]
+fn the_search_row_is_drawn_inside_a_source() {
+    let view = View {
+        browsing: true,
+        browse_heading: "com.example.fixture".into(),
+        browse_rows: vec!["Work 0".into()],
+        browse_search: true,
+        ..View::default()
+    };
+    let (_, mut doc) = Session::mount(&view).unwrap();
+    doc.update_module_props(meari_props(&view)).unwrap();
+    let viewport = doc.viewport.clone();
+    doc.renderer.rasterize(&viewport).unwrap();
+    let base = &*doc.renderer.document;
+    let size = |sel: &str| {
+        let id = base.query_selector(sel).unwrap().unwrap();
+        base.get_node(id).unwrap().final_layout().size
+    };
+    let field = size("#browseQuery");
+    assert!(field.height > 0.0 && field.width > 100.0);
+    assert!(size("#browseSearch").height > 0.0);
 }

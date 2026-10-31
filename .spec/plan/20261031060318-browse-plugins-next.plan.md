@@ -3,7 +3,7 @@ id: plan:kinekino/20261031060318
 title: "탐색 남은 일: 플러그인 재생목록·재생 연결"
 status: active
 created: 2026-10-31T06:03:18Z
-updated: 2026-10-31T06:03:45Z
+updated: 2026-10-31T11:40:00Z
 rel:
   governs: [crates/kinekino-player-ui/src/catalog.rs]
 ---
@@ -28,3 +28,4 @@ rel:
 - 2026-10-31 1단계 전: 소스 목록 → 루트 목록 → 항목 목록, `더 보기`, 뒤로·Esc, 거절 안내까지 연결(`feat/browse-plugins`).
 - 2026-10-31 1·2단계 완료(`feat/plugin-playlist-resolve`): 범용 container/playable, resolve와 허용 목록, 재생목록 변경 시 재마운트, END_FILE 사유 확인. 데스크톱에서 합성 플러그인으로 재생·다음 항목 확인.
 - 2026-10-31 3단계 완료(`feat/async-plugin-calls`): browse·resolve를 작업 스레드로, "불러오는 중…" 표시, 늦은 응답 폐기. 데스크톱에서 3초 지연 합성 플러그인으로 창이 계속 반응함을 확인.
+- 2026-10-31 4·5단계 완료(`feat/browse-search-scroll`, [ADR](../adr/20261031103033-browse-search-and-scrolling-listings.adr.md)): 열린 소스 안 검색(`Catalog::search`, 기본은 미지원 거절), 더 보기는 이어 붙이고 목록은 스크롤(최대 60줄), 입력 중에는 단축키 대신 글자 입력·Enter 검색·Esc 뒤로, 새 목록은 맨 위부터. 데스크톱에서 검색·Esc·더 보기·휠 스크롤 확인. 한글 IME 입력은 미확인.
