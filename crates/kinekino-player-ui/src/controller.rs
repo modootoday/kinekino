@@ -155,6 +155,11 @@ impl<E: Engine> Controller<E> {
     /// Applies one user command; returns what the window must do, if anything.
     pub fn apply(&mut self, command: Command) -> Option<Effect> {
         let media = self.view.has_media;
+        // Esc closes an open ⋮ menu first; only the next Esc leaves fullscreen.
+        if matches!(command, Command::ExitFullscreen) && self.view.menu_open {
+            self.view.menu_open = false;
+            return None;
+        }
         // Any other command (a menu item, Esc, a click elsewhere) closes the ⋮ menu.
         if !matches!(command, Command::More) {
             self.view.menu_open = false;
