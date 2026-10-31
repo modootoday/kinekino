@@ -63,22 +63,8 @@ impl std::fmt::Display for HostError {
 }
 impl std::error::Error for HostError {}
 
-/// The player window registers no child windows.
-struct NoChild;
-impl NativeChild for NoChild {
-    type Error = std::io::Error;
-    fn parent_lost(&mut self) {}
-    fn begin_cleanup(
-        &mut self,
-        _: CleanupRequest,
-        _: CompletionSignal,
-    ) -> Result<CleanupProgress, Self::Error> {
-        Err(std::io::Error::other("player window has no child windows"))
-    }
-    fn observe_cleanup(&mut self, _: CleanupRequest) -> Result<CleanupProgress, Self::Error> {
-        Err(std::io::Error::other("player window has no child windows"))
-    }
-}
+mod nochild;
+use nochild::NoChild;
 
 struct Shared<E: Engine> {
     controller: Controller<E>,
@@ -124,8 +110,13 @@ impl<E: Engine> Shared<E> {
             || (self.controller.view.has_media && (self.ready || self.texture.uploads() == 0))
     }
 
+    fn fits(&self) -> bool {
+        self.session.fits(&self.controller.view)
+    }
+
     fn commit(&mut self, stamp: &HostStamp) -> Result<HostEffects, HostError> {
-        if !self.due() {
+        // New playlist rows need a remount (`advance`); old-shape props would be refused.
+        if !self.due() || !self.session.fits(&self.controller.view) {
             return Ok(HostEffects::default());
         }
         let props = self
@@ -343,6 +334,10 @@ impl<E: Engine> App<E> {
             self.frames = self.frames.max(f.ticket.scene_generation);
         }
         let effects = std::mem::take(&mut self.shared.borrow_mut().effects);
+        // A playlist opened from the browse view brings new rows: remount.
+        if !self.shared.borrow().fits() {
+            (self.remount, self.closing) = (true, true);
+        }
         for effect in effects {
             match effect {
                 Effect::Minimize | Effect::Maximize(_) | Effect::Fullscreen(_) => {
@@ -358,9 +353,8 @@ impl<E: Engine> App<E> {
                     let mut shared = self.shared.borrow_mut();
                     if shared.controller.picked(picked.as_deref(), took) {
                         shared.dirty = true;
-                        if !shared.session.fits(&shared.controller.view) {
-                            self.remount = true;
-                            self.closing = true;
+                        if !shared.fits() {
+                            (self.remount, self.closing) = (true, true);
                         }
                     }
                 }

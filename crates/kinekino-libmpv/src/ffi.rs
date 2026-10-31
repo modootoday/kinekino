@@ -21,6 +21,17 @@ pub const FORMAT_STRING: c_int = 1;
 pub const FORMAT_DOUBLE: c_int = 5;
 pub const EVENT_END_FILE: c_int = 7;
 pub const EVENT_PLAYBACK_RESTART: c_int = 21;
+/// `mpv_end_file_reason`: the old file was replaced (`loadfile replace`).
+pub const END_FILE_REASON_STOP: c_int = 2;
+/// `mpv_end_file_reason`: the file redirected to another (playlist, ytdl).
+pub const END_FILE_REASON_REDIRECT: c_int = 5;
+
+/// Leading fields of `mpv_event_end_file`.
+#[repr(C)]
+pub struct EndFile {
+    pub reason: c_int,
+    pub error: c_int,
+}
 
 #[repr(C)]
 pub struct Event {

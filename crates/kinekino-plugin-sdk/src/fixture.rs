@@ -20,6 +20,7 @@ impl SourcePlugin for FixturePlugin {
                     id: format!("{}-{page}", category.id),
                 },
                 title: format!("Fixture {} page {page}", category.id),
+                kind: None,
             }],
             next_page: Some(page + 1),
         }

@@ -13,6 +13,7 @@ impl SourceProvider for Fake {
                     id: query.into(),
                 },
                 title: query.into(),
+                kind: SourceItemKind::Playable,
             }],
             next_page: None,
         })

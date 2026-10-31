@@ -62,6 +62,17 @@ impl SourceManifest {
 pub struct SourceItem {
     pub reference: SourceRef,
     pub title: String,
+    pub kind: SourceItemKind,
+}
+
+/// What selecting a listed item opens.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+pub enum SourceItemKind {
+    /// Browse it again (provider roots and plugins that do not tag items).
+    #[default]
+    Container,
+    /// `resolve` turns it into streams; a listing's playables form the play queue.
+    Playable,
 }
 
 /// One page of items with an optional continuation.
