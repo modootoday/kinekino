@@ -22,7 +22,11 @@ fn kind(mut i: SourceItem, kind: SourceItemKind) -> SourceItem {
     i
 }
 
-/// Synthetic catalog: one source; its root has 20 items in pages of `BROWSE_ROWS`.
+/// Page size of the synthetic catalog.
+const PAGE: usize = 12;
+
+/// Synthetic catalog: one source; its root has 20 items in pages of `PAGE`; search
+/// matches titles.
 struct Fake;
 impl Catalog for Fake {
     fn sources(&self) -> Vec<SourceItem> {
@@ -31,13 +35,13 @@ impl Catalog for Fake {
     fn browse(&self, at: &SourceRef, page: u32) -> Result<SourcePage, SourceError> {
         match at.id.as_str() {
             "" => {
-                let from = (page as usize - 1) * BROWSE_ROWS;
-                let items = (from..20.min(from + BROWSE_ROWS))
+                let from = (page as usize - 1) * PAGE;
+                let items = (from..20.min(from + PAGE))
                     .map(|i| item(&at.provider, &format!("w{i}"), &format!("Work {i}")))
                     .collect();
                 Ok(SourcePage {
                     items,
-                    next_page: (from + BROWSE_ROWS < 20).then_some(page + 1),
+                    next_page: (from + PAGE < 20).then_some(page + 1),
                 })
             }
             "series" => Ok(SourcePage {
@@ -52,6 +56,16 @@ impl Catalog for Fake {
                 kinekino_core::source::SourceCapability::Browse,
             )),
         }
+    }
+    fn search(&self, provider: &str, query: &str, _page: u32) -> Result<SourcePage, SourceError> {
+        let items = (0..20)
+            .filter(|i| format!("Work {i}").contains(query))
+            .map(|i| item(provider, &format!("w{i}"), &format!("Work {i}")))
+            .collect();
+        Ok(SourcePage {
+            items,
+            next_page: None,
+        })
     }
     fn resolve(&self, at: &SourceRef) -> Result<Vec<StreamCandidate>, SourceError> {
         if at.id.ends_with("e3") {
@@ -161,14 +175,17 @@ fn browse_lists_sources_then_pages_then_goes_back() {
     assert_eq!(c.view.browse_rows, vec!["com.example.fixture"]);
     go(&mut c, Command::BrowseItem(0));
     assert_eq!(c.view.browse_heading, "com.example.fixture");
-    assert_eq!(c.view.browse_rows.len(), BROWSE_ROWS);
-    assert!(c.view.browse_more);
+    assert_eq!(c.view.browse_rows.len(), PAGE);
+    assert!(c.view.browse_more && c.view.browse_search);
+    // More appends; the list scrolls instead of replacing the page.
     go(&mut c, Command::BrowseMore);
-    assert_eq!(c.view.browse_rows.first().unwrap(), "Work 12");
+    assert_eq!(c.view.browse_rows.len(), 20);
+    assert_eq!(c.view.browse_rows[0], "Work 0");
+    assert_eq!(c.view.browse_rows[12], "Work 12");
     assert!(!c.view.browse_more);
     // A refusing item keeps the listing and shows why.
     go(&mut c, Command::BrowseItem(0));
-    assert_eq!(c.view.browse_rows.first().unwrap(), "Work 12");
+    assert_eq!(c.view.browse_rows.len(), 20);
     assert!(!c.view.browse_status.is_empty());
     go(&mut c, Command::BrowseBack);
     assert_eq!(c.view.browse_rows, vec!["com.example.fixture"]);
@@ -220,7 +237,7 @@ fn slow_plugin_calls_run_off_the_ui_thread() {
     assert_eq!(c.view.browse_status, "불러오는 중…");
     assert_eq!(c.view.browse_rows, vec!["com.example.fixture"]);
     c.finish();
-    assert_eq!(c.view.browse_rows.len(), BROWSE_ROWS);
+    assert_eq!(c.view.browse_rows.len(), PAGE);
     assert!(c.view.browse_status.is_empty());
     // Back while a call is in flight drops its late answer.
     c.apply(Command::BrowseMore);
@@ -229,4 +246,89 @@ fn slow_plugin_calls_run_off_the_ui_thread() {
     std::thread::sleep(std::time::Duration::from_millis(500));
     c.poll();
     assert_eq!(c.view.browse_rows, vec!["com.example.fixture"]);
+}
+
+#[test]
+fn search_lists_the_open_sources_answers_and_back_returns() {
+    let mut c = Controller::new(FakeEngine::default()).with_catalog(Box::new(Fake));
+    go(&mut c, Command::Browse);
+    assert!(!c.view.browse_search, "no search over the source list");
+    go(&mut c, Command::BrowseItem(0));
+    go(&mut c, Command::BrowseSearch("  ".into()));
+    assert_eq!(c.view.browse_heading, "com.example.fixture");
+    go(&mut c, Command::BrowseSearch("Work 1".into()));
+    assert_eq!(c.view.browse_heading, "검색: Work 1");
+    assert_eq!(c.view.browse_rows.len(), 11);
+    go(&mut c, Command::BrowseBack);
+    assert_eq!(c.view.browse_heading, "com.example.fixture");
+    assert_eq!(c.view.browse_rows.len(), PAGE);
+}
+
+#[test]
+fn search_is_refused_when_the_catalog_has_none() {
+    struct Plain;
+    impl Catalog for Plain {
+        fn sources(&self) -> Vec<SourceItem> {
+            Fake.sources()
+        }
+        fn browse(&self, at: &SourceRef, page: u32) -> Result<SourcePage, SourceError> {
+            Fake.browse(at, page)
+        }
+    }
+    let mut c = Controller::new(FakeEngine::default()).with_catalog(Box::new(Plain));
+    go(&mut c, Command::Browse);
+    go(&mut c, Command::BrowseItem(0));
+    go(&mut c, Command::BrowseSearch("x".into()));
+    assert_eq!(c.view.browse_rows.len(), PAGE);
+    assert!(c.view.browse_status.contains("지원하지"));
+}
+
+#[test]
+fn rows_stop_growing_at_the_slot_count() {
+    struct Many;
+    impl Catalog for Many {
+        fn sources(&self) -> Vec<SourceItem> {
+            Fake.sources()
+        }
+        fn browse(&self, at: &SourceRef, page: u32) -> Result<SourcePage, SourceError> {
+            let items = (0..25)
+                .map(|i| {
+                    item(
+                        &at.provider,
+                        &format!("p{page}-{i}"),
+                        &format!("{page}.{i}"),
+                    )
+                })
+                .collect();
+            Ok(SourcePage {
+                items,
+                next_page: Some(page + 1),
+            })
+        }
+    }
+    let mut c = Controller::new(FakeEngine::default()).with_catalog(Box::new(Many));
+    go(&mut c, Command::Browse);
+    go(&mut c, Command::BrowseItem(0));
+    let listing = c.view.browse_listing;
+    go(&mut c, Command::BrowseMore);
+    assert!(c.view.browse_more);
+    // Appending keeps the scroll position; only a new listing starts at the top.
+    assert_eq!(c.view.browse_listing, listing);
+    go(&mut c, Command::BrowseMore);
+    assert_eq!(c.view.browse_rows.len(), BROWSE_ROWS);
+    assert!(!c.view.browse_more);
+}
+
+#[test]
+fn search_button_reads_the_typed_query() {
+    let mut c = Controller::new(FakeEngine::default()).with_catalog(Box::new(Fake));
+    go(&mut c, Command::Browse);
+    go(&mut c, Command::BrowseItem(0));
+    let (mut session, mut doc) = Session::mount(&c.view).unwrap();
+    doc.update_module_props(meari_props(&c.view)).unwrap();
+    kinekino_player_ui::activate(&mut doc, "browseSearch").unwrap();
+    assert_eq!(
+        session.commands(&doc).unwrap(),
+        vec![Command::BrowseSearch(String::new())]
+    );
 }

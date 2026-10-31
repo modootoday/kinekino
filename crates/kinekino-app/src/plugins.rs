@@ -95,6 +95,10 @@ impl Catalog for PluginCatalog {
             .browse(at, page)
     }
 
+    fn search(&self, provider: &str, query: &str, page: u32) -> Result<SourcePage, SourceError> {
+        self.provider(provider)?.search(query, page)
+    }
+
     fn resolve(&self, playable: &SourceRef) -> Result<Vec<StreamCandidate>, SourceError> {
         self.provider(&playable.provider)?.resolve(playable)
     }
