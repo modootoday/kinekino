@@ -101,3 +101,11 @@ the eyeless first frame; the eyes-open frame is now the idle mascot state only.
 ## 작품 탐색 only with a browse plugin
 
 - `View.has_browse_plugin` is true only when the attached catalog lists at least one source; otherwise the start screen offers only 파일 열기. The host knows just this flag, with no plugin names or site shapes. Mockups: `start-no-plugin`, `start-with-plugin`.
+
+## 스튜디오 편집 기능 목업 범위
+
+- 범위: `examples/ui_mockups/studio.rs`의 공통 프레임(제목 표시줄 로고, 스튜디오 내비, 본문, 인스펙터, 작업 대기열 바)과 screens.md의 스튜디오 화면 20개(overview, skip, subtitles, ocr, correction, convert, subject, short, short-recommend, short-batch, raw-frame, snapshot, cards, asset2d, projection, projection-package, download, models, queue, export), 시청 화면 2개(viewing-skip, viewing-web).
+- 목업은 props 없이 고정 TSX로 마운트하고(`Mockup`, 세션 `fixed`) 실제 상태와 연결하지 않는다. 컨트롤은 정적이다.
+- 호스트에 없는 기능(모델 실행, 대기열 처리, 내보내기, 3D 투영, 웹 탐색)은 목업 그림으로만 표현한다.
+- 비범위: 실제 편집 기능 구현, 상호작용, 툴팁·도움말, 초안 일러스트 재현(그라데이션 그림으로 대체), 3D 원근 표현, 실제 외부 사이트 이름·연결.
+- 마스코트: 제목 표시줄·시작 화면은 정지 상태 로고, 빈 상태는 idle 프레임, 오류는 error 프레임을 쓴다.

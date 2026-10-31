@@ -20,6 +20,10 @@ fn screen_tsx(screen: &str) -> Option<String> {
         "studio-projection-package" => projection_package(),
         "studio-download" => download(),
         "studio-models" => models(),
+        "studio-queue" => queue_screen(),
+        "studio-export" => export(),
+        "viewing-skip" => viewing_skip(),
+        "viewing-web" => viewing_web(),
         _ => return None,
     })
 }
@@ -481,4 +485,67 @@ fn models() -> String {
         &btn("ks-outline ks-wide", "refresh", "업데이트 확인"),
     ]);
     frame(9, &main, &insp, &queue(0, &[], false))
+}
+
+fn queue_screen() -> String {
+    let st = |cls: &str, label: &str| format!(r#"<span className="ks-step{cls}"><i></i>{label}</span>"#);
+    let main = c(&[
+        &h("작업 대기열", "", "추가한 작업을 순서대로 처리합니다."),
+        &row(&c(&[&chip("ks-on", "전체"), &chip("", "실행 중"), &chip("", "확인 필요"), &chip("", "실패"), &chip("", "완료"), GROW, &p("ks-l", "동시 실행 수"), &sel("1"), &btn("ks-primary", "play", "전체 시작")])),
+        &table(&[0, 150, 120, 80, 60], &["작업", "입력", "상태", "진행", ""], &[
+            cells(&[&c(&[&i("subtitles"), " 자막 생성 · 예시 회차"]), "모델 선택 필요", &chip("ks-chip-violet", "확인 필요"), "-", &i("more-vertical")]),
+            cells(&[&c(&[&i("clip"), " 숏폼 · 예시 클립"]), "클립 구간 1개", &chip("ks-chip-gray", "대기"), "-", &i("more-vertical")]),
+            cells(&[&c(&[&i("segments"), " 구간 감지 · 예시 회차"]), "전체 구간", &chip("ks-chip-gray", "취소됨"), "-", &i("more-vertical")]),
+        ], Some(0)),
+        GROW,
+        &note("", "info", "<span>작업 처리 중에도 다른 기능을 계속 쓸 수 있습니다.</span>"),
+    ]);
+    let insp = c(&[
+        &insp_title("subtitles", "자막 생성"),
+        &sec("", &row(&c(&[&st(" ks-on", "입력 확인"), &st("", "대기"), &st("", "실행"), &st("", "검토"), &st("", "완료")]))),
+        &note("", "info", "<span>입력 정보를 확인하고 있습니다.</span><span className=\"ks-small\">필요한 설정을 모두 마치면 실행됩니다.</span>"),
+        &sec("작업 입력", &c(&[&f("영상 파일", "예시 회차.mp4"), &f("언어", "자동"), &f("모델", "<b className=\"ks-hl\">선택 필요</b>"), &f("출력 형식", &sel("SRT"))])),
+        &row(&c(&[&btn("ks-outline ks-grow", "refresh", "다시 시도"), &btn("ks-off ks-grow", "", "취소")])),
+        &sec("진단 정보", &note("ks-err", "warning", "<span>모델을 선택해 주세요.</span>")),
+    ]);
+    frame(usize::MAX, &main, &insp, &queue(3, &[], true))
+}
+
+fn export() -> String {
+    let main = c(&[
+        &h("내보내기 확인", "", "선택한 숏폼 클립을 내보내기 전에 설정을 확인하세요."),
+        &stage("flex: 1", ""),
+        &transport("00:00 / 00:30", 0, &["volume", "fullscreen"]),
+        &format!(r#"<div className="ks-card" style="flex: 0 0 auto"><h3>내보내기 요약</h3><div className="ks-row">{}<div className="ks-col" style="gap: 2px"><b>숏폼 클립 01</b><span className="ks-small">원본: 예시 회차 00:32 - 01:02 · 30초</span></div></div>{}{}{}{}</div>"#,
+            pic("", "flex: 0 0 90px; height: 50px", ""), f("출력 형식", "MP4 (H.264, AAC)"), f("해상도", "1080 × 1920 (세로)"), f("자막", "한국어 (영상에 포함)"), f("오디오", "원본 오디오 포함")),
+    ]);
+    let insp = c(&[
+        &sec("저장 위치", &c(&[&row(&c(&[&i("folder"), &input("동영상 / kinekino"), &btn("", "", "찾아보기")])), &p("ks-l", "파일 이름"), &input("short-01.mp4")])),
+        &note("ks-warn", "warning", "<span>같은 이름의 파일이 있습니다.</span>"),
+        &sec("", &c(&[&radio(true, "새 이름으로 저장 (권장)"), &p("ks-small", "short-01 (1).mp4 로 저장합니다."), &radio(false, "덮어쓰기"), &p("ks-small", "기존 파일을 바꿉니다.")])),
+        &sec("확인 사항", &c(&[&f("재생 시간", "30초"), &f("형식", "MP4"), &f("해상도", "1080 × 1920"), &f("자막", "한국어")])),
+        &row(&c(&[&btn("ks-outline ks-grow", "", "취소"), &btn("ks-outline ks-grow", "", "뒤로"), &btn("ks-primary ks-grow", "", "저장 시작")])),
+    ]);
+    frame(3, &main, &insp, &queue(0, &[], false))
+}
+
+fn viewing_skip() -> String {
+    let body = format!(r#"<div className="ks-view">{}<div className="ks-vbar">{}</div></div>"#,
+        stage("flex: 1", r#"<div className="ks-overlay" style="right: 16px; top: 14px"><span className="ks-hl">AI 구간</span><span className="ks-small">· 수동 확인</span></div><div className="ks-overlay ks-skipbtn" style="right: 16px; bottom: 34px"><span>오프닝 건너뛰기</span></div><span className="ks-small ks-overlay-plain" style="right: 18px; bottom: 16px">00:32 - 01:58</span>"#),
+        c(&[&strip(1, "", &[(2, 6, "ks-range"), (92, 6, "ks-range-violet")], Some(4)), &row(&c(&[&i("previous"), &i("pause"), &i("next"), &p("", "01:06 / 24:00"), GROW, &i("volume"), &slider(70), &i("list"), &i("fullscreen")]))]));
+    shell(&body, "별빛 여행 · 03화")
+}
+
+fn viewing_web() -> String {
+    let item = |n: &str| format!(r#"<div className="ks-card ks-row ks-webrow">{}<div className="ks-col ks-grow" style="gap: 8px"><b>예시 작품 {n}</b><span className="ks-ph" style="width: 60%"></span><span className="ks-ph" style="width: 40%"></span></div>{}</div>"#,
+        pic("", "flex: 0 0 120px; height: 66px", ""), btn("ks-outline", "forward", "회차 보기"));
+    let body = format!(r#"<div className="ks-view ks-web"><div className="ks-row ks-webtop">{}{GROW}{}{GROW}</div><div className="ks-col ks-webmain">{}{}{}{}{}{}</div>{}<div className="ks-vbar">{}</div></div>"#,
+        btn("", "back", "플레이어로 돌아가기"),
+        tabs(&[("play", "방영중"), ("list", "종영"), ("track-video", "극장판")], 0),
+        "<h1>작품 탐색</h1>", p("ks-muted", "호환 웹 탐색 화면"),
+        format!(r#"<span className="ks-input ks-grow">{}작품명 검색</span>"#, i("search")),
+        item("01"), item("02"), item("03"),
+        note("", "info", "<span>회차를 선택하면 플레이어로 연결됩니다.</span>"),
+        row(&c(&[&i("play"), &i("previous"), &i("next"), &slider(30), &p("ks-small", "--:-- / --:--"), GROW, &i("fullscreen")])));
+    shell(&body, "작품 탐색")
 }

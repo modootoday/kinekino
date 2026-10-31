@@ -215,3 +215,17 @@ b.ks-err { color: #ff6b6b; font-weight: 600; text-decoration: line-through; }
 .ks-frame { padding: 4px; border-radius: 4px; border: 1px solid transparent; flex: 0 0 auto; }
 .ks-frame.ks-on { border-color: var(--aw-accent); }
 .ks-input.ks-grow { justify-content: flex-start; display: flex; align-items: center; gap: 6px; }
+.ks-view { flex: 1; display: flex; flex-direction: column; min-height: 0; background: #0c0d0f; }
+.ks-view > .ks-stage { border-radius: 0; }
+.ks-vbar { flex: 0 0 auto; display: flex; flex-direction: column; gap: 6px; padding: 8px 14px; background: #121316; }
+.ks-vbar .ks-strip { height: 6px; }
+.ks-skipbtn { border-color: var(--aw-accent); font-size: 14px; font-weight: 700; padding: 8px 14px; }
+.ks-overlay-plain { position: absolute; }
+.ks-web { padding: 0; }
+.ks-webtop { padding: 8px 14px; flex: 0 0 auto; border-bottom: 1px solid #2c2f34; }
+.ks-webmain { flex: 1; padding: 16px 28px; gap: 10px; min-height: 0; }
+.ks-webmain h1 { margin: 0; font-size: 24px; }
+.ks-webmain > .ks-input { flex: 0 0 auto; }
+.ks-webrow { flex: 0 0 auto; flex-direction: row; align-items: center; }
+.ks-ph { height: 8px; border-radius: 4px; background: #2b2e33; }
+.ks-web > .ks-note { margin: 0 28px 8px; flex: 0 0 auto; }
