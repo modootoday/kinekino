@@ -23,12 +23,16 @@ pub struct View {
     pub fullscreen: bool,
     pub maximized: bool,
     pub panel_open: bool,
+    /// The ⋮ (더 보기) menu above the transport bar.
+    pub menu_open: bool,
     pub controls_visible: bool,
     pub position: f64,
     pub duration: f64,
     pub volume: f64,
     pub muted: bool,
     pub status: String,
+    /// A short notice over the video (bottom toast) while playing; cleared after a while.
+    pub notice: String,
     /// Current subtitle cue from the engine (`sub-text`), drawn over the video.
     pub subtitle: String,
 }
@@ -45,19 +49,21 @@ impl Default for View {
             fullscreen: false,
             maximized: false,
             panel_open: false,
+            menu_open: false,
             controls_visible: true,
             position: 0.0,
             duration: 0.0,
             volume: 100.0,
             muted: false,
             status: String::new(),
+            notice: String::new(),
             subtitle: String::new(),
         }
     }
 }
 
 /// Fixed buttons whose click counters the host watches (episode rows add `ep{i}`).
-pub const BUTTONS: [&str; 13] = [
+pub const BUTTONS: [&str; 16] = [
     "open",
     "browse",
     "previous",
@@ -71,6 +77,9 @@ pub const BUTTONS: [&str; 13] = [
     "maximize",
     "close",
     "panelClose",
+    "menuOpen",
+    "menuEpisodes",
+    "menuFullscreen",
 ];
 
 /// `m:ss`, or `h:mm:ss` from one hour.
@@ -118,10 +127,27 @@ pub fn props(view: &View) -> BTreeMap<String, Prop> {
         ("title".to_owned(), Prop::Text(view.title.clone())),
         ("work".to_owned(), Prop::Text(view.work.clone())),
         ("status".to_owned(), Prop::Text(view.status.clone())),
+        ("notice".to_owned(), Prop::Text(view.notice.clone())),
+        (
+            "noNotice".to_owned(),
+            Prop::Bool(!view.has_media || view.notice.is_empty()),
+        ),
         ("hasMedia".to_owned(), Prop::Bool(view.has_media)),
         ("noMedia".to_owned(), Prop::Bool(!view.has_media)),
         ("fullscreen".to_owned(), Prop::Bool(view.fullscreen)),
         ("panelOpen".to_owned(), Prop::Bool(view.panel_open)),
+        ("noMenu".to_owned(), Prop::Bool(!view.menu_open)),
+        (
+            "menuPanelLabel".to_owned(),
+            Prop::Text(
+                if view.panel_open {
+                    "회차 목록 닫기"
+                } else {
+                    "회차 목록 열기"
+                }
+                .into(),
+            ),
+        ),
         (
             "subtitle1".to_owned(),
             Prop::Text(lines.first().cloned().unwrap_or_default()),
@@ -252,7 +278,7 @@ fn icon_button(id: &str, label: &str, icon: &str, extra: &str) -> String {
 /// TSX for a window with `episodes` fixed rows.
 pub fn build(episodes: &[Episode]) -> String {
     let mut types = String::from(
-        "context: string; title: string; work: string; status: string; hasMedia: boolean; noMedia: boolean; fullscreen: boolean; panelOpen: boolean; subtitle1: string; subtitle2: string; noSubtitle: boolean; noSubtitle2: boolean; rootClass: string; frameClass: string; transportClass: string; playIcon: string; playLabel: string; volumeIcon: string; maximizeIcon: string; maximizeLabel: string; fullscreenLabel: string; position: string; duration: string; seek: string; volume: string;",
+        "context: string; title: string; work: string; status: string; notice: string; noNotice: boolean; hasMedia: boolean; noMedia: boolean; fullscreen: boolean; panelOpen: boolean; noMenu: boolean; menuPanelLabel: string; subtitle1: string; subtitle2: string; noSubtitle: boolean; noSubtitle2: boolean; rootClass: string; frameClass: string; transportClass: string; playIcon: string; playLabel: string; volumeIcon: string; maximizeIcon: string; maximizeLabel: string; fullscreenLabel: string; position: string; duration: string; seek: string; volume: string;",
     );
     let mut state = String::new();
     let mut rows = String::new();
@@ -300,6 +326,7 @@ export function KinekinoPlayer(props: Props) {{
     <div className="aw-viewing-stage">
       <video id="video" className="aw-viewing-video" tabIndex="-1" aria-hidden="true" hidden={{props.noMedia}}></video>
       <p id="subtitle" className="kk-subtitle" aria-live="polite" hidden={{props.noSubtitle}}><span className="kk-subtitle-line">{{props.subtitle1}}</span><span className="kk-subtitle-line" hidden={{props.noSubtitle2}}>{{props.subtitle2}}</span></p>
+      <p id="notice" className="kk-toast" role="status" hidden={{props.noNotice}}><span className="kk-toast-text">{{props.notice}}</span></p>
       <section id="start" className="aw-viewing-start" aria-label="시청 시작" hidden={{props.hasMedia}}>
         <div className="aw-start-content">
           <span className="aw-start-mark" aria-hidden="true"></span>
@@ -328,7 +355,14 @@ export function KinekinoPlayer(props: Props) {{
           <span className="aw-divider"></span>
           {episodes}
           {fullscreen}
-          {more}
+          <div className="kk-more">
+            {more}
+            <div id="menu" className="kk-menu" role="menu" aria-label="더 보기" hidden={{props.noMenu}}>
+              <button id="menuOpen" className="aw-button kk-menu-item" role="menuitem" {c_menu_open}><span className="aw-icon aw-icon-folder" aria-hidden="true"></span>파일 열기…<span className="kk-menu-key">Ctrl+O</span></button>
+              <button id="menuEpisodes" className="aw-button kk-menu-item" role="menuitem" {c_menu_episodes}><span className="aw-icon aw-icon-episodes" aria-hidden="true"></span>{{props.menuPanelLabel}}</button>
+              <button id="menuFullscreen" className="aw-button kk-menu-item" role="menuitem" {c_menu_fullscreen}><span className="aw-icon aw-icon-fullscreen" aria-hidden="true"></span>{{props.fullscreenLabel}}<span className="kk-menu-key">F</span></button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -363,6 +397,9 @@ export function KinekinoPlayer(props: Props) {{
             "aw-caption aw-caption-close"
         ),
         c_open = click("open"),
+        c_menu_open = click("menuOpen"),
+        c_menu_episodes = click("menuEpisodes"),
+        c_menu_fullscreen = click("menuFullscreen"),
         c_browse = click("browse"),
         prev = icon_button(
             "previous",
