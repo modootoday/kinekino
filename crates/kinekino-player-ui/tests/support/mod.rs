@@ -41,3 +41,13 @@ impl Engine for FakeEngine {
             .flatten()
     }
 }
+
+/// Applies `command` and waits for any plugin call it started.
+#[allow(dead_code)]
+pub fn go<E: kinekino_player_ui::Engine>(
+    c: &mut kinekino_player_ui::Controller<E>,
+    command: kinekino_player_ui::Command,
+) {
+    c.apply(command);
+    c.finish();
+}

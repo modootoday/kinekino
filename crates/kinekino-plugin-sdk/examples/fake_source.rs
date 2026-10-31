@@ -55,6 +55,7 @@ struct FakeSource;
 
 impl SourcePlugin for FakeSource {
     fn browse(&mut self, category: &Ref, page: u32) -> Response {
+        delay();
         if category.id.is_empty() {
             let all = CATEGORIES
                 .iter()
@@ -138,6 +139,16 @@ impl SourcePlugin for FakeSource {
                 headers: vec![("Referer".into(), format!("{base}/watch"))],
             }],
         }
+    }
+}
+
+/// `KINEKINO_FAKE_DELAY_MS` makes listings slow, to watch the player stay responsive.
+fn delay() {
+    if let Some(ms) = std::env::var("KINEKINO_FAKE_DELAY_MS")
+        .ok()
+        .and_then(|v| v.parse().ok())
+    {
+        std::thread::sleep(std::time::Duration::from_millis(ms));
     }
 }
 

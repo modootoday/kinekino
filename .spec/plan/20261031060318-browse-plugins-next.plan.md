@@ -27,3 +27,4 @@ rel:
 
 - 2026-10-31 1단계 전: 소스 목록 → 루트 목록 → 항목 목록, `더 보기`, 뒤로·Esc, 거절 안내까지 연결(`feat/browse-plugins`).
 - 2026-10-31 1·2단계 완료(`feat/plugin-playlist-resolve`): 범용 container/playable, resolve와 허용 목록, 재생목록 변경 시 재마운트, END_FILE 사유 확인. 데스크톱에서 합성 플러그인으로 재생·다음 항목 확인.
+- 2026-10-31 3단계 완료(`feat/async-plugin-calls`): browse·resolve를 작업 스레드로, "불러오는 중…" 표시, 늦은 응답 폐기. 데스크톱에서 3초 지연 합성 플러그인으로 창이 계속 반응함을 확인.
