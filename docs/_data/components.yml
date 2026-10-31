@@ -8,9 +8,7 @@ features:
   params: { cols: { allowed: [2, 3] } }
   slots: { items: { required: true } }
 split:
-  params: { visual: { allowed: [player-mock] }, scene: { allowed: [playback, timeline, review, settings, agent] } }
-code-split:   # copy + the section's sh code block as a terminal window (no visual include)
-  params: {}
+  params: { visual: { allowed: [player-mock, code] }, scene: { allowed: [playback, timeline, review, settings, agent] }, chrome: { allowed: [terminal] } }
 platform-list:
   slots: { items: { required: true } }
 timeline:

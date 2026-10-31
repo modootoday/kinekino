@@ -6,7 +6,7 @@ nav_order: 4
 hero: { c: split, visual: player-mock, scene: agent }
 sections:
   - { c: features, cols: 2 }
-  - { c: code-split }
+  - { c: split, visual: code, chrome: terminal }
   - { c: prose }
 ---
 
