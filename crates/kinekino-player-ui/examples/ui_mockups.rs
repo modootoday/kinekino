@@ -14,6 +14,9 @@ use kinekino_core::port::error::PortResult;
 use kinekino_player_ui::{Controller, Engine, PlaylistItem, Options, View, run};
 use std::path::PathBuf;
 
+#[path = "ui_mockups/studio.rs"]
+mod studio;
+
 /// Screens of the design drafts that the current player can already show.
 const SCREENS: [(&str, &str); 11] = [
     ("start", "첫 화면: 파일 열기와 작품 탐색"),
@@ -183,9 +186,22 @@ fn main() -> Result<(), String> {
         for (name, about) in SCREENS {
             println!("{name:16} {about}");
         }
+        for (name, draft, about) in studio::SCREENS {
+            println!("{name:26} {about} ({draft})");
+        }
         return Ok(());
     };
-    let view = view_for(screen).ok_or_else(|| format!("unknown screen {screen}; see --list"))?;
+    let studio = studio::mockup(screen);
+    let view = match &studio {
+        Some((_, video)) => {
+            let mut v = View::default();
+            v.has_media = *video;
+            v.playing = *video;
+            Some(v)
+        }
+        None => view_for(screen),
+    }
+    .ok_or_else(|| format!("unknown screen {screen}; see --list"))?;
     let mut controller = Controller::new(StillEngine {
         cue: (!view.subtitle.is_empty()).then(|| view.subtitle.clone()),
     });
@@ -196,6 +212,7 @@ fn main() -> Result<(), String> {
         Options {
             smoke: capture.is_some(),
             capture,
+            mockup: studio.map(|(m, _)| m),
         },
     )?;
     println!(

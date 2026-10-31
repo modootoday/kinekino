@@ -58,3 +58,15 @@ const ICONS: [(&str, &[u8]); 22] = [
 pub fn prepare() -> Result<Styles, String> {
     prepare_with(&STYLES, &ICONS)
 }
+
+/// The player styles plus a mockup's extra stylesheets and icons.
+pub fn prepare_extra(styles: &[(&str, &str)], icons: &[(&str, &[u8])]) -> Result<Styles, String> {
+    let all: Vec<(&str, &str)> = STYLES.iter().copied().chain(styles.iter().copied()).collect();
+    let mut set: Vec<(&str, &[u8])> = ICONS.to_vec();
+    for icon in icons {
+        if !set.iter().any(|(p, _)| p == &icon.0) {
+            set.push(*icon);
+        }
+    }
+    prepare_with(&all, &set)
+}
