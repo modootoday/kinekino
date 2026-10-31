@@ -39,6 +39,8 @@ pub enum Command {
     BrowseBack,
     /// Search the open source for the typed text (검색 button or Enter in the field).
     BrowseSearch(String),
+    /// Switch the browse rows between a list and a grid of tiles.
+    BrowseLayout,
     /// Seek target as a 0–1 fraction of the duration.
     Seek(f64),
     /// Volume 0–100.
@@ -104,6 +106,7 @@ fn command(button: &str) -> Command {
         "maximize" => Command::Maximize,
         "browseMore" => Command::BrowseMore,
         "browseBack" => Command::BrowseBack,
+        "browseLayout" => Command::BrowseLayout,
         _ => Command::Close,
     }
 }
