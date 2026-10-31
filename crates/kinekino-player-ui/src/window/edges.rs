@@ -15,9 +15,11 @@ use winit::event::{ElementState, WindowEvent};
 pub const RESIZE_BAND: f64 = 8.0;
 
 /// The smallest window an edge drag leaves (physical pixels).
+#[cfg_attr(not(all(unix, not(target_os = "macos"))), allow(dead_code))]
 pub const MIN_SIZE: (i32, i32) = (480, 270);
 
 /// A window's outer rectangle in root (screen) coordinates, physical pixels.
+#[cfg_attr(not(all(unix, not(target_os = "macos"))), allow(dead_code))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Rect {
     pub x: i32,
@@ -28,6 +30,7 @@ pub struct Rect {
 
 /// `start` dragged by (`dx`, `dy`) on the edge or corner `direction` (EWMH numbering); the
 /// opposite edges stay put and the size never goes below `min`.
+#[cfg_attr(not(all(unix, not(target_os = "macos"))), allow(dead_code))]
 pub fn resized(start: Rect, direction: u32, dx: i32, dy: i32, min: (i32, i32)) -> Rect {
     let (west, east) = (matches!(direction, 0 | 6 | 7), matches!(direction, 2..=4));
     let (north, south) = (matches!(direction, 0..=2), matches!(direction, 4..=6));
@@ -113,7 +116,10 @@ impl<E: Engine> App<E> {
         }
         accepted
     }
+}
 
+#[cfg(all(unix, not(target_os = "macos")))]
+impl<E: Engine> App<E> {
     /// Starts an edge drag when the press is in the invisible band along the window edge.
     /// Pointer and window size come from the X server in one unit (physical pixels).
     /// `press` is the button event's own position (window-relative, physical pixels): the
@@ -224,6 +230,7 @@ impl<E: Engine> App<E> {
 }
 
 /// The screen position of a press at `press` (window-relative) in a window at `rect`.
+#[cfg_attr(not(all(unix, not(target_os = "macos"))), allow(dead_code))]
 pub fn press_root(rect: Rect, press: (f64, f64)) -> (i32, i32) {
     (
         rect.x + press.0.floor() as i32,
