@@ -186,7 +186,6 @@ impl<E: Engine> Controller<E> {
             .map(|(i, f)| PlaylistItem {
                 number: format!("{:02}", i + 1),
                 title: stem(f),
-                duration: String::new(),
             })
             .collect();
         self.view.work = media
@@ -217,7 +216,6 @@ impl<E: Engine> Controller<E> {
             .map(|(i, e)| PlaylistItem {
                 number: format!("{:02}", i + 1),
                 title: e.title.clone(),
-                duration: String::new(),
             })
             .collect();
         self.view.work = self

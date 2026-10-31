@@ -106,7 +106,6 @@ fn playing(view: &mut View) {
     .map(|(i, t)| PlaylistItem {
         number: format!("{:02}", i + 1),
         title: (*t).into(),
-        duration: ["23:40", "24:00", "24:00", "23:55", "24:10", "26:30"][i].into(),
     })
     .collect();
     view.current = Some(2);
@@ -119,6 +118,7 @@ fn playing(view: &mut View) {
 
 fn browsing(view: &mut View, heading: &str, rows: usize) {
     view.browsing = true;
+    view.has_browse_plugin = true;
     view.browse_heading = heading.into();
     view.browse_rows = (1..=rows).map(|i| format!("예시 항목 {i:02}")).collect();
 }

@@ -60,19 +60,27 @@
 .aw-connection-status.kk-mood-idle { background-image: url("../../../assets/design/icons/mascot-idle.png"); }
 .aw-connection-status.kk-mood-loading { background-image: url("../../../assets/design/icons/mascot-loading.png"); }
 .aw-connection-status.kk-mood-error { background-image: url("../../../assets/design/icons/mascot-error.png"); }
-/* Playlist: docked inside the stage (below the title bar, above the transport), so the
-   window buttons never move. Columns: marker, number, title, duration (PotPlayer-style list). */
+/* Playlist: docked inside the stage (below the title bar, above the full-width transport)
+   so the window buttons never move. Same pattern as the draft's list panel
+   (v2/viewing/native-player-playback, 1.5x render; values below are its CSS px):
+   42px header, 46px list title, 45px flat rows split by 1px lines, current row amber. */
 .kk-player-root .kk-docked > :not(.kk-playlist) { margin-right: var(--aw-episode-panel); }
-.kk-player-root .kk-playlist { position: absolute; top: 0; right: 0; bottom: 0; width: var(--aw-episode-panel); z-index: 2; min-height: 0; overflow: hidden; border-left: var(--aw-border-thin) solid var(--aw-border); background: var(--aw-surface-panel); }
+.kk-player-root .kk-playlist { position: absolute; top: 0; right: 0; bottom: 0; width: var(--aw-episode-panel); z-index: 2; min-height: 0; overflow: hidden; border-left: var(--aw-border-thin) solid #34363a; background: #1b1e22; }
 .kk-player-root .kk-playlist[hidden] { display: none; }
-.kk-player-root .kk-playlist > .aw-catalog-browser { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.kk-player-root .kk-playlist > .aw-catalog-browser { display: flex; flex-direction: column; gap: 0; height: 100%; min-height: 0; padding: 0; }
+.kk-player-root .kk-playlist .aw-episode-heading { height: 42px; padding: 0 6px 0 15px; border-bottom: var(--aw-border-thin) solid #34363a; }
+.kk-player-root .kk-playlist .aw-episode-heading h2 { font-size: 15px; font-weight: var(--aw-font-semibold); color: var(--aw-text); }
+.kk-player-root .kk-playlist .aw-episode-title { height: 46px; display: flex; align-items: center; padding: 0 15px; border-bottom: var(--aw-border-thin) solid #34363a; font-size: 14px; font-weight: var(--aw-font-semibold); color: var(--aw-text); }
 .kk-player-root .kk-playlist .aw-catalog-lists { flex: 1 1 auto; min-height: 0; overflow: auto; }
-.kk-player-root .kk-pl-row { gap: var(--aw-space-2); align-items: center; }
-.kk-player-root .kk-pl-mark { flex: 0 0 16px; display: flex; color: var(--aw-accent); }
-.kk-player-root .kk-pl-num { flex: 0 0 auto; min-width: 24px; color: var(--aw-text-secondary); font-variant-numeric: tabular-nums; }
-.kk-player-root .kk-pl-dur { flex: 0 0 auto; color: var(--aw-text-secondary); font-size: var(--aw-font-small); font-variant-numeric: tabular-nums; }
+.kk-player-root .kk-playlist [role="radiogroup"] { display: flex; flex-direction: column; gap: 0; }
+.kk-player-root .kk-playlist .kk-pl-row { height: 45px; min-height: 45px; gap: 0; align-items: center; padding: 0; border: 0; border-left: 2px solid transparent; border-bottom: var(--aw-border-thin) solid #34363a; border-radius: 0; background: transparent; color: var(--aw-text); font-size: 14px; }
+.kk-player-root .kk-playlist .kk-pl-row[aria-current="true"] { border-left-color: var(--aw-accent); background: #2f2a23; color: var(--aw-accent); }
+.kk-player-root .kk-pl-mark { flex: 0 0 31px; display: flex; justify-content: flex-end; padding-right: 4px; color: var(--aw-accent); }
+.kk-player-root .kk-pl-mark .aw-icon { width: 10px; height: 10px; }
+.kk-player-root .kk-pl-num { flex: 0 0 38px; color: var(--aw-text-secondary); font-variant-numeric: tabular-nums; }
 .kk-player-root .kk-pl-row[aria-current="true"] .kk-pl-num { color: var(--aw-accent); }
-.kk-player-root .kk-pl-filter { display: flex; padding: 0 var(--aw-space-2) var(--aw-space-2); }
-.kk-player-root .kk-pl-filter .aw-text-input { flex: 1 1 auto; min-width: 0; }
-.kk-player-root .kk-pl-tools { flex: 0 0 auto; display: flex; gap: var(--aw-space-1); padding: var(--aw-space-2); border-top: var(--aw-border-thin) solid var(--aw-border); }
-.kk-player-root .kk-pl-tools .aw-button { flex: 1 1 0; min-width: 0; padding-left: 0; padding-right: 0; white-space: nowrap; }
+/* Draft: the playback engine named small at the transport's right end. */
+.kk-player-root .kk-engine-label { padding: 0 var(--aw-space-2); color: var(--aw-text-secondary); font-size: var(--aw-font-small); white-space: nowrap; }
+/* 작품 탐색 list mode uses the playlist's flat 45px rows (grid mode keeps tiles). */
+.kk-player-root .kk-browse-panel [role="list"]:not(.kk-grid) { gap: 0; }
+.kk-player-root .kk-browse-panel [role="list"]:not(.kk-grid) .aw-episode-row { height: 45px; min-height: 45px; padding: 0 15px; border: 0; border-bottom: var(--aw-border-thin) solid #34363a; border-radius: 0; background: transparent; font-size: 14px; }

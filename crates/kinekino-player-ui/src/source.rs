@@ -10,8 +10,6 @@ pub const PRODUCT: &str = "kinekino";
 pub struct PlaylistItem {
     pub number: String,
     pub title: String,
-    /// "m:ss" when known; empty hides the column value.
-    pub duration: String,
 }
 
 /// Everything the window shows. Times are seconds; volume is 0–100.
@@ -424,10 +422,9 @@ pub fn build(episodes: &[PlaylistItem]) -> String {
             "  const [ep{i}Count, setep{i}Count] = useState(0);\n"
         ));
         rows.push_str(&format!(
-            "<button id=\"ep{i}\" role=\"radio\" className=\"aw-button aw-episode-row kk-pl-row\" aria-checked={{props.aria{i}}} aria-current={{props.aria{i}}} onClick={{() => setep{i}Count(p => p + 1)}}><span className=\"kk-pl-mark\"><span className=\"aw-icon aw-icon-play\" aria-hidden=\"true\" hidden={{!props.cur{i}}}></span></span><span className=\"kk-pl-num\">{}</span><span className=\"aw-episode-row-title\">{}</span><span className=\"kk-pl-dur\">{}</span></button>\n",
+            "<button id=\"ep{i}\" role=\"radio\" className=\"aw-button aw-episode-row kk-pl-row\" aria-checked={{props.aria{i}}} aria-current={{props.aria{i}}} onClick={{() => setep{i}Count(p => p + 1)}}><span className=\"kk-pl-mark\"><span className=\"aw-icon aw-icon-play\" aria-hidden=\"true\" hidden={{!props.cur{i}}}></span></span><span className=\"kk-pl-num\">{}</span><span className=\"aw-episode-row-title\">{}</span></button>\n",
             jsx_text(&e.number),
-            jsx_text(&e.title),
-            jsx_text(&e.duration)
+            jsx_text(&e.title)
         ));
     }
     let click = |id: &str| format!("onClick={{() => set{id}Count(p => p + 1)}}");
@@ -486,16 +483,8 @@ export function KinekinoPlayer(props: Props) {{
         <div className="aw-catalog-browser">
           <div className="aw-episode-heading"><h2>재생목록</h2>{panel_close}</div>
           <p className="aw-episode-title">{{props.work}}</p>
-          <div className="kk-pl-filter" role="search"><input className="aw-text-input" type="text" aria-label="목록에서 찾기" placeholder="목록에서 찾기" disabled={{true}}/></div>
           <div className="aw-episode-body aw-catalog-lists"><div role="radiogroup" aria-label="재생 항목">
 {rows}          </div></div>
-          <div className="kk-pl-tools" role="toolbar" aria-label="재생목록 도구">
-            <button className="aw-button" disabled={{true}} title="아직 연결되지 않음">추가</button>
-            <button className="aw-button" disabled={{true}} title="아직 연결되지 않음">삭제</button>
-            <button className="aw-button" disabled={{true}} title="아직 연결되지 않음">정렬</button>
-            <button className="aw-button" disabled={{true}} title="아직 연결되지 않음">반복</button>
-            <button className="aw-button" disabled={{true}} title="아직 연결되지 않음">무작위</button>
-          </div>
         </div>
       </aside>
     </div>
@@ -522,6 +511,8 @@ export function KinekinoPlayer(props: Props) {{
               <button id="menuFullscreen" className="aw-button kk-menu-item" role="menuitem" {c_menu_fullscreen}><span className="aw-icon aw-icon-fullscreen" aria-hidden="true"></span>{{props.fullscreenLabel}}<span className="kk-menu-key">F</span></button>
             </div>
           </div>
+          <span className="aw-divider"></span>
+          <span className="kk-engine-label" title="재생 엔진">네이티브</span>
         </div>
       </div>
     </section>
