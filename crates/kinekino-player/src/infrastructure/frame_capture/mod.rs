@@ -34,7 +34,26 @@ impl FfmpegFrameCapture {
     pub fn discover() -> Self {
         let ffmpeg = find_tool("ffmpeg");
         let ffprobe = find_tool("ffprobe");
-        Self::inspect_tools(ffmpeg, ffprobe, Vec::new())
+        // Tool version/feature probes spawn owned processes; ask once per tool pair per process.
+        type Key = (Option<PathBuf>, Option<PathBuf>);
+        static CACHE: std::sync::OnceLock<
+            std::sync::Mutex<std::collections::HashMap<Key, FrameCaptureCapability>>,
+        > = std::sync::OnceLock::new();
+        let key = (ffmpeg.clone(), ffprobe.clone());
+        let cache = CACHE.get_or_init(Default::default);
+        if let Some(capability) = cache.lock().ok().and_then(|map| map.get(&key).cloned()) {
+            return Self {
+                capability,
+                _tool_guards: Vec::new(),
+            };
+        }
+        let found = Self::inspect_tools(ffmpeg, ffprobe, Vec::new());
+        if found.capability.available
+            && let Ok(mut map) = cache.lock()
+        {
+            map.insert(key, found.capability.clone());
+        }
+        found
     }
 
     /// Trusted host configuration only; no search or fallback on a rejected pin.
