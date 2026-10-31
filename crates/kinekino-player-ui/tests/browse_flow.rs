@@ -4,7 +4,7 @@ use kinekino_core::source::{
     SourceError, SourceItem, SourceItemKind, SourcePage, SourceRef, StreamCandidate,
 };
 use kinekino_player_ui::{BROWSE_ROWS, Catalog, Command, Controller, Session, meari_props};
-use support::FakeEngine;
+use support::{FakeEngine, go};
 
 fn item(provider: &str, id: &str, title: &str) -> SourceItem {
     SourceItem {
@@ -86,7 +86,9 @@ fn playlist(at: &SourceRef) -> SourcePage {
         next_page: None,
     }
 }
-/// Root → a container listing → its playables (the queue) → playing a resolved stream with only allowed
+
+/// Root → a container listing → its playables (the queue) → playing a resolved stream with
+/// only allowed
 /// headers; "next" resolves the following entry, a failing resolve says why.
 #[test]
 fn playables_become_the_queue_and_resolve() {
@@ -113,14 +115,14 @@ fn playables_become_the_queue_and_resolve() {
         }
     }
     let mut c = Controller::new(FakeEngine::default()).with_catalog(Box::new(Root));
-    c.apply(Command::Browse);
-    c.apply(Command::BrowseItem(0)); // source root
-    c.apply(Command::BrowseItem(0)); // category "Series"
+    go(&mut c, Command::Browse);
+    go(&mut c, Command::BrowseItem(0)); // source root
+    go(&mut c, Command::BrowseItem(0)); // category "Series"
     assert_eq!(c.view.browse_rows, vec!["Show One"]);
-    c.apply(Command::BrowseItem(0)); // series → episodes
+    go(&mut c, Command::BrowseItem(0)); // series → episodes
     assert_eq!(c.view.browse_heading, "Show One");
     assert_eq!(c.view.browse_rows.len(), 3);
-    c.apply(Command::BrowseItem(1)); // episode 2
+    go(&mut c, Command::BrowseItem(1)); // episode 2
     assert!(c.view.has_media && !c.view.browsing);
     assert_eq!(c.view.title, "Show One 2");
     assert_eq!(c.view.work, "Show One");
@@ -132,11 +134,11 @@ fn playables_become_the_queue_and_resolve() {
             .contains(&"set referrer http://127.0.0.1:9/watch".to_string())
     );
     assert!(!c.engine.commands.iter().any(|x| x.contains("secret")));
-    c.apply(Command::Next);
+    go(&mut c, Command::Next);
     // Episode 3 does not resolve: the current one keeps playing, a notice says why.
     assert_eq!(c.view.title, "Show One 2");
     assert!(c.view.notice.contains("재생할 수 없습니다"));
-    c.apply(Command::Episode(0));
+    go(&mut c, Command::Episode(0));
     assert_eq!(
         c.engine.loaded.last().unwrap(),
         "http://127.0.0.1:9/s1-e1.mp4"
@@ -146,7 +148,7 @@ fn playables_become_the_queue_and_resolve() {
 #[test]
 fn without_sources_the_start_screen_says_so() {
     let mut c = Controller::new(FakeEngine::default());
-    c.apply(Command::Browse);
+    go(&mut c, Command::Browse);
     assert!(!c.view.browsing);
     assert!(c.view.status.contains("소스 플러그인"));
 }
@@ -154,38 +156,38 @@ fn without_sources_the_start_screen_says_so() {
 #[test]
 fn browse_lists_sources_then_pages_then_goes_back() {
     let mut c = Controller::new(FakeEngine::default()).with_catalog(Box::new(Fake));
-    c.apply(Command::Browse);
+    go(&mut c, Command::Browse);
     assert!(c.view.browsing);
     assert_eq!(c.view.browse_rows, vec!["com.example.fixture"]);
-    c.apply(Command::BrowseItem(0));
+    go(&mut c, Command::BrowseItem(0));
     assert_eq!(c.view.browse_heading, "com.example.fixture");
     assert_eq!(c.view.browse_rows.len(), BROWSE_ROWS);
     assert!(c.view.browse_more);
-    c.apply(Command::BrowseMore);
+    go(&mut c, Command::BrowseMore);
     assert_eq!(c.view.browse_rows.first().unwrap(), "Work 12");
     assert!(!c.view.browse_more);
     // A refusing item keeps the listing and shows why.
-    c.apply(Command::BrowseItem(0));
+    go(&mut c, Command::BrowseItem(0));
     assert_eq!(c.view.browse_rows.first().unwrap(), "Work 12");
     assert!(!c.view.browse_status.is_empty());
-    c.apply(Command::BrowseBack);
+    go(&mut c, Command::BrowseBack);
     assert_eq!(c.view.browse_rows, vec!["com.example.fixture"]);
     // Esc (windowed) steps back out of the view.
-    c.apply(Command::ExitFullscreen);
+    go(&mut c, Command::ExitFullscreen);
     assert!(!c.view.browsing);
 }
 
 #[test]
 fn browse_rows_are_clickable_in_the_document() {
     let mut c = Controller::new(FakeEngine::default()).with_catalog(Box::new(Fake));
-    c.apply(Command::Browse);
+    go(&mut c, Command::Browse);
     let (mut session, mut doc) = Session::mount(&c.view).unwrap();
     doc.update_module_props(meari_props(&c.view)).unwrap();
     kinekino_player_ui::activate(&mut doc, "br0").unwrap();
     let commands = session.commands(&doc).unwrap();
     assert_eq!(commands, vec![Command::BrowseItem(0)]);
     for command in commands {
-        c.apply(command);
+        go(&mut c, command);
     }
     doc.update_module_props(meari_props(&c.view)).unwrap();
     kinekino_player_ui::activate(&mut doc, "browseMore").unwrap();
@@ -194,4 +196,37 @@ fn browse_rows_are_clickable_in_the_document() {
         session.commands(&doc).unwrap(),
         vec![Command::BrowseBack, Command::BrowseMore]
     );
+}
+
+/// A slow plugin does not hold up the window: the command returns at once with a
+/// loading line, and the listing shows when the answer comes.
+#[test]
+fn slow_plugin_calls_run_off_the_ui_thread() {
+    struct Slow;
+    impl Catalog for Slow {
+        fn sources(&self) -> Vec<SourceItem> {
+            Fake.sources()
+        }
+        fn browse(&self, at: &SourceRef, page: u32) -> Result<SourcePage, SourceError> {
+            std::thread::sleep(std::time::Duration::from_millis(400));
+            Fake.browse(at, page)
+        }
+    }
+    let mut c = Controller::new(FakeEngine::default()).with_catalog(Box::new(Slow));
+    c.apply(Command::Browse);
+    let started = std::time::Instant::now();
+    c.apply(Command::BrowseItem(0));
+    assert!(started.elapsed() < std::time::Duration::from_millis(200));
+    assert_eq!(c.view.browse_status, "불러오는 중…");
+    assert_eq!(c.view.browse_rows, vec!["com.example.fixture"]);
+    c.finish();
+    assert_eq!(c.view.browse_rows.len(), BROWSE_ROWS);
+    assert!(c.view.browse_status.is_empty());
+    // Back while a call is in flight drops its late answer.
+    c.apply(Command::BrowseMore);
+    c.apply(Command::BrowseBack);
+    assert_eq!(c.view.browse_rows, vec!["com.example.fixture"]);
+    std::thread::sleep(std::time::Duration::from_millis(500));
+    c.poll();
+    assert_eq!(c.view.browse_rows, vec!["com.example.fixture"]);
 }
