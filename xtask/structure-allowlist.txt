@@ -124,14 +124,6 @@ file-and-dir crates/kinekino-player/src/infrastructure/vad_fixed_inputs.rs
 file-and-dir crates/kinekino-player/src/infrastructure/vad_product_host/inputs.rs
 file-and-dir crates/kinekino-player/src/infrastructure/vad_product_host/inputs/audio.rs
 file-and-dir crates/kinekino-player/src/infrastructure/vad_worker_payload.rs
-file-and-dir crates/kinekino-player/src/presentation/chrome.rs
-file-and-dir crates/kinekino-player/src/presentation/chrome/interaction.rs
-file-and-dir crates/kinekino-player/src/presentation/components/filter_bar.rs
-file-and-dir crates/kinekino-player/src/presentation/design_assets.rs
-file-and-dir crates/kinekino-player/src/presentation/design_preview.rs
-file-and-dir crates/kinekino-player/src/presentation/studio/model_review/state.rs
-file-and-dir crates/kinekino-player/src/presentation/studio/model_review/state/tests.rs
-file-and-dir crates/kinekino-player/src/presentation/studio/screens/conversion.rs
 file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/player_shell/document.rs
 file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/player_shell/document/product_frame.rs
 file-and-dir crates/kinekino-player/src/presentation/web_ui_adapter/player_shell/proposal_chooser.rs
@@ -234,7 +226,6 @@ file-lines crates/kinekino-player/src/infrastructure/mpv/parent_binding/tests.rs
 file-lines crates/kinekino-player/src/infrastructure/mpv/parent_router/tests.rs (>1900)
 file-lines crates/kinekino-player/src/infrastructure/mpv/session_engine.rs (>800)
 file-lines crates/kinekino-player/src/infrastructure/vad_fixed_inputs.rs (>600)
-file-lines crates/kinekino-player/src/presentation/studio/mod.rs (>600)
 file-lines crates/kinekino-player/src/presentation/web_ui_adapter/proposals/document_factory.rs (>600)
 file-lines crates/kinekino-player/src/presentation/web_ui_adapter/proposals/initial_panel.rs (>600)
 file-lines crates/kinekino-player/src/presentation/web_ui_adapter/proposals/initial_panel/tests.rs (>600)
@@ -267,9 +258,6 @@ flat-dir crates/kinekino-player/src/infrastructure/browser_provider
 flat-dir crates/kinekino-player/src/infrastructure/local_host
 flat-dir crates/kinekino-player/src/infrastructure/mpv
 flat-dir crates/kinekino-player/src/infrastructure/mpv/guarded_command
-flat-dir crates/kinekino-player/src/presentation
-flat-dir crates/kinekino-player/src/presentation/components
-flat-dir crates/kinekino-player/src/presentation/studio/screens
 flat-dir crates/kinekino-player/src/presentation/web_ui_adapter/player_shell
 flat-dir crates/kinekino-player/src/presentation/web_ui_adapter/proposals
 flat-dir crates/kinekino-player/tests
