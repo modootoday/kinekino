@@ -19,6 +19,7 @@ rel:
 - P1 3단계(완료, `6908a43`): `kinekino-app`, `kinekino-core`(OsPolicy 포트), `kinekino-platform`, `kinekino-player`, `kinekino-process`, `kinekino-host`.
 - P1 4단계(진행 예정·진행 중): `kinekino-player` 전반(cfg 99개 파일 중 다수), `kinekino-platform*`, `kinekino-app`, `assembly/meari`(마지막), lint allowlist(`_baseline`·xtask allowlist).
 - 공유 충돌 지점: 루트 `Cargo.toml`(members·workspace.dependencies), `xtask/src/structure/boundary/mod.rs`의 `CLASSES`, lint allowlist 파일. 병렬 작업은 이 세 곳을 한 줄 추가로만 건드린다.
+- 2026-10-31 ⑧ 1단계 병합: IPC 이전·windows 의존성 범위 확정([ADR](../adr/20261031110642-ipc-allowlist-windows-deps-scope.adr.md)), allowlist 361→349, Windows 타깃 clippy(platform-unix 제외) 통과로 복구. 남은 것: file-lines 분할, r-cfg 80파일 포트 이전, mpv Win32·데스크톱 호스트 게이트(Windows 실측 필요).
 
 ## 분류
 
