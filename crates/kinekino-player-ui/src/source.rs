@@ -46,6 +46,9 @@ pub struct View {
     pub browse_listing: u64,
     pub browse_more: bool,
     pub browse_status: String,
+    /// Which mascot state the status line shows (design: mascot-preset-reference app-state
+    /// combos): "" none, "loading", "error", "idle".
+    pub browse_mood: &'static str,
     /// The search field (shown inside an open source).
     pub browse_search: bool,
     /// Rows drawn as a grid of tiles instead of a list (kept across listings).
@@ -79,6 +82,7 @@ impl Default for View {
             browse_listing: 0,
             browse_more: false,
             browse_status: String::new(),
+            browse_mood: "",
             browse_search: false,
             browse_grid: false,
         }
@@ -182,6 +186,14 @@ pub fn props(view: &View) -> BTreeMap<String, Prop> {
         (
             "browseStatus".to_owned(),
             Prop::Text(view.browse_status.clone()),
+        ),
+        (
+            "browseStatusClass".to_owned(),
+            Prop::Text(if view.browse_mood.is_empty() {
+                "aw-connection-status".to_owned()
+            } else {
+                format!("aw-connection-status kk-mood-{}", view.browse_mood)
+            }),
         ),
         (
             "noBrowseStatus".to_owned(),
@@ -374,7 +386,7 @@ fn icon_button(id: &str, label: &str, icon: &str, extra: &str) -> String {
 /// TSX for a window with `episodes` fixed rows.
 pub fn build(episodes: &[Episode]) -> String {
     let mut types = String::from(
-        "context: string; title: string; work: string; status: string; notice: string; noNotice: boolean; hasMedia: boolean; noMedia: boolean; hideStart: boolean; noBrowse: boolean; browseClass: string; browseHeading: string; browseStatus: string; noBrowseStatus: boolean; noBrowseMore: boolean; noBrowseSearch: boolean; searchClass: string; rowsClass: string; layoutIcon: string; layoutLabel: string; fullscreen: boolean; panelOpen: boolean; noMenu: boolean; menuPanelLabel: string; subtitle1: string; subtitle2: string; noSubtitle: boolean; noSubtitle2: boolean; rootClass: string; frameClass: string; transportClass: string; playIcon: string; playLabel: string; volumeIcon: string; maximizeIcon: string; maximizeLabel: string; fullscreenLabel: string; position: string; duration: string; seek: string; volume: string;",
+        "context: string; title: string; work: string; status: string; notice: string; noNotice: boolean; hasMedia: boolean; noMedia: boolean; hideStart: boolean; noBrowse: boolean; browseClass: string; browseHeading: string; browseStatus: string; browseStatusClass: string; noBrowseStatus: boolean; noBrowseMore: boolean; noBrowseSearch: boolean; searchClass: string; rowsClass: string; layoutIcon: string; layoutLabel: string; fullscreen: boolean; panelOpen: boolean; noMenu: boolean; menuPanelLabel: string; subtitle1: string; subtitle2: string; noSubtitle: boolean; noSubtitle2: boolean; rootClass: string; frameClass: string; transportClass: string; playIcon: string; playLabel: string; volumeIcon: string; maximizeIcon: string; maximizeLabel: string; fullscreenLabel: string; position: string; duration: string; seek: string; volume: string;",
     );
     let mut state = String::new();
     let mut rows = String::new();
@@ -450,7 +462,7 @@ export function KinekinoPlayer(props: Props) {{
         <div className="aw-catalog-browser kk-browse-panel">
           <div className="aw-episode-heading"><h2>{{props.browseHeading}}</h2><div className="kk-heading-actions">{browse_layout}{browse_back}</div></div>
           <div className={{props.searchClass}} role="search"><input id="browseQuery" className="aw-text-input" type="text" disabled={{props.noBrowseSearch}} aria-label="검색어" placeholder="검색어" value={{queryAt}} onChange={{event => setQueryAt(event.currentTarget.value)}}/><button id="browseSearch" className="aw-button" disabled={{props.noBrowseSearch}} {c_browse_search}><span className="aw-icon aw-icon-search" aria-hidden="true"></span>검색</button></div>
-          <p id="browseStatus" className="aw-connection-status" role="status" hidden={{props.noBrowseStatus}}>{{props.browseStatus}}</p>
+          <p id="browseStatus" className={{props.browseStatusClass}} role="status" hidden={{props.noBrowseStatus}}>{{props.browseStatus}}</p>
           <div id="browseLists" className="aw-catalog-lists"><div id="browseRows" className={{props.rowsClass}} role="list" aria-label="목록">
 {browse_rows}          </div></div>
           <button id="browseMore" className="aw-button" hidden={{props.noBrowseMore}} {c_browse_more}>더 보기</button>

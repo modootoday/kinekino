@@ -285,6 +285,7 @@ impl<E: Engine> Controller<E> {
                 }));
                 if self.view.browsing {
                     self.view.browse_status = LOADING.into();
+                    self.view.browse_mood = "loading";
                 }
             }
             None => {}
@@ -314,6 +315,7 @@ impl<E: Engine> Controller<E> {
                 self.view.has_media = true;
                 self.view.browsing = false;
                 self.view.browse_status.clear();
+                self.view.browse_mood = "";
                 self.view.playing = true;
                 self.view.position = 0.0;
                 self.view.duration = 0.0;
@@ -330,6 +332,7 @@ impl<E: Engine> Controller<E> {
         let message = format!("재생할 수 없습니다: {why}");
         if self.view.browsing {
             self.view.browse_status = message;
+            self.view.browse_mood = "error";
         } else if self.view.has_media {
             self.view.notice = message;
             self.notice_since = Some(Instant::now());

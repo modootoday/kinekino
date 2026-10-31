@@ -162,11 +162,13 @@ fn view_for(screen: &str) -> Option<View> {
         "browse-empty" => {
             browsing(&mut v, "작품 탐색", 0);
             v.browse_status = "설치된 소스 플러그인이 없습니다. 플러그인 폴더에 소스 플러그인을 설치하면 작품을 탐색할 수 있습니다.".into();
+            v.browse_mood = "idle";
         }
         "browse-error" => {
             browsing(&mut v, "샘플 소스 B", 0);
             v.browse_search = true;
             v.browse_status = "소스에서 목록을 받지 못했습니다: 연결 시간이 초과되었습니다.".into();
+            v.browse_mood = "error";
         }
         _ => return None,
     }
