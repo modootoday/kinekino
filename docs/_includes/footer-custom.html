@@ -1,7 +1,7 @@
 {%- comment -%}Theme hook (jekyll-theme-modootoday footer-custom.html): site footer.{%- endcomment -%}
 {%- include i18n.html -%}
 <footer class="foot"><div class="wrap row">
-<nav class="foot-nav" aria-label="Footer">{% assign fk = "settings,cli,mascot" | split: "," %}{% for k in fk %}<a href="{% include url.html ref=k %}">{{ t.foot_nav[k] | default: t0.foot_nav[k] }}</a>{% endfor %}</nav>
+<nav class="foot-nav" aria-label="Footer">{% assign fk = "settings,cli,mascot" | split: "," %}{% for k in fk %}<a href="{% include modootoday/link.html ref=k %}">{{ t.foot_nav[k] | default: t0.foot_nav[k] }}</a>{% endfor %}</nav>
 <span>© 2026 kinekino · {{ t.footer | default: t0.footer }}</span>
 {% include twin-url.html page=page %}{% if twin %}<a href="{{ twin.url | relative_url }}">{{ t.md_twin | default: t0.md_twin }}</a>{% endif %}
 <a href="{{ llp | append: '/llms.txt' | relative_url }}">llms.txt</a>

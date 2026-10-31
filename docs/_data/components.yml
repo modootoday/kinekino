@@ -8,7 +8,7 @@ features:
   params: { cols: { allowed: [2, 3] } }
   slots: { items: { required: true } }
 split:
-  params: { visual: { allowed: [player-mock] }, scene: { allowed: [playback, timeline, review, settings, agent] } }
+  params: { visual: { allowed: [player-mock, code] }, scene: { allowed: [playback, timeline, review, settings, agent] }, chrome: { allowed: [terminal] } }
 platform-list:
   slots: { items: { required: true } }
 timeline:
