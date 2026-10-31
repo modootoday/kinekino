@@ -1,11 +1,11 @@
 //! Player behaviour without a window: commands → engine calls and view changes, engine
 //! polling → view. The window host only forwards `Effect`s it cannot do itself.
-use crate::catalog::{BROWSE_ROWS, Catalog};
+use crate::catalog::{BROWSE_ROWS, Catalog, STREAM_HEADERS};
 pub use crate::port::Engine;
 use crate::session::Command;
 use crate::source::{Episode, View};
 use kinekino_core::port::error::PortResult;
-use kinekino_core::source::{SourceError, SourceItem};
+use kinekino_core::source::{SourceError, SourceItem, SourceItemKind};
 use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 
@@ -60,10 +60,20 @@ fn stem(path: &Path) -> String {
         .map_or_else(String::new, |s| s.to_string_lossy().into_owned())
 }
 
+/// One entry of the play queue: a local file or a source plugin's playable item (resolved to a
+/// stream when it is played).
+#[derive(Debug, Clone)]
+enum Media {
+    Local(PathBuf),
+    Remote(SourceItem),
+}
+
 pub struct Controller<E: Engine> {
     pub engine: E,
     pub view: View,
-    files: Vec<PathBuf>,
+    files: Vec<Media>,
+    /// A stream set request headers that the next local file must clear.
+    headers_set: bool,
     /// Bumped when the episode rows change (the window remounts).
     pub generation: u64,
     last_input: Option<Instant>,
@@ -86,12 +96,16 @@ fn browse_error(e: &SourceError) -> String {
     }
 }
 
+/// Engine source, shown title and allowed request headers of a queue entry.
+type Located = (String, String, Vec<(String, String)>);
+
 impl<E: Engine> Controller<E> {
     pub fn new(engine: E) -> Self {
         Self {
             engine,
             view: View::default(),
             files: Vec::new(),
+            headers_set: false,
             generation: 0,
             last_input: None,
             notice_since: None,
@@ -160,6 +174,10 @@ impl<E: Engine> Controller<E> {
                 let Some(item) = self.listing.get(i).cloned() else {
                     return;
                 };
+                if item.kind == SourceItemKind::Playable {
+                    self.open_playlist(i);
+                    return;
+                }
                 if self.list(&item, 1) {
                     self.trail.push((item, 1));
                 }
@@ -230,24 +248,104 @@ impl<E: Engine> Controller<E> {
             .parent()
             .and_then(|d| d.file_name())
             .map_or_else(String::new, |s| s.to_string_lossy().into_owned());
-        self.files = files;
+        self.files = files.into_iter().map(Media::Local).collect();
         self.generation += 1;
         self.play(index);
     }
 
-    fn play(&mut self, index: usize) {
-        let Some(path) = self.files.get(index).cloned() else {
+    /// Plays row `row` of the shown listing: the listing's playables become the queue,
+    /// titled after the container the plugin listed them under.
+    fn open_playlist(&mut self, row: usize) {
+        let Some(chosen) = self.listing.get(row).cloned() else {
             return;
+        };
+        let queue: Vec<SourceItem> = self
+            .listing
+            .iter()
+            .filter(|i| i.kind == SourceItemKind::Playable)
+            .cloned()
+            .collect();
+        let index = queue.iter().position(|i| *i == chosen).unwrap_or(0);
+        self.view.episodes = queue
+            .iter()
+            .enumerate()
+            .map(|(i, e)| Episode {
+                number: format!("{:02}", i + 1),
+                title: e.title.clone(),
+            })
+            .collect();
+        self.view.work = self
+            .trail
+            .last()
+            .map_or_else(String::new, |(s, _)| s.title.clone());
+        self.files = queue.into_iter().map(Media::Remote).collect();
+        self.generation += 1;
+        self.play(index);
+    }
+
+    /// Engine source and request headers for a queue entry.
+    fn locate(&self, media: &Media) -> Result<Located, String> {
+        match media {
+            Media::Local(path) => Ok((path.to_string_lossy().into_owned(), stem(path), vec![])),
+            Media::Remote(item) => {
+                let catalog = self.catalog.as_ref().ok_or("소스 플러그인이 없습니다.")?;
+                let streams = catalog
+                    .resolve(&item.reference)
+                    .map_err(|e| browse_error(&e))?;
+                let stream = streams
+                    .into_iter()
+                    .next()
+                    .ok_or("소스가 재생할 스트림을 주지 않았습니다.")?;
+                let headers = stream
+                    .headers
+                    .into_iter()
+                    .filter(|(k, v)| {
+                        STREAM_HEADERS.iter().any(|h| h.eq_ignore_ascii_case(k))
+                            && !v.contains(['\r', '\n', ','])
+                    })
+                    .collect();
+                Ok((stream.url, item.title.clone(), headers))
+            }
+        }
+    }
+
+    /// mpv request headers for the next load; local files clear what a stream set.
+    fn set_headers(&mut self, remote: bool, headers: &[(String, String)]) -> PortResult<()> {
+        if !remote && !self.headers_set {
+            return Ok(());
+        }
+        self.headers_set = remote;
+        let field = |name: &str| {
+            headers
+                .iter()
+                .find(|(k, _)| k.eq_ignore_ascii_case(name))
+                .map(|(_, v)| v.as_str())
+        };
+        let referrer = field("Referer").unwrap_or("");
+        let agent = field("User-Agent").unwrap_or("libmpv");
+        let origin = field("Origin").map_or_else(String::new, |o| format!("Origin: {o}"));
+        self.engine.command(&["set", "referrer", referrer])?;
+        self.engine.command(&["set", "user-agent", agent])?;
+        self.engine.command(&["set", "http-header-fields", &origin])
+    }
+
+    fn play(&mut self, index: usize) {
+        let Some(media) = self.files.get(index).cloned() else {
+            return;
+        };
+        let (source, title, headers) = match self.locate(&media) {
+            Ok(located) => located,
+            Err(why) => return self.cannot_play(&why),
         };
         // Engines open paused on the first frame; viewing starts playing.
         let loaded = self
-            .engine
-            .load(&path.to_string_lossy(), 0.0)
+            .set_headers(matches!(media, Media::Remote(_)), &headers)
+            .and_then(|()| self.engine.load(&source, 0.0))
             .and_then(|()| self.engine.command(&["set", "pause", "no"]));
         match loaded {
             Ok(()) => {
                 self.view.current = Some(index);
-                self.view.title = stem(&path);
+                self.view.title = title;
                 self.view.has_media = true;
                 self.view.browsing = false;
                 self.view.playing = true;
@@ -256,7 +354,21 @@ impl<E: Engine> Controller<E> {
                 self.view.subtitle.clear();
                 self.view.status.clear();
             }
-            Err(e) => self.view.status = format!("재생할 수 없습니다: {}", e.message),
+            Err(e) => self.cannot_play(&e.message),
+        }
+    }
+
+    /// The reason shows where the user is: the browse view, over the video, or the start
+    /// screen.
+    fn cannot_play(&mut self, why: &str) {
+        let message = format!("재생할 수 없습니다: {why}");
+        if self.view.browsing {
+            self.view.browse_status = message;
+        } else if self.view.has_media {
+            self.view.notice = message;
+            self.notice_since = Some(Instant::now());
+        } else {
+            self.view.status = message;
         }
     }
 

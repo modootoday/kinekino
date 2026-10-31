@@ -1,7 +1,7 @@
 use super::{PluginManifest, wire};
 use kinekino_core::source::{
-    EpisodeAdjacency, SourceCapability, SourceError, SourceItem, SourceManifest, SourcePage,
-    SourceProvider, SourceRef, StreamCandidate,
+    EpisodeAdjacency, SourceCapability, SourceError, SourceItem, SourceItemKind, SourceManifest,
+    SourcePage, SourceProvider, SourceRef, StreamCandidate,
 };
 use std::io::{BufRead, BufReader, Write};
 use std::process::{Command, Stdio};
@@ -79,6 +79,10 @@ impl ProcessSource {
                     .map(|i| SourceItem {
                         reference: from_wire(i.reference),
                         title: i.title,
+                        kind: match i.kind {
+                            Some(wire::ItemKind::Playable) => SourceItemKind::Playable,
+                            _ => SourceItemKind::Container,
+                        },
                     })
                     .collect(),
                 next_page,
@@ -178,9 +182,40 @@ impl SourceProvider for ProcessSource {
     }
 }
 
+/// Host of an `https://` stream URL. Plain `http://` is accepted only for loopback hosts
+/// (a local test server or a plugin's own local proxy), and still needs the manifest entry.
 fn url_host(url: &str) -> Option<&str> {
-    let rest = url.strip_prefix("https://")?;
+    let (rest, plain) = match url.strip_prefix("https://") {
+        Some(r) => (r, false),
+        None => (url.strip_prefix("http://")?, true),
+    };
     let authority = rest.split(['/', '?', '#']).next()?;
     let host = authority.rsplit('@').next()?;
-    Some(host.split(':').next().unwrap_or(host))
+    let host = if host.starts_with('[') {
+        host.split_inclusive(']').next().unwrap_or(host)
+    } else {
+        host.split(':').next().unwrap_or(host)
+    };
+    (!plain || matches!(host, "127.0.0.1" | "localhost" | "[::1]")).then_some(host)
+}
+
+#[cfg(test)]
+mod url_tests {
+    use super::url_host;
+
+    #[test]
+    fn https_any_host_plain_http_only_loopback() {
+        assert_eq!(
+            url_host("https://media.example.test:8443/a"),
+            Some("media.example.test")
+        );
+        assert_eq!(
+            url_host("https://u@media.example.test/a"),
+            Some("media.example.test")
+        );
+        assert_eq!(url_host("http://127.0.0.1:8765/a.mp4"), Some("127.0.0.1"));
+        assert_eq!(url_host("http://[::1]:8765/a.mp4"), Some("[::1]"));
+        assert_eq!(url_host("http://media.example.test/a"), None);
+        assert_eq!(url_host("file:///etc/passwd"), None);
+    }
 }

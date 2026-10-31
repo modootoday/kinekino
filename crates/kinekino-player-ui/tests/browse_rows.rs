@@ -24,3 +24,35 @@ fn empty_browse_slots_are_not_drawn() {
     assert_eq!(height("#browseMore"), 0.0);
     assert_eq!(height("#start"), 0.0);
 }
+
+#[test]
+fn leaving_browse_for_an_episode_needs_a_remount() {
+    let mut view = View {
+        browsing: true,
+        browse_heading: "Fake airing 01".into(),
+        browse_rows: vec!["Fake airing 01 1화".into(), "Fake airing 01 2화".into()],
+        ..View::default()
+    };
+    let (session, _) = Session::mount(&view).unwrap();
+    view.browsing = false;
+    view.has_media = true;
+    view.playing = true;
+    view.title = "Fake airing 01 2화".into();
+    view.work = "Fake airing 01".into();
+    view.episodes = vec![
+        kinekino_player_ui::Episode {
+            number: "01".into(),
+            title: "Fake airing 01 1화".into(),
+        },
+        kinekino_player_ui::Episode {
+            number: "02".into(),
+            title: "Fake airing 01 2화".into(),
+        },
+    ];
+    view.current = Some(1);
+    assert!(!session.fits(&view));
+    let (session, mut doc) = Session::mount(&view).unwrap();
+    assert!(session.fits(&view));
+    let viewport = doc.viewport.clone();
+    doc.renderer.rasterize(&viewport).unwrap();
+}
