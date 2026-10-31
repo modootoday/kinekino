@@ -44,7 +44,9 @@ kinekino는 mpv 바이너리를 번들하거나 저장소에 커밋하지 않는
 | libuchardet0 0.0.8-1+b2 | `u/uchardet/…` | `eb772a1649d900ac46ffeab61a8b911e81d571f88ef5dcd0eed9aad5b45b003e` |
 | libva-wayland2 2.22.0-3 | `libv/libva/…` | `0ed2b236615b7dabee911e66152b3fb61572e6305811a9646cb4ef9828e3b78e` |
 
-절차: `curl -fLO <주소>` → `sha256sum -c`로 위 값 확인 → `dpkg-deb -x <deb> <workspace>/.localdeps/mpv/root` → `LD_LIBRARY_PATH=$R/usr/lib/x86_64-linux-gnu:$R/usr/lib/x86_64-linux-gnu/pipewire-0.3`(gate.sh가 설정). libmpv2 해시는 2026-10-31 deb.debian.org 원본을 다시 받아 일치를 확인했다.
+절차: `curl -fLO <주소>` → `sha256sum -c`로 위 값 확인 → `dpkg-deb -x <deb> <workspace>/.localdeps/mpv/root` → `LD_LIBRARY_PATH=$R/usr/lib/x86_64-linux-gnu:$R/usr/lib/x86_64-linux-gnu/pipewire-0.3`(`.github/scripts/dev-env.sh`가 설정). libmpv2 해시는 2026-10-31 deb.debian.org 원본을 다시 받아 일치를 확인했다.
+
+로컬 환경: `source .github/scripts/dev-env.sh`가 `PATH`(`$KINEKINO_LOCALDEPS/bin` 앞), `LD_LIBRARY_PATH`, `KINEKINO_LIBMPV`, `KINEKINO_MPV`, `MEARI_FONT_CACHE`를 한 번에 설정한다. 기본 `KINEKINO_LOCALDEPS=<workspace>/.localdeps`이며, 미리 지정한 값은 덮어쓰지 않는다. 이후 `cargo test`에 따로 export할 필요가 없다.
 
 시험: `kinekino-libmpv` 시험은 `vo=libmpv` 소프트웨어 렌더(`MPV_RENDER_API_TYPE_SW`, `rgb0`)와 `ao=null`로 화면 없이 돈다. ffmpeg 합성 영상(좌 빨강·우 파랑)으로 색·letterbox를 확인한다.
 
