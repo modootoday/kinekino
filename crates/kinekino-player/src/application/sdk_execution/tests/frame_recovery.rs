@@ -23,7 +23,7 @@ use std::{
 const SENTINEL: &[u8] = b"original SDK receipt collision evidence";
 fn roots() -> BTreeSet<PathBuf> {
     let prefix = format!("frame-owned-{}-", std::process::id());
-    fs::read_dir(std::env::temp_dir())
+    fs::read_dir(crate::infrastructure::frame_capture::process::evidence_base())
         .unwrap()
         .map(|entry| entry.unwrap().path())
         .filter(|path| {
