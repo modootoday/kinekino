@@ -8,6 +8,12 @@ fn screen_tsx(screen: &str) -> Option<String> {
         "studio-ocr" => ocr(),
         "studio-correction" => correction(),
         "studio-convert" => convert(),
+        "studio-subject" => subject(),
+        "studio-short" => short(),
+        "studio-short-recommend" => short_recommend(),
+        "studio-short-batch" => short_batch(),
+        "studio-raw-frame" => raw_frame(),
+        "studio-snapshot" => snapshot(),
         _ => return None,
     })
 }
@@ -167,4 +173,160 @@ fn convert() -> String {
         &btn("ks-primary ks-wide", "export", "변환 후 내보내기"),
     ]);
     frame(1, &main, &insp, &queue(0, &[], false))
+}
+
+fn tools(list: &[&str]) -> String {
+    let mut s = String::from(r#"<div className="ks-col ks-rail" style="flex: 0 0 34px; gap: 6px">"#);
+    for (k, n) in list.iter().enumerate() {
+        let on = if k == 0 { " ks-on" } else { "" };
+        s.push_str(&format!(r#"<span className="ks-tool{on}">{}</span>"#, i(n)));
+    }
+    s + "</div>"
+}
+fn track(icon: &str, label: &str, body: &str) -> String {
+    format!(r#"<div className="ks-row ks-track">{}<span className="ks-l" style="flex: 0 0 60px">{label}</span><div className="ks-grow ks-trackbody">{body}</div></div>"#, i(icon))
+}
+
+fn subject() -> String {
+    let view = c(&[
+        &tools(&["selection-pointer", "brush-add", "eraser", "mask-exclude", "hand", "zoom-in"]),
+        &stage("flex: 1", r#"<div className="ks-box-cyan" style="left: 44%; top: 34%; width: 14%; height: 46%"></div><div className="ks-overlay" style="left: 44%; top: 26%"><span>피사체 1 · 94%</span></div>"#),
+    ]);
+    let main = c(&[
+        &h("피사체", "인식과 분할", "인물과 사물을 찾아 마스크로 분리하고 장면을 따라 추적합니다."),
+        &row(&c(&[&seg(&["원본", "마스크", "합성"], 0), GROW, &btn("", "eye", "외곽선"), &btn("", "refresh", "다시 계산")])),
+        &format!(r#"<div className="ks-row ks-grow" style="align-items: stretch">{view}</div>"#),
+        &transport("08:14 / 23:40", 35, &["volume", "fullscreen"]),
+        &strip(12, "", &[(30, 22, "ks-range"), (62, 6, "ks-range-violet")], Some(35)),
+        &row(&c(&[&chip("", "추적 08:02 - 13:10"), GROW, &chip("ks-chip-violet", "재확인 필요 14:40")])),
+    ]);
+    let insp = c(&[
+        &insp_title("subject", "피사체 목록"),
+        &table(&[24, 0, 60], &["", "이름", "신뢰도"], &[
+            cells(&[&check(true, ""), "피사체 1 · 인물", "94%"]),
+            cells(&[&check(false, ""), "피사체 2 · 인물", "81%"]),
+            cells(&[&check(false, ""), "배경 · 건물", "67%"]),
+        ], Some(0)),
+        &sec("탐지", &c(&[&f("모델", &sel("피사체 분할 · 기본")), &f("최소 신뢰도", &slider(60))])),
+        &sec("분할", &c(&[&f("가장자리 다듬기", &slider(40)), &check(true, "머리카락 보정")])),
+        &sec("추적", &c(&[&f("범위", &sel("현재 장면")), &check(true, "가림 후 다시 찾기")])),
+        &row(&c(&[&btn("ks-outline ks-grow", "", "마스크 저장"), &btn("ks-primary ks-grow", "play", "추적 시작")])),
+    ]);
+    frame(2, &main, &insp, &queue(0, &[], false))
+}
+
+fn short() -> String {
+    let crop = r#"<div className="ks-crop"><div className="ks-grid"></div></div>"#;
+    let views = format!(
+        r#"<div className="ks-row ks-grow" style="align-items: stretch; gap: 12px">{}<div className="ks-col" style="flex: 0 0 210px">{}{}</div></div>"#,
+        stage("flex: 1", crop),
+        p("ks-muted", "9:16 결과"),
+        pic("", "flex: 1", r#"<div className="ks-caption"><span>별이 정말 많네</span></div>"#)
+    );
+    let main = c(&[
+        &h("숏폼", "세로 영상 만들기", "장면을 골라 세로 화면으로 다시 구성합니다."),
+        &views,
+        &transport("03:10 / 23:40", 13, &["volume"]),
+        &ruler(&["03:00", "03:10", "03:20", "03:30", "03:40", "03:50"]),
+        &track("track-video", "영상", &strip(8, "", &[(10, 50, "ks-range")], Some(14))),
+        &track("track-subtitle", "자막", r#"<div className="ks-clips"><span style="left: 12%; width: 18%">오늘 밤에는…</span><span style="left: 34%; width: 22%">저기 호수…</span></div>"#),
+        &track("track-audio", "오디오", r#"<div className="ks-wave" style="height: 26px"></div>"#),
+    ]);
+    let insp = c(&[
+        &insp_title("clip", "숏폼 설정"),
+        &sec("화면", &c(&[&f("비율", &sel("9:16")), &f("해상도", &sel("1080 × 1920")), &f("길이", &input("00:40"))])),
+        &sec("구도", &c(&[&f("추적 대상", &sel("피사체 1")), &f("부드러움", &slider(60)), &check(true, "격자 표시")])),
+        &sec("자막", &c(&[&f("위치", &sel("하단")), &f("크기", &slider(50)), &check(true, "강조 단어 색상")])),
+        &btn("ks-primary ks-wide", "export", "숏폼 만들기"),
+    ]);
+    frame(3, &main, &insp, &queue(0, &[], false))
+}
+
+fn short_recommend() -> String {
+    let cand = |n: &str, t: &str, score: &str, why: &str, kind: &str, on: bool| {
+        let c2 = if on { " ks-on" } else { "" };
+        format!(r#"<div className="ks-card ks-cand{c2}"><div className="ks-row">{}<div className="ks-col ks-grow" style="gap: 4px"><span><b>후보 {n}</b> · {t}</span><span className="ks-small">근거: {why}</span></div><span className="ks-big">{score}</span>{}</div></div>"#,
+            pic(kind, "flex: 0 0 120px; height: 68px", ""), btn(if on { "ks-primary" } else { "" }, "", "선택"))
+    };
+    let main = c(&[
+        &h("숏폼", "추천 장면", "대사, 음악, 화면 변화를 보고 숏폼으로 쓸 만한 장면을 추천합니다."),
+        &stage("flex: 0 0 240px", ""),
+        &strip(12, "", &[(12, 4, "ks-range"), (46, 5, "ks-range"), (78, 4, "ks-range")], None),
+        &cand("1", "03:10 - 03:50", "92", "대사 밀도 높음 · 배경음 상승 · 밤하늘 전경", "", true),
+        &cand("2", "10:42 - 11:20", "85", "인물 클로즈업 · 감정 대사", "sunset", false),
+        &cand("3", "18:05 - 18:40", "78", "장면 전환 많음 · 웃음 반응", "day", false),
+    ]);
+    let insp = c(&[
+        &insp_title("clip", "추천 조건"),
+        &sec("길이", &c(&[&f("최소", &input("00:20")), &f("최대", &input("00:60"))])),
+        &sec("가중치", &c(&[&f("대사", &slider(70)), &f("음악", &slider(50)), &f("화면 변화", &slider(40))])),
+        &sec("제외", &c(&[&check(true, "오프닝/엔딩 제외"), &check(false, "자막 없는 장면 제외")])),
+        &btn("ks-primary ks-wide", "refresh", "다시 추천"),
+    ]);
+    frame(3, &main, &insp, &queue(0, &[], false))
+}
+
+fn short_batch() -> String {
+    let main = c(&[
+        &h("숏폼", "일괄 만들기", "여러 회차에서 같은 규칙으로 숏폼을 만듭니다."),
+        &table(&[24, 70, 0, 90, 90, 110], &["", "회차", "추천 장면", "길이", "후보", "상태"], &[
+            cells(&[&check(true, ""), "1화", "03:10 - 03:50 · 밤하늘 전경", "00:40", "3개", &chip("", "준비됨")]),
+            cells(&[&check(true, ""), "2화", "07:22 - 07:58 · 호숫가 대화", "00:36", "2개", &chip("", "준비됨")]),
+            cells(&[&check(true, ""), "3화", "12:01 - 12:45 · 등대 장면", "00:44", "4개", &chip("ks-chip-gray", "분석 전")]),
+            cells(&[&check(false, ""), "4화", "-", "-", "-", &chip("ks-chip-gray", "분석 전")]),
+            cells(&[&check(true, ""), "5화", "15:30 - 16:02 · 마을 축제", "00:32", "2개", &chip("ks-chip-violet", "재확인")]),
+        ], Some(0)),
+        &format!(r#"<div className="ks-card" style="flex: 0 0 auto"><h3>계획 요약</h3>{}{}{}{}</div>"#,
+            f("대상 회차", "4개"), f("만들 숏폼", "4개 · 9:16 · 1080 × 1920"), f("예상 시간", "약 12분"), f("저장 위치", "회차 폴더 / shorts")),
+    ]);
+    let insp = c(&[
+        &insp_title("clip", "일괄 규칙"),
+        &sec("선택 규칙", &c(&[&radio(true, "회차별 최고 점수 1개"), &radio(false, "점수 80 이상 모두")])),
+        &sec("출력", &c(&[&f("비율", &sel("9:16")), &f("자막", &sel("포함")), &check(true, "회차 번호 표시")])),
+        &btn("ks-primary ks-wide", "play", "4개 만들기 시작"),
+    ]);
+    frame(3, &main, &insp, &queue(0, &[], false))
+}
+
+fn raw_frame() -> String {
+    let fr = |label: &str, kind: &str, on: bool| {
+        let c2 = if on { " ks-on" } else { "" };
+        format!(r#"<div className="ks-col ks-frame{c2}" style="flex: 1">{}<span className="ks-small">{label}</span></div>"#, pic(kind, "height: 110px", ""))
+    };
+    let main = c(&[
+        &h("스냅샷", "원본 프레임", "자막과 효과 없이 원본 프레임을 그대로 저장합니다."),
+        &stage("flex: 1", ""),
+        &transport("12:04.18 / 23:40", 51, &["previous", "next"]),
+        &row(&c(&[&fr("이전 · 12:04.14", "", false), &fr("현재 · 12:04.18", "", true), &fr("다음 · 12:04.22", "", false)])),
+        &p("ks-muted", "저장 대기 (2)"),
+        &table(&[110, 0, 110, 90], &["시간", "파일 이름", "크기", "상태"], &[
+            cells(&["12:04.18", "ep01_120418.png", "1920 × 1080", &chip("", "대기")]),
+            cells(&["03:10.20", "ep01_031020.png", "1920 × 1080", &chip("ks-chip-gray", "저장됨")]),
+        ], None),
+    ]);
+    let insp = c(&[
+        &insp_title("image", "프레임 정보"),
+        &sec("파일", &c(&[&f("해상도", "1920 × 1080"), &f("프레임", "17,386"), &f("시간", "12:04.18"), &f("색 공간", "BT.709")])),
+        &sec("저장", &c(&[&f("형식", &sel("PNG")), &check(false, "자막 포함"), &check(true, "회차 폴더에 저장")])),
+        &btn("ks-primary ks-wide", "image", "현재 프레임 저장"),
+    ]);
+    frame(4, &main, &insp, &queue(0, &[], false))
+}
+
+fn snapshot() -> String {
+    let main = c(&[
+        &h("스냅샷", "꾸미기", "프레임에 제목과 글자를 얹어 이미지로 저장합니다."),
+        &stage("flex: 1", r#"<div className="ks-box" style="left: 10%; top: 12%; width: 46%; height: 22%"></div><div className="ks-overlay ks-title-text" style="left: 11%; top: 15%"><span>별이 쏟아지는 밤</span></div>"#),
+        &strip(10, "", &[(40, 10, "ks-range")], Some(45)),
+    ]);
+    let sw = |col: &str| format!(r#"<span className="ks-swatch" style="background: {col}"></span>"#);
+    let insp = c(&[
+        &insp_title("image", "글자 설정"),
+        &sec("내용", &c(&[&input("별이 쏟아지는 밤"), &f("글꼴", &sel("Noto Sans KR Bold")), &f("크기", &slider(60))])),
+        &sec("색상", &row(&c(&[&sw("#ffffff"), &sw("#f0b43c"), &sw("#4fd6e0"), &sw("#bca0eb"), &sw("#ff6b6b"), &sw("#1a1c20")]))),
+        &sec("효과", &c(&[&check(true, "그림자"), &check(false, "외곽선"), &f("투명도", &slider(100))])),
+        &sec("레이어", &c(&[&row(&c(&[&i("eye"), "제목 글자", GROW, &i("lock")])), &row(&c(&[&i("eye"), "원본 프레임", GROW, &i("lock")]))])),
+        &btn("ks-primary ks-wide", "export", "이미지 저장"),
+    ]);
+    frame(4, &main, &insp, &queue(0, &[], false))
 }
