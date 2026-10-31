@@ -10,6 +10,15 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 static NEXT: AtomicU64 = AtomicU64::new(0);
+/// Overrides the parent of owned-process evidence roots (default: `<temp>/kinekino-frame-owned`).
+pub(crate) const EVIDENCE_DIR_ENV: &str = "KINEKINO_PROCESS_EVIDENCE_DIR";
+
+/// Dedicated parent for per-process evidence roots, never bare `temp_dir()`.
+pub(crate) fn evidence_base() -> PathBuf {
+    std::env::var_os(EVIDENCE_DIR_ENV)
+        .map(PathBuf::from)
+        .unwrap_or_else(|| std::env::temp_dir().join("kinekino-frame-owned"))
+}
 
 pub(super) fn prepare(
     command: &Command,
@@ -55,7 +64,9 @@ pub(super) fn prepare(
         .duration_since(UNIX_EPOCH)
         .map_err(|_| error(std::io::Error::other("Clock before epoch")))?
         .as_nanos();
-    let root = std::env::temp_dir().join(format!(
+    let base = evidence_base();
+    std::fs::create_dir_all(&base).map_err(error)?;
+    let root = base.join(format!(
         "frame-owned-{}-{stamp}-{}",
         std::process::id(),
         NEXT.fetch_add(1, Ordering::Relaxed)

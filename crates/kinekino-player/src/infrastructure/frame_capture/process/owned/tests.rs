@@ -47,7 +47,7 @@ fn native_driver_unwind_closes_original_family_before_resuming_same_payload() {
     fs::create_dir(&root).unwrap();
     let prefix = format!("frame-owned-{}-", std::process::id());
     let evidence_roots = || {
-        fs::read_dir(std::env::temp_dir())
+        fs::read_dir(crate::infrastructure::frame_capture::process::evidence_base())
             .unwrap()
             .map(|entry| entry.unwrap().path())
             .filter(|path| {
