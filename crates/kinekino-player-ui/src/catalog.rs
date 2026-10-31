@@ -4,8 +4,9 @@ use kinekino_core::source::{
     SourceCapability, SourceError, SourceItem, SourcePage, SourceRef, StreamCandidate,
 };
 
-/// Listing rows the browse view shows per page (fixed slots, no remount).
-pub const BROWSE_ROWS: usize = 12;
+/// Row slots of the browse list (fixed, no remount). Pages append into them and the
+/// list scrolls; past this many rows "더 보기" hides (ADR 20261031103033).
+pub const BROWSE_ROWS: usize = 60;
 
 /// Called from worker threads (see `jobs`), so implementations are shared across them.
 pub trait Catalog: Send + Sync {
@@ -14,6 +15,10 @@ pub trait Catalog: Send + Sync {
     fn sources(&self) -> Vec<SourceItem>;
     /// One page under `at` (a source root or any listed item).
     fn browse(&self, at: &SourceRef, page: u32) -> Result<SourcePage, SourceError>;
+    /// One page of `provider`'s answers to `query` (its own interpretation).
+    fn search(&self, _provider: &str, _query: &str, _page: u32) -> Result<SourcePage, SourceError> {
+        Err(SourceError::Unsupported(SourceCapability::Search))
+    }
     /// Stream candidates for a playable item, already checked against the provider's
     /// declared media hosts.
     fn resolve(&self, _playable: &SourceRef) -> Result<Vec<StreamCandidate>, SourceError> {

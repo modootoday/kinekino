@@ -64,6 +64,7 @@ impl std::fmt::Display for HostError {
 impl std::error::Error for HostError {}
 
 mod nochild;
+mod typing;
 use nochild::NoChild;
 
 struct Shared<E: Engine> {
@@ -73,6 +74,7 @@ struct Shared<E: Engine> {
     texture: VideoTexture,
     effects: Vec<Effect>,
     dirty: bool,
+    listing: u64,
     ready: bool,
     capture: Option<PathBuf>,
     captured: bool,
@@ -124,6 +126,8 @@ impl<E: Engine> Shared<E> {
             .then(|| crate::session::meari_props(&self.controller.view));
         self.dirty = false;
         let capture = self.capture.take();
+        let shown = self.controller.view.browse_listing;
+        let fresh = std::mem::replace(&mut self.listing, shown) != shown;
         let has_media = self.controller.view.has_media;
         let ready = std::mem::take(&mut self.ready);
         let (texture, engine) = (&mut self.texture, &mut self.controller.engine);
@@ -132,6 +136,9 @@ impl<E: Engine> Shared<E> {
             .try_reproject(stamp, |doc| -> Result<bool, String> {
                 if let Some(props) = props {
                     doc.update_module_props(props)?;
+                }
+                if fresh {
+                    typing::to_top(doc);
                 }
                 if has_media {
                     let mut surface = Latched {
@@ -457,19 +464,17 @@ impl<E: Engine> ApplicationHandler for App<E> {
                 shared.dirty = true;
             }
         }
+        let mut typing = false;
         match &event {
             WindowEvent::ModifiersChanged(m) => self.modifiers = m.state(),
             WindowEvent::KeyboardInput { event: key, .. } if key.state == ElementState::Pressed => {
-                if let Some(command) =
-                    crate::keys::shortcut(self.modifiers, key.physical_key, key.repeat)
-                {
-                    self.shared.borrow_mut().run(command);
-                }
+                typing = self.shared.borrow_mut().key(self.modifiers, key);
             }
             _ => {}
         }
         // Space is the player's play/pause key: it must not also press a focused button.
-        if let WindowEvent::KeyboardInput { event: key, .. } = &event
+        if !typing
+            && let WindowEvent::KeyboardInput { event: key, .. } = &event
             && key.physical_key == PhysicalKey::Code(KeyCode::Space)
         {
             self.tick(event_loop);
@@ -529,6 +534,7 @@ pub fn run<E: Engine>(controller: Controller<E>, options: Options) -> Result<Rep
             texture: VideoTexture::default(),
             effects: Vec::new(),
             dirty: false,
+            listing: 0,
             ready: false,
             capture: None,
             captured: false,

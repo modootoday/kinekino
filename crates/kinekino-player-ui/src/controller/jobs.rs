@@ -12,21 +12,24 @@ use std::time::Duration;
 pub enum Then {
     /// Opened from the shown listing: push it.
     Push,
-    /// "More" on the top listing: remember the page.
+    /// "More" on the top listing: append and remember the page.
     Page,
     /// Back to the parent: the trail is already popped.
     Stay,
 }
 
+/// One opened listing: the item it lists, the last page shown, and the search query
+/// when it is a search result (then `item` is the source root it searched).
+#[derive(Debug, Clone, PartialEq)]
+pub struct Level {
+    pub item: SourceItem,
+    pub page: u32,
+    pub query: Option<String>,
+}
+
 pub enum Job {
-    List {
-        item: SourceItem,
-        page: u32,
-        then: Then,
-    },
-    Resolve {
-        index: usize,
-    },
+    List { level: Level, then: Then },
+    Resolve { index: usize },
 }
 
 pub enum Reply {

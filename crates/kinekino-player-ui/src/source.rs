@@ -41,8 +41,13 @@ pub struct View {
     pub browse_heading: String,
     /// At most `BROWSE_ROWS` titles of the current listing.
     pub browse_rows: Vec<String>,
+    /// Bumped when a new listing replaces the rows (not on 더 보기), so the window
+    /// scrolls the list back to its top.
+    pub browse_listing: u64,
     pub browse_more: bool,
     pub browse_status: String,
+    /// The search field (shown inside an open source).
+    pub browse_search: bool,
 }
 
 impl Default for View {
@@ -69,15 +74,18 @@ impl Default for View {
             browsing: false,
             browse_heading: String::new(),
             browse_rows: Vec::new(),
+            browse_listing: 0,
             browse_more: false,
             browse_status: String::new(),
+            browse_search: false,
         }
     }
 }
 
 /// Fixed buttons whose click counters the host watches (episode rows add `ep{i}`).
-pub const BUTTONS: [&str; 18] = [
+pub const BUTTONS: [&str; 19] = [
     "open",
+    "browseSearch",
     "browse",
     "previous",
     "playPause",
@@ -153,6 +161,16 @@ pub fn props(view: &View) -> BTreeMap<String, Prop> {
             Prop::Bool(view.has_media || view.browsing),
         ),
         ("noBrowse".to_owned(), Prop::Bool(!view.browsing)),
+        // Kept laid out (visibility, not display) so the search field always has its
+        // text editor: Meari creates it at layout and refuses an unlaid controlled input.
+        (
+            "browseClass".to_owned(),
+            Prop::Text(if view.browsing {
+                "aw-viewing-start kk-browse".into()
+            } else {
+                "aw-viewing-start kk-browse kk-off".into()
+            }),
+        ),
         (
             "browseHeading".to_owned(),
             Prop::Text(view.browse_heading.clone()),
@@ -166,6 +184,15 @@ pub fn props(view: &View) -> BTreeMap<String, Prop> {
             Prop::Bool(view.browse_status.is_empty()),
         ),
         ("noBrowseMore".to_owned(), Prop::Bool(!view.browse_more)),
+        ("noBrowseSearch".to_owned(), Prop::Bool(!view.browse_search)),
+        (
+            "searchClass".to_owned(),
+            Prop::Text(if view.browse_search {
+                "kk-browse-search".into()
+            } else {
+                "kk-browse-search kk-collapsed".into()
+            }),
+        ),
         ("noMedia".to_owned(), Prop::Bool(!view.has_media)),
         ("fullscreen".to_owned(), Prop::Bool(view.fullscreen)),
         ("panelOpen".to_owned(), Prop::Bool(view.panel_open)),
@@ -319,7 +346,7 @@ fn icon_button(id: &str, label: &str, icon: &str, extra: &str) -> String {
 /// TSX for a window with `episodes` fixed rows.
 pub fn build(episodes: &[Episode]) -> String {
     let mut types = String::from(
-        "context: string; title: string; work: string; status: string; notice: string; noNotice: boolean; hasMedia: boolean; noMedia: boolean; hideStart: boolean; noBrowse: boolean; browseHeading: string; browseStatus: string; noBrowseStatus: boolean; noBrowseMore: boolean; fullscreen: boolean; panelOpen: boolean; noMenu: boolean; menuPanelLabel: string; subtitle1: string; subtitle2: string; noSubtitle: boolean; noSubtitle2: boolean; rootClass: string; frameClass: string; transportClass: string; playIcon: string; playLabel: string; volumeIcon: string; maximizeIcon: string; maximizeLabel: string; fullscreenLabel: string; position: string; duration: string; seek: string; volume: string;",
+        "context: string; title: string; work: string; status: string; notice: string; noNotice: boolean; hasMedia: boolean; noMedia: boolean; hideStart: boolean; noBrowse: boolean; browseClass: string; browseHeading: string; browseStatus: string; noBrowseStatus: boolean; noBrowseMore: boolean; noBrowseSearch: boolean; searchClass: string; fullscreen: boolean; panelOpen: boolean; noMenu: boolean; menuPanelLabel: string; subtitle1: string; subtitle2: string; noSubtitle: boolean; noSubtitle2: boolean; rootClass: string; frameClass: string; transportClass: string; playIcon: string; playLabel: string; volumeIcon: string; maximizeIcon: string; maximizeLabel: string; fullscreenLabel: string; position: string; duration: string; seek: string; volume: string;",
     );
     let mut state = String::new();
     let mut rows = String::new();
@@ -362,6 +389,7 @@ type Props = {{ {types} }};
 export function KinekinoPlayer(props: Props) {{
 {state}  const [seekAt, setSeekAt] = useState("");
   const [volumeAt, setVolumeAt] = useState("");
+  const [queryAt, setQueryAt] = useState("");
   return <div id="player" className={{props.rootClass}}>
   <main className={{props.frameClass}}>
     <div className="aw-viewing-chrome" hidden={{props.fullscreen}}>
@@ -390,11 +418,12 @@ export function KinekinoPlayer(props: Props) {{
           <p id="status" className="aw-connection-status" role="status">{{props.status}}</p>
         </div>
       </section>
-      <section id="browseView" className="aw-viewing-start kk-browse" aria-label="작품 탐색" hidden={{props.noBrowse}}>
+      <section id="browseView" className={{props.browseClass}} aria-label="작품 탐색" aria-hidden={{props.noBrowse}}>
         <div className="aw-catalog-browser kk-browse-panel">
           <div className="aw-episode-heading"><h2>{{props.browseHeading}}</h2>{browse_back}</div>
+          <div className={{props.searchClass}} role="search"><input id="browseQuery" className="aw-text-input" type="text" disabled={{props.noBrowseSearch}} aria-label="검색어" placeholder="검색어" value={{queryAt}} onChange={{event => setQueryAt(event.currentTarget.value)}}/><button id="browseSearch" className="aw-button" disabled={{props.noBrowseSearch}} {c_browse_search}><span className="aw-icon aw-icon-search" aria-hidden="true"></span>검색</button></div>
           <p id="browseStatus" className="aw-connection-status" role="status" hidden={{props.noBrowseStatus}}>{{props.browseStatus}}</p>
-          <div className="aw-catalog-lists"><div role="list" aria-label="목록">
+          <div id="browseLists" className="aw-catalog-lists"><div id="browseRows" role="list" aria-label="목록">
 {browse_rows}          </div></div>
           <button id="browseMore" className="aw-button" hidden={{props.noBrowseMore}} {c_browse_more}>더 보기</button>
         </div>
@@ -462,6 +491,7 @@ export function KinekinoPlayer(props: Props) {{
         c_menu_fullscreen = click("menuFullscreen"),
         c_browse = click("browse"),
         c_browse_more = click("browseMore"),
+        c_browse_search = click("browseSearch"),
         browse_back = icon_button("browseBack", "\"뒤로\"", "\"aw-icon aw-icon-close\"", ""),
         prev = icon_button(
             "previous",

@@ -37,6 +37,8 @@ pub enum Command {
     BrowseItem(usize),
     BrowseMore,
     BrowseBack,
+    /// Search the open source for the typed text (검색 button or Enter in the field).
+    BrowseSearch(String),
     /// Seek target as a 0–1 fraction of the duration.
     Seek(f64),
     /// Volume 0–100.
@@ -48,6 +50,7 @@ pub struct Session {
     counts: BTreeMap<String, i64>,
     seek_at: String,
     volume_at: String,
+    query_at: String,
 }
 
 pub fn meari_props(view: &View) -> BTreeMap<String, MeariValue> {
@@ -126,6 +129,7 @@ impl Session {
             counts: BTreeMap::new(),
             seek_at: String::new(),
             volume_at: String::new(),
+            query_at: String::new(),
         };
         Ok((session, document))
     }
@@ -152,6 +156,7 @@ impl Session {
                 out.push(match (index("ep"), index("br")) {
                     (Some(i), _) => Command::Episode(i),
                     (_, Some(i)) => Command::BrowseItem(i),
+                    _ if id == "browseSearch" => Command::BrowseSearch(text(state.get("queryAt"))),
                     _ => command(&id),
                 });
             }
@@ -170,7 +175,13 @@ impl Session {
             }
             self.volume_at = volume;
         }
+        self.query_at = text(state.get("queryAt"));
         Ok(out)
+    }
+
+    /// The text typed in the search field (Enter searches it).
+    pub fn query(&self) -> &str {
+        &self.query_at
     }
 }
 
