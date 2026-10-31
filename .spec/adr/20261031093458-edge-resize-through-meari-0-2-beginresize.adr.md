@@ -1,7 +1,7 @@
 ---
 id: adr:kinekino/20261031093458
 title: Edge resize through meari 0.2 BeginResize
-status: accepted
+status: active
 created: 2026-10-31T09:34:58Z
 updated: 2026-10-31T09:34:58Z
 rel:
