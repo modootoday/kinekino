@@ -44,14 +44,16 @@ fn leaving_browse_for_an_episode_needs_a_remount() {
     view.playing = true;
     view.title = "Fake airing 01 2화".into();
     view.work = "Fake airing 01".into();
-    view.episodes = vec![
-        kinekino_player_ui::Episode {
+    view.playlist = vec![
+        kinekino_player_ui::PlaylistItem {
             number: "01".into(),
             title: "Fake airing 01 1화".into(),
+            duration: String::new(),
         },
-        kinekino_player_ui::Episode {
+        kinekino_player_ui::PlaylistItem {
             number: "02".into(),
             title: "Fake airing 01 2화".into(),
+            duration: String::new(),
         },
     ];
     view.current = Some(1);

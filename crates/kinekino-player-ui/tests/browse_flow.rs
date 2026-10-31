@@ -140,7 +140,7 @@ fn playables_become_the_queue_and_resolve() {
     assert!(c.view.has_media && !c.view.browsing);
     assert_eq!(c.view.title, "Show One 2");
     assert_eq!(c.view.work, "Show One");
-    assert_eq!(c.view.episodes.len(), 3);
+    assert_eq!(c.view.playlist.len(), 3);
     assert_eq!(c.engine.loaded, vec!["http://127.0.0.1:9/s1-e2.mp4"]);
     assert!(
         c.engine
@@ -152,7 +152,7 @@ fn playables_become_the_queue_and_resolve() {
     // Episode 3 does not resolve: the current one keeps playing, a notice says why.
     assert_eq!(c.view.title, "Show One 2");
     assert!(c.view.notice.contains("재생할 수 없습니다"));
-    go(&mut c, Command::Episode(0));
+    go(&mut c, Command::Item(0));
     assert_eq!(
         c.engine.loaded.last().unwrap(),
         "http://127.0.0.1:9/s1-e1.mp4"
