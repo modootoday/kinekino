@@ -13,12 +13,10 @@ fn row(title: &str, current: bool) -> (f32, f32) {
             PlaylistItem {
                 number: "01".into(),
                 title: title.into(),
-                duration: String::new(),
             },
             PlaylistItem {
                 number: "02".into(),
                 title: "next".into(),
-                duration: String::new(),
             },
         ],
         current: current.then_some(0),
