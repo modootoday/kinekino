@@ -190,3 +190,16 @@ b.ks-err { color: #ff6b6b; font-weight: 600; text-decoration: line-through; }
 .ks-headcol h1 { margin: 0; font-size: 18px; }
 .ks-headcol p { margin: 0; font-size: 12px; color: var(--aw-text-muted); }
 .ks-insp > .ks-btn, .ks-insp > .ks-row, .ks-main > .ks-row, .ks-main > .ks-note, .ks-main > .ks-table { flex: 0 0 auto; }
+.ks-tool { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 4px; border: 1px solid #2c2f34; }
+.ks-tool.ks-on { border-color: var(--aw-accent); color: var(--aw-accent); }
+.ks-track { flex: 0 0 auto; }
+.ks-trackbody { position: relative; height: 30px; }
+.ks-trackbody .ks-strip { height: 30px; }
+.ks-clips { position: relative; height: 26px; border: 1px solid #2c2f34; border-radius: 3px; }
+.ks-clips span { position: absolute; top: 2px; bottom: 2px; background: #2e2740; color: #bca0eb; font-size: 11px; padding: 2px 6px; border-radius: 3px; overflow: hidden; }
+.ks-crop { position: absolute; left: 38%; top: 0; bottom: 0; width: 22%; border: 2px solid var(--aw-accent); background: rgba(240,180,60,.06); }
+.ks-grid { position: absolute; left: 0; right: 0; top: 0; bottom: 0; background: linear-gradient(90deg, transparent 33%, rgba(255,255,255,.3) 33%, rgba(255,255,255,.3) 34%, transparent 34%, transparent 66%, rgba(255,255,255,.3) 66%, rgba(255,255,255,.3) 67%, transparent 67%); }
+.ks-cand { flex: 0 0 auto; }
+.ks-cand.ks-on, .ks-frame.ks-on .ks-pic { border: 1px solid var(--aw-accent); }
+.ks-title-text { background: transparent; border: 0; font-size: 26px; font-weight: 700; }
+.ks-main > .ks-row.ks-grow { flex: 1 1 0; min-height: 0; }
