@@ -1,12 +1,15 @@
 //! Player behaviour without a window: commands → engine calls and view changes, engine
 //! polling → view. The window host only forwards `Effect`s it cannot do itself.
 use crate::catalog::{BROWSE_ROWS, Catalog, STREAM_HEADERS};
+mod jobs;
 pub use crate::port::Engine;
 use crate::session::Command;
 use crate::source::{Episode, View};
+use jobs::{Job, Pending, Reply, Then};
 use kinekino_core::port::error::PortResult;
-use kinekino_core::source::{SourceError, SourceItem, SourceItemKind};
+use kinekino_core::source::{SourceError, SourceItem, SourceItemKind, StreamCandidate};
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 use std::time::{Duration, Instant};
 
 /// VIEW-10: controls hide after this long without input while playing (fullscreen overlay).
@@ -20,6 +23,7 @@ pub const NO_DIALOG_WITHIN: Duration = Duration::from_millis(400);
 pub const NOTICE_FOR: Duration = Duration::from_secs(4);
 const NO_SOURCES: &str = "설치된 소스 플러그인이 없습니다. 플러그인 폴더에 소스 플러그인을 설치하면 작품을 탐색할 수 있습니다.";
 const BROWSE_TITLE: &str = "작품 탐색";
+const LOADING: &str = "불러오는 중…";
 const NO_DIALOG: &str = "파일 선택 창을 열 수 없습니다. xdg-desktop-portal 또는 zenity를 설치하거나 `kinekino watch <파일>`로 여세요.";
 
 /// Work only the window can do.
@@ -78,7 +82,9 @@ pub struct Controller<E: Engine> {
     pub generation: u64,
     last_input: Option<Instant>,
     notice_since: Option<Instant>,
-    catalog: Option<Box<dyn Catalog>>,
+    catalog: Option<Arc<dyn Catalog>>,
+    /// The plugin call in flight, if any.
+    pending: Option<Pending>,
     /// Opened listings, outermost first, with the page shown.
     trail: Vec<(SourceItem, u32)>,
     /// Rows currently shown (sources at the top level).
@@ -110,6 +116,7 @@ impl<E: Engine> Controller<E> {
             last_input: None,
             notice_since: None,
             catalog: None,
+            pending: None,
             trail: Vec::new(),
             listing: Vec::new(),
             next_page: None,
@@ -118,7 +125,7 @@ impl<E: Engine> Controller<E> {
 
     /// Source plugins behind 작품 탐색.
     pub fn with_catalog(mut self, catalog: Box<dyn Catalog>) -> Self {
-        self.catalog = Some(catalog);
+        self.catalog = Some(Arc::from(catalog));
         self
     }
 
@@ -151,20 +158,53 @@ impl<E: Engine> Controller<E> {
         self.show(BROWSE_TITLE.into(), sources, None);
     }
 
-    /// Lists `page` under `item`; false (with the reason shown) when the source refused.
-    fn list(&mut self, item: &SourceItem, page: u32) -> bool {
+    /// Asks for `page` under `item` off the UI thread; `then` says how the trail changes
+    /// once it arrives. A refusal keeps the shown listing and says why.
+    fn list(&mut self, item: SourceItem, page: u32, then: Then) {
         let Some(catalog) = &self.catalog else {
+            return;
+        };
+        let at = item.reference.clone();
+        let job = Job::List { item, page, then };
+        self.pending = Some(Pending::start(catalog, job, move |c| {
+            Reply::Page(c.browse(&at, page))
+        }));
+        self.view.browse_status = LOADING.into();
+    }
+
+    /// Takes the answer of the call in flight; `wait` blocks up to that long (tests).
+    /// True when the view changed.
+    pub fn settle(&mut self, wait: Option<Duration>) -> bool {
+        let Some(answer) = self.pending.as_ref().and_then(|p| p.take(wait)) else {
             return false;
         };
-        match catalog.browse(&item.reference, page) {
-            Ok(p) => {
+        let job = self.pending.take().map(|p| p.job);
+        match (job, answer) {
+            (Some(Job::List { item, page, then }), Ok(Reply::Page(Ok(p)))) => {
                 self.show(item.title.clone(), p.items, p.next_page);
-                true
+                match then {
+                    Then::Push => self.trail.push((item, page)),
+                    Then::Page => {
+                        if let Some(top) = self.trail.last_mut() {
+                            top.1 = page;
+                        }
+                    }
+                    Then::Stay => {}
+                }
             }
-            Err(e) => {
+            (Some(Job::List { .. }), Ok(Reply::Page(Err(e)))) => {
                 self.view.browse_status = browse_error(&e);
-                false
             }
+            (Some(Job::Resolve { index }), Ok(Reply::Streams(r))) => self.resolved(index, r),
+            _ => self.cannot_play("소스 플러그인이 응답 없이 끝났습니다."),
+        }
+        true
+    }
+
+    /// Waits for the call in flight to finish (headless use and tests).
+    pub fn finish(&mut self) {
+        while self.pending.is_some() {
+            self.settle(Some(Duration::from_secs(10)));
         }
     }
 
@@ -178,20 +218,14 @@ impl<E: Engine> Controller<E> {
                     self.open_playlist(i);
                     return;
                 }
-                if self.list(&item, 1) {
-                    self.trail.push((item, 1));
-                }
+                self.list(item, 1, Then::Push);
             }
             Command::BrowseMore => {
                 let (Some(next), Some((item, _))) = (self.next_page, self.trail.last().cloned())
                 else {
                     return;
                 };
-                if self.list(&item, next)
-                    && let Some(top) = self.trail.last_mut()
-                {
-                    top.1 = next;
-                }
+                self.list(item, next, Then::Page);
             }
             Command::BrowseBack => {
                 if self.trail.pop().is_none() {
@@ -199,10 +233,11 @@ impl<E: Engine> Controller<E> {
                     return;
                 }
                 match self.trail.last().cloned() {
-                    Some((item, page)) => {
-                        self.list(&item, page);
+                    Some((item, page)) => self.list(item, page, Then::Stay),
+                    None => {
+                        self.pending = None;
+                        self.show_sources();
                     }
-                    None => self.show_sources(),
                 }
             }
             _ => {}
@@ -283,30 +318,25 @@ impl<E: Engine> Controller<E> {
         self.play(index);
     }
 
-    /// Engine source and request headers for a queue entry.
-    fn locate(&self, media: &Media) -> Result<Located, String> {
-        match media {
-            Media::Local(path) => Ok((path.to_string_lossy().into_owned(), stem(path), vec![])),
-            Media::Remote(item) => {
-                let catalog = self.catalog.as_ref().ok_or("소스 플러그인이 없습니다.")?;
-                let streams = catalog
-                    .resolve(&item.reference)
-                    .map_err(|e| browse_error(&e))?;
-                let stream = streams
-                    .into_iter()
-                    .next()
-                    .ok_or("소스가 재생할 스트림을 주지 않았습니다.")?;
-                let headers = stream
-                    .headers
-                    .into_iter()
-                    .filter(|(k, v)| {
-                        STREAM_HEADERS.iter().any(|h| h.eq_ignore_ascii_case(k))
-                            && !v.contains(['\r', '\n', ','])
-                    })
-                    .collect();
-                Ok((stream.url, item.title.clone(), headers))
-            }
-        }
+    /// The first stream of a resolve answer, with only allowed request headers.
+    fn stream(
+        item: &SourceItem,
+        streams: Result<Vec<StreamCandidate>, SourceError>,
+    ) -> Result<Located, String> {
+        let stream = streams
+            .map_err(|e| browse_error(&e))?
+            .into_iter()
+            .next()
+            .ok_or("소스가 재생할 스트림을 주지 않았습니다.")?;
+        let headers = stream
+            .headers
+            .into_iter()
+            .filter(|(k, v)| {
+                STREAM_HEADERS.iter().any(|h| h.eq_ignore_ascii_case(k))
+                    && !v.contains(['\r', '\n', ','])
+            })
+            .collect();
+        Ok((stream.url, item.title.clone(), headers))
     }
 
     /// mpv request headers for the next load; local files clear what a stream set.
@@ -329,17 +359,44 @@ impl<E: Engine> Controller<E> {
         self.engine.command(&["set", "http-header-fields", &origin])
     }
 
+    /// Local files load at once; a plugin's item is resolved off the UI thread first.
     fn play(&mut self, index: usize) {
-        let Some(media) = self.files.get(index).cloned() else {
+        match self.files.get(index).cloned() {
+            Some(Media::Local(path)) => {
+                let located = (path.to_string_lossy().into_owned(), stem(&path), vec![]);
+                self.pending = None;
+                self.load(index, false, located);
+            }
+            Some(Media::Remote(item)) => {
+                let Some(catalog) = &self.catalog else {
+                    return self.cannot_play("소스 플러그인이 없습니다.");
+                };
+                let at = item.reference.clone();
+                self.pending = Some(Pending::start(catalog, Job::Resolve { index }, move |c| {
+                    Reply::Streams(c.resolve(&at))
+                }));
+                if self.view.browsing {
+                    self.view.browse_status = LOADING.into();
+                }
+            }
+            None => {}
+        }
+    }
+
+    fn resolved(&mut self, index: usize, streams: Result<Vec<StreamCandidate>, SourceError>) {
+        let Some(Media::Remote(item)) = self.files.get(index).cloned() else {
             return;
         };
-        let (source, title, headers) = match self.locate(&media) {
-            Ok(located) => located,
-            Err(why) => return self.cannot_play(&why),
-        };
+        match Self::stream(&item, streams) {
+            Ok(located) => self.load(index, true, located),
+            Err(why) => self.cannot_play(&why),
+        }
+    }
+
+    fn load(&mut self, index: usize, remote: bool, (source, title, headers): Located) {
         // Engines open paused on the first frame; viewing starts playing.
         let loaded = self
-            .set_headers(matches!(media, Media::Remote(_)), &headers)
+            .set_headers(remote, &headers)
             .and_then(|()| self.engine.load(&source, 0.0))
             .and_then(|()| self.engine.command(&["set", "pause", "no"]));
         match loaded {
@@ -348,6 +405,7 @@ impl<E: Engine> Controller<E> {
                 self.view.title = title;
                 self.view.has_media = true;
                 self.view.browsing = false;
+                self.view.browse_status.clear();
                 self.view.playing = true;
                 self.view.position = 0.0;
                 self.view.duration = 0.0;
@@ -466,8 +524,9 @@ impl<E: Engine> Controller<E> {
 
     /// Reads time and duration from the engine; true when the view changed.
     pub fn poll(&mut self) -> bool {
+        let settled = self.settle(None);
         if !self.view.has_media {
-            return false;
+            return settled;
         }
         let before = (self.view.position, self.view.duration, self.view.playing);
         let subtitle = self.engine.text("sub-text").unwrap_or_default();
@@ -483,7 +542,8 @@ impl<E: Engine> Controller<E> {
             self.view.playing = false;
         }
         // Whole seconds are what the clock shows; finer changes need no re-projection.
-        before.0.floor() != self.view.position.floor()
+        settled
+            || before.0.floor() != self.view.position.floor()
             || before.1 != self.view.duration
             || before.2 != self.view.playing
             || subtitle_changed
