@@ -145,9 +145,9 @@ fn correction() -> String {
         &tabs(&SUB_TABS, 2),
         &stage("flex: 0 0 220px", r#"<div className="ks-caption"><span>오늘 밤에는 별이 정말 많네.</span></div>"#),
         &table(&[40, 0, 0, 160, 120], &["#", "원문", "교정안", "근거", "작업"], &[
-            cells(&["12", "오늘 밤에는 별이 정말 <b className=\"ks-err\">많내</b>.", "오늘 밤에는 별이 정말 <b className=\"ks-hl\">많네</b>.", "맞춤법", &c(&[&btn("ks-primary", "", "수락"), &btn("", "", "거절")])]),
-            cells(&["18", "<b className=\"ks-err\">어 떻게</b> 알았어?", "<b className=\"ks-hl\">어떻게</b> 알았어?", "띄어쓰기", &c(&[&btn("ks-primary", "", "수락"), &btn("", "", "거절")])]),
-            cells(&["25", "등대 까지 걸어가자.", "등대<b className=\"ks-hl\">까지</b> 걸어가자.", "띄어쓰기", &c(&[&btn("ks-primary", "", "수락"), &btn("", "", "거절")])]),
+            cells(&["12", "오늘 밤에는 별이 정말 <b className=\"ks-err\">많내</b>.", "오늘 밤에는 별이 정말 <b className=\"ks-hl\">많네</b>.", "맞춤법", &row(&c(&[&btn("ks-primary ks-sm", "", "수락"), &btn("ks-sm", "", "거절")]))]),
+            cells(&["18", "<b className=\"ks-err\">어 떻게</b> 알았어?", "<b className=\"ks-hl\">어떻게</b> 알았어?", "띄어쓰기", &row(&c(&[&btn("ks-primary ks-sm", "", "수락"), &btn("ks-sm", "", "거절")]))]),
+            cells(&["25", "등대 까지 걸어가자.", "등대<b className=\"ks-hl\">까지</b> 걸어가자.", "띄어쓰기", &row(&c(&[&btn("ks-primary ks-sm", "", "수락"), &btn("ks-sm", "", "거절")]))]),
         ], Some(0)),
         &row(&c(&[&p("ks-muted", "교정 후보 3개 · 수락 0"), GROW, &btn("", "", "모두 거절"), &btn("ks-primary", "", "모두 수락")])),
     ]);

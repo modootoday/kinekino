@@ -109,3 +109,14 @@ the eyeless first frame; the eyes-open frame is now the idle mascot state only.
 - 호스트에 없는 기능(모델 실행, 대기열 처리, 내보내기, 3D 투영, 웹 탐색)은 목업 그림으로만 표현한다.
 - 비범위: 실제 편집 기능 구현, 상호작용, 툴팁·도움말, 초안 일러스트 재현(그라데이션 그림으로 대체), 3D 원근 표현, 실제 외부 사이트 이름·연결.
 - 마스코트: 제목 표시줄·시작 화면은 정지 상태 로고, 빈 상태는 idle 프레임, 오류는 error 프레임을 쓴다.
+
+## Form-control and spacing tokens (consistency pass)
+
+- Draft PNGs are 1586x992, i.e. 1280x800 logical at a 1/1.24 scale (not 1/1.5). All measurements below use 1/1.24.
+- Studio mockups share one `:root` token block (`--ks-*`) in `studio.css`; screens do not set their own sizes.
+  - Controls: select/input 32px tall, 12px horizontal padding, 5px radius, field surface #1d1f25 with a #383b42 border; primary buttons 40px; search box 44px; chips 28px rectangular field-style; table-row buttons 24px (`--ks-control-sm`).
+  - Layout: navigation 200px (items 42px, 4px gap), inspector 340px with 16px padding, field label column 88px, main padding 16/20px, field gap 10px, block gap 14px.
+  - Type: body 13, label 12, small 11, card title 14 (600), heading 22.
+  - Toggle 36x20, checkbox 16, slider track 4 / thumb 14.
+- Player screens (`player.css`): the browse search box is a 40px field-surface input with a matching 40px button and the panel has 16px padding; start actions are 44px tall and the start title uses regular weight.
+- Unchanged by this pass: the playlist panel pattern, logo/mascot rules, the browse-button condition, the host/plugin boundary, and the fixed 1280x720 mockup window.
