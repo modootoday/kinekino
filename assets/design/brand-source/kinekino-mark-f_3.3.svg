@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="480" height="480" role="img" aria-label="kinekino animated">
+  <style>
+    :root{--body:#FF5A1F;--ear:#C93A0C;--jaw:#FF8A4C;--ink:#0E0E10}
+    .reveal{opacity:0;animation:reveal 6s ease-in-out infinite}
+    .eyes{transform-box:fill-box;transform-origin:center;opacity:0;animation:eyes 6s ease-in-out infinite}
+    .tail{transform-box:view-box;transform-origin:36px 100px;animation:wave 6s ease-in-out infinite;opacity:0}
+    @keyframes reveal{0%,15%{opacity:0}22%,90%{opacity:1}97%,100%{opacity:0}}
+    @keyframes eyes{0%,20%{opacity:0;transform:scaleY(.1)}28%,52%{opacity:1;transform:scaleY(1)}56%{transform:scaleY(.08)}60%,90%{opacity:1;transform:scaleY(1)}97%,100%{opacity:0;transform:scaleY(.1)}}
+    @keyframes wave{0%,15%{opacity:0;transform:rotate(0)}22%{opacity:1;transform:rotate(0)}40%{transform:rotate(-14deg)}55%{transform:rotate(10deg)}70%{transform:rotate(-8deg)}85%{opacity:1;transform:rotate(0)}97%,100%{opacity:0}}
+  .reveal,.eyes,.tail{animation-delay:-3.3s!important;animation-play-state:paused!important}</style>
+  <rect width="120" height="120" rx="26" fill="#0E0E10"/>
+  <defs><clipPath id="b"><path d="M20 14 L60 36 L100 14 L100 74 L20 106 Z"/></clipPath></defs>
+  <path d="M20 14 L60 36 L100 14 L100 74 L20 106 Z" fill="var(--body)" stroke="var(--body)" stroke-width="4" stroke-linejoin="round"/>
+  <g class="reveal">
+    <path d="M26 22 L26 34 L38 30 Z" fill="var(--ear)" stroke="var(--ear)" stroke-width="1.5" stroke-linejoin="round"/>
+    <path d="M94 22 L94 34 L82 30 Z" fill="var(--ear)" stroke="var(--ear)" stroke-width="1.5" stroke-linejoin="round"/>
+    <g clip-path="url(#b)"><path d="M20 106 L100 74 L100 67 L20 99 Z" fill="var(--jaw)"/></g>
+  </g>
+  <path class="tail" d="M20 99 L20 106 L37 99.4 Z" fill="var(--jaw)" stroke="var(--jaw)" stroke-width="1.5" stroke-linejoin="round"/>
+  <g class="eyes" fill="var(--ink)"><ellipse cx="46" cy="58" rx="2.8" ry="5"/><ellipse cx="74" cy="58" rx="2.8" ry="5"/></g>
+</svg>

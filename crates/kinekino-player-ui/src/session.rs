@@ -13,6 +13,15 @@ pub const VIEWPORT: Viewport = Viewport {
     height: 720,
     dark: true,
 };
+/// A fixed design-review document (examples only): its TSX exports `KinekinoPlayer`, and
+/// its extra stylesheets and icons are added to the player's.
+#[derive(Debug, Clone, Default)]
+pub struct Mockup {
+    pub tsx: String,
+    pub styles: Vec<(&'static str, &'static str)>,
+    pub icons: Vec<(&'static str, &'static [u8])>,
+}
+
 const ENTRY: &str = "player/player-window.tsx";
 
 /// What the user asked for, in click order per control.
@@ -24,7 +33,7 @@ pub enum Command {
     PlayPause,
     Next,
     Mute,
-    ToggleEpisodes,
+    TogglePlaylist,
     ToggleFullscreen,
     /// Esc: leave fullscreen (nothing when windowed).
     ExitFullscreen,
@@ -32,7 +41,7 @@ pub enum Command {
     Minimize,
     Maximize,
     Close,
-    Episode(usize),
+    Item(usize),
     /// 작품 탐색: open the listed row.
     BrowseItem(usize),
     BrowseMore,
@@ -48,11 +57,12 @@ pub enum Command {
 }
 
 pub struct Session {
-    episodes: usize,
+    items: usize,
     counts: BTreeMap<String, i64>,
     seek_at: String,
     volume_at: String,
     query_at: String,
+    fixed: bool,
 }
 
 pub fn meari_props(view: &View) -> BTreeMap<String, MeariValue> {
@@ -99,7 +109,7 @@ fn command(button: &str) -> Command {
         "playPause" => Command::PlayPause,
         "next" => Command::Next,
         "mute" => Command::Mute,
-        "episodes" | "panelClose" | "menuEpisodes" => Command::ToggleEpisodes,
+        "episodes" | "panelClose" | "menuEpisodes" => Command::TogglePlaylist,
         "fullscreen" | "menuFullscreen" => Command::ToggleFullscreen,
         "more" => Command::More,
         "minimize" => Command::Minimize,
@@ -114,13 +124,26 @@ fn command(button: &str) -> Command {
 impl Session {
     /// Mounts the window for `view` (episode rows fixed until the next mount).
     pub fn mount(view: &View) -> Result<(Self, InteractiveDocument), String> {
-        let tsx = source::build(&view.episodes);
+        Self::mount_with(view, None)
+    }
+
+    /// Like `mount`, or the fixed `mockup` document when given.
+    pub fn mount_with(
+        view: &View,
+        mockup: Option<&Mockup>,
+    ) -> Result<(Self, InteractiveDocument), String> {
+        let tsx = mockup.map_or_else(|| source::build(&view.playlist), |m| m.tsx.clone());
         let entry = BuildPath::try_from(ENTRY.to_owned())?;
         let graph = meari::parse_module_graph(&entry, &BTreeMap::from([(entry.clone(), tsx)]))
             .map_err(|e| format!("{e:?}"))?;
-        let program = ModuleProgram::mount(graph, meari_props(view), "kinekino-player".into(), 1)
+        // A mockup declares no props: it is a fixed picture.
+        let props = if mockup.is_some() { BTreeMap::new() } else { meari_props(view) };
+        let program = ModuleProgram::mount(graph, props, "kinekino-player".into(), 1)
             .map_err(|e| format!("{e:?}"))?;
-        let styles = crate::styles::prepare()?;
+        let styles = match mockup {
+            Some(m) => crate::styles::prepare_extra(&m.styles, &m.icons)?,
+            None => crate::styles::prepare()?,
+        };
         let document = InteractiveDocument::from_module_program_with_assets(
             program,
             &styles.css,
@@ -128,18 +151,24 @@ impl Session {
             styles.assets,
         )?;
         let session = Self {
-            episodes: view.episodes.len(),
+            items: view.playlist.len(),
             counts: BTreeMap::new(),
             seek_at: String::new(),
             volume_at: String::new(),
             query_at: String::new(),
+            fixed: mockup.is_some(),
         };
         Ok((session, document))
     }
 
+    /// Props for `view` under this mount (none for a fixed mockup).
+    pub fn props(&self, view: &View) -> BTreeMap<String, MeariValue> {
+        if self.fixed { BTreeMap::new() } else { meari_props(view) }
+    }
+
     /// Whether `view` still fits this mount (same episode rows); otherwise remount.
     pub fn fits(&self, view: &View) -> bool {
-        view.episodes.len() == self.episodes
+        view.playlist.len() == self.items
     }
 
     /// Controls used since the last call.
@@ -149,7 +178,7 @@ impl Session {
         let ids = BUTTONS
             .iter()
             .map(|b| (*b).to_owned())
-            .chain((0..self.episodes).map(|i| format!("ep{i}")))
+            .chain((0..self.items).map(|i| format!("ep{i}")))
             .chain((0..BROWSE_ROWS).map(|i| format!("br{i}")));
         for id in ids {
             let now = count(state.get(&format!("{id}Count")));
@@ -157,7 +186,7 @@ impl Session {
             for _ in seen..now {
                 let index = |p: &str| id.strip_prefix(p).and_then(|i| i.parse().ok());
                 out.push(match (index("ep"), index("br")) {
-                    (Some(i), _) => Command::Episode(i),
+                    (Some(i), _) => Command::Item(i),
                     (_, Some(i)) => Command::BrowseItem(i),
                     _ if id == "browseSearch" => Command::BrowseSearch(text(state.get("queryAt"))),
                     _ => command(&id),
