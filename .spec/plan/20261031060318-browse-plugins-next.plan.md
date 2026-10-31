@@ -1,6 +1,6 @@
 ---
 id: plan:kinekino/20261031060318
-title: "작품 탐색 남은 일: 시리즈·회차·재생 연결"
+title: "탐색 남은 일: 플러그인 재생목록·재생 연결"
 status: active
 created: 2026-10-31T06:03:18Z
 updated: 2026-10-31T06:03:45Z
@@ -8,7 +8,7 @@ rel:
   governs: [crates/kinekino-player-ui/src/catalog.rs]
 ---
 
-# 작품 탐색 남은 일: 시리즈·회차·재생 연결
+# 탐색 남은 일: 플러그인 재생목록·재생 연결
 
 ## Goal
 
@@ -16,8 +16,8 @@ rel:
 
 ## Steps
 
-1. 항목 종류 구분: 목록 항목이 분류인지 작품(series)인지 프로토콜에 표시하고, 작품이면 `series`로 회차 목록을 받아 회차 패널(`View::episodes`)에 싣는다.
-2. 회차 선택 → `resolve` → `StreamCandidate`를 엔진에 싣는다. `media_hosts` 밖의 URL과 헤더는 거부한다. 이전·다음화는 `episode` 인접 정보로 이동한다.
+1. 항목 종류는 범용 두 가지뿐이다: `container`(하위 목록)와 `playable`(재생 항목). 시리즈·회차 해석은 플러그인 몫이며 호스트에는 그런 개념이 없다([ADR](../adr/20261031101741-plugin-playlists-generic-container-and-playable-items.adr.md)).
+2. 재생 항목 선택 → 그 목록의 재생 항목을 그대로 큐(재생목록)로 → `resolve` → URL·헤더를 mpv에 전달. `media_hosts`·https(루프백만 http)·헤더 허용 목록 밖은 거부한다. 이전·다음은 큐 안에서 이동한다.
 3. 플러그인 호출을 UI 스레드 밖으로 옮기고, 기다리는 동안 상태 문구를 보인다.
 4. 검색(`search`) 입력과 결과 목록.
 5. 12줄을 넘는 페이지의 스크롤 또는 화면 안 페이지 나눔.
@@ -26,3 +26,4 @@ rel:
 ## Record
 
 - 2026-10-31 1단계 전: 소스 목록 → 루트 목록 → 항목 목록, `더 보기`, 뒤로·Esc, 거절 안내까지 연결(`feat/browse-plugins`).
+- 2026-10-31 1·2단계 완료(`feat/plugin-playlist-resolve`): 범용 container/playable, resolve와 허용 목록, 재생목록 변경 시 재마운트, END_FILE 사유 확인. 데스크톱에서 합성 플러그인으로 재생·다음 항목 확인.
