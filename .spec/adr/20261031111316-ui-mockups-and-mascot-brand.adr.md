@@ -120,3 +120,11 @@ the eyeless first frame; the eyes-open frame is now the idle mascot state only.
   - Toggle 36x20, checkbox 16, slider track 4 / thumb 14.
 - Player screens (`player.css`): the browse search box is a 40px field-surface input with a matching 40px button and the panel has 16px padding; start actions are 44px tall and the start title uses regular weight.
 - Unchanged by this pass: the playlist panel pattern, logo/mascot rules, the browse-button condition, the host/plugin boundary, and the fixed 1280x720 mockup window.
+
+## Shared playbar and audio lane (missing-region pass)
+
+- Every studio screen whose draft shows a playback bar uses one `playbar()` part: play, time, progress, volume level, subtitles, speed (1.0x), more, fullscreen. Screens with frame stepping keep `transport()` with previous/next.
+- Waveform areas use one `audio_lane()` part: amplitude bars (accent inside the selection), selection tint, playhead and an optional time ruler; `ks-lane-green` / `ks-lane-small` variants serve the short-form audio track.
+- Correction keeps the video, playbar, audio lane and table in the 720px window by moving the bulk accept/reject actions into the inspector.
+- Mode tabs are shown wherever the draft has them (short: manual / AI / batch; snapshot: raw frame / thumbnail edit).
+- `.ks-overlay` must stay `position: absolute` (the token pass had dropped it, hiding stage overlays).

@@ -139,6 +139,31 @@ fn transport(time: &str, pct: u32, right: &[&str]) -> String {
     }
     format!(r#"<div className="ks-transport">{}<span>{time}</span><span className="ks-bar"><span style="width: {pct}%"></span><i style="left: {pct}%"></i></span>{r}</div>"#, i("play"))
 }
+/// Studio playback bar as drafted: play, time, progress, volume level, subtitles, speed, settings, fullscreen.
+fn playbar(time: &str, pct: u32) -> String {
+    format!(r#"<div className="ks-transport">{}<span>{time}</span><span className="ks-bar"><span style="width: {pct}%"></span><i style="left: {pct}%"></i></span>{}<span className="ks-vol"><span className="ks-bar"><span style="width: 70%"></span><i style="left: 70%"></i></span></span>{}<span className="ks-speed">1.0x</span>{}{}</div>"#,
+        i("play"), i("volume"), i("subtitles"), i("more-vertical"), i("fullscreen"))
+}
+/// Audio lane: waveform bars (amber inside the selection), playhead and a time ruler.
+fn audio_lane(class: &str, sel_l: u32, sel_w: u32, head: Option<u32>, marks: &[&str]) -> String {
+    let mut s = format!(r#"<div className="ks-lane {class}"><div className="ks-wavebars">"#);
+    let n = 120u32;
+    for k in 0..n {
+        let h = 18 + ((k * 37 + (k * k) % 23) % 70) as u32;
+        let pos = k * 100 / n;
+        let on = if pos >= sel_l && pos < sel_l + sel_w { " className=\"ks-on\"" } else { "" };
+        s.push_str(&format!(r#"<span{on} style="height: {h}%"></span>"#));
+    }
+    s.push_str("</div>");
+    if sel_w > 0 {
+        s.push_str(&format!(r#"<span className="ks-lane-sel" style="left: {sel_l}%; width: {sel_w}%"></span>"#));
+    }
+    if let Some(h) = head {
+        s.push_str(&format!(r#"<span className="ks-head-line" style="left: {h}%"></span>"#));
+    }
+    s.push_str("</div>");
+    if marks.is_empty() { s } else { s + &ruler(marks) }
+}
 fn ruler(marks: &[&str]) -> String {
     let mut s = String::from(r#"<div className="ks-ruler">"#);
     for m in marks {
