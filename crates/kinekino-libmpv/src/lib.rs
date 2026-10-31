@@ -172,7 +172,8 @@ impl LibMpvSurface {
             let ev = unsafe { &*(self.api.wait_event)(self.handle, 0.05) };
             match ev.event_id {
                 id if id == want => return Ok(()),
-                ffi::EVENT_END_FILE if want == ffi::EVENT_PLAYBACK_RESTART => {
+                // The replaced file ends first; only the new file's end means failure.
+                ffi::EVENT_END_FILE if want == ffi::EVENT_PLAYBACK_RESTART && !replaced(ev) => {
                     return Err(PortError::new(
                         ErrorCode::InvalidInput,
                         "libmpv could not load the source",
@@ -278,4 +279,14 @@ impl Drop for LibMpvSurface {
             (self.api.terminate_destroy)(self.handle);
         }
     }
+}
+
+/// Whether an END_FILE event only reports the previous file being replaced or redirected.
+fn replaced(ev: &ffi::Event) -> bool {
+    if ev.data.is_null() {
+        return false;
+    }
+    // SAFETY: END_FILE events carry an mpv_event_end_file valid until the next wait.
+    let reason = unsafe { (*ev.data.cast::<ffi::EndFile>()).reason };
+    reason == ffi::END_FILE_REASON_STOP || reason == ffi::END_FILE_REASON_REDIRECT
 }

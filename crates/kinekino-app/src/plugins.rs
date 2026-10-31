@@ -2,7 +2,8 @@
 //! player's 작품 탐색 catalog over the same plugins.
 use crate::Env;
 use kinekino_core::source::{
-    SourceCapability, SourceError, SourceItem, SourcePage, SourceProvider, SourceRef,
+    SourceCapability, SourceError, SourceItem, SourceItemKind, SourcePage, SourceProvider,
+    SourceRef, StreamCandidate,
 };
 use kinekino_player_ui::Catalog;
 use kinekino_source_host::plugin_host::default_dir;
@@ -59,6 +60,15 @@ impl PluginCatalog {
     }
 }
 
+impl PluginCatalog {
+    fn provider(&self, id: &str) -> Result<&ProcessSource, SourceError> {
+        self.sources
+            .iter()
+            .find(|s| s.manifest().id == id)
+            .ok_or(SourceError::NotFound)
+    }
+}
+
 impl Catalog for PluginCatalog {
     fn sources(&self) -> Vec<SourceItem> {
         self.sources
@@ -71,6 +81,7 @@ impl Catalog for PluginCatalog {
                         id: String::new(),
                     },
                     title: id,
+                    kind: SourceItemKind::Container,
                 }
             })
             .collect()
@@ -82,5 +93,9 @@ impl Catalog for PluginCatalog {
             .find(|s| s.manifest().id == at.provider)
             .ok_or(SourceError::NotFound)?
             .browse(at, page)
+    }
+
+    fn resolve(&self, playable: &SourceRef) -> Result<Vec<StreamCandidate>, SourceError> {
+        self.provider(&playable.provider)?.resolve(playable)
     }
 }

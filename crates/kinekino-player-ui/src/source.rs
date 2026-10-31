@@ -174,9 +174,9 @@ pub fn props(view: &View) -> BTreeMap<String, Prop> {
             "menuPanelLabel".to_owned(),
             Prop::Text(
                 if view.panel_open {
-                    "회차 목록 닫기"
+                    "재생목록 닫기"
                 } else {
-                    "회차 목록 열기"
+                    "재생목록 열기"
                 }
                 .into(),
             ),
@@ -427,11 +427,11 @@ export function KinekinoPlayer(props: Props) {{
       </div>
     </section>
   </main>
-  <aside id="panel" className="aw-episode-panel" aria-label="회차 목록" hidden={{!props.panelOpen}}>
+  <aside id="panel" className="aw-episode-panel" aria-label="재생목록" hidden={{!props.panelOpen}}>
     <div className="aw-catalog-browser">
-      <div className="aw-episode-heading"><h2>회차 목록</h2>{panel_close}</div>
+      <div className="aw-episode-heading"><h2>재생목록</h2>{panel_close}</div>
       <p className="aw-episode-title">{{props.work}}</p>
-      <div className="aw-episode-body aw-catalog-lists"><div role="radiogroup" aria-label="회차">
+      <div className="aw-episode-body aw-catalog-lists"><div role="radiogroup" aria-label="재생 항목">
 {rows}      </div></div>
     </div>
   </aside>
@@ -465,7 +465,7 @@ export function KinekinoPlayer(props: Props) {{
         browse_back = icon_button("browseBack", "\"뒤로\"", "\"aw-icon aw-icon-close\"", ""),
         prev = icon_button(
             "previous",
-            "\"이전화\"",
+            "\"이전 항목\"",
             "\"aw-icon aw-icon-previous\"",
             " disabled={props.noMedia}"
         ),
@@ -477,14 +477,14 @@ export function KinekinoPlayer(props: Props) {{
         ),
         next = icon_button(
             "next",
-            "\"다음화\"",
+            "\"다음 항목\"",
             "\"aw-icon aw-icon-next\"",
             " disabled={props.noMedia}"
         ),
         mute = icon_button("mute", "\"음소거\"", "{props.volumeIcon}", ""),
         episodes = icon_button(
             "episodes",
-            "\"회차 목록\"",
+            "\"재생목록\"",
             "\"aw-icon aw-icon-episodes\"",
             ""
         ),
@@ -497,7 +497,7 @@ export function KinekinoPlayer(props: Props) {{
         more = icon_button("more", "\"더 보기\"", "\"aw-icon aw-icon-more\"", ""),
         panel_close = icon_button(
             "panelClose",
-            "\"회차 목록 닫기\"",
+            "\"재생목록 닫기\"",
             "\"aw-icon aw-icon-close\"",
             ""
         ),
