@@ -1,5 +1,6 @@
 //! Player view model → bounded Meari TSX source. Episode rows are fixed per mount; every
 //! changing value is a typed prop, so playback ticks update props without a remount.
+use crate::catalog::BROWSE_ROWS;
 use std::collections::BTreeMap;
 
 /// Product name shown in the title bar and on the start screen (mockup names are sample data).
@@ -35,6 +36,13 @@ pub struct View {
     pub notice: String,
     /// Current subtitle cue from the engine (`sub-text`), drawn over the video.
     pub subtitle: String,
+    /// 작품 탐색 view over the start screen.
+    pub browsing: bool,
+    pub browse_heading: String,
+    /// At most `BROWSE_ROWS` titles of the current listing.
+    pub browse_rows: Vec<String>,
+    pub browse_more: bool,
+    pub browse_status: String,
 }
 
 impl Default for View {
@@ -58,12 +66,17 @@ impl Default for View {
             status: String::new(),
             notice: String::new(),
             subtitle: String::new(),
+            browsing: false,
+            browse_heading: String::new(),
+            browse_rows: Vec::new(),
+            browse_more: false,
+            browse_status: String::new(),
         }
     }
 }
 
 /// Fixed buttons whose click counters the host watches (episode rows add `ep{i}`).
-pub const BUTTONS: [&str; 16] = [
+pub const BUTTONS: [&str; 18] = [
     "open",
     "browse",
     "previous",
@@ -80,6 +93,8 @@ pub const BUTTONS: [&str; 16] = [
     "menuOpen",
     "menuEpisodes",
     "menuFullscreen",
+    "browseBack",
+    "browseMore",
 ];
 
 /// `m:ss`, or `h:mm:ss` from one hour.
@@ -133,6 +148,24 @@ pub fn props(view: &View) -> BTreeMap<String, Prop> {
             Prop::Bool(!view.has_media || view.notice.is_empty()),
         ),
         ("hasMedia".to_owned(), Prop::Bool(view.has_media)),
+        (
+            "hideStart".to_owned(),
+            Prop::Bool(view.has_media || view.browsing),
+        ),
+        ("noBrowse".to_owned(), Prop::Bool(!view.browsing)),
+        (
+            "browseHeading".to_owned(),
+            Prop::Text(view.browse_heading.clone()),
+        ),
+        (
+            "browseStatus".to_owned(),
+            Prop::Text(view.browse_status.clone()),
+        ),
+        (
+            "noBrowseStatus".to_owned(),
+            Prop::Bool(view.browse_status.is_empty()),
+        ),
+        ("noBrowseMore".to_owned(), Prop::Bool(!view.browse_more)),
         ("noMedia".to_owned(), Prop::Bool(!view.has_media)),
         ("fullscreen".to_owned(), Prop::Bool(view.fullscreen)),
         ("panelOpen".to_owned(), Prop::Bool(view.panel_open)),
@@ -244,6 +277,14 @@ pub fn props(view: &View) -> BTreeMap<String, Prop> {
             Prop::Text(format!("{}", view.volume.clamp(0.0, 100.0).round() as u32)),
         ),
     ]);
+    for i in 0..BROWSE_ROWS {
+        let row = view.browse_rows.get(i);
+        out.insert(
+            format!("brText{i}"),
+            Prop::Text(row.cloned().unwrap_or_default()),
+        );
+        out.insert(format!("noBr{i}"), Prop::Bool(row.is_none()));
+    }
     for i in 0..view.episodes.len() {
         let current = view.current == Some(i);
         out.insert(format!("cur{i}"), Prop::Bool(current));
@@ -278,10 +319,20 @@ fn icon_button(id: &str, label: &str, icon: &str, extra: &str) -> String {
 /// TSX for a window with `episodes` fixed rows.
 pub fn build(episodes: &[Episode]) -> String {
     let mut types = String::from(
-        "context: string; title: string; work: string; status: string; notice: string; noNotice: boolean; hasMedia: boolean; noMedia: boolean; fullscreen: boolean; panelOpen: boolean; noMenu: boolean; menuPanelLabel: string; subtitle1: string; subtitle2: string; noSubtitle: boolean; noSubtitle2: boolean; rootClass: string; frameClass: string; transportClass: string; playIcon: string; playLabel: string; volumeIcon: string; maximizeIcon: string; maximizeLabel: string; fullscreenLabel: string; position: string; duration: string; seek: string; volume: string;",
+        "context: string; title: string; work: string; status: string; notice: string; noNotice: boolean; hasMedia: boolean; noMedia: boolean; hideStart: boolean; noBrowse: boolean; browseHeading: string; browseStatus: string; noBrowseStatus: boolean; noBrowseMore: boolean; fullscreen: boolean; panelOpen: boolean; noMenu: boolean; menuPanelLabel: string; subtitle1: string; subtitle2: string; noSubtitle: boolean; noSubtitle2: boolean; rootClass: string; frameClass: string; transportClass: string; playIcon: string; playLabel: string; volumeIcon: string; maximizeIcon: string; maximizeLabel: string; fullscreenLabel: string; position: string; duration: string; seek: string; volume: string;",
     );
     let mut state = String::new();
     let mut rows = String::new();
+    let mut browse_rows = String::new();
+    for i in 0..BROWSE_ROWS {
+        types.push_str(&format!(" brText{i}: string; noBr{i}: boolean;"));
+        state.push_str(&format!(
+            "  const [br{i}Count, setbr{i}Count] = useState(0);\n"
+        ));
+        browse_rows.push_str(&format!(
+            "<button id=\"br{i}\" className=\"aw-button aw-episode-row\" hidden={{props.noBr{i}}} onClick={{() => setbr{i}Count(p => p + 1)}}><span className=\"aw-episode-row-title\">{{props.brText{i}}}</span></button>\n"
+        ));
+    }
     for button in BUTTONS {
         state.push_str(&format!(
             "  const [{button}Count, set{button}Count] = useState(0);\n"
@@ -327,7 +378,7 @@ export function KinekinoPlayer(props: Props) {{
       <video id="video" className="aw-viewing-video" tabIndex="-1" aria-hidden="true" hidden={{props.noMedia}}></video>
       <p id="subtitle" className="kk-subtitle" aria-live="polite" hidden={{props.noSubtitle}}><span className="kk-subtitle-line">{{props.subtitle1}}</span><span className="kk-subtitle-line" hidden={{props.noSubtitle2}}>{{props.subtitle2}}</span></p>
       <p id="notice" className="kk-toast" role="status" hidden={{props.noNotice}}><span className="kk-toast-text">{{props.notice}}</span></p>
-      <section id="start" className="aw-viewing-start" aria-label="시청 시작" hidden={{props.hasMedia}}>
+      <section id="start" className="aw-viewing-start" aria-label="시청 시작" hidden={{props.hideStart}}>
         <div className="aw-start-content">
           <span className="aw-start-mark" aria-hidden="true"></span>
           <h1 className="aw-start-title">{PRODUCT}</h1>
@@ -337,6 +388,15 @@ export function KinekinoPlayer(props: Props) {{
           </div>
           <p className="aw-start-shortcut">Ctrl+O로 파일 열기</p>
           <p id="status" className="aw-connection-status" role="status">{{props.status}}</p>
+        </div>
+      </section>
+      <section id="browseView" className="aw-viewing-start kk-browse" aria-label="작품 탐색" hidden={{props.noBrowse}}>
+        <div className="aw-catalog-browser kk-browse-panel">
+          <div className="aw-episode-heading"><h2>{{props.browseHeading}}</h2>{browse_back}</div>
+          <p id="browseStatus" className="aw-connection-status" role="status" hidden={{props.noBrowseStatus}}>{{props.browseStatus}}</p>
+          <div className="aw-catalog-lists"><div role="list" aria-label="목록">
+{browse_rows}          </div></div>
+          <button id="browseMore" className="aw-button" hidden={{props.noBrowseMore}} {c_browse_more}>더 보기</button>
         </div>
       </section>
     </div>
@@ -401,6 +461,8 @@ export function KinekinoPlayer(props: Props) {{
         c_menu_episodes = click("menuEpisodes"),
         c_menu_fullscreen = click("menuFullscreen"),
         c_browse = click("browse"),
+        c_browse_more = click("browseMore"),
+        browse_back = icon_button("browseBack", "\"뒤로\"", "\"aw-icon aw-icon-close\"", ""),
         prev = icon_button(
             "previous",
             "\"이전화\"",

@@ -1,5 +1,6 @@
 //! Headless half of the player window: the Meari document, the user's actions read back
 //! from source state as `Command`s, and view updates as props (no remount).
+use crate::catalog::BROWSE_ROWS;
 use crate::source::{self, BUTTONS, Prop, View};
 use meari::application::source_modules::ModuleProgram;
 use meari::domain::{Value as MeariValue, build::BuildPath, component_state::StateValue};
@@ -32,6 +33,10 @@ pub enum Command {
     Maximize,
     Close,
     Episode(usize),
+    /// 작품 탐색: open the listed row.
+    BrowseItem(usize),
+    BrowseMore,
+    BrowseBack,
     /// Seek target as a 0–1 fraction of the duration.
     Seek(f64),
     /// Volume 0–100.
@@ -94,6 +99,8 @@ fn command(button: &str) -> Command {
         "more" => Command::More,
         "minimize" => Command::Minimize,
         "maximize" => Command::Maximize,
+        "browseMore" => Command::BrowseMore,
+        "browseBack" => Command::BrowseBack,
         _ => Command::Close,
     }
 }
@@ -135,13 +142,18 @@ impl Session {
         let ids = BUTTONS
             .iter()
             .map(|b| (*b).to_owned())
-            .chain((0..self.episodes).map(|i| format!("ep{i}")));
+            .chain((0..self.episodes).map(|i| format!("ep{i}")))
+            .chain((0..BROWSE_ROWS).map(|i| format!("br{i}")));
         for id in ids {
             let now = count(state.get(&format!("{id}Count")));
             let seen = self.counts.insert(id.clone(), now).unwrap_or_default();
             for _ in seen..now {
-                let row = id.strip_prefix("ep").and_then(|i| i.parse().ok());
-                out.push(row.map_or_else(|| command(&id), Command::Episode));
+                let index = |p: &str| id.strip_prefix(p).and_then(|i| i.parse().ok());
+                out.push(match (index("ep"), index("br")) {
+                    (Some(i), _) => Command::Episode(i),
+                    (_, Some(i)) => Command::BrowseItem(i),
+                    _ => command(&id),
+                });
             }
         }
         let seek = text(state.get("seekAt"));

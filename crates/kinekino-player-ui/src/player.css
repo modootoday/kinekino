@@ -33,3 +33,10 @@
 .kk-player-root .kk-menu[hidden] { display: none; }
 .kk-player-root .kk-menu-item { display: flex; justify-content: flex-start; border-color: transparent; background: transparent; gap: var(--aw-space-2); white-space: nowrap; }
 .kk-player-root .kk-menu-key { margin-left: auto; padding-left: var(--aw-space-3); color: var(--aw-text-secondary); font-size: var(--aw-font-small); }
+/* 작품 탐색: the episode panel's list styling, at twice the panel width, over the start area. */
+.kk-player-root .kk-browse { place-items: stretch center; }
+.kk-player-root .kk-browse-panel { width: calc(var(--aw-episode-panel) * 2); max-width: 100%; max-height: 100%; min-height: 0; overflow: hidden; border: var(--aw-border-thin) solid var(--aw-border); border-radius: var(--aw-radius-control); background: var(--aw-surface-panel); }
+/* Empty row slots stay hidden: `[hidden]` must beat the episode row's `display: flex`. */
+.kk-player-root .kk-browse-panel [hidden] { display: none; }
+.kk-player-root .kk-browse-panel .aw-catalog-lists { flex: 1 1 auto; min-height: 0; overflow: auto; }
+.kk-player-root .kk-browse-panel [role="list"] { display: flex; flex-direction: column; gap: var(--aw-space-1); min-height: 0; overflow: auto; }

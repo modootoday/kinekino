@@ -1,9 +1,11 @@
 //! Player behaviour without a window: commands → engine calls and view changes, engine
 //! polling → view. The window host only forwards `Effect`s it cannot do itself.
+use crate::catalog::{BROWSE_ROWS, Catalog};
 pub use crate::port::Engine;
 use crate::session::Command;
 use crate::source::{Episode, View};
 use kinekino_core::port::error::PortResult;
+use kinekino_core::source::{SourceError, SourceItem};
 use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 
@@ -16,6 +18,8 @@ pub const RESTART_WITHIN: f64 = 3.0;
 pub const NO_DIALOG_WITHIN: Duration = Duration::from_millis(400);
 /// A notice over the playing video disappears after this long.
 pub const NOTICE_FOR: Duration = Duration::from_secs(4);
+const NO_SOURCES: &str = "설치된 소스 플러그인이 없습니다. 플러그인 폴더에 소스 플러그인을 설치하면 작품을 탐색할 수 있습니다.";
+const BROWSE_TITLE: &str = "작품 탐색";
 const NO_DIALOG: &str = "파일 선택 창을 열 수 없습니다. xdg-desktop-portal 또는 zenity를 설치하거나 `kinekino watch <파일>`로 여세요.";
 
 /// Work only the window can do.
@@ -64,6 +68,22 @@ pub struct Controller<E: Engine> {
     pub generation: u64,
     last_input: Option<Instant>,
     notice_since: Option<Instant>,
+    catalog: Option<Box<dyn Catalog>>,
+    /// Opened listings, outermost first, with the page shown.
+    trail: Vec<(SourceItem, u32)>,
+    /// Rows currently shown (sources at the top level).
+    listing: Vec<SourceItem>,
+    next_page: Option<u32>,
+}
+
+fn browse_error(e: &SourceError) -> String {
+    match e {
+        SourceError::Unsupported(_) => "이 소스는 이 목록을 지원하지 않습니다.".into(),
+        SourceError::NotFound => "항목을 찾을 수 없습니다.".into(),
+        SourceError::Unavailable(m) | SourceError::Invalid(m) => {
+            format!("소스에서 목록을 받지 못했습니다: {m}")
+        }
+    }
 }
 
 impl<E: Engine> Controller<E> {
@@ -75,6 +95,99 @@ impl<E: Engine> Controller<E> {
             generation: 0,
             last_input: None,
             notice_since: None,
+            catalog: None,
+            trail: Vec::new(),
+            listing: Vec::new(),
+            next_page: None,
+        }
+    }
+
+    /// Source plugins behind 작품 탐색.
+    pub fn with_catalog(mut self, catalog: Box<dyn Catalog>) -> Self {
+        self.catalog = Some(catalog);
+        self
+    }
+
+    fn show(&mut self, heading: String, items: Vec<SourceItem>, next: Option<u32>) {
+        self.view.browsing = true;
+        self.view.browse_heading = heading;
+        self.view.browse_rows = items
+            .iter()
+            .take(BROWSE_ROWS)
+            .map(|i| i.title.clone())
+            .collect();
+        self.view.browse_more = next.is_some();
+        self.view.browse_status.clear();
+        self.listing = items;
+        self.next_page = next;
+    }
+
+    fn show_sources(&mut self) {
+        let sources = self
+            .catalog
+            .as_ref()
+            .map(|c| c.sources())
+            .unwrap_or_default();
+        if sources.is_empty() {
+            self.view.browsing = false;
+            self.view.status = NO_SOURCES.into();
+            return;
+        }
+        self.trail.clear();
+        self.show(BROWSE_TITLE.into(), sources, None);
+    }
+
+    /// Lists `page` under `item`; false (with the reason shown) when the source refused.
+    fn list(&mut self, item: &SourceItem, page: u32) -> bool {
+        let Some(catalog) = &self.catalog else {
+            return false;
+        };
+        match catalog.browse(&item.reference, page) {
+            Ok(p) => {
+                self.show(item.title.clone(), p.items, p.next_page);
+                true
+            }
+            Err(e) => {
+                self.view.browse_status = browse_error(&e);
+                false
+            }
+        }
+    }
+
+    fn browse(&mut self, command: &Command) {
+        match *command {
+            Command::BrowseItem(i) => {
+                let Some(item) = self.listing.get(i).cloned() else {
+                    return;
+                };
+                if self.list(&item, 1) {
+                    self.trail.push((item, 1));
+                }
+            }
+            Command::BrowseMore => {
+                let (Some(next), Some((item, _))) = (self.next_page, self.trail.last().cloned())
+                else {
+                    return;
+                };
+                if self.list(&item, next)
+                    && let Some(top) = self.trail.last_mut()
+                {
+                    top.1 = next;
+                }
+            }
+            Command::BrowseBack => {
+                if self.trail.pop().is_none() {
+                    self.view.browsing = false;
+                    return;
+                }
+                match self.trail.last().cloned() {
+                    Some((item, page)) => {
+                        self.list(&item, page);
+                    }
+                    None => self.show_sources(),
+                }
+            }
+            _ => {}
         }
     }
 
@@ -136,6 +249,7 @@ impl<E: Engine> Controller<E> {
                 self.view.current = Some(index);
                 self.view.title = stem(&path);
                 self.view.has_media = true;
+                self.view.browsing = false;
                 self.view.playing = true;
                 self.view.position = 0.0;
                 self.view.duration = 0.0;
@@ -166,9 +280,13 @@ impl<E: Engine> Controller<E> {
         }
         match command {
             Command::Open => return Some(Effect::PickFile),
-            Command::Browse => {
-                self.view.status =
-                    "작품 탐색은 소스 플러그인을 연결하면 사용할 수 있습니다.".into();
+            Command::Browse => self.show_sources(),
+            Command::BrowseItem(_) | Command::BrowseMore | Command::BrowseBack => {
+                self.browse(&command)
+            }
+            // Esc in the browse view goes one level back (windowed).
+            Command::ExitFullscreen if self.view.browsing && !self.view.fullscreen => {
+                self.browse(&Command::BrowseBack)
             }
             Command::More => {
                 self.view.menu_open = !self.view.menu_open;

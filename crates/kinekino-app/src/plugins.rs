@@ -1,7 +1,12 @@
-//! `kinekino plugins list`: discovered source plugins as JSON (ADR 0011 M3).
+//! `kinekino plugins list`: discovered source plugins as JSON (ADR 0011 M3), and the
+//! player's 작품 탐색 catalog over the same plugins.
 use crate::Env;
+use kinekino_core::source::{
+    SourceCapability, SourceError, SourceItem, SourcePage, SourceProvider, SourceRef,
+};
+use kinekino_player_ui::Catalog;
 use kinekino_source_host::plugin_host::default_dir;
-use kinekino_source_host::plugin_host::{PluginManifest, discover};
+use kinekino_source_host::plugin_host::{PluginManifest, ProcessSource, discover};
 use serde_json::json;
 use std::path::PathBuf;
 
@@ -36,4 +41,46 @@ pub fn list(env: &Env) -> String {
         .map(|(f, e)| json!({"manifest": f, "error": e}))
         .collect();
     json!({"dir": dir, "plugins": plugins, "rejected": rejected}).to_string()
+}
+
+/// 작품 탐색 over the discovered plugins that declare `browse`; one process per call.
+pub struct PluginCatalog {
+    sources: Vec<ProcessSource>,
+}
+
+impl PluginCatalog {
+    pub fn discover(env: &Env) -> Self {
+        let sources = discovered(env)
+            .into_iter()
+            .filter(|p| p.source.supports(SourceCapability::Browse))
+            .map(ProcessSource::new)
+            .collect();
+        Self { sources }
+    }
+}
+
+impl Catalog for PluginCatalog {
+    fn sources(&self) -> Vec<SourceItem> {
+        self.sources
+            .iter()
+            .map(|s| {
+                let id = s.manifest().id.clone();
+                SourceItem {
+                    reference: SourceRef {
+                        provider: id.clone(),
+                        id: String::new(),
+                    },
+                    title: id,
+                }
+            })
+            .collect()
+    }
+
+    fn browse(&self, at: &SourceRef, page: u32) -> Result<SourcePage, SourceError> {
+        self.sources
+            .iter()
+            .find(|s| s.manifest().id == at.provider)
+            .ok_or(SourceError::NotFound)?
+            .browse(at, page)
+    }
 }
