@@ -3,8 +3,8 @@ use kinekino_app::{Args, Env, run_plugins};
 use kinekino_core::source::{SourceError, SourceProvider, SourceRef};
 use kinekino_source_host::plugin_host::ProcessSource;
 
-fn setup() -> (std::path::PathBuf, Env) {
-    let root = std::env::temp_dir().join(format!("kinekino-plugins-{}", std::process::id()));
+fn setup(tag: &str) -> (std::path::PathBuf, Env) {
+    let root = std::env::temp_dir().join(format!("kinekino-plugins-{tag}-{}", std::process::id()));
     let dir = root.join("fixture");
     std::fs::create_dir_all(&dir).unwrap();
     let exe = env!("CARGO_BIN_EXE_fake-source-plugin");
@@ -24,7 +24,7 @@ fn setup() -> (std::path::PathBuf, Env) {
 
 #[test]
 fn list_browse_and_capability_gate_over_process() {
-    let (root, env) = setup();
+    let (root, env) = setup("list");
     let (code, out) = run_plugins(&Args::new(["plugins", "list"]), &env);
     assert_eq!(code, 0);
     let v: serde_json::Value = serde_json::from_str(&out).unwrap();
@@ -50,5 +50,25 @@ fn list_browse_and_capability_gate_over_process() {
         source.resolve(&cat),
         Err(SourceError::Unsupported(_))
     ));
+    std::fs::remove_dir_all(root).ok();
+}
+
+/// 작품 탐색: the player's catalog lists the fake plugin and pages its root over the process.
+#[test]
+fn player_catalog_browses_the_fake_plugin() {
+    use kinekino_player_ui::Catalog;
+    let (root, env) = setup("catalog");
+    let catalog = kinekino_app::plugins::PluginCatalog::discover(&env);
+    let sources = catalog.sources();
+    assert_eq!(sources.len(), 1);
+    assert_eq!(sources[0].title, "com.example.fixture");
+    let page = catalog.browse(&sources[0].reference, 1).unwrap();
+    assert_eq!(page.items[0].title, "Fixture  page 1");
+    assert_eq!(page.next_page, Some(2));
+    let other = SourceRef {
+        provider: "com.example.missing".into(),
+        id: String::new(),
+    };
+    assert_eq!(catalog.browse(&other, 1), Err(SourceError::NotFound));
     std::fs::remove_dir_all(root).ok();
 }
