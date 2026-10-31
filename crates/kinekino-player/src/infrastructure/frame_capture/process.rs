@@ -2,6 +2,7 @@ use crate::application::api::ApiError;
 #[cfg(test)]
 use crate::application::api::ErrorCode;
 pub(crate) mod owned;
+pub(crate) use owned::evidence_base;
 #[cfg(test)]
 use std::time::Duration;
 use std::{process::Command, time::Instant};
@@ -45,6 +46,37 @@ pub(crate) fn run_with_input(
 mod tests {
     use super::*;
     use std::io::{Read, Write};
+
+    #[test]
+    fn successful_run_removes_its_evidence_root() {
+        let _ = crate::infrastructure::os_policy::host();
+        let marker = format!(
+            "evidence-cleanup-{}-{:?}",
+            std::process::id(),
+            Instant::now()
+        );
+        let output = run(
+            Command::new("/bin/echo").arg(&marker),
+            Instant::now() + Duration::from_secs(10),
+            4096,
+        )
+        .unwrap();
+        assert!(String::from_utf8_lossy(&output.stdout).contains(&marker));
+        let leftover = std::fs::read_dir(evidence_base())
+            .into_iter()
+            .flatten()
+            .flatten()
+            .filter(|entry| {
+                std::fs::read(entry.path().join("stdout.raw"))
+                    .is_ok_and(|bytes| String::from_utf8_lossy(&bytes).contains(&marker))
+            })
+            .count();
+        assert_eq!(leftover, 0, "successful run left its evidence root behind");
+        assert!(
+            evidence_base().ends_with("kinekino-frame-owned")
+                || std::env::var_os("KINEKINO_PROCESS_EVIDENCE_DIR").is_some()
+        );
+    }
 
     #[test]
     #[ignore = "Subprocess fixture invoked by deadline_kills_and_reaps_child"]
