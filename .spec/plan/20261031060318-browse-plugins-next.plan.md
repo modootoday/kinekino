@@ -30,3 +30,4 @@ rel:
 - 2026-10-31 3단계 완료(`feat/async-plugin-calls`): browse·resolve를 작업 스레드로, "불러오는 중…" 표시, 늦은 응답 폐기. 데스크톱에서 3초 지연 합성 플러그인으로 창이 계속 반응함을 확인.
 - 2026-10-31 4·5단계 완료(`feat/browse-search-scroll`, [ADR](../adr/20261031103033-browse-search-and-scrolling-listings.adr.md)): 열린 소스 안 검색(`Catalog::search`, 기본은 미지원 거절), 더 보기는 이어 붙이고 목록은 스크롤(최대 60줄), 입력 중에는 단축키 대신 글자 입력·Enter 검색·Esc 뒤로, 새 목록은 맨 위부터. 데스크톱에서 검색·Esc·더 보기·휠 스크롤 확인. 한글 IME 입력은 미확인.
 - 2026-10-31 6단계 완료(`feat/browse-grid`, [ADR](../adr/20261031104859-browse-grid-layout.adr.md)): 제목줄 보기 전환 버튼으로 목록/3열 격자 전환, 선택은 목록 이동·검색·더 보기 동안 유지(재시작 시 미보존). 타일은 제목만, 썸네일은 와이어 필드·media_hosts 정책이 필요해 보류. 데스크톱에서 전환·격자 타일로 작품 열기 확인.
+- 2026-10-31 파일 끌어놓기 완료(`feat/drop-file`, [ADR](../adr/20261031105354-open-dropped-files.adr.md)): 창에 끌어놓은 첫 로컬 파일을 열기 대화상자와 같은 경로로 연다(폴더가 재생목록). 폴더·여러 파일·URL은 무시. 데스크톱 X11에서 XDND 합성 드래그로 sample.mkv 재생 확인.

@@ -23,7 +23,11 @@ fn empty_browse_slots_are_not_drawn() {
     assert_eq!(height("#br1"), 0.0);
     assert_eq!(height("#browseMore"), 0.0);
     assert_eq!(height("#start"), 0.0);
-    assert_eq!(height(".kk-browse-search"), 0.0, "no search over the source list");
+    assert_eq!(
+        height(".kk-browse-search"),
+        0.0,
+        "no search over the source list"
+    );
 }
 
 #[test]

@@ -7,6 +7,7 @@ use crate::session::Session;
 use crate::texture::VideoTexture;
 pub mod actions;
 mod caption;
+mod drop;
 mod edges;
 use actions::{PortRefusal, WindowOps};
 use kinekino_core::playback::{RgbaFrame, VideoSurface};
@@ -357,12 +358,13 @@ impl<E: Engine> App<E> {
                 Effect::Close => self.closing = true,
                 Effect::PickFile => {
                     let (picked, took) = crate::window::actions::pick_video();
-                    let mut shared = self.shared.borrow_mut();
-                    if shared.controller.picked(picked.as_deref(), took) {
-                        shared.dirty = true;
-                        if !shared.fits() {
-                            (self.remount, self.closing) = (true, true);
-                        }
+                    let picked = self
+                        .shared
+                        .borrow_mut()
+                        .controller
+                        .picked(picked.as_deref(), took);
+                    if picked {
+                        self.opened();
                     }
                 }
             }
@@ -431,7 +433,7 @@ impl<E: Engine> ApplicationHandler for App<E> {
         if !self.undecorated {
             self.undecorate();
         }
-        if self.follow_resize(&event) {
+        if self.follow_resize(&event) || self.drop_event(event_loop, &event) {
             self.tick(event_loop);
             return;
         }

@@ -199,7 +199,11 @@ pub fn props(view: &View) -> BTreeMap<String, Prop> {
         ),
         (
             "rowsClass".to_owned(),
-            t(if view.browse_grid { "kk-grid" } else { "kk-list" }),
+            t(if view.browse_grid {
+                "kk-grid"
+            } else {
+                "kk-list"
+            }),
         ),
         (
             "layoutIcon".to_owned(),
@@ -211,7 +215,11 @@ pub fn props(view: &View) -> BTreeMap<String, Prop> {
         ),
         (
             "layoutLabel".to_owned(),
-            t(if view.browse_grid { "목록으로 보기" } else { "격자로 보기" }),
+            t(if view.browse_grid {
+                "목록으로 보기"
+            } else {
+                "격자로 보기"
+            }),
         ),
         ("noMedia".to_owned(), Prop::Bool(!view.has_media)),
         ("fullscreen".to_owned(), Prop::Bool(view.fullscreen)),
@@ -512,7 +520,12 @@ export function KinekinoPlayer(props: Props) {{
         c_browse = click("browse"),
         c_browse_more = click("browseMore"),
         c_browse_search = click("browseSearch"),
-        browse_layout = icon_button("browseLayout", "{props.layoutLabel}", "{props.layoutIcon}", ""),
+        browse_layout = icon_button(
+            "browseLayout",
+            "{props.layoutLabel}",
+            "{props.layoutIcon}",
+            ""
+        ),
         browse_back = icon_button("browseBack", "\"뒤로\"", "\"aw-icon aw-icon-close\"", ""),
         prev = icon_button(
             "previous",
