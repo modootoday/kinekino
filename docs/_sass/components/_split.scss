@@ -7,3 +7,8 @@
 .c-split .mt-split-bar span{opacity:1;background:#ff6b5a}
 .c-split .mt-split-bar span:nth-child(2){background:#f5c04a}
 .c-split .mt-split-bar span:nth-child(3){background:#5ccf6b}
+/* the copy button sits in the bar (top end of the window), as before */
+.c-split .mt-split-terminal{position:relative}
+.c-split .mt-split-terminal .mt-code,.c-split .mt-split-terminal .highlighter-rouge{position:static}
+.c-split .mt-split-terminal .mt-code-copy{top:6px}
+.c-split .mt-split-terminal pre.highlight{padding-top:var(--s4)}
