@@ -80,3 +80,27 @@ fn the_search_row_is_drawn_inside_a_source() {
     assert!(field.height > 0.0 && field.width > 100.0);
     assert!(size("#browseSearch").height > 0.0);
 }
+
+#[test]
+fn grid_layout_puts_rows_side_by_side() {
+    let view = View {
+        browsing: true,
+        browse_heading: "com.example.fixture".into(),
+        browse_rows: vec!["Work 0".into(), "Work 1".into()],
+        browse_grid: true,
+        ..View::default()
+    };
+    let (_, mut doc) = Session::mount(&view).unwrap();
+    doc.update_module_props(meari_props(&view)).unwrap();
+    let viewport = doc.viewport.clone();
+    doc.renderer.rasterize(&viewport).unwrap();
+    let base = &*doc.renderer.document;
+    let at = |sel: &str| {
+        let id = base.query_selector(sel).unwrap().unwrap();
+        base.get_node(id).unwrap().final_layout()
+    };
+    let (a, b) = (at("#br0"), at("#br1"));
+    assert_eq!(a.location.y, b.location.y, "same grid row");
+    assert!(b.location.x > a.location.x + a.size.width - 1.0);
+    assert!(a.size.height > 40.0, "tiles are taller than list rows");
+}
