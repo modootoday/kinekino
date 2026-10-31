@@ -114,7 +114,7 @@ Agents working **on** this repository follow [`AGENTS.md`](AGENTS.md); this READ
 ## Guides
 
 - [Design and ADRs](.spec/adr) · [Guides](.spec/guide) · [Plans](.spec/plan)
-- [Build cache and datalab guide](.spec/guide/build-cache.guide.md)
+- [Build cache guide](.spec/guide/build-cache.guide.md)
 - [Third-party sources](THIRD_PARTY.md)
 
 ## Exit codes and schemas
