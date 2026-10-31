@@ -25,4 +25,4 @@ updated: 2026-10-30T04:02:18Z
 
 - Linux 설정 창은 mpv(P2)·#28과 무관하게 열린다. 플레이어 Linux GUI 셸(#29)은 여전히 그 둘에 막혀 있다.
 - OS 창 프레임을 쓴다. 제품 공통 caption(`aw-window-chrome`)을 쓰는 사용자 정의 프레임은 플레이어 셸과 함께 맞출 후속 항목이다.
-- Meari native는 Linux 인수(acceptance)가 upstream에서 끝나지 않았다. 박스 xvfb 스모크가 이 저장소의 근거다.
+- Meari native는 Linux 인수(acceptance)가 upstream에서 끝나지 않았다. 개발 장비 xvfb 스모크가 이 저장소의 근거다.

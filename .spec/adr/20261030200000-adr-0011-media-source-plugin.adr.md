@@ -62,7 +62,7 @@ rel:
 
 ## 이력 재작성 계획(실행 안 함)
 1. **검색**: 별도 미러 `git clone --mirror /workspace/kinekino /workspace/kinekino-rewrite.git`. 경로 목록 `git log --all --name-only --format= | sort -u | rg -i 'source|catalog'`, 내용 `git rev-list --all | xargs -n50 git grep -il -e source -e media-cdn -e frame-host`, 메시지 `git log --all -i --grep=source`(현재 0건), ref `git for-each-ref`, stash·worktree는 원본에서 `git stash list`, `git worktree list`. 결과를 `paths.txt`, `strings.txt`로 고정.
-2. **백업**: `git bundle create kinekino-full-<날짜>.bundle --all`(원본 전체, 비공개 보관). 도구는 [git-filter-repo](https://github.com/newren/git-filter-repo) 2.47.0(박스 사용자 설치 `~/.local/bin`).
+2. **백업**: `git bundle create kinekino-full-<날짜>.bundle --all`(원본 전체, 비공개 보관). 도구는 [git-filter-repo](https://github.com/newren/git-filter-repo) 2.47.0(개발 장비 사용자 설치 `~/.local/bin`).
 3. **재작성**(미러에서만): `git filter-repo --invert-paths --paths-from-file paths.txt --replace-text strings.txt --replace-message strings.txt`(`source.example.test==>example.test`, `regex:(?i)source==>source` 등). 원본 `/workspace/kinekino`는 건드리지 않는다.
 4. **검증**: 재작성 클론 checkout 후 `nice cargo test -j 1`, clippy, `cargo xtask lint-structure`, `cargo xtask spec-check`, 분리 기준 6 검색 0. 모든 브랜치·태그에 반복.
 5. **비공개 보존**: 비공개 저장소는 원본 번들에서 `git filter-repo --path crates/kinekino-catalog --path <source 경로들>`로 source 이력만 추출해 시작(작성자·날짜 유지). 원본 번들은 비공개 저장소 릴리스 자산 또는 오프라인 보관.
