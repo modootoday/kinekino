@@ -128,3 +128,8 @@ the eyeless first frame; the eyes-open frame is now the idle mascot state only.
 - Correction keeps the video, playbar, audio lane and table in the 720px window by moving the bulk accept/reject actions into the inspector.
 - Mode tabs are shown wherever the draft has them (short: manual / AI / batch; snapshot: raw frame / thumbnail edit).
 - `.ks-overlay` must stay `position: absolute` (the token pass had dropped it, hiding stage overlays).
+
+## Inspector scrolling
+
+- The studio right settings panel scrolls vertically (`overflow-y: auto`) when its content is taller than the window; the main editor and the queue bar stay fixed.
+- In the fixed 1280x720 mockup a clipped last action (e.g. correction's "다시 검사") is expected and is not a layout defect.
