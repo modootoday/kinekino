@@ -1,5 +1,5 @@
 # GitHub Pages builds this directory with Jekyll; no build step. Theme: jekyll-theme-modootoday (md-components v1),
-# pinned to the v1.2.0 release tag (GitHub Pages standard: github-pages 232 + jekyll-remote-theme).
+# pinned to the v1.4.0 release tag (GitHub Pages standard: github-pages 232 + jekyll-remote-theme).
 # Only plugins on https://pages.github.com/versions/ are used (no jekyll-polyglot).
 title: kinekino
 description: "A cross-OS Rust video player with a cat mascot, built to be driven by people, CLI scripts and AI agents."
@@ -13,7 +13,7 @@ markdown: kramdown
 kramdown:
   input: GFM
   syntax_highlighter: rouge
-remote_theme: modootoday/jekyll-theme-modootoday@v1.2.3
+remote_theme: modootoday/jekyll-theme-modootoday@v1.4.0
 plugins: [jekyll-remote-theme, jekyll-sitemap, jekyll-relative-links]
 modootoday:
   color_scheme: auto
