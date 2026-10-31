@@ -1,10 +1,13 @@
-//! Edge resize of the undecorated window on X11. The press's implicit pointer grab belongs
-//! to winit's X connection, so `_NET_WM_MOVERESIZE` sent from the player's own connection
-//! never gets the pointer to the window manager (the drag did nothing). The player follows
-//! the pointer itself and configures the window; the band is checked before the caption
-//! drag, with pointer and window size both read from the X server in physical pixels.
+//! Edge resize of the undecorated window. Every target first asks the OS through meari's
+//! `WindowAction::BeginResize` (winit `drag_resize_window`): Windows and Wayland (and X11,
+//! verified) hand the drag to the window manager; macOS reports Unsupported. On X11 the
+//! player keeps its own fallback (set `KINEKINO_X11_OWN_RESIZE=1` to force it): it follows
+//! the pointer and configures the window, reading pointer and size from the X server.
 use super::App;
 use crate::controller::Engine;
+use meari_native::application::window_actions::WindowAction;
+use meari_native::domain::window_actions::ResizeDirection;
+#[cfg(all(unix, not(target_os = "macos")))]
 use winit::event::{ElementState, WindowEvent};
 
 /// Width of the invisible resize band along each edge of the undecorated window
@@ -70,13 +73,56 @@ pub fn resize_direction(x: f64, y: f64, width: f64, height: f64, band: f64) -> O
     })
 }
 
+/// Meari's resize edge for an EWMH direction code (0 top-left … 7 left).
+pub fn os_direction(direction: u32) -> Option<ResizeDirection> {
+    Some(match direction {
+        0 => ResizeDirection::NorthWest,
+        1 => ResizeDirection::North,
+        2 => ResizeDirection::NorthEast,
+        3 => ResizeDirection::East,
+        4 => ResizeDirection::SouthEast,
+        5 => ResizeDirection::South,
+        6 => ResizeDirection::SouthWest,
+        7 => ResizeDirection::West,
+        _ => return None,
+    })
+}
+
 impl<E: Engine> App<E> {
+    /// Hands an edge press to the OS through Meari's `BeginResize` (meari 0.2). The band is
+    /// measured on the document viewport (physical pixels, same unit as `press`). `true`
+    /// when the press was in the band and the OS accepted the request.
+    pub(super) fn begin_os_resize(&mut self, press: (f64, f64)) -> bool {
+        let Ok((scale, (w, h))) = self.shared.borrow().handle.try_with(|doc| {
+            let v = doc.renderer.document.viewport();
+            (v.scale_f64(), v.window_size)
+        }) else {
+            return false;
+        };
+        let band = RESIZE_BAND * scale;
+        let Some(direction) = resize_direction(press.0, press.1, f64::from(w), f64::from(h), band)
+            .and_then(os_direction)
+        else {
+            return false;
+        };
+        let accepted = self.window(WindowAction::BeginResize(direction)).is_ok();
+        if trace() {
+            eprintln!(
+                "{{\"os_resize_begin\":{{\"direction\":\"{direction:?}\",\"accepted\":{accepted}}}}}"
+            );
+        }
+        accepted
+    }
+
     /// Starts an edge drag when the press is in the invisible band along the window edge.
     /// Pointer and window size come from the X server in one unit (physical pixels).
     /// `press` is the button event's own position (window-relative, physical pixels): the
     /// event is handled a frame or more after the press, by when the pointer may already
     /// have moved, so the band and the drag origin must not come from a later pointer query.
     pub(super) fn begin_resize(&mut self, press: (f64, f64)) -> bool {
+        if std::env::var_os("KINEKINO_X11_OWN_RESIZE").is_none() && self.begin_os_resize(press) {
+            return true;
+        }
         let (Some(x11), Some(id)) = (self.x11.as_ref(), self.window_id) else {
             return false;
         };
@@ -138,6 +184,7 @@ impl<E: Engine> App<E> {
     }
 }
 
+#[cfg(all(unix, not(target_os = "macos")))]
 impl<E: Engine> App<E> {
     /// Sizes the window to the pointer's current screen position. Called on every pointer
     /// move and on every tick while the drag runs: winit drops a motion whose position in
