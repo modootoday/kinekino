@@ -3033,9 +3033,9 @@ dependencies = [
 
 [[package]]
 name = "meari"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a2f18549a291123b53df98655a8bc823f7e425b0e1d1256f68ddaf65c52f3981"
+checksum = "9b8ebe959d76729fc33552eb8b657ea5fb2dce2d31cf2c7bd44259473fff0e86"
 dependencies = [
  "meari-platform",
  "oxc_allocator",
@@ -3053,9 +3053,9 @@ dependencies = [
 
 [[package]]
 name = "meari-dom"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9bcea70228a4ca546f69dd5485beb7a2a2e3fb676934f968dbd989cba3ffce19"
+checksum = "33072d529b2b87aa5e726789c9865c32e52842bd9e145002cdb0831ee81acbfd"
 dependencies = [
  "accesskit",
  "app_units",
@@ -3101,9 +3101,9 @@ dependencies = [
 
 [[package]]
 name = "meari-html"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6875d50f8de876238ebd535e7a4205a50eb68a227c048adfff0fd218e78c835e"
+checksum = "1a36c73c0c16991cea2ea459d45d6e6568d49ad39e3e00c63a33d14dfb6cfa93"
 dependencies = [
  "blitz-traits",
  "html5ever 0.40.1",
@@ -3113,9 +3113,9 @@ dependencies = [
 
 [[package]]
 name = "meari-native"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3ea18e748eb4379aa94e2105176a8316a0bea103f3765dccebd676ec73a572f4"
+checksum = "595b40965fa966b97a27a652f0afaaffcfd9040a49fdd7c7f017a948959de6bc"
 dependencies = [
  "accesskit",
  "accesskit_xplat",
@@ -3159,9 +3159,9 @@ dependencies = [
 
 [[package]]
 name = "meari-paint"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8aff42171a6aabd858a080c6ceaa42521aae03895371ea26ff808f45b1fb42bd"
+checksum = "811fd4d159832309c67ab702e0f5359229304c9c185a3091cc892f5cd69ae665"
 dependencies = [
  "anyrender",
  "anyrender_svg",
@@ -3182,9 +3182,9 @@ dependencies = [
 
 [[package]]
 name = "meari-platform"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "84c1f55b059ad6d75054079e6f6def7c20bdb8aaf3b89ab932379995091939b4"
+checksum = "2df4d7357962e2a36c8adca25b33751536ac5e2a8647a617d4f4984a46b92bbf"
 dependencies = [
  "raw-window-handle",
  "serde_json",
@@ -3194,9 +3194,9 @@ dependencies = [
 
 [[package]]
 name = "meari-shell"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc981600c9cf3f9bced309647708c039f6e1c10817cf3bb0df19a9fac0dbeddb"
+checksum = "22211e0462e956faa80e908b9fff0784865e7b3b1fd0104fe928ff7244a1f0a9"
 dependencies = [
  "android-activity",
  "anyrender",

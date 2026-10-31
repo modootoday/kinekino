@@ -7,7 +7,6 @@ use crate::session::Session;
 use crate::texture::VideoTexture;
 pub mod actions;
 mod caption;
-#[cfg(all(unix, not(target_os = "macos")))]
 mod edges;
 use actions::{PortRefusal, WindowOps};
 use kinekino_core::playback::{RgbaFrame, VideoSurface};
@@ -264,9 +263,11 @@ impl<E: Engine> WindowOps for App<E> {
 }
 
 impl<E: Engine> App<E> {
+    /// Off X11 the OS drives the edge drag (Meari's `BeginResize`, winit
+    /// `drag_resize_window`): Windows and Wayland. macOS reports `Unsupported`.
     #[cfg(not(all(unix, not(target_os = "macos"))))]
-    fn begin_resize(&mut self, _: (f64, f64)) -> bool {
-        false
+    fn begin_resize(&mut self, press: (f64, f64)) -> bool {
+        self.begin_os_resize(press)
     }
     #[cfg(not(all(unix, not(target_os = "macos"))))]
     fn follow_resize(&mut self, _: &WindowEvent) -> bool {
