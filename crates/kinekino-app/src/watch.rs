@@ -15,7 +15,7 @@ fn usage(message: &str) -> (u8, String) {
     )
 }
 
-pub fn run(args: &Args) -> (u8, String) {
+pub fn run(args: &Args, env: &crate::Env) -> (u8, String) {
     let mut options = Options::default();
     let mut media = None;
     let mut i = 1;
@@ -52,7 +52,8 @@ pub fn run(args: &Args) -> (u8, String) {
             );
         }
     };
-    let mut controller = Controller::new(engine);
+    let mut controller = Controller::new(engine)
+        .with_catalog(Box::new(crate::plugins::PluginCatalog::discover(env)));
     if let Some(m) = &media {
         controller.open(m);
     }
