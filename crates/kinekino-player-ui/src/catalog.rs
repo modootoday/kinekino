@@ -7,7 +7,8 @@ use kinekino_core::source::{
 /// Listing rows the browse view shows per page (fixed slots, no remount).
 pub const BROWSE_ROWS: usize = 12;
 
-pub trait Catalog {
+/// Called from worker threads (see `jobs`), so implementations are shared across them.
+pub trait Catalog: Send + Sync {
     /// Installed sources that can browse. Each item's reference is the provider root
     /// (`id` empty); browsing it lists what the provider shows first.
     fn sources(&self) -> Vec<SourceItem>;
