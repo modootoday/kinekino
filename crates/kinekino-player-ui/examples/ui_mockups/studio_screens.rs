@@ -14,6 +14,12 @@ fn screen_tsx(screen: &str) -> Option<String> {
         "studio-short-batch" => short_batch(),
         "studio-raw-frame" => raw_frame(),
         "studio-snapshot" => snapshot(),
+        "studio-cards" => cards(),
+        "studio-asset2d" => asset2d(),
+        "studio-projection" => projection(),
+        "studio-projection-package" => projection_package(),
+        "studio-download" => download(),
+        "studio-models" => models(),
         _ => return None,
     })
 }
@@ -329,4 +335,150 @@ fn snapshot() -> String {
         &btn("ks-primary ks-wide", "export", "이미지 저장"),
     ]);
     frame(4, &main, &insp, &queue(0, &[], false))
+}
+
+fn cards() -> String {
+    let item = |n: &str, kind: &str, on: bool| {
+        let c2 = if on { " ks-on" } else { "" };
+        format!(r#"<div className="ks-row ks-frame{c2}"><span className="ks-small">{n}</span>{}</div>"#, pic(kind, "flex: 0 0 64px; height: 80px", ""))
+    };
+    let list = c(&[&item("1", "", false), &item("2", "", true), &item("3", "sunset", false), &item("4", "day", false), &btn("", "plus", "추가")]);
+    let main = c(&[
+        &h("카드뉴스", "만들기", "장면과 글을 묶어 카드뉴스로 만듭니다."),
+        &row(&c(&[&btn("", "fullscreen", "전체 보기"), &btn("", "copy", "복제"), &btn("", "delete", "삭제"), GROW, &p("ks-muted", "2 / 4")])),
+        &format!(r#"<div className="ks-row ks-grow" style="align-items: stretch; gap: 12px"><div className="ks-col" style="flex: 0 0 90px; gap: 8px">{list}</div>{}</div>"#,
+            stage("flex: 1", r#"<div className="ks-card-text"><span className="ks-big">별빛 여행</span><span>한 장면에 담긴 이야기</span></div><div className="ks-overlay" style="right: 10px; bottom: 10px"><span>2 / 4</span></div>"#)),
+    ]);
+    let insp = c(&[
+        &insp_title("cards", "카드 설정"),
+        &sec("플랫폼", &row(&c(&[&chip("ks-on", "영상 공유"), &chip("", "사진 공유")]))),
+        &sec("비율", &seg(&["1:1", "4:5", "9:16", "16:9"], 1)),
+        &sec("템플릿", &c(&[&seg(&["제목형", "인용형", "목록형"], 0), &f("글꼴", &sel("Noto Sans KR")), &f("강조 색", &row(&c(&[&format!(r#"<span className="ks-swatch" style="background: #f0b43c"></span>"#), &format!(r#"<span className="ks-swatch" style="background: #ffffff"></span>"#)])))])),
+        &sec("텍스트", &c(&[&input("별빛 여행"), &input("한 장면에 담긴 이야기")])),
+        &note("ks-warn", "info", "<span>글자 수가 많으면 작은 화면에서 잘릴 수 있습니다.</span>"),
+        &row(&c(&[&btn("ks-outline ks-grow", "", "미리보기"), &btn("ks-primary ks-grow", "export", "모두 저장")])),
+    ]);
+    frame(5, &main, &insp, &queue(0, &[], false))
+}
+
+fn asset2d() -> String {
+    let view = c(&[
+        &tools(&["selection-pointer", "brush-add", "eraser", "hand", "zoom-in"]),
+        &pic("checker", "flex: 1", r#"<div className="ks-box-blue" style="left: 34%; top: 10%; width: 30%; height: 78%"></div><div className="ks-figure" style="left: 38%; top: 16%; width: 22%; height: 70%"></div><span className="ks-pivot" style="left: 48%; top: 52%"></span>"#),
+    ]);
+    let layer = |name: &str, on: bool| {
+        let c2 = if on { " ks-on" } else { "" };
+        format!(r#"<div className="ks-row ks-frame{c2}">{}{}<span>{name}</span>{GROW}{}</div>"#, i("eye"), pic("checker", "flex: 0 0 36px; height: 24px", ""), i("lock"))
+    };
+    let main = c(&[
+        &h("2D 에셋", "알파 추출", "프레임에서 캐릭터를 떼어 투명 배경 이미지로 만듭니다."),
+        &row(&c(&[&seg(&["원본", "알파", "합성"], 1), GROW, &p("ks-muted", "100%"), &p("ks-muted", "08:24.120")])),
+        &format!(r#"<div className="ks-row ks-grow" style="align-items: stretch">{view}</div>"#),
+        &row(&c(&[&col("flex: 1; gap: 4px", &c(&[&p("ks-muted", "레이어"), &layer("캐릭터", true), &layer("그림자", false), &layer("배경", false)])), &col("flex: 0 0 220px", &c(&[&p("ks-muted", "원본 프레임"), &pic("room", "height: 96px", "")]))])),
+    ]);
+    let insp = c(&[
+        &insp_title("layers", "추출 설정"),
+        &sec("알파 추출", &c(&[&f("임계값", &slider(55)), &f("가장자리", &slider(30)), &f("번짐 제거", &slider(20))])),
+        &sec("기준점", &c(&[&row(&c(&[&radio(true, "중앙"), &radio(false, "발 아래"), &radio(false, "직접 지정")])), &row(&c(&[&input("X 512"), &input("Y 980")]))])),
+        &sec("경계 상자", &row(&c(&[&input("120"), &input("40"), &input("880"), &input("1024")]))),
+        &sec("내보내기", &c(&[&f("크기", &sel("1,024 px")), &check(true, "PNG (알파 포함)"), &check(true, "기준점 JSON"), &check(false, "마스크 따로 저장")])),
+        &row(&c(&[&btn("ks-outline ks-grow", "", "현재 저장"), &btn("ks-primary ks-grow", "export", "에셋 저장")])),
+    ]);
+    frame(6, &main, &insp, &queue(0, &[], false))
+}
+
+const PROJ_TABS: [(&str, &str); 2] = [("cube", "투영 만들기"), ("folder", "패키지 확인")];
+
+fn projection() -> String {
+    let planes = r#"<div className="ks-planes"><span className="ks-pic ks-pic-day" style="left: 8%; top: 18%"></span><span className="ks-pic" style="left: 20%; top: 14%"></span><span className="ks-pic ks-pic-sunset" style="left: 32%; top: 10%"></span><span className="ks-pic ks-pic-room" style="left: 44%; top: 6%"></span></div>"#;
+    let main = c(&[
+        &h("3D 투영", "깊이 레이어", "장면을 깊이별 평면으로 나눠 3D 공간에 배치합니다."),
+        &tabs(&PROJ_TABS, 0),
+        &row(&c(&[GROW, &seg(&["정면", "측면", "위", "자유"], 3)])),
+        &format!(r#"<div className="ks-col ks-grow ks-space">{planes}</div>"#),
+        &row(&c(&[&p("ks-l", "카메라 시점"), &format!(r#"<div className="ks-col" style="flex: 1">{}</div>"#, slider(62))])),
+    ]);
+    let insp = c(&[
+        &insp_title("cube", "깊이 맵 설정"),
+        &sec("깊이 모델", &c(&[&sel("깊이 추정 · 기본"), &p("ks-l", "깊이 범위"), &r#"<div className="ks-depth"></div>"#.to_owned(), &row(&c(&[&p("ks-small", "가까움"), GROW, &p("ks-small", "멀리")]))])),
+        &sec("레이어", &c(&[&f("레이어 수", &input("4")), &f("간격", &slider(45))])),
+        &sec("좌표계", &c(&[&f("위쪽 축", &sel("Y 위")), &f("단위", &sel("미터")), &f("원점", &sel("화면 중앙"))])),
+        &note("ks-warn", "warning", "<span>가장 먼 레이어는 깊이 신뢰도가 낮아 흔들릴 수 있습니다.</span>"),
+        &row(&c(&[&btn("ks-outline ks-grow", "", "미리보기"), &btn("ks-primary ks-grow", "export", "내보내기")])),
+    ]);
+    frame(7, &main, &insp, &queue(0, &[], false))
+}
+
+fn projection_package() -> String {
+    let f2 = |icon: &str, name: &str| format!("<span>{}{name}</span>", i(icon));
+    let tree = format!(r#"<div className="ks-tree">{}{}{}{}{}{}</div>"#,
+        f2("folder", "scene/"), f2("file-image", "  layer_01.png"), f2("file-mask", "  layer_01_mask.png"), f2("file-depth", "  depth.png"), f2("file-json", "  projection.json"), f2("file-json", "  scene.gltf"));
+    let main = c(&[
+        &h("3D 투영", "패키지 확인", "내보낼 파일 묶음을 확인하고 빠진 항목을 고칩니다."),
+        &tabs(&PROJ_TABS, 1),
+        &format!(r#"<div className="ks-row ks-grow" style="align-items: stretch; gap: 12px">{}<div className="ks-col" style="flex: 0 0 240px">{}{}{}</div></div>"#,
+            pic("room", "flex: 1", ""), p("ks-muted", "파일 구성"), tree, pic("", "height: 90px", "")),
+        &p("ks-muted", "검증 결과 (6개 중 1개 확인 필요)"),
+        &table(&[150, 0, 100], &["항목", "내용", "결과"], &[
+            cells(&["좌표계", "Y 위 · 미터", &chip("", "통과")]),
+            cells(&["레이어 수", "4개 · 마스크 4개", &chip("", "통과")]),
+            cells(&["깊이 맵", "1920 × 1080 · 16비트", &chip("", "통과")]),
+            cells(&["텍스처 크기", "레이어 3이 2의 거듭제곱이 아님", &chip("ks-chip-violet", "확인 필요")]),
+        ], Some(3)),
+    ]);
+    let insp = c(&[
+        &insp_title("folder", "패키지 설정"),
+        &sec("형식", &c(&[&f("장면", &sel("glTF 2.0")), &f("텍스처", &sel("PNG"))])),
+        &sec("좌표", &c(&[&f("위쪽 축", &sel("Y 위")), &f("단위", &sel("미터"))])),
+        &sec("포함", &c(&[&check(true, "마스크"), &check(true, "깊이 맵"), &check(false, "원본 프레임")])),
+        &note("ks-warn", "warning", "<span>텍스처 1개가 권장 크기가 아닙니다. 저장 시 자동으로 늘립니다.</span>"),
+        &btn("ks-primary ks-wide", "export", "패키지 저장"),
+    ]);
+    frame(7, &main, &insp, &queue(1, &[("3D 패키지", "1화 · scene", "대기 중")], false))
+}
+
+fn download() -> String {
+    let main = c(&[
+        &h("영상 저장", "", "선택한 회차를 보관용 파일로 저장합니다."),
+        &p("ks-muted", "별빛 여행 · 3화"),
+        &stage("flex: 1", ""),
+        &transport("00:00 / 23:40", 0, &["volume", "fullscreen"]),
+        &p("ks-muted", "트랙 선택"),
+        &table(&[24, 90, 0, 120], &["", "종류", "트랙", "상태"], &[
+            cells(&[&check(true, ""), "영상", &sel("1080p · H.264"), &chip("", "저장 가능")]),
+            cells(&[&check(true, ""), "오디오", &sel("한국어 · AAC 2ch"), &chip("", "저장 가능")]),
+            cells(&[&check(false, ""), "자막", &sel("한국어 · ASS"), &chip("ks-chip-gray", "선택 안 함")]),
+        ], None),
+    ]);
+    let insp = c(&[
+        &insp_title("export", "저장 방식"),
+        &sec("", &c(&[&radio(true, "원본 그대로 · 다시 인코딩하지 않음"), &radio(false, "호환성 우선 · MP4로 변환"), &radio(false, "용량 우선 · 화질 조절")])),
+        &sec("출력 설정", &c(&[&f("컨테이너", &sel("MKV")), &f("파일 이름", &input("별빛 여행 - 03화")), &f("저장 위치", &input("동영상 / kinekino"))])),
+        &sec("호환성 확인", &c(&[&note("", "info", "<span>MKV는 일부 기기에서 재생되지 않을 수 있습니다.</span>"), &note("ks-warn", "warning", "<span>권한이 있는 영상만 저장하세요.</span>")])),
+        &btn("ks-primary ks-wide", "export", "저장 시작"),
+    ]);
+    frame(8, &main, &insp, &queue(0, &[], false))
+}
+
+fn models() -> String {
+    let cat = |name: &str, n: &str, open: bool| {
+        let arrow = if open { "chevron-down" } else { "forward" };
+        format!(r#"<div className="ks-row ks-cat">{}{}<span>{name}</span><span className="ks-small">({n})</span></div>"#, i(arrow), i("model"))
+    };
+    let model = format!(r#"<div className="ks-row ks-frame ks-on ks-model">{}<div className="ks-col ks-grow" style="gap: 2px"><span>음성 인식 · 기본</span><span>{}{}</span></div>{}</div>"#,
+        check(true, ""), chip("", "설치됨"), chip("ks-chip-gray", "1.5 GB"), btn("", "", "사용 중"));
+    let main = c(&[
+        &h("모델 관리", "", "AI 기능에 쓰는 모델을 내려받고 이 컴퓨터에 맞게 설정합니다."),
+        &row(&c(&[&format!(r#"<span className="ks-input ks-grow">{}모델 이름, 기능, 크기 검색</span>"#, i("search")), &sel("전체")])),
+        &format!(r#"<div className="ks-col ks-grow ks-card" style="gap: 6px">{}{}{}{}{}{}{}</div>"#,
+            cat("음성 인식", "2", true), model, cat("화면 OCR", "1", false), cat("피사체 분할", "2", false), cat("깊이 추정", "1", false), cat("텍스트", "2", false), cat("장면 추천", "1", false)),
+    ]);
+    let insp = c(&[
+        &insp_title("model", "모델 정보"),
+        &sec("", &row(&c(&[&chip("", "설치됨"), &chip("ks-chip-gray", "음성 인식"), GROW, &btn("", "", "삭제")]))),
+        &sec("파일", &c(&[&f("이름", "음성 인식 · 기본"), &f("크기", "1.5 GB"), &f("저장 위치", "모델 폴더"), &f("라이선스", "공개 모델")])),
+        &sec("실행", &c(&[&f("양자화", &sel("Q4 (권장)")), &f("실행 장치", &sel("자동 (GPU 우선)")), &f("메모리 한도", &input("4 GB"))])),
+        &btn("ks-outline ks-wide", "refresh", "업데이트 확인"),
+    ]);
+    frame(9, &main, &insp, &queue(0, &[], false))
 }
