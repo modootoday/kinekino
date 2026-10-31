@@ -203,3 +203,15 @@ b.ks-err { color: #ff6b6b; font-weight: 600; text-decoration: line-through; }
 .ks-cand.ks-on, .ks-frame.ks-on .ks-pic { border: 1px solid var(--aw-accent); }
 .ks-title-text { background: transparent; border: 0; font-size: 26px; font-weight: 700; }
 .ks-main > .ks-row.ks-grow { flex: 1 1 0; min-height: 0; }
+.ks-card-text { position: absolute; left: 0; right: 0; top: 30%; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.ks-card-text .ks-big { font-size: 34px; }
+.ks-figure { position: absolute; background: linear-gradient(180deg, #d8d2c8 0%, #b8a890 60%, #8a7a66 100%); border-radius: 40% 40% 12px 12px; }
+.ks-pivot { position: absolute; width: 10px; height: 10px; border-radius: 5px; background: var(--aw-accent); }
+.ks-space { position: relative; background: radial-gradient(circle at 50% 40%, #23262c 0%, #121316 70%); border: 1px solid #2c2f34; border-radius: 4px; }
+.ks-planes { position: absolute; left: 10%; right: 10%; top: 6%; bottom: 6%; }
+.ks-planes .ks-pic { position: absolute; width: 46%; height: 70%; border: 1px solid #5a5d62; opacity: .92; }
+.ks-cat { padding: 6px 4px; border-bottom: 1px solid #2c2f34; flex: 0 0 auto; }
+.ks-model { flex: 0 0 auto; padding: 6px; }
+.ks-frame { padding: 4px; border-radius: 4px; border: 1px solid transparent; flex: 0 0 auto; }
+.ks-frame.ks-on { border-color: var(--aw-accent); }
+.ks-input.ks-grow { justify-content: flex-start; display: flex; align-items: center; gap: 6px; }
