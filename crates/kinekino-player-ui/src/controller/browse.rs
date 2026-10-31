@@ -14,6 +14,7 @@ impl<E: Engine> Controller<E> {
         self.view.browse_listing += 1;
         self.next_page = next;
         self.view.browse_status.clear();
+        self.view.browse_mood = "";
         self.rows();
     }
 
@@ -59,6 +60,7 @@ impl<E: Engine> Controller<E> {
             })
         }));
         self.view.browse_status = LOADING.into();
+        self.view.browse_mood = "loading";
     }
 
     /// A listing answer for `level`.
@@ -72,6 +74,7 @@ impl<E: Engine> Controller<E> {
             Ok(p) => p,
             Err(e) => {
                 self.view.browse_status = browse_error(&e);
+                self.view.browse_mood = "error";
                 return;
             }
         };
@@ -83,6 +86,7 @@ impl<E: Engine> Controller<E> {
                     top.page = level.page;
                 }
                 self.view.browse_status.clear();
+                self.view.browse_mood = "";
                 self.rows();
             }
             Then::Push | Then::Stay => {

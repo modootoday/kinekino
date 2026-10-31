@@ -5,7 +5,7 @@ mod browse;
 mod jobs;
 pub use crate::port::Engine;
 use crate::session::Command;
-use crate::source::{Episode, View};
+use crate::source::{PlaylistItem, View};
 use jobs::{Job, Level, Pending, Reply};
 use kinekino_core::port::error::PortResult;
 use kinekino_core::source::{SourceError, SourceItem, SourceItemKind, StreamCandidate};
@@ -126,6 +126,7 @@ impl<E: Engine> Controller<E> {
 
     /// Source plugins behind 작품 탐색.
     pub fn with_catalog(mut self, catalog: Box<dyn Catalog>) -> Self {
+        self.view.has_browse_plugin = !catalog.sources().is_empty();
         self.catalog = Some(Arc::from(catalog));
         self
     }
@@ -179,10 +180,10 @@ impl<E: Engine> Controller<E> {
             .iter()
             .position(|f| f.file_name() == media.file_name())
             .unwrap_or(0);
-        self.view.episodes = files
+        self.view.playlist = files
             .iter()
             .enumerate()
-            .map(|(i, f)| Episode {
+            .map(|(i, f)| PlaylistItem {
                 number: format!("{:02}", i + 1),
                 title: stem(f),
             })
@@ -209,10 +210,10 @@ impl<E: Engine> Controller<E> {
             .cloned()
             .collect();
         let index = queue.iter().position(|i| *i == chosen).unwrap_or(0);
-        self.view.episodes = queue
+        self.view.playlist = queue
             .iter()
             .enumerate()
-            .map(|(i, e)| Episode {
+            .map(|(i, e)| PlaylistItem {
                 number: format!("{:02}", i + 1),
                 title: e.title.clone(),
             })
@@ -285,6 +286,7 @@ impl<E: Engine> Controller<E> {
                 }));
                 if self.view.browsing {
                     self.view.browse_status = LOADING.into();
+                    self.view.browse_mood = "loading";
                 }
             }
             None => {}
@@ -314,6 +316,7 @@ impl<E: Engine> Controller<E> {
                 self.view.has_media = true;
                 self.view.browsing = false;
                 self.view.browse_status.clear();
+                self.view.browse_mood = "";
                 self.view.playing = true;
                 self.view.position = 0.0;
                 self.view.duration = 0.0;
@@ -330,6 +333,7 @@ impl<E: Engine> Controller<E> {
         let message = format!("재생할 수 없습니다: {why}");
         if self.view.browsing {
             self.view.browse_status = message;
+            self.view.browse_mood = "error";
         } else if self.view.has_media {
             self.view.notice = message;
             self.notice_since = Some(Instant::now());
@@ -391,7 +395,7 @@ impl<E: Engine> Controller<E> {
                     self.play(i + 1);
                 }
             }
-            Command::Episode(i) => self.play(i),
+            Command::Item(i) => self.play(i),
             Command::Mute => {
                 self.view.muted = !self.view.muted;
                 let value = if self.view.muted { "yes" } else { "no" };
@@ -417,7 +421,7 @@ impl<E: Engine> Controller<E> {
                     self.report(r);
                 }
             }
-            Command::ToggleEpisodes => self.view.panel_open = !self.view.panel_open,
+            Command::TogglePlaylist => self.view.panel_open = !self.view.panel_open,
             Command::ToggleFullscreen if media => {
                 return Some(Effect::Fullscreen(!self.view.fullscreen));
             }

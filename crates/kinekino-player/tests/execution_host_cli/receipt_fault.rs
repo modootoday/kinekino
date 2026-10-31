@@ -4,7 +4,7 @@ use std::{collections::BTreeSet, io::Write, path::Path};
 const SENTINEL: &[u8] = b"original normal CLI receipt collision evidence";
 fn roots(pid: u32) -> BTreeSet<PathBuf> {
     let prefix = format!("frame-owned-{pid}-");
-    fs::read_dir(std::env::temp_dir())
+    fs::read_dir(std::env::temp_dir().join("kinekino-frame-owned"))
         .unwrap()
         .map(|entry| entry.unwrap().path())
         .filter(|path| {
