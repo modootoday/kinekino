@@ -23,7 +23,7 @@ rel:
 | spec 설치 | 자체 composite action(체크섬 검증) | 같은 방식 스크립트 `.github/scripts/install-specfold.sh`, `v0.2.6` 고정 | v0.2.6 태그에는 `action.yml`이 없음 |
 | 캐시 | 없음 | `Swatinem/rust-cache` v2.9.3(main에서만 저장), 릴리스는 캐시 없음 | 워크스페이스 23개 crate. 캐시 오염 방지 업계 관행 |
 | 툴체인 | `stable` 설치 | `rust-toolchain.toml`(1.99.1) 그대로 | 재현성 |
-| target 디렉터리 | 기본 | `CARGO_TARGET_DIR=target`, `CARGO_BUILD_JOBS=4` | 박스용 공유 `../.cargo-target`, `jobs=1`은 러너에 맞지 않음 |
+| target 디렉터리 | 기본 | `CARGO_TARGET_DIR=target`, `CARGO_BUILD_JOBS=4` | 개발 장비용 공유 `../.cargo-target`, `jobs=1`은 러너에 맞지 않음 |
 | 릴리스 트리거 | `v*` 태그 + 수동 dry-run/bootstrap | `v*` 태그 + 수동 dry-run | bootstrap은 npm 신뢰 게시자 등록 전 첫 게시용이라 npm이 없는 kinekino엔 해당 없음 |
 | 버전 규칙 | 루트 `version` = 태그 | `[workspace.package] version` = 태그(불일치 시 실패) | 같음 |
 | 산출물 | `specfold-<target>.tar.gz`/`.zip` + `.sha256`, 5 타깃, Linux는 ubuntu-22.04(glibc 2.35) | `kinekino-<target>` 같은 형식·타깃, `kinekino`·`player`·`kinekino-vad-worker` + LICENSE(MIT)·README·THIRD_PARTY | 같음 |
@@ -53,7 +53,7 @@ rel:
 
 5. 설치형 패키지(MSI/DMG/deb·AppImage)와 서명은 P6/P8 이후 별도 단계에서 추가한다. 지금은 압축 파일과 체크섬만.
 6. 설정 페이지 항목: 없음. CI/CD는 저장소 관리자 설정(GitHub 저장소 Settings)이며 앱 사용자 설정이 아니다.
-7. 박스 규칙과의 차이: 박스는 `nice` + `-j 1` + 공유 target, 러너는 `-j 4` + 저장소 내 target + rust-cache.
+7. 개발 장비 규칙과의 차이: 개발 장비는 `nice` + `-j 1` + 공유 target, 러너는 `-j 4` + 저장소 내 target + rust-cache.
 
 ## Consequences
 - 로컬 검증: actionlint 1.7.12 + shellcheck 0.11.0 오류 0, 스크립트 로컬 실행(버전 추출, specfold 설치·체크섬, 패키징, Windows 게이트 clippy).

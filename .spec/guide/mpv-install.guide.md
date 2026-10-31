@@ -29,7 +29,7 @@ kinekino는 mpv 바이너리를 번들하거나 저장소에 커밋하지 않는
 
 ## libmpv(렌더 API) 고정 설치 — root 불필요
 
-`kinekino-libmpv`는 libmpv를 실행 중 `dlopen`으로 읽는다(`$KINEKINO_LIBMPV` → 플랫폼 soname `libmpv.so.2`/`libmpv-2.dll`/`libmpv.2.dylib`). 저장소에 바이너리를 넣지 않는다. 개발 박스 기준 설치는 Debian 13(trixie) 패키지를 `/workspace/.localdeps/mpv/`에 풀어 쓴다.
+`kinekino-libmpv`는 libmpv를 실행 중 `dlopen`으로 읽는다(`$KINEKINO_LIBMPV` → 플랫폼 soname `libmpv.so.2`/`libmpv-2.dll`/`libmpv.2.dylib`). 저장소에 바이너리를 넣지 않는다. 개발 장비 기준 설치는 Debian 13(trixie) 패키지를 `/workspace/.localdeps/mpv/`에 풀어 쓴다.
 
 | 패키지 | 주소(deb.debian.org/debian/pool/main/…) | SHA-256 |
 |---|---|---|
