@@ -13,7 +13,7 @@ sections:
   - { c: split, visual: player-mock, scene: review }
   - { c: split, visual: player-mock, scene: settings }
   - { c: split, visual: player-mock, scene: agent }
-  - { c: code-split }
+  - { c: split, visual: code, chrome: terminal }
   - { c: prose }
   - { c: platform-list }
   - { c: timeline }
