@@ -1,4 +1,5 @@
 language: English
+site_title: kinekino   # header, <title>, og:site_name (jekyll-theme-modootoday 1.1.1)
 languages:
   label: Language
 theme:

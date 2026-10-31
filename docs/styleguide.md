@@ -13,7 +13,7 @@ sections:
   - { c: split, visual: player-mock, scene: review }
   - { c: split, visual: player-mock, scene: settings }
   - { c: split, visual: player-mock, scene: agent }
-  - { c: split }
+  - { c: split, visual: code, chrome: terminal }
   - { c: prose }
   - { c: platform-list }
   - { c: timeline }
@@ -123,11 +123,11 @@ A plain list gets a custom marker; nested items indent one step:
 
 A list of only links becomes chips:
 
-- [Features](features.md)
-- [CLI](cli.md)
-- [Roadmap](roadmap.md)
+- [Features](#)
+- [CLI](#)
+- [Roadmap](#)
 
 A link followed by text stays a plain list:
 
-- [Features](features.md) for the full table
-- [Roadmap](roadmap.md)
+- [Features](#) for the full table
+- [Roadmap](#)

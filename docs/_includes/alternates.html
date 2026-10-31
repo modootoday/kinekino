@@ -1,6 +1,0 @@
-{%- comment -%}Every page with the same `ref` is a translation. Each lists itself and all others (Google hreflang rule), plus x-default.{%- endcomment -%}
-{%- assign tr = site.pages | where: "ref", page.ref | where_exp: "p", "p.layout != 'twin'" -%}
-{%- for p in tr %}
-<link rel="alternate" hreflang="{{ p.lang }}" href="{{ p.url | absolute_url }}">{% endfor %}
-{%- for p in tr %}{% if p.lang == site.default_lang %}
-<link rel="alternate" hreflang="x-default" href="{{ p.url | absolute_url }}">{% endif %}{% endfor %}

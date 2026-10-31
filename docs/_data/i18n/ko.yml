@@ -1,4 +1,5 @@
 language: 한국어
+site_title: kinekino   # header, <title>, og:site_name (jekyll-theme-modootoday 1.1.1)
 languages:
   label: 언어
 theme:
