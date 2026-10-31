@@ -419,3 +419,25 @@ fn no_dialog_while_playing_is_a_toast_that_goes_away() {
     assert!(c.view.notice.is_empty());
     std::fs::remove_dir_all(dir).unwrap();
 }
+
+#[test]
+fn esc_closes_the_menu_before_leaving_fullscreen() {
+    let (dir, files) = folder("escmenu");
+    let mut c = Controller::new(FakeEngine::default());
+    c.open(&files[0]);
+    c.view.fullscreen = true;
+    assert_eq!(c.apply(Command::More), None);
+    assert!(c.view.menu_open);
+    assert_eq!(
+        c.apply(Command::ExitFullscreen),
+        None,
+        "first Esc: menu only"
+    );
+    assert!(!c.view.menu_open && c.view.fullscreen);
+    assert_eq!(
+        c.apply(Command::ExitFullscreen),
+        Some(Effect::Fullscreen(false)),
+        "next Esc leaves fullscreen"
+    );
+    std::fs::remove_dir_all(dir).unwrap();
+}
