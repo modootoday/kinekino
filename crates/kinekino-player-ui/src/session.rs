@@ -54,6 +54,10 @@ pub enum Command {
     Seek(f64),
     /// Volume 0–100.
     Volume(f64),
+    /// One `VOLUME_STEP` louder (up to 100); unmutes.
+    VolumeUp,
+    /// One `VOLUME_STEP` quieter (down to 0); a muted player stays muted.
+    VolumeDown,
     /// Turn playing the next queue item at the end of the current one on or off.
     ToggleAutoNext,
 }
