@@ -126,6 +126,7 @@ impl LibMpvSurface {
         self.check(rc, &format!("command {}", args.first().unwrap_or(&"")))
     }
 
+    /// A numeric property; yes/no flags (`eof-reached`, `pause`) read as 1.0/0.0.
     pub fn property_f64(&mut self, name: &str) -> Option<f64> {
         let n = c(name).ok()?;
         let mut v = 0f64;
@@ -138,7 +139,21 @@ impl LibMpvSurface {
                 (&mut v as *mut f64).cast::<c_void>(),
             )
         };
-        (rc >= 0).then_some(v)
+        if rc != ffi::ERROR_PROPERTY_FORMAT {
+            return (rc >= 0).then_some(v);
+        }
+        // Flags refuse FORMAT_DOUBLE; mpv only hands them out as FORMAT_FLAG.
+        let mut flag: c_int = 0;
+        // SAFETY: FORMAT_FLAG writes one C int into `flag`.
+        let rc = unsafe {
+            (self.api.get_property)(
+                self.handle,
+                n.as_ptr(),
+                ffi::FORMAT_FLAG,
+                (&mut flag as *mut c_int).cast::<c_void>(),
+            )
+        };
+        (rc >= 0).then_some(if flag != 0 { 1.0 } else { 0.0 })
     }
 
     /// A string property (e.g. `sub-text`); None when unavailable.
