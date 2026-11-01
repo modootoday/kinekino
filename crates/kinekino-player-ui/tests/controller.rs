@@ -442,3 +442,116 @@ fn auto_next_plays_the_following_item_only_when_enabled() {
     assert!(!c.view.auto_next);
     std::fs::remove_dir_all(dir).unwrap();
 }
+
+#[test]
+fn arrow_keys_step_the_volume_and_m_mutes() {
+    use kinekino_player_ui::shortcut;
+    use winit::keyboard::{KeyCode, ModifiersState, PhysicalKey};
+    let none = ModifiersState::empty();
+    let key = |k| PhysicalKey::Code(k);
+    assert_eq!(
+        shortcut(none, key(KeyCode::ArrowUp), false),
+        Some(Command::VolumeUp)
+    );
+    assert_eq!(
+        shortcut(none, key(KeyCode::ArrowDown), false),
+        Some(Command::VolumeDown)
+    );
+    // Holding an arrow keeps stepping; holding M must not flicker mute on and off.
+    assert_eq!(
+        shortcut(none, key(KeyCode::ArrowUp), true),
+        Some(Command::VolumeUp),
+        "auto-repeat steps"
+    );
+    assert_eq!(
+        shortcut(none, key(KeyCode::KeyM), false),
+        Some(Command::Mute)
+    );
+    assert_eq!(
+        shortcut(none, key(KeyCode::KeyM), true),
+        None,
+        "auto-repeat"
+    );
+    for mods in [
+        ModifiersState::CONTROL,
+        ModifiersState::ALT,
+        ModifiersState::SHIFT,
+    ] {
+        assert_eq!(shortcut(mods, key(KeyCode::ArrowUp), false), None);
+        assert_eq!(shortcut(mods, key(KeyCode::KeyM), false), None);
+    }
+}
+
+#[test]
+fn volume_steps_are_five_and_stay_within_0_to_100() {
+    use kinekino_player_ui::VOLUME_STEP;
+    assert_eq!(VOLUME_STEP, 5.0);
+    let mut c = Controller::new(FakeEngine::default());
+    assert_eq!(c.view.volume, 100.0, "starts full");
+    c.apply(Command::VolumeUp);
+    assert_eq!(c.view.volume, 100.0, "no boost past 100");
+    for _ in 0..3 {
+        c.apply(Command::VolumeDown);
+    }
+    assert_eq!(c.view.volume, 85.0);
+    assert_eq!(c.engine.commands.last().unwrap(), "set volume 85");
+    c.apply(Command::Volume(3.0));
+    c.apply(Command::VolumeDown);
+    assert_eq!(c.view.volume, 0.0, "clamped at silence");
+    c.apply(Command::VolumeDown);
+    assert_eq!(c.view.volume, 0.0);
+    c.apply(Command::Volume(98.0));
+    c.apply(Command::VolumeUp);
+    assert_eq!(c.view.volume, 100.0, "clamped at full");
+    // A slider value off the step grid moves by one step from where it is.
+    c.apply(Command::Volume(42.0));
+    c.apply(Command::VolumeUp);
+    assert_eq!(c.view.volume, 47.0);
+    // Out-of-range values never reach the engine.
+    c.apply(Command::Volume(250.0));
+    assert_eq!(c.view.volume, 100.0);
+    c.apply(Command::Volume(-4.0));
+    assert_eq!(c.view.volume, 0.0);
+    assert!(
+        c.engine
+            .commands
+            .iter()
+            .filter(|s| s.starts_with("set volume"))
+            .all(|s| {
+                let v: f64 = s["set volume ".len()..].parse().unwrap();
+                (0.0..=100.0).contains(&v)
+            })
+    );
+}
+
+#[test]
+fn volume_keys_unmute_upward_and_show_on_the_bar() {
+    let (dir, files) = folder("volume");
+    let mut c = Controller::new(FakeEngine::default());
+    c.open(&files[0]);
+    let prop = |c: &Controller<FakeEngine>, k: &str| format!("{:?}", meari_props(&c.view)[k]);
+    c.apply(Command::VolumeDown);
+    assert!(prop(&c, "volume").contains("95"), "{}", prop(&c, "volume"));
+    c.apply(Command::Mute);
+    assert!(c.view.muted);
+    assert!(prop(&c, "volumeIcon").contains("volume-zero"));
+    assert!(prop(&c, "volume").contains("95"), "muting keeps the level");
+    c.apply(Command::VolumeDown);
+    assert!(c.view.muted, "turning down while muted stays muted");
+    assert_eq!(c.view.volume, 90.0);
+    c.apply(Command::VolumeUp);
+    assert!(!c.view.muted, "turning up unmutes");
+    assert_eq!(c.view.volume, 95.0);
+    assert_eq!(c.engine.commands.last().unwrap(), "set mute no");
+    assert!(!prop(&c, "volumeIcon").contains("volume-zero"));
+    // The mounted bar follows: the slider shows the new level.
+    let (_, mut doc) = Session::mount(&c.view).unwrap();
+    c.apply(Command::VolumeDown);
+    doc.update_module_props(meari_props(&c.view)).unwrap();
+    let slider = doc.elements().iter().find(|e| e.id == "volume").unwrap();
+    assert_eq!(
+        slider.attributes.get("value").map(String::as_str),
+        Some("90")
+    );
+    std::fs::remove_dir_all(dir).unwrap();
+}

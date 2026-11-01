@@ -32,7 +32,7 @@ use std::time::{Duration, Instant};
 use winit::application::ApplicationHandler;
 use winit::event::{ElementState, WindowEvent};
 use winit::event_loop::{ActiveEventLoop, ControlFlow};
-use winit::keyboard::{KeyCode, ModifiersState, PhysicalKey};
+use winit::keyboard::ModifiersState;
 use winit::window::WindowId;
 
 const TICK: Duration = Duration::from_millis(16);
@@ -476,10 +476,9 @@ impl<E: Engine> ApplicationHandler for App<E> {
             }
             _ => {}
         }
-        // Space is the player's play/pause key: it must not also press a focused button.
         if !typing
             && let WindowEvent::KeyboardInput { event: key, .. } = &event
-            && key.physical_key == PhysicalKey::Code(KeyCode::Space)
+            && typing::player_only(key.physical_key)
         {
             self.tick(event_loop);
             return;

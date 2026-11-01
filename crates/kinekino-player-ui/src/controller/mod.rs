@@ -22,6 +22,8 @@ pub const RESTART_WITHIN: f64 = 3.0;
 pub const NO_DIALOG_WITHIN: Duration = Duration::from_millis(400);
 /// A notice over the playing video disappears after this long.
 pub const NOTICE_FOR: Duration = Duration::from_secs(4);
+/// Volume change per Up/Down key, in points of the 0–100 scale (PotPlayer's default).
+pub const VOLUME_STEP: f64 = 5.0;
 const NO_SOURCES: &str = "설치된 소스 플러그인이 없습니다. 플러그인 폴더에 소스 플러그인을 설치하면 작품을 탐색할 수 있습니다.";
 const BROWSE_TITLE: &str = "작품 탐색";
 const LOADING: &str = "불러오는 중…";
@@ -410,17 +412,10 @@ impl<E: Engine> Controller<E> {
                 self.report(r);
                 self.view.position = secs;
             }
-            Command::Volume(v) => {
-                self.view.volume = v;
-                let r = self.engine.command(&["set", "volume", &format!("{v:.0}")]);
-                self.report(r);
-                // Raising the volume while muted unmutes, as in common players.
-                if self.view.muted && v > 0.0 {
-                    self.view.muted = false;
-                    let r = self.engine.command(&["set", "mute", "no"]);
-                    self.report(r);
-                }
-            }
+            // The slider: any audible level unmutes, as in common players.
+            Command::Volume(v) => self.set_volume(v, v > 0.0),
+            Command::VolumeUp => self.set_volume(self.view.volume + VOLUME_STEP, true),
+            Command::VolumeDown => self.set_volume(self.view.volume - VOLUME_STEP, false),
             Command::ToggleAutoNext => self.view.auto_next = !self.view.auto_next,
             Command::TogglePlaylist => self.view.panel_open = !self.view.panel_open,
             Command::ToggleFullscreen if media => {
@@ -466,6 +461,19 @@ impl<E: Engine> Controller<E> {
             || before.1 != self.view.duration
             || before.2 != self.view.playing
             || subtitle_changed
+    }
+
+    /// Sets the volume within 0–100; `unmute` lifts a mute when the result is audible.
+    fn set_volume(&mut self, v: f64, unmute: bool) {
+        let v = v.clamp(0.0, 100.0);
+        self.view.volume = v;
+        let r = self.engine.command(&["set", "volume", &format!("{v:.0}")]);
+        self.report(r);
+        if self.view.muted && unmute && v > 0.0 {
+            self.view.muted = false;
+            let r = self.engine.command(&["set", "mute", "no"]);
+            self.report(r);
+        }
     }
 
     /// Auto-next: the item after the current one, when the user turned it on and the queue

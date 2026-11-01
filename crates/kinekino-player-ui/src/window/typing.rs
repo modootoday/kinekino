@@ -39,6 +39,15 @@ impl<E: Engine> Shared<E> {
     }
 }
 
+/// Player keys the document must not also act on: Space would press a focused button,
+/// and Up/Down would step a focused slider on top of the volume step.
+pub(super) fn player_only(key: PhysicalKey) -> bool {
+    matches!(
+        key,
+        PhysicalKey::Code(KeyCode::Space | KeyCode::ArrowUp | KeyCode::ArrowDown)
+    )
+}
+
 /// Scrolls the browse row list back to its top, for a newly shown listing.
 pub(super) fn to_top(doc: &mut meari_native::infrastructure::document::InteractiveDocument) {
     let dom = &mut doc.renderer.document;
