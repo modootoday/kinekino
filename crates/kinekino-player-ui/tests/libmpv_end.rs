@@ -33,7 +33,10 @@ fn controller(first: &Path) -> Controller<LibMpvSurface> {
 }
 
 /// Polls until `done` holds or 10 s pass.
-fn poll_until(c: &mut Controller<LibMpvSurface>, done: impl Fn(&Controller<LibMpvSurface>) -> bool) {
+fn poll_until(
+    c: &mut Controller<LibMpvSurface>,
+    done: impl Fn(&Controller<LibMpvSurface>) -> bool,
+) {
     let deadline = Instant::now() + Duration::from_secs(10);
     while !done(c) && Instant::now() < deadline {
         c.poll();
@@ -46,7 +49,10 @@ fn the_end_of_a_file_stops_the_view() {
     let dir = clips("stop");
     let mut c = controller(&dir.join("02.mkv"));
     poll_until(&mut c, |c| !c.view.playing);
-    assert!(!c.view.playing, "the play button still shows pause at the end");
+    assert!(
+        !c.view.playing,
+        "the play button still shows pause at the end"
+    );
     std::fs::remove_dir_all(dir).unwrap();
 }
 
