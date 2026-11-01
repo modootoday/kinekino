@@ -55,6 +55,9 @@ pub struct View {
     pub browse_grid: bool,
     /// A connected plugin offers browsing; without one, 작품 탐색 is not shown.
     pub has_browse_plugin: bool,
+    /// At the end of an item, play the next one in the queue. Off until the user turns it
+    /// on (field rules: auto next needs an explicit setting).
+    pub auto_next: bool,
 }
 
 impl Default for View {
@@ -88,6 +91,7 @@ impl Default for View {
             browse_search: false,
             browse_grid: false,
             has_browse_plugin: false,
+            auto_next: false,
         }
     }
 }

@@ -403,3 +403,42 @@ fn esc_closes_the_menu_before_leaving_fullscreen() {
     );
     std::fs::remove_dir_all(dir).unwrap();
 }
+
+/// Auto-next is off until asked for (field rules: explicit setting); on, the end of an
+/// item opens the next one once, and the end of the last one stops.
+#[test]
+fn auto_next_plays_the_following_item_only_when_enabled() {
+    let (dir, files) = folder("autonext");
+    let mut c = Controller::new(FakeEngine::default());
+    c.open(&files[1]); // 01
+    assert!(!c.view.auto_next, "off by default");
+    c.engine.eof = true;
+    c.poll();
+    assert_eq!(c.view.current, Some(0), "off: the end stops");
+    assert!(!c.view.playing);
+    assert_eq!(c.engine.loaded.len(), 1);
+
+    c.apply(Command::ToggleAutoNext);
+    assert!(c.view.auto_next);
+    c.apply(Command::Item(0));
+    c.engine.eof = true;
+    assert!(c.poll(), "the next item is a view change");
+    assert_eq!(c.view.current, Some(1));
+    assert_eq!(c.view.title, "02");
+    assert!(c.view.playing);
+    c.poll();
+    assert_eq!(c.engine.loaded.len(), 3, "a fresh load is not another end");
+    assert_eq!(c.view.current, Some(1));
+
+    c.apply(Command::Item(2)); // last
+    c.engine.eof = true;
+    c.poll();
+    assert_eq!(c.view.current, Some(2), "nothing after the last");
+    assert!(!c.view.playing);
+    c.poll();
+    assert_eq!(c.engine.loaded.len(), 4, "an end opens at most one item");
+
+    c.apply(Command::ToggleAutoNext);
+    assert!(!c.view.auto_next);
+    std::fs::remove_dir_all(dir).unwrap();
+}

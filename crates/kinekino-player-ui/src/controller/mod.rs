@@ -421,6 +421,7 @@ impl<E: Engine> Controller<E> {
                     self.report(r);
                 }
             }
+            Command::ToggleAutoNext => self.view.auto_next = !self.view.auto_next,
             Command::TogglePlaylist => self.view.panel_open = !self.view.panel_open,
             Command::ToggleFullscreen if media => {
                 return Some(Effect::Fullscreen(!self.view.fullscreen));
@@ -452,15 +453,30 @@ impl<E: Engine> Controller<E> {
         if let Some(d) = self.engine.property("duration") {
             self.view.duration = d.max(0.0);
         }
-        if self.engine.property("eof-reached") == Some(1.0) {
+        // The end is acted on once: playing goes false here, and only a load sets it again.
+        let mut advanced = false;
+        if self.engine.property("eof-reached") == Some(1.0) && self.view.playing {
             self.view.playing = false;
+            advanced = self.advance();
         }
         // Whole seconds are what the clock shows; finer changes need no re-projection.
         settled
+            || advanced
             || before.0.floor() != self.view.position.floor()
             || before.1 != self.view.duration
             || before.2 != self.view.playing
             || subtitle_changed
+    }
+
+    /// Auto-next: the item after the current one, when the user turned it on and the queue
+    /// has one. The last item just stops; nothing wraps around. True when it started one.
+    fn advance(&mut self) -> bool {
+        let next = self.view.current.map(|i| i + 1);
+        let Some(next) = next.filter(|&n| self.view.auto_next && n < self.files.len()) else {
+            return false;
+        };
+        self.play(next);
+        true
     }
 
     /// Pointer or key input at `now`: controls come back. True when the view changed.
