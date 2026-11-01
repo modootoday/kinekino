@@ -10,6 +10,8 @@ pub struct FakeEngine {
     pub commands: Vec<String>,
     pub time: f64,
     pub subtitle: Option<String>,
+    /// mpv `eof-reached` with keep-open: the file played to its end; a load clears it.
+    pub eof: bool,
 }
 impl VideoSurface for FakeEngine {
     fn frame_ready(&mut self) -> PortResult<bool> {
@@ -22,6 +24,7 @@ impl VideoSurface for FakeEngine {
 impl Engine for FakeEngine {
     fn load(&mut self, source: &str, _: f64) -> PortResult<()> {
         self.loaded.push(source.to_owned());
+        self.eof = false;
         Ok(())
     }
     fn command(&mut self, args: &[&str]) -> PortResult<()> {
@@ -32,6 +35,7 @@ impl Engine for FakeEngine {
         match name {
             "time-pos" => Some(self.time),
             "duration" => Some(1500.0),
+            "eof-reached" => Some(if self.eof { 1.0 } else { 0.0 }),
             _ => None,
         }
     }

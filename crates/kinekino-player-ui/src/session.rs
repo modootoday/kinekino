@@ -54,6 +54,8 @@ pub enum Command {
     Seek(f64),
     /// Volume 0–100.
     Volume(f64),
+    /// Turn playing the next queue item at the end of the current one on or off.
+    ToggleAutoNext,
 }
 
 pub struct Session {

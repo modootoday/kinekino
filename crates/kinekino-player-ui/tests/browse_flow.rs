@@ -368,3 +368,54 @@ fn the_layout_button_switches_rows_to_a_grid_and_keeps_it() {
     go(&mut c, Command::BrowseLayout);
     assert!(!c.view.browse_grid);
 }
+
+/// A plugin's queue advances the same way: the next playable is resolved once, and a
+/// failing resolve at the end of the queue stops with a notice instead of retrying.
+#[test]
+fn auto_next_resolves_the_following_playable_once() {
+    struct Root;
+    impl Catalog for Root {
+        fn sources(&self) -> Vec<SourceItem> {
+            Fake.sources()
+        }
+        fn browse(&self, at: &SourceRef, page: u32) -> Result<SourcePage, SourceError> {
+            if at.id.is_empty() {
+                return Ok(playlist(&SourceRef {
+                    provider: at.provider.clone(),
+                    id: "s1".into(),
+                }));
+            }
+            Fake.browse(at, page)
+        }
+        fn resolve(&self, at: &SourceRef) -> Result<Vec<StreamCandidate>, SourceError> {
+            Fake.resolve(at)
+        }
+    }
+    let mut c = Controller::new(FakeEngine::default()).with_catalog(Box::new(Root));
+    go(&mut c, Command::ToggleAutoNext);
+    go(&mut c, Command::Browse);
+    go(&mut c, Command::BrowseItem(0)); // source root: three playables
+    go(&mut c, Command::BrowseItem(0)); // first
+    assert_eq!(c.engine.loaded, vec!["http://127.0.0.1:9/s1-e1.mp4"]);
+    c.engine.eof = true;
+    c.poll();
+    c.poll(); // still at the end while the next one resolves
+    c.finish();
+    assert_eq!(
+        c.engine.loaded,
+        vec![
+            "http://127.0.0.1:9/s1-e1.mp4",
+            "http://127.0.0.1:9/s1-e2.mp4"
+        ]
+    );
+    assert_eq!(c.view.title, "Show One 2");
+    c.engine.eof = true;
+    c.poll();
+    c.finish();
+    assert_eq!(c.view.title, "Show One 2", "the third does not resolve");
+    assert!(c.view.notice.contains("재생할 수 없습니다"));
+    assert!(!c.view.playing);
+    c.poll();
+    c.finish();
+    assert_eq!(c.engine.loaded.len(), 2, "no retry loop at the end");
+}
