@@ -3,8 +3,11 @@
 #   source .github/scripts/dev-env.sh
 # Points tests at an unpacked mpv/libmpv tree (see .spec/guide/mpv-install.guide.md).
 # Override KINEKINO_LOCALDEPS or MEARI_FONT_CACHE before sourcing to use other paths.
-KINEKINO_LOCALDEPS="${KINEKINO_LOCALDEPS:-<private-path>/.localdeps}"
-export MEARI_FONT_CACHE="${MEARI_FONT_CACHE:-<private-path>/.kk-font-cache}"
+# Defaults live next to the checkout, in its parent directory.
+_kk_parent="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+KINEKINO_LOCALDEPS="${KINEKINO_LOCALDEPS:-$_kk_parent/.localdeps}"
+export MEARI_FONT_CACHE="${MEARI_FONT_CACHE:-$_kk_parent/.kk-font-cache}"
+unset _kk_parent
 if [ -d "$KINEKINO_LOCALDEPS" ]; then
   case ":$PATH:" in *":$KINEKINO_LOCALDEPS/bin:"*) ;; *) PATH="$KINEKINO_LOCALDEPS/bin:$PATH" ;; esac
   export PATH
