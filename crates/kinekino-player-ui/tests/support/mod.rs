@@ -22,10 +22,13 @@ impl VideoSurface for FakeEngine {
     }
 }
 impl Engine for FakeEngine {
-    fn load(&mut self, source: &str, _: f64) -> PortResult<()> {
+    fn begin_load(&mut self, source: &str, _: f64) -> PortResult<()> {
         self.loaded.push(source.to_owned());
         self.eof = false;
         Ok(())
+    }
+    fn load_ready(&mut self) -> PortResult<bool> {
+        Ok(true)
     }
     fn command(&mut self, args: &[&str]) -> PortResult<()> {
         self.commands.push(args.join(" "));

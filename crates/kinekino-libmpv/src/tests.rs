@@ -169,7 +169,10 @@ fn begin_open_returns_before_a_slow_source_answers() {
     s.begin_open(clip, 1.0).unwrap();
     let deadline = Instant::now() + Duration::from_secs(15);
     while !s.open_ready().unwrap() {
-        assert!(Instant::now() < deadline, "the replacing open never became ready");
+        assert!(
+            Instant::now() < deadline,
+            "the replacing open never became ready"
+        );
         std::thread::sleep(Duration::from_millis(10));
     }
     assert_eq!(s.property_string("path").as_deref(), Some(clip));

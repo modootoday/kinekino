@@ -54,7 +54,10 @@ impl Engine for SlowEngine {
             return Ok(false);
         }
         if self.fail {
-            return Err(PortError::new(ErrorCode::Timeout, "no frame from the source"));
+            return Err(PortError::new(
+                ErrorCode::Timeout,
+                "no frame from the source",
+            ));
         }
         Ok(true)
     }
@@ -110,8 +113,15 @@ fn a_slow_open_returns_at_once_and_shows_that_it_is_opening() {
     );
     assert!(c.view.opening, "the view must say it is opening");
     assert!(!c.view.playing && !c.view.has_media);
-    assert!(!c.view.status.is_empty(), "the start screen shows the opening state");
-    assert_eq!(c.view.playlist.len(), 3, "the queue is known before the open ends");
+    assert!(
+        !c.view.status.is_empty(),
+        "the start screen shows the opening state"
+    );
+    assert_eq!(
+        c.view.playlist.len(),
+        3,
+        "the queue is known before the open ends"
+    );
     poll_until(&mut c, |c| c.view.playing);
     assert!(c.view.playing && c.view.has_media && !c.view.opening);
     assert_eq!((c.view.current, c.view.title.as_str()), (Some(1), "02"));

@@ -19,9 +19,12 @@ pub const PARAM_SW_POINTER: c_int = 20;
 pub const UPDATE_FRAME: u64 = 1;
 pub const FORMAT_STRING: c_int = 1;
 pub const FORMAT_FLAG: c_int = 3;
+pub const FORMAT_INT64: c_int = 4;
 pub const FORMAT_DOUBLE: c_int = 5;
 /// `MPV_ERROR_PROPERTY_FORMAT`: the property exists but not in the asked format.
 pub const ERROR_PROPERTY_FORMAT: c_int = -9;
+pub const EVENT_NONE: c_int = 0;
+pub const EVENT_START_FILE: c_int = 6;
 pub const EVENT_END_FILE: c_int = 7;
 pub const EVENT_PLAYBACK_RESTART: c_int = 21;
 /// `mpv_end_file_reason`: the old file was replaced (`loadfile replace`).
@@ -34,6 +37,13 @@ pub const END_FILE_REASON_REDIRECT: c_int = 5;
 pub struct EndFile {
     pub reason: c_int,
     pub error: c_int,
+    pub playlist_entry_id: i64,
+}
+
+/// `mpv_event_start_file`.
+#[repr(C)]
+pub struct StartFile {
+    pub playlist_entry_id: i64,
 }
 
 #[repr(C)]

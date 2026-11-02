@@ -18,8 +18,10 @@ use std::path::PathBuf;
 mod studio;
 
 /// Screens of the design drafts that the current player can already show.
-const SCREENS: [(&str, &str); 11] = [
+const SCREENS: [(&str, &str); 13] = [
     ("start", "첫 화면: 파일 열기와 작품 탐색"),
+    ("opening", "첫 화면: 항목을 여는 중"),
+    ("opening-over-video", "재생 중 다른 항목을 여는 중"),
     ("playback", "재생 중, 컨트롤 표시"),
     ("playlist", "재생 중, 플러그인 재생목록 패널 열림"),
     ("subtitle", "재생 중, 자막 두 줄"),
@@ -75,8 +77,11 @@ impl VideoSurface for StillEngine {
 }
 
 impl Engine for StillEngine {
-    fn load(&mut self, _: &str, _: f64) -> PortResult<()> {
+    fn begin_load(&mut self, _: &str, _: f64) -> PortResult<()> {
         Ok(())
+    }
+    fn load_ready(&mut self) -> PortResult<bool> {
+        Ok(true)
     }
     fn command(&mut self, _: &[&str]) -> PortResult<()> {
         Ok(())
@@ -131,6 +136,15 @@ fn view_for(screen: &str) -> Option<View> {
     match screen {
         "start" | "start-no-plugin" => {}
         "start-with-plugin" => v.has_browse_plugin = true,
+        "opening" => {
+            v.opening = true;
+            v.status = "여는 중…".into();
+        }
+        "opening-over-video" => {
+            playing(&mut v);
+            v.opening = true;
+            v.notice = "여는 중…".into();
+        }
         "playback" => playing(&mut v),
         "playlist" => {
             playing(&mut v);

@@ -3,6 +3,7 @@
 use crate::catalog::{Catalog, STREAM_HEADERS};
 mod browse;
 mod jobs;
+mod opening;
 pub use crate::port::Engine;
 use crate::session::Command;
 use crate::source::{PlaylistItem, View};
@@ -88,6 +89,8 @@ pub struct Controller<E: Engine> {
     catalog: Option<Arc<dyn Catalog>>,
     /// The plugin call in flight, if any.
     pending: Option<Pending>,
+    /// The engine open in flight, if any.
+    opening: Option<opening::Opening>,
     /// Opened listings, outermost first, with the page shown.
     trail: Vec<Level>,
     /// Rows currently shown (sources at the top level).
@@ -120,6 +123,7 @@ impl<E: Engine> Controller<E> {
             notice_since: None,
             catalog: None,
             pending: None,
+            opening: None,
             trail: Vec::new(),
             listing: Vec::new(),
             next_page: None,
@@ -146,13 +150,6 @@ impl<E: Engine> Controller<E> {
             _ => self.cannot_play("소스 플러그인이 응답 없이 끝났습니다."),
         }
         true
-    }
-
-    /// Waits for the call in flight to finish (headless use and tests).
-    pub fn finish(&mut self) {
-        while self.pending.is_some() {
-            self.settle(Some(Duration::from_secs(10)));
-        }
     }
 
     /// Opens `media`; its folder becomes the episode list.
@@ -272,6 +269,8 @@ impl<E: Engine> Controller<E> {
 
     /// Local files load at once; a plugin's item is resolved off the UI thread first.
     fn play(&mut self, index: usize) {
+        // A newer choice replaces any open in flight; its late result is ignored.
+        self.opening = None;
         match self.files.get(index).cloned() {
             Some(Media::Local(path)) => {
                 let located = (path.to_string_lossy().into_owned(), stem(&path), vec![]);
@@ -286,10 +285,7 @@ impl<E: Engine> Controller<E> {
                 self.pending = Some(Pending::start(catalog, Job::Resolve { index }, move |c| {
                     Reply::Streams(c.resolve(&at))
                 }));
-                if self.view.browsing {
-                    self.view.browse_status = LOADING.into();
-                    self.view.browse_mood = "loading";
-                }
+                self.show_opening();
             }
             None => {}
         }
@@ -305,33 +301,10 @@ impl<E: Engine> Controller<E> {
         }
     }
 
-    fn load(&mut self, index: usize, remote: bool, (source, title, headers): Located) {
-        // Engines open paused on the first frame; viewing starts playing.
-        let loaded = self
-            .set_headers(remote, &headers)
-            .and_then(|()| self.engine.load(&source, 0.0))
-            .and_then(|()| self.engine.command(&["set", "pause", "no"]));
-        match loaded {
-            Ok(()) => {
-                self.view.current = Some(index);
-                self.view.title = title;
-                self.view.has_media = true;
-                self.view.browsing = false;
-                self.view.browse_status.clear();
-                self.view.browse_mood = "";
-                self.view.playing = true;
-                self.view.position = 0.0;
-                self.view.duration = 0.0;
-                self.view.subtitle.clear();
-                self.view.status.clear();
-            }
-            Err(e) => self.cannot_play(&e.message),
-        }
-    }
-
     /// The reason shows where the user is: the browse view, over the video, or the start
     /// screen.
     fn cannot_play(&mut self, why: &str) {
+        self.end_opening();
         let message = format!("재생할 수 없습니다: {why}");
         if self.view.browsing {
             self.view.browse_status = message;
@@ -356,6 +329,10 @@ impl<E: Engine> Controller<E> {
         // Esc closes an open ⋮ menu first; only the next Esc leaves fullscreen.
         if matches!(command, Command::ExitFullscreen) && self.view.menu_open {
             self.view.menu_open = false;
+            return None;
+        }
+        // Then it cancels an item still opening.
+        if matches!(command, Command::ExitFullscreen) && self.cancel_open() {
             return None;
         }
         // Any other command (a menu item, Esc, a click elsewhere) closes the ⋮ menu.
@@ -434,8 +411,9 @@ impl<E: Engine> Controller<E> {
 
     /// Reads time and duration from the engine; true when the view changed.
     pub fn poll(&mut self) -> bool {
-        let settled = self.settle(None);
-        if !self.view.has_media {
+        let settled = self.settle(None) | self.settle_open();
+        // While opening, the replaced file's time and end say nothing about the new one.
+        if !self.view.has_media || self.opening.is_some() {
             return settled;
         }
         let before = (self.view.position, self.view.duration, self.view.playing);
