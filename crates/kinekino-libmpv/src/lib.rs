@@ -3,6 +3,7 @@
 //! (`$KINEKINO_LIBMPV`, else the platform soname) and never bundled; see
 //! `.spec/guide/mpv-install.guide.md` for the pinned install and licence notes.
 mod ffi;
+mod opening;
 
 use kinekino_core::playback::surface::check_target;
 use kinekino_core::playback::{RgbaFrame, VideoSurface};
@@ -32,6 +33,10 @@ pub struct LibMpvSurface {
     render: ffi::RenderCtx,
     /// A decoded frame was reported by libmpv and not yet rendered.
     pending: bool,
+    /// A frame was reported since the file being opened started (see `opening`).
+    fresh: bool,
+    /// The open started by `begin_open`, advanced by `open_ready`.
+    opening: Option<opening::Opening>,
 }
 
 fn c(s: &str) -> PortResult<CString> {
@@ -59,6 +64,8 @@ impl LibMpvSurface {
             handle,
             render: std::ptr::null_mut(),
             pending: false,
+            fresh: false,
+            opening: None,
         };
         for (k, v) in [
             ("vo", "libmpv"),
@@ -201,11 +208,13 @@ impl LibMpvSurface {
     }
 
     /// Load `source` paused at `start_secs` and wait until its first frame is decodable.
+    /// Blocks; interactive callers use `begin_open` and `open_ready` instead.
     pub fn open(&mut self, source: &str, start_secs: f64) -> PortResult<()> {
-        let opts = format!("start={start_secs},pause=yes");
-        self.command(&["loadfile", source, "replace", "-1", &opts])?;
-        self.wait_for(ffi::EVENT_PLAYBACK_RESTART, Duration::from_secs(10))?;
-        self.settle()
+        self.begin_open(source, start_secs)?;
+        while !self.open_ready()? {
+            std::thread::sleep(Duration::from_millis(5));
+        }
+        Ok(())
     }
 
     /// Waits until libmpv reports the decoded frame so later readiness is not stale.
@@ -227,6 +236,7 @@ impl LibMpvSurface {
         // SAFETY: live render context.
         if unsafe { (self.api.render_update)(self.render) } & ffi::UPDATE_FRAME != 0 {
             self.pending = true;
+            self.fresh = true;
         }
         self.pending
     }

@@ -28,6 +28,7 @@ fn controller(first: &Path) -> Controller<LibMpvSurface> {
         .expect("libmpv is required ($KINEKINO_LIBMPV or soname on the loader path)");
     let mut c = Controller::new(engine);
     c.open(first);
+    c.finish();
     assert!(c.view.playing, "{}", c.view.status);
     c
 }

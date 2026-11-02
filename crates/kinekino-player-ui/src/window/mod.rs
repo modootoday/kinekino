@@ -379,7 +379,7 @@ impl<E: Engine> App<E> {
                 shared.dirty = true;
             }
         }
-        if Instant::now() >= self.next_poll {
+        if self.shared.borrow().controller.is_opening() || Instant::now() >= self.next_poll {
             self.next_poll = Instant::now() + POLL;
             let mut shared = self.shared.borrow_mut();
             if shared.controller.poll() {
@@ -389,6 +389,7 @@ impl<E: Engine> App<E> {
         if let Some(started) = self.smoke {
             let shared = self.shared.borrow();
             let shown = self.frames > 0
+                && !shared.controller.is_opening()
                 && (!shared.controller.view.has_media || shared.texture.uploads() >= 2);
             drop(shared);
             if shown && self.capture.is_some() {
@@ -518,7 +519,7 @@ pub fn run<E: Engine>(controller: Controller<E>, options: Options) -> Result<Rep
     loop {
         let mut current = controller.take().ok_or("player controller lost")?;
         let (session, document) = Session::mount_with(&current.view, options.mockup.as_ref())?;
-        current.view.status.clear();
+        current.remounted();
         let handle = NativeDocumentHandle::new(document, 1).map_err(|e| e.to_string())?;
         let preparation = NativeWindowPreparation::<NoChild>::new(
             &event_loop,

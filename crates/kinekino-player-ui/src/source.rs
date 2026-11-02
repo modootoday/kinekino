@@ -1,6 +1,7 @@
 //! Player view model → bounded Meari TSX source. Playlist rows are fixed per mount; every
 //! changing value is a typed prop, so playback ticks update props without a remount.
 use crate::catalog::BROWSE_ROWS;
+use crate::session::clock;
 use std::collections::BTreeMap;
 
 /// Product name shown in the title bar and on the start screen (mockup names are sample data).
@@ -32,6 +33,8 @@ pub struct View {
     pub volume: f64,
     pub muted: bool,
     pub status: String,
+    /// An item is opening (or its plugin is looking it up); a status line says so.
+    pub opening: bool,
     /// A short notice over the video (bottom toast) while playing; cleared after a while.
     pub notice: String,
     /// Current subtitle cue from the engine (`sub-text`), drawn over the video.
@@ -79,6 +82,7 @@ impl Default for View {
             volume: 100.0,
             muted: false,
             status: String::new(),
+            opening: false,
             notice: String::new(),
             subtitle: String::new(),
             browsing: false,
@@ -120,21 +124,6 @@ pub const BUTTONS: [&str; 20] = [
     "browseLayout",
 ];
 
-/// `m:ss`, or `h:mm:ss` from one hour.
-pub fn clock(seconds: f64) -> String {
-    let s = if seconds.is_finite() && seconds > 0.0 {
-        seconds as u64
-    } else {
-        0
-    };
-    let (h, m, s) = (s / 3600, s / 60 % 60, s % 60);
-    if h > 0 {
-        format!("{h}:{m:02}:{s:02}")
-    } else {
-        format!("{m}:{s:02}")
-    }
-}
-
 #[derive(Debug, Clone, PartialEq)]
 pub enum Prop {
     Text(String),
@@ -165,6 +154,10 @@ pub fn props(view: &View) -> BTreeMap<String, Prop> {
         ("title".to_owned(), Prop::Text(view.title.clone())),
         ("work".to_owned(), Prop::Text(view.work.clone())),
         ("status".to_owned(), Prop::Text(view.status.clone())),
+        (
+            "statusClass".to_owned(),
+            Prop::Text(mood_class(if view.opening { "loading" } else { "" })),
+        ),
         ("notice".to_owned(), Prop::Text(view.notice.clone())),
         (
             "noNotice".to_owned(),
@@ -200,11 +193,7 @@ pub fn props(view: &View) -> BTreeMap<String, Prop> {
         ),
         (
             "browseStatusClass".to_owned(),
-            Prop::Text(if view.browse_mood.is_empty() {
-                "aw-connection-status".to_owned()
-            } else {
-                format!("aw-connection-status kk-mood-{}", view.browse_mood)
-            }),
+            Prop::Text(mood_class(view.browse_mood)),
         ),
         (
             "noBrowseStatus".to_owned(),
@@ -378,6 +367,14 @@ pub fn props(view: &View) -> BTreeMap<String, Prop> {
     out
 }
 
+/// The status line class; a mood shows the matching mascot above it.
+fn mood_class(mood: &str) -> String {
+    match mood {
+        "" => "aw-connection-status".to_owned(),
+        m => format!("aw-connection-status kk-mood-{m}"),
+    }
+}
+
 fn quote(text: &str) -> String {
     format!("{text:?}")
 }
@@ -401,7 +398,7 @@ fn icon_button(id: &str, label: &str, icon: &str, extra: &str) -> String {
 /// TSX for a window with `episodes` fixed rows.
 pub fn build(episodes: &[PlaylistItem]) -> String {
     let mut types = String::from(
-        "context: string; title: string; work: string; status: string; notice: string; noNotice: boolean; hasMedia: boolean; noMedia: boolean; hideStart: boolean; noBrowse: boolean; noBrowsePlugin: boolean; browseClass: string; browseHeading: string; browseStatus: string; browseStatusClass: string; noBrowseStatus: boolean; noBrowseMore: boolean; noBrowseSearch: boolean; searchClass: string; rowsClass: string; layoutIcon: string; layoutLabel: string; fullscreen: boolean; panelOpen: boolean; noMenu: boolean; menuPanelLabel: string; subtitle1: string; subtitle2: string; noSubtitle: boolean; noSubtitle2: boolean; rootClass: string; stageClass: string; frameClass: string; transportClass: string; playIcon: string; playLabel: string; volumeIcon: string; maximizeIcon: string; maximizeLabel: string; fullscreenLabel: string; position: string; duration: string; seek: string; volume: string;",
+        "context: string; title: string; work: string; status: string; statusClass: string; notice: string; noNotice: boolean; hasMedia: boolean; noMedia: boolean; hideStart: boolean; noBrowse: boolean; noBrowsePlugin: boolean; browseClass: string; browseHeading: string; browseStatus: string; browseStatusClass: string; noBrowseStatus: boolean; noBrowseMore: boolean; noBrowseSearch: boolean; searchClass: string; rowsClass: string; layoutIcon: string; layoutLabel: string; fullscreen: boolean; panelOpen: boolean; noMenu: boolean; menuPanelLabel: string; subtitle1: string; subtitle2: string; noSubtitle: boolean; noSubtitle2: boolean; rootClass: string; stageClass: string; frameClass: string; transportClass: string; playIcon: string; playLabel: string; volumeIcon: string; maximizeIcon: string; maximizeLabel: string; fullscreenLabel: string; position: string; duration: string; seek: string; volume: string;",
     );
     let mut state = String::new();
     let mut rows = String::new();
@@ -470,7 +467,7 @@ export function KinekinoPlayer(props: Props) {{
             <button id="browse" className="aw-button" hidden={{props.noBrowsePlugin}} {c_browse}><span className="aw-icon aw-icon-search" aria-hidden="true"></span>작품 탐색</button>
           </div>
           <p className="aw-start-shortcut">Ctrl+O로 파일 열기</p>
-          <p id="status" className="aw-connection-status" role="status">{{props.status}}</p>
+          <p id="status" className={{props.statusClass}} role="status">{{props.status}}</p>
         </div>
       </section>
       <section id="browseView" className={{props.browseClass}} aria-label="작품 탐색" aria-hidden={{props.noBrowse}}>

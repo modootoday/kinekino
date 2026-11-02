@@ -107,3 +107,94 @@ fn surfaces_tear_down_repeatedly_across_threads() {
         w.join().unwrap();
     }
 }
+
+/// A source that accepts connections and never answers (a slow stream server).
+struct SilentServer {
+    url: String,
+    stop: std::sync::mpsc::Sender<()>,
+    worker: Option<std::thread::JoinHandle<()>>,
+}
+
+impl SilentServer {
+    fn start() -> Self {
+        let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+        listener.set_nonblocking(true).unwrap();
+        let url = format!("http://{}/slow.mp4", listener.local_addr().unwrap());
+        let (stop, stopped) = std::sync::mpsc::channel::<()>();
+        let worker = std::thread::spawn(move || {
+            let mut held = Vec::new();
+            while stopped.try_recv().is_err() {
+                if let Ok((conn, _)) = listener.accept() {
+                    held.push(conn);
+                }
+                std::thread::sleep(Duration::from_millis(10));
+            }
+        });
+        Self {
+            url,
+            stop,
+            worker: Some(worker),
+        }
+    }
+}
+
+impl Drop for SilentServer {
+    fn drop(&mut self) {
+        let _ = self.stop.send(());
+        if let Some(w) = self.worker.take() {
+            let _ = w.join();
+        }
+    }
+}
+
+/// KB-003: starting an open returns at once; a later open replaces a slow one and only the
+/// later source reports ready.
+#[test]
+fn begin_open_returns_before_a_slow_source_answers() {
+    let server = SilentServer::start();
+    let mut s = LibMpvSurface::new(None, true).unwrap();
+    let started = Instant::now();
+    s.begin_open(&server.url, 0.0).unwrap();
+    assert!(
+        started.elapsed() < Duration::from_millis(500),
+        "begin_open held the caller for {:?}",
+        started.elapsed()
+    );
+    let quiet = Instant::now() + Duration::from_millis(800);
+    while Instant::now() < quiet {
+        assert!(!s.open_ready().unwrap(), "a silent source cannot be ready");
+        std::thread::sleep(Duration::from_millis(20));
+    }
+    let clip = clip().to_str().unwrap();
+    s.begin_open(clip, 1.0).unwrap();
+    let deadline = Instant::now() + Duration::from_secs(15);
+    while !s.open_ready().unwrap() {
+        assert!(
+            Instant::now() < deadline,
+            "the replacing open never became ready"
+        );
+        std::thread::sleep(Duration::from_millis(10));
+    }
+    assert_eq!(s.property_string("path").as_deref(), Some(clip));
+    let mut f = RgbaFrame::new(64, 36).unwrap();
+    s.render(&mut f).unwrap();
+}
+
+#[test]
+fn begin_open_of_a_missing_file_fails_later_not_at_once() {
+    let mut s = LibMpvSurface::new(None, true).unwrap();
+    let missing = std::env::temp_dir().join("kinekino-libmpv-missing-bg.mkv");
+    s.begin_open(missing.to_str().unwrap(), 0.0).unwrap();
+    let deadline = Instant::now() + Duration::from_secs(15);
+    let err = loop {
+        match s.open_ready() {
+            Ok(false) => {
+                assert!(Instant::now() < deadline, "no answer for a missing file");
+                std::thread::sleep(Duration::from_millis(10));
+            }
+            Ok(true) => panic!("a missing file cannot be ready"),
+            Err(e) => break e,
+        }
+    };
+    assert_eq!(err.code, ErrorCode::InvalidInput);
+}

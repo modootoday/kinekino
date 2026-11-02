@@ -8,6 +8,21 @@ use meari_native::domain::{Viewport, widgets::Action};
 use meari_native::infrastructure::document::InteractiveDocument;
 use std::collections::BTreeMap;
 
+/// `m:ss`, or `h:mm:ss` from one hour.
+pub fn clock(seconds: f64) -> String {
+    let s = if seconds.is_finite() && seconds > 0.0 {
+        seconds as u64
+    } else {
+        0
+    };
+    let (h, m, s) = (s / 3600, s / 60 % 60, s % 60);
+    if h > 0 {
+        format!("{h}:{m:02}:{s:02}")
+    } else {
+        format!("{m}:{s:02}")
+    }
+}
+
 pub const VIEWPORT: Viewport = Viewport {
     width: 1280,
     height: 720,
