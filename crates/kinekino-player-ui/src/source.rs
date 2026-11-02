@@ -32,6 +32,8 @@ pub struct View {
     pub duration: f64,
     pub volume: f64,
     pub muted: bool,
+    /// Playback speed, 1.0 is normal.
+    pub speed: f64,
     pub status: String,
     /// An item is opening (or its plugin is looking it up); a status line says so.
     pub opening: bool,
@@ -81,6 +83,7 @@ impl Default for View {
             duration: 0.0,
             volume: 100.0,
             muted: false,
+            speed: 1.0,
             status: String::new(),
             opening: false,
             notice: String::new(),

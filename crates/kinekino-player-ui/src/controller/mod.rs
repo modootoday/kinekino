@@ -25,6 +25,10 @@ pub const NO_DIALOG_WITHIN: Duration = Duration::from_millis(400);
 pub const NOTICE_FOR: Duration = Duration::from_secs(4);
 /// Volume change per Up/Down key, in points of the 0–100 scale (PotPlayer's default).
 pub const VOLUME_STEP: f64 = 5.0;
+/// Speed change per C/X key (PotPlayer's default), within the range the engine accepts.
+pub const SPEED_STEP: f64 = 0.1;
+pub const SPEED_MIN: f64 = 0.25;
+pub const SPEED_MAX: f64 = 4.0;
 const NO_SOURCES: &str = "설치된 소스 플러그인이 없습니다. 플러그인 폴더에 소스 플러그인을 설치하면 작품을 탐색할 수 있습니다.";
 const BROWSE_TITLE: &str = "작품 탐색";
 const LOADING: &str = "불러오는 중…";
@@ -393,6 +397,9 @@ impl<E: Engine> Controller<E> {
             Command::Volume(v) => self.set_volume(v, v > 0.0),
             Command::VolumeUp => self.set_volume(self.view.volume + VOLUME_STEP, true),
             Command::VolumeDown => self.set_volume(self.view.volume - VOLUME_STEP, false),
+            Command::SpeedUp => self.set_speed(self.view.speed + SPEED_STEP),
+            Command::SpeedDown => self.set_speed(self.view.speed - SPEED_STEP),
+            Command::SpeedReset => self.set_speed(1.0),
             Command::ToggleAutoNext => self.view.auto_next = !self.view.auto_next,
             Command::TogglePlaylist => self.view.panel_open = !self.view.panel_open,
             Command::ToggleFullscreen if media => {
@@ -451,6 +458,21 @@ impl<E: Engine> Controller<E> {
             self.view.muted = false;
             let r = self.engine.command(&["set", "mute", "no"]);
             self.report(r);
+        }
+    }
+
+    /// Sets the playback speed within `SPEED_MIN`–`SPEED_MAX`; the engine keeps it for the
+    /// next item. Over a video the new speed shows as a short notice, unless one is opening.
+    fn set_speed(&mut self, v: f64) {
+        let v = ((v * 100.0).round() / 100.0).clamp(SPEED_MIN, SPEED_MAX);
+        self.view.speed = v;
+        let r = self.engine.command(&["set", "speed", &format!("{v:.2}")]);
+        self.report(r);
+        if !self.view.opening {
+            let shown = format!("{v:.2}");
+            let shown = shown.strip_suffix('0').unwrap_or(&shown);
+            self.view.notice = format!("재생 속도 {shown}x");
+            self.notice_since = Some(Instant::now());
         }
     }
 
