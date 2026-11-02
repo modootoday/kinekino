@@ -18,11 +18,12 @@ use std::path::PathBuf;
 mod studio;
 
 /// Screens of the design drafts that the current player can already show.
-const SCREENS: [(&str, &str); 13] = [
+const SCREENS: [(&str, &str); 14] = [
     ("start", "첫 화면: 파일 열기와 작품 탐색"),
     ("opening", "첫 화면: 항목을 여는 중"),
     ("opening-over-video", "재생 중 다른 항목을 여는 중"),
     ("playback", "재생 중, 컨트롤 표시"),
+    ("speed", "재생 중, 속도를 바꾼 직후 알림"),
     ("playlist", "재생 중, 플러그인 재생목록 패널 열림"),
     ("subtitle", "재생 중, 자막 두 줄"),
     ("menu", "재생 중, ⋮ 더 보기 메뉴"),
@@ -146,6 +147,11 @@ fn view_for(screen: &str) -> Option<View> {
             v.notice = "여는 중…".into();
         }
         "playback" => playing(&mut v),
+        "speed" => {
+            playing(&mut v);
+            v.speed = 1.2;
+            v.notice = "재생 속도 1.2x".into();
+        }
         "playlist" => {
             playing(&mut v);
             v.panel_open = true;

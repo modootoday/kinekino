@@ -73,6 +73,12 @@ pub enum Command {
     VolumeUp,
     /// One `VOLUME_STEP` quieter (down to 0); a muted player stays muted.
     VolumeDown,
+    /// One `SPEED_STEP` faster (up to `SPEED_MAX`).
+    SpeedUp,
+    /// One `SPEED_STEP` slower (down to `SPEED_MIN`).
+    SpeedDown,
+    /// Back to normal speed (1.0).
+    SpeedReset,
     /// Turn playing the next queue item at the end of the current one on or off.
     ToggleAutoNext,
 }

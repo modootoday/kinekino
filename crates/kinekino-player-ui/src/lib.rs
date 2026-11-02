@@ -12,7 +12,10 @@ mod texture;
 mod window;
 
 pub use catalog::{BROWSE_ROWS, Catalog};
-pub use controller::{Controller, Effect, Engine, HIDE_AFTER, NOTICE_FOR, VOLUME_STEP, siblings};
+pub use controller::{
+    Controller, Effect, Engine, HIDE_AFTER, NOTICE_FOR, SPEED_MAX, SPEED_MIN, SPEED_STEP,
+    VOLUME_STEP, siblings,
+};
 pub use keys::shortcut;
 pub use session::{Command, Mockup, Session, VIEWPORT, activate, clock, meari_props, path_of};
 pub use source::{PlaylistItem, PRODUCT, View};

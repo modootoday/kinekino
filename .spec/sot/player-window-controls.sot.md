@@ -3,7 +3,7 @@ id: sot:kinekino/player-window-controls
 title: Meari 플레이어 창의 현재 조작 동작
 status: active
 created: 2026-10-31T05:51:10Z
-updated: 2026-11-02T07:56:36Z
+updated: 2026-11-02T11:55:00Z
 verify: [cargo test -p kinekino-player-ui]
 rel:
   governs: [crates/kinekino-player-ui]
@@ -17,6 +17,7 @@ rel:
 - 전송 막대 오른쪽 ⋮(더 보기) 버튼은 막대 위로 메뉴를 연다. 항목은 `파일 열기…`(Ctrl+O), 회차 목록 열기/닫기, 전체화면(F)이다. 다른 명령이나 다른 곳 클릭은 메뉴를 닫는다.
 - Esc: ⋮ 메뉴가 열려 있으면 메뉴만 닫고 전체화면은 유지한다. 그다음은 여는 중인 항목을 취소한다. 메뉴가 닫혀 있고 전체화면이면 전체화면을 끝낸다. 창 모드에서는 아무 일도 하지 않는다.
 - 음량: PotPlayer 기본 배치처럼 ↑/↓가 음량을 5씩 올리고 내리며(0~100에서 멈춤, 100을 넘는 증폭 없음), 누르고 있으면 계속 바뀐다. M은 음소거를 켜고 끈다(누르고 있어도 한 번). ↑는 음소거를 풀고, ↓는 음소거를 유지한 채 단계만 낮춘다. 막대의 음량 슬라이더는 단계를 따라 움직이고, 음소거 중에는 슬라이더 값을 유지한 채 아이콘만 무음으로 바뀐다. 슬라이더에 초점이 있어도 ↑/↓는 한 단계만 바꾼다. 검색 칸 입력 중에는 단축키가 아니다.
+- 재생 속도: PotPlayer 기본 배치처럼 C가 0.1씩 느리게, X가 0.1씩 빠르게 하고(0.25~4.0에서 멈춤, 재생 엔진이 받는 범위), 누르고 있으면 계속 바뀐다. Z는 보통 속도(1.0)로 되돌린다. 바뀐 속도는 영상 하단 토스트(`#notice`)에 `재생 속도 1.2x`처럼 4초 보이고(여는 중 알림은 덮지 않음), 다음 항목에도 그대로 이어진다. 속도 저장(다시 켰을 때 유지)과 화면 위 재생 정보(OSD)는 아직 없다.
 - 전체화면에서 재생 중이고 패널·메뉴·상태 문구가 없으면 입력 없이 2.5초 뒤 컨트롤을 숨기고, 포인터 이동·클릭·키·휠로 다시 보인다.
 - 파일 열기에서 대화상자가 400ms보다 빨리 아무 결과 없이 끝나면(포털·zenity 없음) 설치 또는 `kinekino watch <파일>` 안내를 보인다. 시작 화면은 상태 줄에, 재생 중에는 영상 하단 토스트(`#notice`)로 4초 보이고 사라진다.
 - 회차 패널은 짧은 회차 이름을 줄임 없이 보인다.
@@ -29,6 +30,6 @@ rel:
 
 ## Verification
 
-- `cargo test -p kinekino-player-ui` (`tests/background_open.rs`: 느린 열기·취소·교체; `tests/controller.rs`: 메뉴, Esc 순서, 음량 단계·범위·음소거 키, 대화상자 없음 안내·토스트 만료, 자동 숨김; `tests/episode_rows.rs`; `window/edges.rs` 단위 시험)
+- `cargo test -p kinekino-player-ui` (`tests/background_open.rs`: 느린 열기·취소·교체; `tests/controller/`: 메뉴, Esc 순서, 대화상자 없음 안내·토스트 만료, 자동 숨김, `volume_speed.rs`에 음량 단계·범위·음소거 키와 재생 속도 키·범위; `tests/episode_rows.rs`; `window/edges.rs` 단위 시험)
 - `cargo test -p kinekino-app --test plugins_e2e` (합성 플러그인으로 `PluginCatalog` 목록·페이지)
 - 데스크탑 확인: `launch.sh`로 띄운 앱에서 xdotool로 전체화면·⋮·Esc·포인터 이동.
