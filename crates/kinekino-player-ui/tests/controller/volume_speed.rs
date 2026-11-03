@@ -117,13 +117,13 @@ fn volume_keys_unmute_upward_and_show_on_the_bar() {
 }
 
 #[test]
-fn c_x_z_slow_down_speed_up_and_reset_the_speed() {
+fn x_c_z_slow_down_speed_up_and_reset_the_speed() {
     use kinekino_player_ui::shortcut;
     use winit::keyboard::{KeyCode as K, ModifiersState as M, PhysicalKey::Code};
     let key = |m, k, r| shortcut(m, Code(k), r);
-    assert_eq!(key(M::empty(), K::KeyC, false), Some(Command::SpeedDown));
+    assert_eq!(key(M::empty(), K::KeyX, false), Some(Command::SpeedDown));
     assert_eq!(
-        key(M::empty(), K::KeyX, true),
+        key(M::empty(), K::KeyC, true),
         Some(Command::SpeedUp),
         "repeat steps"
     );
