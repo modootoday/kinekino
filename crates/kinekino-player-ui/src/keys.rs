@@ -5,7 +5,7 @@ use winit::keyboard::{KeyCode, ModifiersState, PhysicalKey};
 /// The command a key press asks for (start screen hint: `Ctrl+O로 파일 열기`).
 /// Cmd+O counts on macOS; Space plays/pauses, F toggles and Esc leaves fullscreen.
 /// As in PotPlayer's default layout, Up/Down step the volume and M mutes.
-/// C/X step the speed down/up and Z resets it.
+/// X/C step the speed down/up and Z resets it.
 /// Alt+A and Alt+L cycle the audio and subtitle tracks (PotPlayer's "Cycle audio stream"
 /// and "Cycle subtitle"); other Alt combinations never fire.
 /// Auto-repeat only keeps stepping the volume and speed.
@@ -16,8 +16,8 @@ pub fn shortcut(mods: ModifiersState, key: PhysicalKey, repeat: bool) -> Option<
     match key {
         PhysicalKey::Code(KeyCode::ArrowUp) if plain => return Some(Command::VolumeUp),
         PhysicalKey::Code(KeyCode::ArrowDown) if plain => return Some(Command::VolumeDown),
-        PhysicalKey::Code(KeyCode::KeyC) if plain => return Some(Command::SpeedDown),
-        PhysicalKey::Code(KeyCode::KeyX) if plain => return Some(Command::SpeedUp),
+        PhysicalKey::Code(KeyCode::KeyX) if plain => return Some(Command::SpeedDown),
+        PhysicalKey::Code(KeyCode::KeyC) if plain => return Some(Command::SpeedUp),
         _ if repeat => return None,
         _ => {}
     }
