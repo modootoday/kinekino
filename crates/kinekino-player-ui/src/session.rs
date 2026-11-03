@@ -79,6 +79,10 @@ pub enum Command {
     SpeedDown,
     /// Back to normal speed (1.0).
     SpeedReset,
+    /// Switch to the engine's next audio track; a notice names the one now playing.
+    CycleAudio,
+    /// Switch to the engine's next subtitle track (or off after the last one).
+    CycleSubtitle,
     /// Turn playing the next queue item at the end of the current one on or off.
     ToggleAutoNext,
 }
