@@ -4,6 +4,7 @@ use crate::catalog::{Catalog, STREAM_HEADERS};
 mod browse;
 mod jobs;
 mod opening;
+mod tracks;
 pub use crate::port::Engine;
 use crate::session::Command;
 use crate::source::{PlaylistItem, View};
@@ -400,6 +401,8 @@ impl<E: Engine> Controller<E> {
             Command::SpeedUp => self.set_speed(self.view.speed + SPEED_STEP),
             Command::SpeedDown => self.set_speed(self.view.speed - SPEED_STEP),
             Command::SpeedReset => self.set_speed(1.0),
+            Command::CycleAudio if media => self.cycle_track(tracks::Track::Audio),
+            Command::CycleSubtitle if media => self.cycle_track(tracks::Track::Subtitle),
             Command::ToggleAutoNext => self.view.auto_next = !self.view.auto_next,
             Command::TogglePlaylist => self.view.panel_open = !self.view.panel_open,
             Command::ToggleFullscreen if media => {

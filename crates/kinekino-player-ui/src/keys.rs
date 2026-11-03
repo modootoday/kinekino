@@ -6,10 +6,13 @@ use winit::keyboard::{KeyCode, ModifiersState, PhysicalKey};
 /// Cmd+O counts on macOS; Space plays/pauses, F toggles and Esc leaves fullscreen.
 /// As in PotPlayer's default layout, Up/Down step the volume and M mutes.
 /// C/X step the speed down/up and Z resets it.
-/// Alt combinations never fire; auto-repeat only keeps stepping the volume and speed.
+/// Alt+A and Alt+L cycle the audio and subtitle tracks (PotPlayer's "Cycle audio stream"
+/// and "Cycle subtitle"); other Alt combinations never fire.
+/// Auto-repeat only keeps stepping the volume and speed.
 pub fn shortcut(mods: ModifiersState, key: PhysicalKey, repeat: bool) -> Option<Command> {
     let primary = (mods.control_key() || mods.meta_key()) && !mods.alt_key();
     let plain = mods.is_empty();
+    let alt = mods == ModifiersState::ALT;
     match key {
         PhysicalKey::Code(KeyCode::ArrowUp) if plain => return Some(Command::VolumeUp),
         PhysicalKey::Code(KeyCode::ArrowDown) if plain => return Some(Command::VolumeDown),
@@ -25,6 +28,8 @@ pub fn shortcut(mods: ModifiersState, key: PhysicalKey, repeat: bool) -> Option<
         PhysicalKey::Code(KeyCode::Escape) if plain => Some(Command::ExitFullscreen),
         PhysicalKey::Code(KeyCode::KeyM) if plain => Some(Command::Mute),
         PhysicalKey::Code(KeyCode::KeyZ) if plain => Some(Command::SpeedReset),
+        PhysicalKey::Code(KeyCode::KeyA) if alt => Some(Command::CycleAudio),
+        PhysicalKey::Code(KeyCode::KeyL) if alt => Some(Command::CycleSubtitle),
         _ => None,
     }
 }

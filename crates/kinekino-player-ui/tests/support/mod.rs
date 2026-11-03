@@ -2,6 +2,7 @@
 use kinekino_core::playback::{FakeSurface, RgbaFrame, VideoSurface};
 use kinekino_core::port::error::PortResult;
 use kinekino_player_ui::Engine;
+use std::collections::{HashMap, VecDeque};
 
 #[derive(Default)]
 pub struct FakeEngine {
@@ -12,6 +13,13 @@ pub struct FakeEngine {
     pub subtitle: Option<String>,
     /// mpv `eof-reached` with keep-open: the file played to its end; a load clears it.
     pub eof: bool,
+    /// Further numeric properties (e.g. `track-list/count`), read after the ones above.
+    pub numbers: HashMap<String, f64>,
+    /// Further text properties (e.g. `aid`, `track-list/0/type`), read after `sub-text`.
+    pub strings: HashMap<String, String>,
+    /// Text properties commands change, in order: each command takes the next entry
+    /// (`(name, value)` pairs) and sets them in `strings`, like mpv answering `cycle aid`.
+    pub after_command: VecDeque<Vec<(String, String)>>,
 }
 impl VideoSurface for FakeEngine {
     fn frame_ready(&mut self) -> PortResult<bool> {
@@ -32,6 +40,8 @@ impl Engine for FakeEngine {
     }
     fn command(&mut self, args: &[&str]) -> PortResult<()> {
         self.commands.push(args.join(" "));
+        self.strings
+            .extend(self.after_command.pop_front().unwrap_or_default());
         Ok(())
     }
     fn property(&mut self, name: &str) -> Option<f64> {
@@ -39,13 +49,14 @@ impl Engine for FakeEngine {
             "time-pos" => Some(self.time),
             "duration" => Some(1500.0),
             "eof-reached" => Some(if self.eof { 1.0 } else { 0.0 }),
-            _ => None,
+            _ => self.numbers.get(name).copied(),
         }
     }
     fn text(&mut self, name: &str) -> Option<String> {
-        (name == "sub-text")
-            .then(|| self.subtitle.clone())
-            .flatten()
+        if name == "sub-text" {
+            return self.subtitle.clone();
+        }
+        self.strings.get(name).cloned()
     }
 }
 
