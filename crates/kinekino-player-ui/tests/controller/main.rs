@@ -5,6 +5,7 @@ use std::path::PathBuf;
 
 #[path = "../support/mod.rs"]
 mod support;
+mod tracks;
 mod volume_speed;
 use support::FakeEngine;
 
