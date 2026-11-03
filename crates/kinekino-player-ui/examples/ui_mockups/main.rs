@@ -11,10 +11,9 @@
 //! ```
 use kinekino_core::playback::{RgbaFrame, VideoSurface};
 use kinekino_core::port::error::PortResult;
-use kinekino_player_ui::{Controller, Engine, PlaylistItem, Options, View, run};
+use kinekino_player_ui::{Controller, Engine, Options, PlaylistItem, View, run};
 use std::path::PathBuf;
 
-#[path = "ui_mockups/studio.rs"]
 mod studio;
 
 /// Screens of the design drafts that the current player can already show.
@@ -213,12 +212,11 @@ fn main() -> Result<(), String> {
     };
     let studio = studio::mockup(screen);
     let view = match &studio {
-        Some((_, video)) => {
-            let mut v = View::default();
-            v.has_media = *video;
-            v.playing = *video;
-            Some(v)
-        }
+        Some((_, video)) => Some(View {
+            has_media: *video,
+            playing: *video,
+            ..View::default()
+        }),
         None => view_for(screen),
     }
     .ok_or_else(|| format!("unknown screen {screen}; see --list"))?;

@@ -5,7 +5,7 @@ status: active
 created: 2026-10-31T11:13:16Z
 updated: 2026-10-31T12:25:00Z
 rel:
-  governs: [crates/kinekino-player-ui/examples/ui_mockups.rs, tools/brand-icons/derive.py, crates/kinekino-player-ui/src/player.css, crates/kinekino-player-ui/src/styles.rs, docs/_includes/head-custom.html, assets/design/brand-source/kinekino-mark.svg, assets/design/brand-source/kinekino-mark-f_1.6.svg, assets/design/brand-source/kinekino-mark-f_3.3.svg, assets/design/brand-source/combo_scared-v7.png, crates/kinekino-settings-ui/src/styles.rs]
+  governs: [crates/kinekino-player-ui/examples/ui_mockups/main.rs, tools/brand-icons/derive.py, crates/kinekino-player-ui/src/player.css, crates/kinekino-player-ui/src/styles.rs, docs/_includes/head-custom.html, assets/design/brand-source/kinekino-mark.svg, assets/design/brand-source/kinekino-mark-f_1.6.svg, assets/design/brand-source/kinekino-mark-f_3.3.svg, assets/design/brand-source/combo_scared-v7.png, crates/kinekino-settings-ui/src/styles.rs]
 ---
 
 # UI mockups and mascot brand icons

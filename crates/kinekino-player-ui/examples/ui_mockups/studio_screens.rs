@@ -369,7 +369,7 @@ fn cards() -> String {
         &insp_title("cards", "카드 설정"),
         &sec("플랫폼", &row(&c(&[&chip("ks-on", "영상 공유"), &chip("", "사진 공유")]))),
         &sec("비율", &seg(&["1:1", "4:5", "9:16", "16:9"], 1)),
-        &sec("템플릿", &c(&[&seg(&["제목형", "인용형", "목록형"], 0), &f("글꼴", &sel("Noto Sans KR")), &f("강조 색", &row(&c(&[&format!(r#"<span className="ks-swatch" style="background: #f0b43c"></span>"#), &format!(r#"<span className="ks-swatch" style="background: #ffffff"></span>"#)])))])),
+        &sec("템플릿", &c(&[&seg(&["제목형", "인용형", "목록형"], 0), &f("글꼴", &sel("Noto Sans KR")), &f("강조 색", &row(&c(&[r#"<span className="ks-swatch" style="background: #f0b43c"></span>"#, r#"<span className="ks-swatch" style="background: #ffffff"></span>"#])))])),
         &sec("텍스트", &c(&[&input("별빛 여행"), &input("한 장면에 담긴 이야기")])),
         &note("ks-warn", "info", "<span>글자 수가 많으면 작은 화면에서 잘릴 수 있습니다.</span>"),
         &row(&c(&[&btn("ks-outline ks-grow", "", "미리보기"), &btn("ks-primary ks-grow", "export", "모두 저장")])),
@@ -417,7 +417,7 @@ fn projection() -> String {
     ]);
     let insp = c(&[
         &insp_title("cube", "깊이 맵 설정"),
-        &sec("깊이 모델", &c(&[&sel("깊이 추정 · 기본"), &p("ks-l", "깊이 범위"), &r#"<div className="ks-depth"></div>"#.to_owned(), &row(&c(&[&p("ks-small", "가까움"), GROW, &p("ks-small", "멀리")]))])),
+        &sec("깊이 모델", &c(&[&sel("깊이 추정 · 기본"), &p("ks-l", "깊이 범위"), r#"<div className="ks-depth"></div>"#,&row(&c(&[&p("ks-small", "가까움"), GROW, &p("ks-small", "멀리")]))])),
         &sec("레이어", &c(&[&f("레이어 수", &input("4")), &f("간격", &slider(45))])),
         &sec("좌표계", &c(&[&f("위쪽 축", &sel("Y 위")), &f("단위", &sel("미터")), &f("원점", &sel("화면 중앙"))])),
         &note("ks-warn", "warning", "<span>가장 먼 레이어는 깊이 신뢰도가 낮아 흔들릴 수 있습니다.</span>"),
@@ -552,11 +552,12 @@ fn viewing_skip() -> String {
 fn viewing_web() -> String {
     let item = |n: &str| format!(r#"<div className="ks-card ks-row ks-webrow">{}<div className="ks-col ks-grow" style="gap: 8px"><b>예시 작품 {n}</b><span className="ks-ph" style="width: 60%"></span><span className="ks-ph" style="width: 40%"></span></div>{}</div>"#,
         pic("", "flex: 0 0 120px; height: 66px", ""), btn("ks-outline", "forward", "회차 보기"));
+    let search = format!(r#"<span className="ks-input ks-grow">{}작품명 검색</span>"#, i("search"));
     let body = format!(r#"<div className="ks-view ks-web"><div className="ks-row ks-webtop">{}{GROW}{}{GROW}</div><div className="ks-col ks-webmain">{}{}{}{}{}{}</div>{}<div className="ks-vbar">{}</div></div>"#,
         btn("", "back", "플레이어로 돌아가기"),
         tabs(&[("play", "방영중"), ("list", "종영"), ("track-video", "극장판")], 0),
         "<h1>작품 탐색</h1>", p("ks-muted", "호환 웹 탐색 화면"),
-        format!(r#"<span className="ks-input ks-grow">{}작품명 검색</span>"#, i("search")),
+        search,
         item("01"), item("02"), item("03"),
         note("", "info", "<span>회차를 선택하면 플레이어로 연결됩니다.</span>"),
         row(&c(&[&i("play"), &i("previous"), &i("next"), &slider(30), &p("ks-small", "--:-- / --:--"), GROW, &i("fullscreen")])));
