@@ -78,6 +78,25 @@ mod tests {
     }
 
     #[test]
+    fn near_end_positions_are_not_recorded() {
+        let p = ResumePolicy::default();
+        let s = 1_000_000;
+        assert_eq!(p.record(575 * s, 600 * s), None, "<= 60 s left");
+        assert_eq!(
+            p.record(2_860 * s, 3_000 * s),
+            None,
+            ">= 95% with 140 s left"
+        );
+        assert_eq!(
+            p.record(300 * s, 600 * s),
+            Some(ResumePoint {
+                position_us: 300 * s,
+                duration_us: 600 * s
+            })
+        );
+    }
+
+    #[test]
     fn start_rewinds_and_revalidates_against_new_duration() {
         let p = ResumePolicy::default();
         let saved = Some(ResumePoint {
