@@ -121,18 +121,14 @@ pub fn prepare_with(styles: &[(&str, &str)], icons: &[(&str, &[u8])]) -> Result<
                 Some(license.as_str()),
             )
         })
-        .chain(
-            icons
-                .iter()
-                .map(|(p, b)| {
-                    // Raster frames (the 3D mascot renders) are images; everything else is an SVG icon.
-                    if p.ends_with(".png") {
-                        ((*p, *b), InputRole::Image, "image/png", None)
-                    } else {
-                        ((*p, *b), InputRole::Icon, "image/svg+xml", None)
-                    }
-                }),
-        );
+        .chain(icons.iter().map(|(p, b)| {
+            // Raster frames (the 3D mascot renders) are images; everything else is an SVG icon.
+            if p.ends_with(".png") {
+                ((*p, *b), InputRole::Image, "image/png", None)
+            } else {
+                ((*p, *b), InputRole::Icon, "image/svg+xml", None)
+            }
+        }));
     for ((path, bytes), role, media_type, license) in entries {
         let hash = ContentHash::of(bytes);
         manifest.files.insert(
