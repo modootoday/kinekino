@@ -169,9 +169,7 @@ fn without_sources_the_start_screen_says_so() {
 
 #[test]
 fn the_browse_button_shows_only_with_a_browse_plugin() {
-    let hidden = |c: &Controller<FakeEngine>| {
-        meari_props(&c.view).get("noBrowsePlugin").cloned()
-    };
+    let hidden = |c: &Controller<FakeEngine>| meari_props(&c.view).get("noBrowsePlugin").cloned();
     let bare = Controller::new(FakeEngine::default());
     assert!(!bare.view.has_browse_plugin);
     assert_eq!(hidden(&bare), Some(meari::domain::Value::Bool(true)));
@@ -181,7 +179,9 @@ fn the_browse_button_shows_only_with_a_browse_plugin() {
             Vec::new()
         }
         fn browse(&self, _: &SourceRef, _: u32) -> Result<SourcePage, SourceError> {
-            Err(SourceError::Unsupported(kinekino_core::source::SourceCapability::Browse))
+            Err(SourceError::Unsupported(
+                kinekino_core::source::SourceCapability::Browse,
+            ))
         }
     }
     let empty = Controller::new(FakeEngine::default()).with_catalog(Box::new(NoSources));

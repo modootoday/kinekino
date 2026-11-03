@@ -168,7 +168,11 @@ impl Session {
         let graph = meari::parse_module_graph(&entry, &BTreeMap::from([(entry.clone(), tsx)]))
             .map_err(|e| format!("{e:?}"))?;
         // A mockup declares no props: it is a fixed picture.
-        let props = if mockup.is_some() { BTreeMap::new() } else { meari_props(view) };
+        let props = if mockup.is_some() {
+            BTreeMap::new()
+        } else {
+            meari_props(view)
+        };
         let program = ModuleProgram::mount(graph, props, "kinekino-player".into(), 1)
             .map_err(|e| format!("{e:?}"))?;
         let styles = match mockup {
@@ -194,7 +198,11 @@ impl Session {
 
     /// Props for `view` under this mount (none for a fixed mockup).
     pub fn props(&self, view: &View) -> BTreeMap<String, MeariValue> {
-        if self.fixed { BTreeMap::new() } else { meari_props(view) }
+        if self.fixed {
+            BTreeMap::new()
+        } else {
+            meari_props(view)
+        }
     }
 
     /// Whether `view` still fits this mount (same episode rows); otherwise remount.

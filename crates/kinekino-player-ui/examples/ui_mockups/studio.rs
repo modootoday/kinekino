@@ -23,28 +23,96 @@ const CSS: (&str, &str) = (
 
 /// (screen, draft file under the design folder, what it shows)
 pub const SCREENS: [(&str, &str, &str); 22] = [
-    ("studio-overview", "v2/viewing/native-player-studio-v2.png", "제작 진입: 구간 감지 개요"),
-    ("studio-skip", "v2/studio/skip-settings.png", "구간 감지: 오프닝·엔딩 건너뛰기 설정"),
-    ("studio-subtitles", "v2/studio/subtitles.png", "자막: 음성 인식"),
+    (
+        "studio-overview",
+        "v2/viewing/native-player-studio-v2.png",
+        "제작 진입: 구간 감지 개요",
+    ),
+    (
+        "studio-skip",
+        "v2/studio/skip-settings.png",
+        "구간 감지: 오프닝·엔딩 건너뛰기 설정",
+    ),
+    (
+        "studio-subtitles",
+        "v2/studio/subtitles.png",
+        "자막: 음성 인식",
+    ),
     ("studio-ocr", "v2/studio/ocr-refined.png", "자막: 화면 OCR"),
-    ("studio-correction", "v2/studio/correction.png", "자막: 교정"),
+    (
+        "studio-correction",
+        "v2/studio/correction.png",
+        "자막: 교정",
+    ),
     ("studio-convert", "v2/studio/convert.png", "자막: 형식 변환"),
-    ("studio-subject", "v2/studio/subject.png", "피사체: 탐지·분할·추적"),
+    (
+        "studio-subject",
+        "v2/studio/subject.png",
+        "피사체: 탐지·분할·추적",
+    ),
     ("studio-short", "v2/studio/short.png", "숏폼: 수동 제작"),
-    ("studio-short-recommend", "v2/studio/short-recommend-refined.png", "숏폼: AI 추천"),
-    ("studio-short-batch", "v2/studio/short-batch.png", "숏폼: 회차 일괄"),
-    ("studio-raw-frame", "v2/studio/raw-frame.png", "스냅샷: 원본 프레임"),
-    ("studio-snapshot", "v2/studio/snapshot-refined.png", "스냅샷: 썸네일 편집"),
+    (
+        "studio-short-recommend",
+        "v2/studio/short-recommend-refined.png",
+        "숏폼: AI 추천",
+    ),
+    (
+        "studio-short-batch",
+        "v2/studio/short-batch.png",
+        "숏폼: 회차 일괄",
+    ),
+    (
+        "studio-raw-frame",
+        "v2/studio/raw-frame.png",
+        "스냅샷: 원본 프레임",
+    ),
+    (
+        "studio-snapshot",
+        "v2/studio/snapshot-refined.png",
+        "스냅샷: 썸네일 편집",
+    ),
     ("studio-cards", "v2/studio/cards.png", "카드뉴스: 카드 편집"),
-    ("studio-asset2d", "v2/studio/asset2d.png", "2D 에셋: 레이어와 마스크"),
-    ("studio-projection", "v2/studio/projection3d-refined.png", "3D 투영: 2.5D 깊이"),
-    ("studio-projection-package", "v2/studio/projection-package.png", "3D 투영: 투영 패키지"),
-    ("studio-download", "v2/studio/download-refined.png", "영상 저장: 소스와 트랙"),
+    (
+        "studio-asset2d",
+        "v2/studio/asset2d.png",
+        "2D 에셋: 레이어와 마스크",
+    ),
+    (
+        "studio-projection",
+        "v2/studio/projection3d-refined.png",
+        "3D 투영: 2.5D 깊이",
+    ),
+    (
+        "studio-projection-package",
+        "v2/studio/projection-package.png",
+        "3D 투영: 투영 패키지",
+    ),
+    (
+        "studio-download",
+        "v2/studio/download-refined.png",
+        "영상 저장: 소스와 트랙",
+    ),
     ("studio-models", "v2/studio/models-refined.png", "모델 관리"),
-    ("studio-queue", "v2/studio/queue-refined.png", "작업 대기열: 상태와 오류"),
-    ("studio-export", "v2/studio/export.png", "내보내기: 파일 충돌과 저장"),
-    ("viewing-skip", "v2/viewing/native-player-skip-v2.png", "시청: 오프닝 건너뛰기 안내"),
-    ("viewing-web", "v2/viewing/native-player-web-v2.png", "시청: 호환 웹 탐색"),
+    (
+        "studio-queue",
+        "v2/studio/queue-refined.png",
+        "작업 대기열: 상태와 오류",
+    ),
+    (
+        "studio-export",
+        "v2/studio/export.png",
+        "내보내기: 파일 충돌과 저장",
+    ),
+    (
+        "viewing-skip",
+        "v2/viewing/native-player-skip-v2.png",
+        "시청: 오프닝 건너뛰기 안내",
+    ),
+    (
+        "viewing-web",
+        "v2/viewing/native-player-web-v2.png",
+        "시청: 호환 웹 탐색",
+    ),
 ];
 
 // ---- small building blocks (TSX strings) ----
@@ -56,43 +124,70 @@ fn i(name: &str) -> String {
     format!(r#"<span className="ks-i ks-i-{name}" aria-hidden="true"></span>"#)
 }
 fn sel(text: &str) -> String {
-    format!(r#"<span className="ks-select"><span>{text}</span>{}</span>"#, i("chevron-down"))
+    format!(
+        r#"<span className="ks-select"><span>{text}</span>{}</span>"#,
+        i("chevron-down")
+    )
 }
 fn sel_c(class: &str, text: &str) -> String {
-    format!(r#"<span className="ks-select {class}"><span>{text}</span>{}</span>"#, i("chevron-down"))
+    format!(
+        r#"<span className="ks-select {class}"><span>{text}</span>{}</span>"#,
+        i("chevron-down")
+    )
 }
 fn input(text: &str) -> String {
     format!(r#"<span className="ks-input">{text}</span>"#)
 }
-fn input_dim(text: &str) -> String {
-    format!(r#"<span className="ks-input ks-dim">{text}</span>"#)
-}
 fn toggle(on: bool) -> String {
-    format!(r#"<span className="ks-toggle{}"><i></i></span>"#, if on { " ks-on" } else { "" })
+    format!(
+        r#"<span className="ks-toggle{}"><i></i></span>"#,
+        if on { " ks-on" } else { "" }
+    )
 }
 fn check(on: bool, label: &str) -> String {
-    format!(r#"<span className="ks-check{}"><i></i>{label}</span>"#, if on { " ks-on" } else { "" })
+    format!(
+        r#"<span className="ks-check{}"><i></i>{label}</span>"#,
+        if on { " ks-on" } else { "" }
+    )
 }
 fn radio(on: bool, label: &str) -> String {
-    format!(r#"<span className="ks-radio{}"><i></i>{label}</span>"#, if on { " ks-on" } else { "" })
+    format!(
+        r#"<span className="ks-radio{}"><i></i>{label}</span>"#,
+        if on { " ks-on" } else { "" }
+    )
 }
 fn slider(pct: u32) -> String {
-    format!(r#"<span className="ks-slider"><span style="width: {pct}%"></span><i style="left: {pct}%"></i></span>"#)
+    format!(
+        r#"<span className="ks-slider"><span style="width: {pct}%"></span><i style="left: {pct}%"></i></span>"#
+    )
 }
 fn btn(class: &str, icon: &str, label: &str) -> String {
-    let ic = if icon.is_empty() { String::new() } else { i(icon) };
+    let ic = if icon.is_empty() {
+        String::new()
+    } else {
+        i(icon)
+    };
     format!(r#"<span className="ks-btn {class}">{ic}{label}</span>"#)
 }
 /// Label + control row of the settings panel.
 fn f(label: &str, value: &str) -> String {
-    format!(r#"<div className="ks-f"><span className="ks-l">{label}</span><span className="ks-v">{value}</span></div>"#)
+    format!(
+        r#"<div className="ks-f"><span className="ks-l">{label}</span><span className="ks-v">{value}</span></div>"#
+    )
 }
 fn sec(title: &str, body: &str) -> String {
-    let h = if title.is_empty() { String::new() } else { format!("<h3>{title}</h3>") };
+    let h = if title.is_empty() {
+        String::new()
+    } else {
+        format!("<h3>{title}</h3>")
+    };
     format!(r#"<section className="ks-sec">{h}{body}</section>"#)
 }
 fn note(kind: &str, icon: &str, text: &str) -> String {
-    format!(r#"<div className="ks-note {kind}">{}<div className="ks-col" style="gap: 2px">{text}</div></div>"#, i(icon))
+    format!(
+        r#"<div className="ks-note {kind}">{}<div className="ks-col" style="gap: 2px">{text}</div></div>"#,
+        i(icon)
+    )
 }
 fn p(class: &str, text: &str) -> String {
     format!(r#"<span className="{class}">{text}</span>"#)
@@ -103,15 +198,18 @@ fn row(body: &str) -> String {
 fn col(style: &str, body: &str) -> String {
     format!(r#"<div className="ks-col" style="{style}">{body}</div>"#)
 }
-fn style(pairs: &str) -> String {
-    format!(r#"style="{pairs}""#)
-}
 fn tabs(items: &[(&str, &str)], on: usize) -> String {
     let mut s = String::from(r#"<div className="ks-tabs">"#);
     for (k, (icon, label)) in items.iter().enumerate() {
-        let ic = if icon.is_empty() { String::new() } else { i(icon) };
+        let ic = if icon.is_empty() {
+            String::new()
+        } else {
+            i(icon)
+        };
         let c = if k == on { " ks-on" } else { "" };
-        s.push_str(&format!(r#"<span className="ks-tab{c}">{ic}{label}</span>"#));
+        s.push_str(&format!(
+            r#"<span className="ks-tab{c}">{ic}{label}</span>"#
+        ));
     }
     s + "</div>"
 }
@@ -125,44 +223,71 @@ fn seg(items: &[&str], on: usize) -> String {
 }
 /// Painted placeholder picture (`kind`: "" night, "sunset", "day", "room", "checker").
 fn pic(kind: &str, css: &str, inner: &str) -> String {
-    let k = if kind.is_empty() { String::new() } else { format!(" ks-pic-{kind}") };
+    let k = if kind.is_empty() {
+        String::new()
+    } else {
+        format!(" ks-pic-{kind}")
+    };
     format!(r#"<div className="ks-pic{k}" style="{css}">{inner}</div>"#)
 }
 /// The one live preview: the generated still from the engine, with overlays on top.
 fn stage(css: &str, overlays: &str) -> String {
-    format!(r#"<div className="ks-stage" style="{css}"><video id="video" tabIndex="-1" aria-hidden="true"></video>{overlays}</div>"#)
+    format!(
+        r#"<div className="ks-stage" style="{css}"><video id="video" tabIndex="-1" aria-hidden="true"></video>{overlays}</div>"#
+    )
 }
 fn transport(time: &str, pct: u32, right: &[&str]) -> String {
     let mut r = String::new();
     for n in right {
         r.push_str(&i(n));
     }
-    format!(r#"<div className="ks-transport">{}<span>{time}</span><span className="ks-bar"><span style="width: {pct}%"></span><i style="left: {pct}%"></i></span>{r}</div>"#, i("play"))
+    format!(
+        r#"<div className="ks-transport">{}<span>{time}</span><span className="ks-bar"><span style="width: {pct}%"></span><i style="left: {pct}%"></i></span>{r}</div>"#,
+        i("play")
+    )
 }
 /// Studio playback bar as drafted: play, time, progress, volume level, subtitles, speed, settings, fullscreen.
 fn playbar(time: &str, pct: u32) -> String {
-    format!(r#"<div className="ks-transport">{}<span>{time}</span><span className="ks-bar"><span style="width: {pct}%"></span><i style="left: {pct}%"></i></span>{}<span className="ks-vol"><span className="ks-bar"><span style="width: 70%"></span><i style="left: 70%"></i></span></span>{}<span className="ks-speed">1.0x</span>{}{}</div>"#,
-        i("play"), i("volume"), i("subtitles"), i("more-vertical"), i("fullscreen"))
+    format!(
+        r#"<div className="ks-transport">{}<span>{time}</span><span className="ks-bar"><span style="width: {pct}%"></span><i style="left: {pct}%"></i></span>{}<span className="ks-vol"><span className="ks-bar"><span style="width: 70%"></span><i style="left: 70%"></i></span></span>{}<span className="ks-speed">1.0x</span>{}{}</div>"#,
+        i("play"),
+        i("volume"),
+        i("subtitles"),
+        i("more-vertical"),
+        i("fullscreen")
+    )
 }
 /// Audio lane: waveform bars (amber inside the selection), playhead and a time ruler.
 fn audio_lane(class: &str, sel_l: u32, sel_w: u32, head: Option<u32>, marks: &[&str]) -> String {
     let mut s = format!(r#"<div className="ks-lane {class}"><div className="ks-wavebars">"#);
     let n = 120u32;
     for k in 0..n {
-        let h = 18 + ((k * 37 + (k * k) % 23) % 70) as u32;
+        let h = 18 + (k * 37 + (k * k) % 23) % 70;
         let pos = k * 100 / n;
-        let on = if pos >= sel_l && pos < sel_l + sel_w { " className=\"ks-on\"" } else { "" };
+        let on = if pos >= sel_l && pos < sel_l + sel_w {
+            " className=\"ks-on\""
+        } else {
+            ""
+        };
         s.push_str(&format!(r#"<span{on} style="height: {h}%"></span>"#));
     }
     s.push_str("</div>");
     if sel_w > 0 {
-        s.push_str(&format!(r#"<span className="ks-lane-sel" style="left: {sel_l}%; width: {sel_w}%"></span>"#));
+        s.push_str(&format!(
+            r#"<span className="ks-lane-sel" style="left: {sel_l}%; width: {sel_w}%"></span>"#
+        ));
     }
     if let Some(h) = head {
-        s.push_str(&format!(r#"<span className="ks-head-line" style="left: {h}%"></span>"#));
+        s.push_str(&format!(
+            r#"<span className="ks-head-line" style="left: {h}%"></span>"#
+        ));
     }
     s.push_str("</div>");
-    if marks.is_empty() { s } else { s + &ruler(marks) }
+    if marks.is_empty() {
+        s
+    } else {
+        s + &ruler(marks)
+    }
 }
 fn ruler(marks: &[&str]) -> String {
     let mut s = String::from(r#"<div className="ks-ruler">"#);
@@ -178,10 +303,14 @@ fn strip(n: usize, kind: &str, ranges: &[(u32, u32, &str)], head: Option<u32>) -
         s.push_str(&pic(kind, "", ""));
     }
     for (l, w, c) in ranges {
-        s.push_str(&format!(r#"<span className="{c}" style="left: {l}%; width: {w}%"></span>"#));
+        s.push_str(&format!(
+            r#"<span className="{c}" style="left: {l}%; width: {w}%"></span>"#
+        ));
     }
     if let Some(h) = head {
-        s.push_str(&format!(r#"<span className="ks-head-line" style="left: {h}%"></span>"#));
+        s.push_str(&format!(
+            r#"<span className="ks-head-line" style="left: {h}%"></span>"#
+        ));
     }
     s + "</div>"
 }
@@ -189,7 +318,11 @@ fn strip(n: usize, kind: &str, ranges: &[(u32, u32, &str)], head: Option<u32>) -
 fn table(widths: &[u32], head: &[&str], rows: &[Vec<String>], on: Option<usize>) -> String {
     let cell = |k: usize, v: &str| {
         let w = widths[k];
-        let st = if w == 0 { r#"style="flex: 1""#.to_owned() } else { format!(r#"style="flex: 0 0 {w}px""#) };
+        let st = if w == 0 {
+            r#"style="flex: 1""#.to_owned()
+        } else {
+            format!(r#"style="flex: 0 0 {w}px""#)
+        };
         format!("<span {st}>{v}</span>")
     };
     let mut s = String::from(r#"<div className="ks-table"><div className="ks-tr ks-th">"#);
@@ -253,12 +386,22 @@ fn frame(nav: usize, main: &str, insp: &str, queue_html: &str) -> String {
     );
     for (k, (icon, label)) in NAV.iter().enumerate() {
         let c = if k == nav { " ks-on" } else { "" };
-        items.push_str(&format!(r#"<span className="ks-nav-item{c}">{}{label}</span>"#, i(icon)));
+        items.push_str(&format!(
+            r#"<span className="ks-nav-item{c}">{}{label}</span>"#,
+            i(icon)
+        ));
     }
-    let insp = if insp.is_empty() { String::new() } else { format!(r#"<aside className="ks-insp">{insp}</aside>"#) };
-    shell(&format!(
-        r#"<div className="ks-body"><nav className="ks-nav">{items}</nav><main className="ks-main">{main}</main>{insp}</div>{queue_html}"#
-    ), "스튜디오")
+    let insp = if insp.is_empty() {
+        String::new()
+    } else {
+        format!(r#"<aside className="ks-insp">{insp}</aside>"#)
+    };
+    shell(
+        &format!(
+            r#"<div className="ks-body"><nav className="ks-nav">{items}</nav><main className="ks-main">{main}</main>{insp}</div>{queue_html}"#
+        ),
+        "스튜디오",
+    )
 }
 
 fn shell(body: &str, context: &str) -> String {

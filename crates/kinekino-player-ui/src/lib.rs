@@ -18,7 +18,7 @@ pub use controller::{
 };
 pub use keys::shortcut;
 pub use session::{Command, Mockup, Session, VIEWPORT, activate, clock, meari_props, path_of};
-pub use source::{PlaylistItem, PRODUCT, View};
+pub use source::{PRODUCT, PlaylistItem, View};
 pub use texture::{VIDEO_ID, VideoTexture};
 pub use window::actions::{PortRefusal, WindowOps, perform};
 pub use window::{Options, Report, run};
