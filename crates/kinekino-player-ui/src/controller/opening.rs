@@ -86,6 +86,7 @@ impl<E: Engine> Controller<E> {
         self.view.subtitle.clear();
         self.view.status.clear();
         self.resume_opened(index);
+        self.skip_opened(index);
     }
 
     /// The opening line where the user is; also covers a plugin still resolving the item.

@@ -3,7 +3,7 @@ id: adr:kinekino/20261105111300
 title: 수동 구간 건너뛰기는 항목마다 컨트롤러가 기억한다
 status: active
 created: 2026-11-05T11:13:00Z
-updated: 2026-11-05T12:20:00Z
+updated: 2026-11-05T13:17:22Z
 rel:
   governs: [crates/kinekino-player-ui/src/controller, crates/kinekino-core/src/playback]
 ---
@@ -33,4 +33,5 @@ rel:
 - 구간 안(`View.skip_offer`)일 때만 영상 위 오버레이에 "건너뛰기"와 보조 "구간 지우기" 단추가 보인다(`#skipSegment`, `#clearSkip`).
 - 단축키(잠정, PotPlayer 감각; **M2-1 단축키 표 ADR에서 재확인**): Ctrl+[ 시작, Ctrl+] 끝, S 건너뛰기, Ctrl+\\ 지우기. physical key, 한국어 IME 레이아웃에서도 동일. 자동 반복은 음량·속도만.
 - `ClearSkip`은 구간·시작점을 지우고 토스트로 알린다. 없을 때는 "지울 구간이 없습니다".
-- 남은 일: 구간 저장·회차 간 재사용 여부(M1-9c), 메뉴 연결(M2-3), GUI 시안 대조는 실기 확인, 단축키는 M2-1에서 재확인.
+- 구간 저장·같은 키 재오픈 복원(M1-9c)은 adr:kinekino/20261105131646로 넘긴다. 회차 간 복사는 하지 않는다.
+- 남은 일: 메뉴 연결(M2-3), GUI 시안 대조는 실기 확인, 단축키는 M2-1에서 재확인.
