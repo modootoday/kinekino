@@ -106,3 +106,4 @@ PotPlayer를 기준으로 한 Linux 우선 플레이어를 끝까지 완성하�
 - 2026-11-05: M1-7 viewing prefs (volume, mute, speed, auto-next) persist across runs (`09c159a9`).
 - 2026-11-05: M1-8 styled (ASS/SSA) and picture subtitle tracks are drawn by the engine into the frame; text tracks stay on the overlay (`9fc048f8`).
 - 2026-11-05: Manual skip ranges persist per local-file key and restore on reopen (UI criteria (5) through save); siblings are not copied (`46392c5d`). M1-10 still open — M1 not closed.
+- 2026-11-05: M1-10 — product playback stays on `kinekino watch` → player-ui → libmpv; the old `kinekino-player` mpv-process IPC CLI stays experimental (ADR 20261105141813). M1 criteria (1)–(5) met on the product path — M1 closed.
