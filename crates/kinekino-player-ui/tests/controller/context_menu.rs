@@ -1,9 +1,10 @@
-//! Right-click menu skeleton (ADR 20261105161614): open at the pointer, move, close rules,
-//! five groups wired to existing commands, placement inside the window.
+//! Right-click menu (ADR 20261105161614): open at the pointer, move, close rules,
+//! groups wired to M1 commands (M2-3), placement inside the window.
 use super::folder;
 use super::support::FakeEngine;
 use kinekino_player_ui::{
-    CONTEXT_MENU_SIZE, Command, Controller, Effect, Session, activate, context_anchor, meari_props,
+    CONTEXT_MENU_SIZE, Command, Controller, Effect, SEEK_STEP_1, SEEK_STEP_2, Session, activate,
+    context_anchor, meari_props,
 };
 use meari_native::application::Renderer;
 use std::time::{Duration, Instant};
@@ -72,11 +73,11 @@ fn an_open_context_menu_keeps_fullscreen_controls_visible() {
 #[test]
 fn the_anchor_stays_inside_the_window() {
     let (w, h) = CONTEXT_MENU_SIZE;
-    let view = (1280.0, 720.0);
+    let view = (1280.0, 900.0);
     assert_eq!(context_anchor((100.0, 50.0), view), (100.0, 50.0));
     assert_eq!(
-        context_anchor((1200.0, 600.0), view),
-        (1200.0 - w, 600.0 - h),
+        context_anchor((1200.0, 800.0), view),
+        (1200.0 - w, 800.0 - h),
         "near the bottom-right corner it opens up and to the left"
     );
     assert_eq!(
@@ -134,14 +135,14 @@ fn context_items_map_to_existing_commands_and_lay_out_at_the_pointer() {
         );
         let (w, h) = CONTEXT_MENU_SIZE;
         assert!(l.size.width <= w as f32 + 0.5 && l.size.height <= h as f32 + 0.5);
-        assert!(l.size.height >= 5.0 * 32.0, "room for five groups");
+        assert!(l.size.height >= 6.0 * 32.0, "room for six groups");
         let groups: Vec<String> = base
             .query_selector_all("#contextMenu .kk-menu-heading")
             .unwrap()
             .into_iter()
             .map(|n| base.get_node(n).unwrap().text_content())
             .collect();
-        assert_eq!(groups, ["열기", "재생", "자막", "오디오", "화면"]);
+        assert_eq!(groups, ["열기", "재생", "구간", "자막", "오디오", "화면"]);
     }
     assert_eq!(
         click(&mut session, &mut doc, &mut c, "ctxOpen"),
@@ -179,4 +180,118 @@ fn click(
     }
     doc.update_module_props(meari_props(&c.view)).unwrap();
     commands
+}
+
+#[test]
+fn m1_commands_map_from_context_menu_items() {
+    let (dir, files) = folder("ctx-m1");
+    let mut c = Controller::new(FakeEngine::default());
+    c.open(&files[0]);
+    let (mut session, mut doc) = Session::mount(&c.view).unwrap();
+    let cases: &[(&str, Command)] = &[
+        ("ctxPrevious", Command::Previous),
+        ("ctxNext", Command::Next),
+        ("ctxAutoNext", Command::ToggleAutoNext),
+        ("ctxSpeedDown", Command::SpeedDown),
+        ("ctxSpeedUp", Command::SpeedUp),
+        ("ctxSpeedReset", Command::SpeedReset),
+        ("ctxSeekBack5", Command::SeekBy(-SEEK_STEP_1)),
+        ("ctxSeekFwd5", Command::SeekBy(SEEK_STEP_1)),
+        ("ctxSeekBack30", Command::SeekBy(-SEEK_STEP_2)),
+        ("ctxSeekFwd30", Command::SeekBy(SEEK_STEP_2)),
+        ("ctxVolumeUp", Command::VolumeUp),
+        ("ctxVolumeDown", Command::VolumeDown),
+        ("ctxMute", Command::Mute),
+        ("ctxMarkSkipStart", Command::MarkSkipStart),
+        ("ctxMarkSkipEnd", Command::MarkSkipEnd),
+        ("ctxSkipSegment", Command::SkipSegment),
+        ("ctxClearSkip", Command::ClearSkip),
+    ];
+    for (id, command) in cases {
+        c.apply(Command::ContextMenu(10.0, 10.0));
+        doc.update_module_props(meari_props(&c.view)).unwrap();
+        assert_eq!(
+            click(&mut session, &mut doc, &mut c, id),
+            [command.clone()],
+            "{id}"
+        );
+        assert!(c.view.context_menu.is_none(), "{id} closes the menu");
+    }
+    std::fs::remove_dir_all(dir).unwrap();
+}
+
+#[test]
+fn m1_media_items_are_disabled_without_media_and_headings_include_skip() {
+    let mut c = Controller::new(FakeEngine::default());
+    let (_session, mut doc) = Session::mount(&c.view).unwrap();
+    let viewport = doc.viewport.clone();
+    let disabled = |doc: &meari_native::infrastructure::document::InteractiveDocument,
+                    sel: &str| {
+        let base = &*doc.renderer.document;
+        let id = base.query_selector(sel).unwrap().unwrap();
+        let node = base.get_node(id).unwrap();
+        node.attr(blitz_dom::local_name!("disabled")).is_some()
+    };
+    c.apply(Command::ContextMenu(40.0, 40.0));
+    doc.update_module_props(meari_props(&c.view)).unwrap();
+    doc.renderer.rasterize(&viewport).unwrap();
+    for id in [
+        "#ctxPrevious",
+        "#ctxNext",
+        "#ctxSpeedDown",
+        "#ctxSpeedUp",
+        "#ctxSpeedReset",
+        "#ctxSeekBack5",
+        "#ctxSeekFwd5",
+        "#ctxSeekBack30",
+        "#ctxSeekFwd30",
+        "#ctxMarkSkipStart",
+        "#ctxMarkSkipEnd",
+        "#ctxSkipSegment",
+        "#ctxClearSkip",
+        "#ctxPlayPause",
+        "#ctxSubtitle",
+        "#ctxAudio",
+    ] {
+        assert!(disabled(&doc, id), "{id} needs media");
+    }
+    for id in [
+        "#ctxMute",
+        "#ctxVolumeUp",
+        "#ctxVolumeDown",
+        "#ctxAutoNext",
+        "#ctxFullscreen",
+    ] {
+        assert!(!disabled(&doc, id), "{id} stays enabled");
+    }
+    {
+        let base = &*doc.renderer.document;
+        let id = base.query_selector("#contextMenu").unwrap().unwrap();
+        let node = base.get_node(id).unwrap();
+        let l = *node.final_layout();
+        eprintln!(
+            "m1 context menu {}x{} (reservation {:?})",
+            l.size.width, l.size.height, CONTEXT_MENU_SIZE
+        );
+        let (w, h) = CONTEXT_MENU_SIZE;
+        assert!(
+            l.size.width <= w as f32 + 0.5 && l.size.height <= h as f32 + 0.5,
+            "laid-out menu must fit the reservation"
+        );
+        assert!(
+            l.size.height > 360.0,
+            "M2-3 grows past the M2-2 360px skeleton"
+        );
+        let groups: Vec<String> = base
+            .query_selector_all("#contextMenu .kk-menu-heading")
+            .unwrap()
+            .into_iter()
+            .map(|n| base.get_node(n).unwrap().text_content())
+            .collect();
+        assert_eq!(
+            groups,
+            ["열기", "재생", "구간", "자막", "오디오", "화면"],
+            "flat groups including 구간"
+        );
+    }
 }
