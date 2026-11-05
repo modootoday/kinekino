@@ -3,7 +3,7 @@ id: plan:kinekino/20261031153240
 title: kinekino 완성 로드맵과 마일스톤
 status: draft
 created: 2026-10-31T15:32:40Z
-updated: 2026-10-31T15:32:43Z
+updated: 2026-11-05T16:27:00Z
 rel:
   governs: [crates]
 ---
@@ -108,3 +108,4 @@ PotPlayer를 기준으로 한 Linux 우선 플레이어를 끝까지 완성하�
 - 2026-11-05: Manual skip ranges persist per local-file key and restore on reopen (UI criteria (5) through save); siblings are not copied (`46392c5d`). M1-10 still open — M1 not closed.
 - 2026-11-05: M1-10 — product playback stays on `kinekino watch` → player-ui → libmpv; the old `kinekino-player` mpv-process IPC CLI stays experimental (ADR 20261105141813). M1 criteria (1)–(5) met on the product path — M1 closed.
 - 2026-11-06: M2-1 — shortcut table ADR and seek/navigation keys (arrow seek steps, PageUp/Down, Backspace; skip keys confirmed). M2 not closed.
+- 2026-11-06: M2-2 — right-click menu skeleton (pointer-anchored popup kept inside the window, five groups reusing existing commands, same close rules as the more menu). Visual check pending. M2 not closed.
