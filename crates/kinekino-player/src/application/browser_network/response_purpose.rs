@@ -34,6 +34,7 @@ pub(super) fn classify(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::domain::admitted_hosts::{secondary_cdn_test_hosts, with_admitted_hosts};
     fn response() -> NetworkResponse {
         NetworkResponse {
             url: "https://media.example.test/player/index.php?fixture".into(),
@@ -68,49 +69,51 @@ mod tests {
     }
     #[test]
     fn observed_secondary_assets_keep_original_method_type_path_and_secure_origin_guards() {
-        for host in ["media.example.test", "michealcdn.com"] {
-            let script = format!("https://{host}/player/assets/scripts.php?v=7");
-            let bootstrap = format!(
-                "https://{host}/player/index.php?data=0123456789abcdef0123456789abcdef&do=getVideo"
-            );
-            let mut response = response();
-            response.url = script.clone();
-            assert!(matches!(
-                classify("GET", Some("Script"), &script, &response),
-                Some(ResponsePurpose::PlayerScript)
-            ));
-            response.url = bootstrap.clone();
-            assert!(matches!(
-                classify("POST", Some("XHR"), &bootstrap, &response),
-                Some(ResponsePurpose::PlayerBootstrap)
-            ));
-            for (method, kind, raw) in [
-                ("POST", Some("Script"), script.as_str()),
-                ("GET", Some("XHR"), bootstrap.as_str()),
-                ("POST", Some("Script"), bootstrap.as_str()),
-                ("POST", Some("Image"), bootstrap.as_str()),
-            ] {
-                assert!(!matches!(
-                    classify(method, kind, raw, &response),
-                    Some(ResponsePurpose::PlayerScript | ResponsePurpose::PlayerBootstrap)
+        with_admitted_hosts(secondary_cdn_test_hosts(), || {
+            for host in ["media.example.test", "michealcdn.com"] {
+                let script = format!("https://{host}/player/assets/scripts.php?v=7");
+                let bootstrap = format!(
+                    "https://{host}/player/index.php?data=0123456789abcdef0123456789abcdef&do=getVideo"
+                );
+                let mut response = response();
+                response.url = script.clone();
+                assert!(matches!(
+                    classify("GET", Some("Script"), &script, &response),
+                    Some(ResponsePurpose::PlayerScript)
                 ));
+                response.url = bootstrap.clone();
+                assert!(matches!(
+                    classify("POST", Some("XHR"), &bootstrap, &response),
+                    Some(ResponsePurpose::PlayerBootstrap)
+                ));
+                for (method, kind, raw) in [
+                    ("POST", Some("Script"), script.as_str()),
+                    ("GET", Some("XHR"), bootstrap.as_str()),
+                    ("POST", Some("Script"), bootstrap.as_str()),
+                    ("POST", Some("Image"), bootstrap.as_str()),
+                ] {
+                    assert!(!matches!(
+                        classify(method, kind, raw, &response),
+                        Some(ResponsePurpose::PlayerScript | ResponsePurpose::PlayerBootstrap)
+                    ));
+                }
             }
-        }
-        let response = response();
-        for raw in [
-            "http://michealcdn.com/player/index.php",
-            "https://michealcdn.com:444/player/index.php",
-            "https://user@michealcdn.com/player/index.php",
-            "https://michealcdn.com.evil.test/player/index.php",
-            "https://sub.michealcdn.com/player/index.php",
-            "https://michealcdn.com/other/index.php",
-            "https://michealcdn.com/player/index.php/other",
-        ] {
-            assert!(
-                classify("POST", Some("XHR"), raw, &response).is_none(),
-                "Unexpected bootstrap admission: {raw}"
-            );
-        }
+            let response = response();
+            for raw in [
+                "http://michealcdn.com/player/index.php",
+                "https://michealcdn.com:444/player/index.php",
+                "https://user@michealcdn.com/player/index.php",
+                "https://michealcdn.com.evil.test/player/index.php",
+                "https://sub.michealcdn.com/player/index.php",
+                "https://michealcdn.com/other/index.php",
+                "https://michealcdn.com/player/index.php/other",
+            ] {
+                assert!(
+                    classify("POST", Some("XHR"), raw, &response).is_none(),
+                    "Unexpected bootstrap admission: {raw}"
+                );
+            }
+        });
     }
     #[test]
     fn observed_xhr_can_be_probed_without_promoting_extension_or_mime_to_media() {

@@ -230,29 +230,32 @@ fn player_document_scope_is_exact_and_document_success_is_not_media_success() {
 }
 #[test]
 fn secondary_provider_request_stays_exact_and_document_capture_is_not_media_success() {
-    let (_, original) = fixture(BrowserOperation::ReadPlayerDocument);
-    let mut request = original.request().request().clone();
-    request.url = "https://michealcdn.com/video/0123456789abcdef0123456789abcdef".into();
-    let request = ValidatedBrowserRequest::new(request).unwrap();
-    assert!(request.navigation_allowed(&request.request().url));
-    for foreign in [
-        "https://michealcdn.com/",
-        "https://michealcdn.com/video/ffffffffffffffffffffffffffffffff",
-        "https://media.example.test/video/0123456789abcdef0123456789abcdef",
-        "https://frame.example.test/tv-show.php?v=1",
-    ] {
-        assert!(!request.navigation_allowed(foreign));
-    }
-    let ticket =
-        BrowserTicket::new("secondary-provider-session".into(), "request".into(), 1).unwrap();
-    let mut work = BrowserWork::new(ticket.clone(), request).unwrap();
-    start(&ticket, &mut work);
-    let captured = document(&work, CaptureKind::DomSnapshot);
-    work.apply(&ticket, BrowserEvent::DocumentReady(captured));
-    assert_eq!(work.snapshot().state, BrowserWorkState::Succeeded);
-    assert!(matches!(
-        work.snapshot().result.as_deref(),
-        Some(BrowserResult::Document(_))
-    ));
-    assert!(work.snapshot().media_requests.is_empty());
+    use crate::domain::admitted_hosts::{secondary_cdn_test_hosts, with_admitted_hosts};
+    with_admitted_hosts(secondary_cdn_test_hosts(), || {
+        let (_, original) = fixture(BrowserOperation::ReadPlayerDocument);
+        let mut request = original.request().request().clone();
+        request.url = "https://michealcdn.com/video/0123456789abcdef0123456789abcdef".into();
+        let request = ValidatedBrowserRequest::new(request).unwrap();
+        assert!(request.navigation_allowed(&request.request().url));
+        for foreign in [
+            "https://michealcdn.com/",
+            "https://michealcdn.com/video/ffffffffffffffffffffffffffffffff",
+            "https://media.example.test/video/0123456789abcdef0123456789abcdef",
+            "https://frame.example.test/tv-show.php?v=1",
+        ] {
+            assert!(!request.navigation_allowed(foreign));
+        }
+        let ticket =
+            BrowserTicket::new("secondary-provider-session".into(), "request".into(), 1).unwrap();
+        let mut work = BrowserWork::new(ticket.clone(), request).unwrap();
+        start(&ticket, &mut work);
+        let captured = document(&work, CaptureKind::DomSnapshot);
+        work.apply(&ticket, BrowserEvent::DocumentReady(captured));
+        assert_eq!(work.snapshot().state, BrowserWorkState::Succeeded);
+        assert!(matches!(
+            work.snapshot().result.as_deref(),
+            Some(BrowserResult::Document(_))
+        ));
+        assert!(work.snapshot().media_requests.is_empty());
+    });
 }

@@ -1,3 +1,4 @@
+pub mod admitted_hosts;
 pub mod asset_generation;
 pub mod browser_provider;
 pub mod card_document;

@@ -43,22 +43,26 @@ fn binds_target_to_requested_observed_and_embedded_episode_identity() {
 }
 #[test]
 fn observed_secondary_provider_target_keeps_original_episode_and_dom_evidence_binding() {
-    let (input, document, mut markup) = fixture();
-    markup.0.target_url = "https://michealcdn.com/video/0123456789abcdef0123456789abcdef".into();
-    let target = player_target(&input, &document, &markup).unwrap();
-    assert_eq!(target.document.as_str(), markup.0.target_url);
-    assert_eq!(target.episode_id, "catalog:/e/fixture");
-    assert_eq!(
-        target.source_document_generation,
-        document.document_generation
-    );
-    assert_eq!(
-        target.source_body_sha256,
-        kinekino_media_contracts::hex_lower(Sha256::digest(&document.body))
-    );
-    assert_eq!(target.source_pointer, "/props/playing/body/url");
-    markup.0.playing_slug = "other".into();
-    assert!(player_target(&input, &document, &markup).is_err());
+    use crate::domain::admitted_hosts::{secondary_cdn_test_hosts, with_admitted_hosts};
+    with_admitted_hosts(secondary_cdn_test_hosts(), || {
+        let (input, document, mut markup) = fixture();
+        markup.0.target_url =
+            "https://michealcdn.com/video/0123456789abcdef0123456789abcdef".into();
+        let target = player_target(&input, &document, &markup).unwrap();
+        assert_eq!(target.document.as_str(), markup.0.target_url);
+        assert_eq!(target.episode_id, "catalog:/e/fixture");
+        assert_eq!(
+            target.source_document_generation,
+            document.document_generation
+        );
+        assert_eq!(
+            target.source_body_sha256,
+            kinekino_media_contracts::hex_lower(Sha256::digest(&document.body))
+        );
+        assert_eq!(target.source_pointer, "/props/playing/body/url");
+        markup.0.playing_slug = "other".into();
+        assert!(player_target(&input, &document, &markup).is_err());
+    });
 }
 #[test]
 fn foreign_identity_unobserved_schema_and_provider_are_not_admitted() {

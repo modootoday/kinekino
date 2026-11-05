@@ -1,6 +1,8 @@
 use std::fmt;
 use url::Url;
 
+use super::admitted_hosts::active_hosts;
+
 /// Provider document targets observed in preserved 2026-10-19/25 episode DOM payloads.
 /// This is a document target, not an admitted media stream or a successful playback.
 #[derive(Clone, PartialEq, Eq)]
@@ -11,10 +13,9 @@ impl PlayerDocumentLocation {
     /// This alone grants no navigation, request, document or media authority.
     pub(crate) fn admitted_response_origin(url: &Url) -> bool {
         url.scheme() == "https"
-            && matches!(
-                url.host_str(),
-                Some("media.example.test" | "michealcdn.com")
-            )
+            && url
+                .host_str()
+                .is_some_and(|host| active_hosts().admits_player(host))
             && url.port_or_known_default() == Some(443)
             && url.username().is_empty()
             && url.password().is_none()
@@ -54,14 +55,13 @@ impl fmt::Debug for PlayerDocumentLocation {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::domain::admitted_hosts::{AdmittedHosts, with_admitted_hosts};
+
     #[test]
-    fn observed_secondary_provider_retains_exact_origin_and_document_shape() {
+    fn secondary_cdn_document_rejected_without_install() {
         let identifier = "0123456789abcdef0123456789abcdef";
         let raw = format!("https://michealcdn.com/video/{identifier}");
-        let location = PlayerDocumentLocation::parse(&raw).unwrap();
-        assert_eq!(location.as_str(), raw);
-        assert!(!format!("{location:?}").contains(identifier));
-        assert!(format!("{location:?}").contains("michealcdn.com"));
+        assert!(PlayerDocumentLocation::parse(&raw).is_err());
         for candidate in [
             format!("http://michealcdn.com/video/{identifier}"),
             format!("https://michealcdn.com.evil.test/video/{identifier}"),
@@ -83,12 +83,51 @@ mod tests {
     }
 
     #[test]
+    fn installing_secondary_cdn_admits_exact_document_shape_only() {
+        let identifier = "0123456789abcdef0123456789abcdef";
+        let raw = format!("https://michealcdn.com/video/{identifier}");
+        let hosts = AdmittedHosts::new(["media.example.test"])
+            .with_player_hosts(["media.example.test", "michealcdn.com"]);
+        with_admitted_hosts(hosts, || {
+            let location = PlayerDocumentLocation::parse(&raw).unwrap();
+            assert_eq!(location.as_str(), raw);
+            assert!(!format!("{location:?}").contains(identifier));
+            assert!(format!("{location:?}").contains("michealcdn.com"));
+            for candidate in [
+                format!("http://michealcdn.com/video/{identifier}"),
+                format!("https://michealcdn.com.evil.test/video/{identifier}"),
+                format!("https://sub.michealcdn.com/video/{identifier}"),
+                format!("https://michealcdn.com:444/video/{identifier}"),
+                format!("https://user@michealcdn.com/video/{identifier}"),
+                format!("https://michealcdn.com/video/{identifier}?token=fixture"),
+                format!("https://michealcdn.com/video/{identifier}#fixture"),
+                format!("https://michealcdn.com/video/{identifier}/"),
+                "https://michealcdn.com/".into(),
+                "https://michealcdn.com/video/short".into(),
+                "https://michealcdn.com/video/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz".into(),
+            ] {
+                assert!(
+                    PlayerDocumentLocation::parse(&candidate).is_err(),
+                    "Unexpected admission: {candidate}"
+                );
+            }
+        });
+    }
+
+    #[test]
     fn admits_only_the_observed_provider_document_shape() {
         let identifier = "0123456789abcdef0123456789abcdef";
         let raw = format!("https://media.example.test/video/{identifier}");
         let location = PlayerDocumentLocation::parse(&raw).unwrap();
         assert_eq!(location.as_str(), raw);
         assert!(!format!("{location:?}").contains(identifier));
+        // Frame is an admits_player fixture host, so the same document shape is allowed there too.
+        assert!(
+            PlayerDocumentLocation::parse(&format!(
+                "https://frame.example.test/video/{identifier}"
+            ))
+            .is_ok()
+        );
         for raw in [
             format!("http://media.example.test/video/{identifier}"),
             format!("https://media.example.test.evil.test/video/{identifier}"),
@@ -100,7 +139,7 @@ mod tests {
             "https://media.example.test/video/short".into(),
             "https://media.example.test/video/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz".into(),
             format!("https://127.0.0.1/video/{identifier}"),
-            format!("https://frame.example.test/video/{identifier}"),
+            format!("https://catalog.example.test/video/{identifier}"),
         ] {
             assert!(PlayerDocumentLocation::parse(&raw).is_err());
         }
