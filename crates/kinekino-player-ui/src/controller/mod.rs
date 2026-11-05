@@ -4,6 +4,7 @@ use crate::catalog::{Catalog, STREAM_HEADERS};
 mod browse;
 mod jobs;
 mod opening;
+mod resume;
 mod tracks;
 pub use crate::port::Engine;
 use crate::session::Command;
@@ -101,6 +102,8 @@ pub struct Controller<E: Engine> {
     /// Rows currently shown (sources at the top level).
     listing: Vec<SourceItem>,
     next_page: Option<u32>,
+    /// 이어보기 store and the opened item's key.
+    resume: resume::Resume,
 }
 
 fn browse_error(e: &SourceError) -> String {
@@ -132,6 +135,7 @@ impl<E: Engine> Controller<E> {
             trail: Vec::new(),
             listing: Vec::new(),
             next_page: None,
+            resume: resume::Resume::default(),
         }
     }
 
@@ -274,6 +278,9 @@ impl<E: Engine> Controller<E> {
 
     /// Local files load at once; a plugin's item is resolved off the UI thread first.
     fn play(&mut self, index: usize) {
+        if index < self.files.len() {
+            self.resume_leave();
+        }
         // A newer choice replaces any open in flight; its late result is ignored.
         self.opening = None;
         match self.files.get(index).cloned() {
@@ -360,6 +367,9 @@ impl<E: Engine> Controller<E> {
                 self.view.menu_open = !self.view.menu_open;
             }
             Command::PlayPause if media => {
+                if self.view.playing {
+                    self.save_resume();
+                }
                 let r = self.engine.command(&["cycle", "pause"]);
                 self.report(r);
                 self.view.playing = !self.view.playing;
@@ -372,6 +382,7 @@ impl<E: Engine> Controller<E> {
                     let r = self.engine.command(&["seek", "0", "absolute"]);
                     self.report(r);
                     self.view.position = 0.0;
+                    self.resume_rewound();
                 }
             },
             Command::Next if media => {
@@ -393,6 +404,7 @@ impl<E: Engine> Controller<E> {
                     .command(&["seek", &format!("{secs:.3}"), "absolute"]);
                 self.report(r);
                 self.view.position = secs;
+                self.resume_rewound();
             }
             // The slider: any audible level unmutes, as in common players.
             Command::Volume(v) => self.set_volume(v, v > 0.0),
@@ -413,7 +425,10 @@ impl<E: Engine> Controller<E> {
             }
             Command::Minimize => return Some(Effect::Minimize),
             Command::Maximize => return Some(Effect::Maximize(!self.view.maximized)),
-            Command::Close => return Some(Effect::Close),
+            Command::Close => {
+                self.save_resume();
+                return Some(Effect::Close);
+            }
             _ => {}
         }
         None
@@ -440,7 +455,10 @@ impl<E: Engine> Controller<E> {
         let mut advanced = false;
         if self.engine.property("eof-reached") == Some(1.0) && self.view.playing {
             self.view.playing = false;
+            self.resume_ended();
             advanced = self.advance();
+        } else {
+            self.resume_tick();
         }
         // Whole seconds are what the clock shows; finer changes need no re-projection.
         settled

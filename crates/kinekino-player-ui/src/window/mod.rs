@@ -9,6 +9,8 @@ pub mod actions;
 mod caption;
 mod drop;
 mod edges;
+mod nochild;
+mod typing;
 use actions::{PortRefusal, WindowOps};
 use kinekino_core::playback::{RgbaFrame, VideoSurface};
 use kinekino_core::port::error::PortResult;
@@ -24,6 +26,7 @@ use meari_native::infrastructure::native_host::{
     IntentAdmission, NativeDocumentHandle, NativeHostRuntime, NativeWindowHost,
 };
 use meari_native::infrastructure::window::{NativeWindowDriver, NativeWindowPreparation};
+use nochild::NoChild;
 use std::cell::RefCell;
 use std::num::NonZeroU64;
 use std::path::PathBuf;
@@ -65,10 +68,6 @@ impl std::fmt::Display for HostError {
     }
 }
 impl std::error::Error for HostError {}
-
-mod nochild;
-mod typing;
-use nochild::NoChild;
 
 struct Shared<E: Engine> {
     controller: Controller<E>,
@@ -583,7 +582,7 @@ pub fn run<E: Engine>(controller: Controller<E>, options: Options) -> Result<Rep
         let remount = app.remount;
         report.frames += app.frames;
         drop(app);
-        let shared = Rc::try_unwrap(shared)
+        let mut shared = Rc::try_unwrap(shared)
             .map_err(|_| "player window state still shared")?
             .into_inner();
         if let Some(e) = shared.failure {
@@ -592,6 +591,7 @@ pub fn run<E: Engine>(controller: Controller<E>, options: Options) -> Result<Rep
         report.uploads += shared.texture.uploads();
         report.captured |= shared.captured;
         if !remount {
+            shared.controller.save_resume();
             return Ok(report);
         }
         report.remounts += 1;

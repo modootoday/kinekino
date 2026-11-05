@@ -1,8 +1,10 @@
 //! Snapshot of the environment variables the composition root reads.
 use std::collections::BTreeMap;
 
-const PASSTHROUGH: [&str; 5] = [
+const PASSTHROUGH: [&str; 7] = [
     "XDG_CONFIG_HOME",
+    "XDG_STATE_HOME",
+    "LOCALAPPDATA",
     "HOME",
     "APPDATA",
     "DISPLAY",
