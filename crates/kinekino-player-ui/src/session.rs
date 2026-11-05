@@ -67,6 +67,8 @@ pub enum Command {
     BrowseLayout,
     /// Seek target as a 0–1 fraction of the duration.
     Seek(f64),
+    /// Relative seek by this many seconds (negative goes back); clamped to `[0, duration]`.
+    SeekBy(f64),
     /// Volume 0–100.
     Volume(f64),
     /// One `VOLUME_STEP` louder (up to 100); unmutes.
