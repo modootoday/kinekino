@@ -98,3 +98,28 @@ fn aggregate_record_and_working_limits_are_independent_of_individual_proposals()
     assert!(serde_json::to_vec(&project).unwrap().len() < MAX_RECORD_BYTES);
     assert!(project.validate().is_err());
 }
+
+#[test]
+fn admits_override_episode_locator_host() {
+    use crate::domain::admitted_hosts::{AdmittedHosts, with_admitted_hosts};
+    let other = WatchingSelection {
+        label: "Episode".into(),
+        source: WatchingSource::EpisodePage {
+            source_id: "episode-a".into(),
+            episode_url: "https://catalog.other.test/e/episode-a".into(),
+        },
+    };
+    let fixture = WatchingSelection {
+        label: "Episode".into(),
+        source: WatchingSource::EpisodePage {
+            source_id: "episode-a".into(),
+            episode_url: "https://catalog.example.test/e/episode-a".into(),
+        },
+    };
+    assert!(fixture.validate().is_ok());
+    assert!(other.validate().is_err());
+    with_admitted_hosts(AdmittedHosts::new(["catalog.other.test"]), || {
+        assert!(other.validate().is_ok());
+        assert!(fixture.validate().is_err());
+    });
+}

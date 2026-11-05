@@ -28,10 +28,16 @@ impl EpisodeQueue {
     pub fn navigate(&mut self, url: &str) {
         if let Some(i) = self.entries.iter().position(|e| e.url == url) {
             self.current = Some(i);
-        } else if !url.starts_with("https://frame.example.test/")
-            && !url.starts_with("https://media.example.test/")
-        {
-            *self = Self::default();
+        } else {
+            let keep_on_player = url::Url::parse(url).ok().is_some_and(|u| {
+                u.scheme() == "https"
+                    && u.host_str().is_some_and(|host| {
+                        crate::domain::admitted_hosts::active_hosts().admits_player(host)
+                    })
+            });
+            if !keep_on_player {
+                *self = Self::default();
+            }
         }
     }
 }
@@ -65,5 +71,39 @@ mod tests {
         assert!(q.adjacent(1).is_none());
         q.navigate("https://catalog.example.test/종영");
         assert!(q.entries.is_empty());
+    }
+
+    #[test]
+    fn keeps_queue_on_admitted_player_host_and_clears_otherwise() {
+        use crate::domain::admitted_hosts::{AdmittedHosts, with_admitted_hosts};
+        let page = EpisodePage {
+            page: "https://catalog.example.test/e/a1".into(),
+            series: "https://catalog.example.test/c/a".into(),
+            title: "A".into(),
+            entries: vec![
+                Episode {
+                    title: "1".into(),
+                    url: "https://catalog.example.test/e/a1".into(),
+                },
+                Episode {
+                    title: "2".into(),
+                    url: "https://catalog.example.test/e/a2".into(),
+                },
+            ],
+        };
+        let hosts = AdmittedHosts::new(["catalog.example.test", "cdn.other.test"])
+            .with_player_hosts(["cdn.other.test"]);
+        with_admitted_hosts(hosts, || {
+            let mut q = EpisodeQueue::default();
+            assert!(q.observe(page, "https://catalog.example.test/e/a1"));
+            assert_eq!(q.entries.len(), 2);
+            q.navigate("https://cdn.other.test/video/0123456789abcdef0123456789abcdef");
+            assert_eq!(q.entries.len(), 2, "player host must keep the queue");
+            q.navigate("https://media.example.test/player/index.php");
+            assert!(
+                q.entries.is_empty(),
+                "non-admitted host must clear the queue"
+            );
+        });
     }
 }

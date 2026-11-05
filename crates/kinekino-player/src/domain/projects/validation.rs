@@ -33,7 +33,9 @@ impl WatchingSelection {
                     || episode_url.len() > 8192
                     || !text(episode_url, 8192)
                     || url.scheme() != "https"
-                    || url.host_str() != Some("catalog.example.test")
+                    || !url.host_str().is_some_and(|host| {
+                        crate::domain::admitted_hosts::active_hosts().admits(host)
+                    })
                     || !url.username().is_empty()
                     || url.password().is_some()
                     || url.port().is_some()

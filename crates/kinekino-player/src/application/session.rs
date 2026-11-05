@@ -198,7 +198,7 @@ mod audio_evidence_tests {
     use super::*;
     fn playback(paused: bool) -> crate::domain::playback::WebPlayback {
         crate::domain::playback::WebPlayback {
-            host: "catalog.example.test".into(),
+            host: "media.example.test".into(),
             time: 2.,
             duration: 1420.,
             paused,
