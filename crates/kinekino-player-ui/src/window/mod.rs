@@ -7,6 +7,7 @@ use crate::session::Session;
 use crate::texture::VideoTexture;
 pub mod actions;
 mod caption;
+mod context;
 mod drop;
 mod edges;
 mod nochild;
@@ -439,16 +440,7 @@ impl<E: Engine> ApplicationHandler for App<E> {
             self.tick(event_loop);
             return;
         }
-        if let WindowEvent::PointerButton {
-            state: ElementState::Pressed,
-            position,
-            primary: true,
-            button,
-            ..
-        } = &event
-            && button.clone().mouse_button() == Some(winit::event::MouseButton::Left)
-            && self.press(position.x, position.y)
-        {
+        if self.pointer_press(&event) {
             self.tick(event_loop);
             return;
         }

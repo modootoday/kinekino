@@ -4,6 +4,7 @@
 mod catalog;
 mod controller;
 mod keys;
+mod menu;
 mod port;
 mod session;
 mod source;
@@ -17,6 +18,7 @@ pub use controller::{
     SEEK_STEP_4, SPEED_MAX, SPEED_MIN, SPEED_STEP, VOLUME_STEP, siblings,
 };
 pub use keys::shortcut;
+pub use menu::{CONTEXT_MENU_SIZE, context_anchor};
 pub use session::{Command, Mockup, Session, VIEWPORT, activate, clock, meari_props, path_of};
 pub use source::{PRODUCT, PlaylistItem, View};
 pub use texture::{VIDEO_ID, VideoTexture};

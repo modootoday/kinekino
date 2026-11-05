@@ -29,7 +29,7 @@ fn icon_button(id: &str, label: &str, icon: &str, extra: &str) -> String {
 /// TSX for a window with `episodes` fixed rows.
 pub fn build(episodes: &[PlaylistItem]) -> String {
     let mut types = String::from(
-        "context: string; title: string; work: string; status: string; statusClass: string; notice: string; noNotice: boolean; noSkipOffer: boolean; hasMedia: boolean; noMedia: boolean; hideStart: boolean; noBrowse: boolean; noBrowsePlugin: boolean; browseClass: string; browseHeading: string; browseStatus: string; browseStatusClass: string; noBrowseStatus: boolean; noBrowseMore: boolean; noBrowseSearch: boolean; searchClass: string; rowsClass: string; layoutIcon: string; layoutLabel: string; fullscreen: boolean; panelOpen: boolean; noMenu: boolean; menuPanelLabel: string; subtitle1: string; subtitle2: string; noSubtitle: boolean; noSubtitle2: boolean; rootClass: string; stageClass: string; frameClass: string; transportClass: string; playIcon: string; playLabel: string; volumeIcon: string; maximizeIcon: string; maximizeLabel: string; fullscreenLabel: string; position: string; duration: string; seek: string; volume: string;",
+        "context: string; title: string; work: string; status: string; statusClass: string; notice: string; noNotice: boolean; noSkipOffer: boolean; hasMedia: boolean; noMedia: boolean; hideStart: boolean; noBrowse: boolean; noBrowsePlugin: boolean; browseClass: string; browseHeading: string; browseStatus: string; browseStatusClass: string; noBrowseStatus: boolean; noBrowseMore: boolean; noBrowseSearch: boolean; searchClass: string; rowsClass: string; layoutIcon: string; layoutLabel: string; fullscreen: boolean; panelOpen: boolean; noMenu: boolean; noContextMenu: boolean; contextMenuStyle: string; menuPanelLabel: string; subtitle1: string; subtitle2: string; noSubtitle: boolean; noSubtitle2: boolean; rootClass: string; stageClass: string; frameClass: string; transportClass: string; playIcon: string; playLabel: string; volumeIcon: string; maximizeIcon: string; maximizeLabel: string; fullscreenLabel: string; position: string; duration: string; seek: string; volume: string;",
     );
     let mut state = String::new();
     let mut rows = String::new();
@@ -153,6 +153,8 @@ export function KinekinoPlayer(props: Props) {{
       </div>
     </section>
   </main>
+  <div id="contextMenu" className="kk-menu kk-context-menu" role="menu" aria-label="메뉴" style={{props.contextMenuStyle}} hidden={{props.noContextMenu}}>
+{context_items}  </div>
   </div>;
 }}
 "#,
@@ -174,6 +176,7 @@ export function KinekinoPlayer(props: Props) {{
             "\"aw-icon aw-icon-close\"",
             "aw-caption aw-caption-close"
         ),
+        context_items = context_items(),
         c_open = click("open"),
         c_menu_open = click("menuOpen"),
         c_menu_episodes = click("menuEpisodes"),
@@ -229,4 +232,65 @@ export function KinekinoPlayer(props: Props) {{
             ""
         ),
     )
+}
+
+/// The right-click menu's five groups (ADR 20261105161614): a heading, then items.
+fn context_items() -> String {
+    let item = |id: &str, icon: &str, label: &str, key: &str, extra: &str| {
+        format!(
+            "    <button id=\"{id}\" className=\"aw-button kk-menu-item\" role=\"menuitem\"{extra} onClick={{() => set{id}Count(p => p + 1)}}><span className={icon} aria-hidden=\"true\"></span>{label}<span className=\"kk-menu-key\">{key}</span></button>\n"
+        )
+    };
+    let heading = |text: &str| format!("    <p className=\"kk-menu-heading\">{text}</p>\n");
+    let media = " disabled={props.noMedia}";
+    [
+        heading("열기"),
+        item(
+            "ctxOpen",
+            "\"aw-icon aw-icon-folder\"",
+            "파일 열기…",
+            "Ctrl+O",
+            "",
+        ),
+        item(
+            "ctxBrowse",
+            "\"aw-icon aw-icon-search\"",
+            "작품 탐색",
+            "",
+            " hidden={props.noBrowsePlugin}",
+        ),
+        heading("재생"),
+        item(
+            "ctxPlayPause",
+            "{props.playIcon}",
+            "{props.playLabel}",
+            "Space",
+            media,
+        ),
+        heading("자막"),
+        item(
+            "ctxSubtitle",
+            "\"aw-icon aw-icon-subtitles\"",
+            "자막 바꾸기",
+            "Alt+L",
+            media,
+        ),
+        heading("오디오"),
+        item(
+            "ctxAudio",
+            "\"aw-icon aw-icon-volume\"",
+            "오디오 바꾸기",
+            "Alt+A",
+            media,
+        ),
+        heading("화면"),
+        item(
+            "ctxFullscreen",
+            "\"aw-icon aw-icon-fullscreen\"",
+            "{props.fullscreenLabel}",
+            "F",
+            "",
+        ),
+    ]
+    .concat()
 }

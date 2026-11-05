@@ -53,6 +53,11 @@ pub enum Command {
     /// Esc: leave fullscreen (nothing when windowed).
     ExitFullscreen,
     More,
+    /// Open the right-click menu with its top-left corner here (document CSS px); a second
+    /// one moves it.
+    ContextMenu(f64, f64),
+    /// Close the ⋮ and right-click menus (a press outside them).
+    CloseMenu,
     Minimize,
     Maximize,
     Close,
@@ -144,14 +149,16 @@ fn text(value: Option<&StateValue>) -> String {
 
 fn command(button: &str) -> Command {
     match button {
-        "open" | "menuOpen" => Command::Open,
-        "browse" => Command::Browse,
+        "open" | "menuOpen" | "ctxOpen" => Command::Open,
+        "browse" | "ctxBrowse" => Command::Browse,
         "previous" => Command::Previous,
-        "playPause" => Command::PlayPause,
+        "playPause" | "ctxPlayPause" => Command::PlayPause,
+        "ctxSubtitle" => Command::CycleSubtitle,
+        "ctxAudio" => Command::CycleAudio,
         "next" => Command::Next,
         "mute" => Command::Mute,
         "episodes" | "panelClose" | "menuEpisodes" => Command::TogglePlaylist,
-        "fullscreen" | "menuFullscreen" => Command::ToggleFullscreen,
+        "fullscreen" | "menuFullscreen" | "ctxFullscreen" => Command::ToggleFullscreen,
         "more" => Command::More,
         "minimize" => Command::Minimize,
         "maximize" => Command::Maximize,
