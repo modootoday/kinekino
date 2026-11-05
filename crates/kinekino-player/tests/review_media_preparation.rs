@@ -355,7 +355,7 @@ fn actual_nine_media_selection_preserves_original_package_and_decisions() {
             }
             hash.update(&buffer[..count]);
         }
-        format!("{:x}", hash.finalize())
+        kinekino_media_contracts::hex_lower(hash.finalize())
     }
     fn inventory(root: &Path) -> BTreeMap<PathBuf, String> {
         let mut files = BTreeMap::new();

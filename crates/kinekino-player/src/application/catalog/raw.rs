@@ -59,7 +59,8 @@ pub(super) fn read(
     let raw = source.load_raw(&input.artifact_id)?;
     if raw.body.len() > crate::domain::browser_provider::MAX_CAPTURE_BYTES
         || raw.reference.artifact_id != input.artifact_id
-        || raw.reference.body_sha256 != format!("{:x}", Sha256::digest(&raw.body))
+        || raw.reference.body_sha256
+            != kinekino_media_contracts::hex_lower(Sha256::digest(&raw.body))
         || raw.reference.body_bytes.0 != raw.body.len() as u64
         || raw.capture.body_sha256 != raw.reference.body_sha256
         || raw.capture.body_bytes != raw.reference.body_bytes
@@ -116,7 +117,7 @@ pub(super) fn read(
         offset: input.offset,
         next_offset: (end < raw.body.len()).then_some(DecimalU64(end as u64)),
         chunk_bytes: DecimalU64((end - start) as u64),
-        chunk_sha256: format!("{:x}", Sha256::digest(&raw.body[start..end])),
+        chunk_sha256: kinekino_media_contracts::hex_lower(Sha256::digest(&raw.body[start..end])),
         text,
     })
 }

@@ -71,7 +71,7 @@ pub(super) fn snapshot(
     let pcm_bytes = wav_pcm(&bytes)?;
     let pcm = ArtifactPin::new(
         format!("pcm-{id}"),
-        format!("{:x}", Sha256::digest(pcm_bytes)),
+        kinekino_media_contracts::hex_lower(Sha256::digest(pcm_bytes)),
         DecimalU64(pcm_bytes.len() as u64),
     )?;
     let samples = DecimalU64(pcm_bytes.len() as u64 / 2);

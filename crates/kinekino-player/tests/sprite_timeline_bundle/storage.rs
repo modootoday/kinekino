@@ -16,7 +16,7 @@ pub struct Bundle {
     objects: BTreeSet<String>,
 }
 pub fn sha(bytes: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(bytes))
+    kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
 }
 pub fn write_new(path: &Path, bytes: &[u8]) {
     let mut file = OpenOptions::new()

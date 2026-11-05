@@ -72,7 +72,7 @@ fn error(code: ErrorCode, message: &str) -> ApiError {
     ApiError::new(code, message)
 }
 fn hash(bytes: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(bytes))
+    kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
 }
 fn parse(operation: &str, value: Value) -> Result<ClipRenderRequest, ApiError> {
     if operation != RENDER_OPERATION {

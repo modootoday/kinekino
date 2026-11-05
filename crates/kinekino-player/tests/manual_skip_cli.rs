@@ -115,7 +115,7 @@ fn call(endpoint: &str, command: &str, payload: Value, revision: Option<&str>) -
             .open(path)
             .unwrap();
         use std::io::Write;
-        file.write_all(&serde_json::to_vec_pretty(&json!({"endpoint":endpoint,"request":request,"exit_code":result.0,"response":result.1,"fixture":"synthetic port; not native seek","cli_sha256":format!("{:x}",sha2::Sha256::digest(std::fs::read(crate::cli_exe::kinekino_cli_exe()).unwrap()))})).unwrap()).unwrap();
+        file.write_all(&serde_json::to_vec_pretty(&json!({"endpoint":endpoint,"request":request,"exit_code":result.0,"response":result.1,"fixture":"synthetic port; not native seek","cli_sha256":kinekino_media_contracts::hex_lower(sha2::Sha256::digest(std::fs::read(crate::cli_exe::kinekino_cli_exe()).unwrap()))})).unwrap()).unwrap();
     }
     result
 }

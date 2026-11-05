@@ -86,7 +86,7 @@ impl HostExecution {
         }
         let bytes = serde_json::to_vec(&request)
             .map_err(|_| internal("Submission request serialization unavailable"))?;
-        let digest = format!("{:x}", Sha256::digest(&bytes));
+        let digest = kinekino_media_contracts::hex_lower(Sha256::digest(&bytes));
         let mut state = self
             .retained
             .lock()

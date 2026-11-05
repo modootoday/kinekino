@@ -61,6 +61,9 @@ impl BatchPlan {
             hash.update(part.as_bytes());
             hash.update([0]);
         }
-        Ok(format!("batch-{:x}", hash.finalize()))
+        Ok(format!(
+            "batch-{}",
+            kinekino_media_contracts::hex_lower(hash.finalize())
+        ))
     }
 }

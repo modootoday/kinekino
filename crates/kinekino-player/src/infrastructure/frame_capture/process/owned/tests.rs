@@ -161,7 +161,10 @@ fn regular_stdin_consumed_child_fixture() {
     use std::io::{Read, Write};
     let mut bytes = Vec::new();
     std::io::stdin().read_to_end(&mut bytes).unwrap();
-    println!("clip-input-consumed:{:x}", Sha256::digest(&bytes));
+    println!(
+        "clip-input-consumed:{}",
+        kinekino_media_contracts::hex_lower(Sha256::digest(&bytes))
+    );
     std::io::stdout().flush().unwrap();
     loop {
         std::thread::sleep(Duration::from_millis(10));
@@ -237,7 +240,10 @@ fn regular_stdin_cancellation_waits_for_original_family_and_receipt_before_worki
             }
             let control = CancelOnMarker {
                 raw: owner.evidence().stdout.clone(),
-                marker: format!("clip-input-consumed:{:x}", Sha256::digest(input)),
+                marker: format!(
+                    "clip-input-consumed:{}",
+                    kinekino_media_contracts::hex_lower(Sha256::digest(input))
+                ),
             };
             let mut session = Session {
                 owner,

@@ -181,7 +181,8 @@ fn matches_input(
         || sample.candidate_bytes > 262_144
         || sample.candidate_bytes != raw.len() as u64
         || sample.candidate_raw_utf8 != raw
-        || sample.candidate_sha256 != format!("{:x}", Sha256::digest(raw.as_bytes()))
+        || sample.candidate_sha256
+            != kinekino_media_contracts::hex_lower(Sha256::digest(raw.as_bytes()))
     {
         return Err(invalid("Historical evidence does not bind this proposal"));
     }
@@ -252,7 +253,7 @@ mod tests {
             source_sha256: "b".repeat(64),
             source_bytes: 1232,
             source_request_utf8: String::new(),
-            candidate_sha256: format!("{:x}", Sha256::digest(raw.as_bytes())),
+            candidate_sha256: kinekino_media_contracts::hex_lower(Sha256::digest(raw.as_bytes())),
             candidate_bytes: raw.len() as u64,
             candidate_raw_utf8: raw.into(),
         };

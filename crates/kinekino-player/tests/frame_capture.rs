@@ -108,7 +108,7 @@ fn local_capture_png_pts_and_typed_client_match() {
     let bytes = fs::read(fixture.path("output.png")).unwrap();
     assert_eq!(
         result["data"]["output_sha256"],
-        format!("{:x}", Sha256::digest(&bytes))
+        kinekino_media_contracts::hex_lower(Sha256::digest(&bytes))
     );
     let mut decoder = png::Decoder::new(std::io::Cursor::new(&bytes))
         .read_info()

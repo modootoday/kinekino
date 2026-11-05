@@ -38,7 +38,7 @@ fn fixture(bytes: &[u8]) -> (PathBuf, PinnedFile) {
     fs::write(&path, bytes).unwrap();
     let pin = ArtifactPin::new(
         "native-notice".into(),
-        format!("{:x}", Sha256::digest(bytes)),
+        kinekino_media_contracts::hex_lower(Sha256::digest(bytes)),
         DecimalU64(bytes.len() as u64),
     )
     .unwrap();

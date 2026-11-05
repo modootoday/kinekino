@@ -109,7 +109,9 @@ pub fn read_verified_artifact(
     Ok(bytes)
 }
 fn verify(bytes: &[u8], pin: &ArtifactPin) -> Result<(), ApiError> {
-    if bytes.len() as u64 != pin.bytes() || format!("{:x}", Sha256::digest(bytes)) != pin.sha256() {
+    if bytes.len() as u64 != pin.bytes()
+        || kinekino_media_contracts::hex_lower(Sha256::digest(bytes)) != pin.sha256()
+    {
         return Err(ApiError::new(
             ErrorCode::SourceExpired,
             "Artifact bytes/SHA differ from pin",

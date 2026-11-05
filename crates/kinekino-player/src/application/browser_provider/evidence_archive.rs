@@ -251,7 +251,7 @@ impl BrowserEvidenceArchive {
             status: None,
             content_type: content_type.into(),
             content_encoding: None,
-            body_sha256: format!("{:x}", Sha256::digest(bytes)),
+            body_sha256: kinekino_media_contracts::hex_lower(Sha256::digest(bytes)),
             body_bytes: DecimalU64(bytes.len() as u64),
             browser: Some(BrowserCaptureProvenance {
                 network: None,
@@ -286,10 +286,9 @@ mod tests {
     impl CatalogArtifacts for Store {
         fn save(&self, bytes: &[u8], metadata: &CaptureMetadata) -> Result<RawArtifact, ApiError> {
             *self.0.lock().unwrap() = Some((bytes.into(), metadata.clone()));
-            let artifact_id = format!(
-                "{:x}",
-                Sha256::digest(serde_json::to_vec(metadata).unwrap())
-            );
+            let artifact_id = kinekino_media_contracts::hex_lower(Sha256::digest(
+                serde_json::to_vec(metadata).unwrap(),
+            ));
             Ok(RawArtifact {
                 artifact_id: artifact_id.clone(),
                 body_sha256: metadata.body_sha256.clone(),
@@ -325,7 +324,10 @@ mod tests {
         ));
         assert!(metadata.status.is_none());
         assert_eq!(metadata.content_type, "application/json");
-        assert_eq!(metadata.body_sha256, format!("{:x}", Sha256::digest(bytes)));
+        assert_eq!(
+            metadata.body_sha256,
+            kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
+        );
         let trace: serde_json::Value = serde_json::from_slice(bytes).unwrap();
         assert_eq!(trace["representation"], "browser_event_trace");
         assert_eq!(trace["candidate_is_media"], false);
@@ -358,7 +360,10 @@ mod tests {
         ));
         assert_eq!(metadata.status, Some(200));
         assert_eq!(bytes.as_slice(), b"fixture body");
-        assert_eq!(metadata.body_sha256, format!("{:x}", Sha256::digest(bytes)));
+        assert_eq!(
+            metadata.body_sha256,
+            kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
+        );
         let encoded = serde_json::to_vec(metadata).unwrap();
         let restored: CaptureMetadata = serde_json::from_slice(&encoded).unwrap();
         let browser = restored.browser.unwrap();

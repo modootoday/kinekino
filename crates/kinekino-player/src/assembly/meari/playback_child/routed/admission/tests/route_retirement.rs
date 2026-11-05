@@ -46,7 +46,11 @@ fn original_checkpoint_retirement_keeps_shared_slot_reusable_but_new_parent_loss
     let engine = || {
         Arc::new(
             NativeEpisodeEngine::new(
-                TrustedMpvExecutable::open(&path, &format!("{:x}", Sha256::digest(bytes))).unwrap(),
+                TrustedMpvExecutable::open(
+                    &path,
+                    &kinekino_media_contracts::hex_lower(Sha256::digest(bytes)),
+                )
+                .unwrap(),
                 Some(1),
                 Arc::new(Artifacts),
             )

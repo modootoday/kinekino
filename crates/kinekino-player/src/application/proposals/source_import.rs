@@ -73,7 +73,8 @@ pub fn from_request_asset(
     task: ProposalTask,
 ) -> Result<SourceSnapshot, ApiError> {
     if asset_utf8.len() > MAX_DOCUMENT_BYTES
-        || format!("{:x}", Sha256::digest(asset_utf8.as_bytes())) != source_sha256
+        || kinekino_media_contracts::hex_lower(Sha256::digest(asset_utf8.as_bytes()))
+            != source_sha256
     {
         return Err(invalid(
             "Source asset bytes differ from the supplied SHA256 or bound",

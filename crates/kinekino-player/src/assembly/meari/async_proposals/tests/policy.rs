@@ -351,7 +351,7 @@ fn native_pending_imports_nine_originals_with_same_sdk_and_pinned_verifier() {
             .as_str()
             .unwrap();
         assert_eq!(
-            format!("{:x}", Sha256::digest(raw.as_bytes())),
+            kinekino_media_contracts::hex_lower(Sha256::digest(raw.as_bytes())),
             row["candidate"]["sha256"].as_str().unwrap()
         );
         assert_eq!(

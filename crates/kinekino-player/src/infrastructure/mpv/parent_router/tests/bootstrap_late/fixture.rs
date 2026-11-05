@@ -19,7 +19,7 @@ pub(super) fn engine() -> Arc<NativeEpisodeEngine> {
     std::fs::write(&executable, bytes).unwrap();
     let trusted = crate::infrastructure::mpv::TrustedMpvExecutable::open(
         &executable,
-        &format!("{:x}", Sha256::digest(bytes)),
+        &kinekino_media_contracts::hex_lower(Sha256::digest(bytes)),
     )
     .unwrap();
     Arc::new(

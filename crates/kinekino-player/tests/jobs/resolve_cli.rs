@@ -308,7 +308,7 @@ pub(super) fn actual_cli_resolve_preserves_observed_player_script_response() {
                     status: None,
                     content_type: "application/json".into(),
                     content_encoding: None,
-                    body_sha256: format!("{:x}", Sha256::digest(bytes)),
+                    body_sha256: kinekino_media_contracts::hex_lower(Sha256::digest(bytes)),
                     body_bytes: DecimalU64(bytes.len() as u64),
                     browser: None,
                 },

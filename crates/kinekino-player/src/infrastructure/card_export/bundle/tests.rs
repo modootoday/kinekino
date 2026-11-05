@@ -36,7 +36,7 @@ impl Drop for Evidence {
     }
 }
 fn sha(bytes: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(bytes))
+    kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
 }
 fn png() -> Vec<u8> {
     let colors = [

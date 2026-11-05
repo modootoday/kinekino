@@ -486,9 +486,8 @@ fn transition_targets(catalog: &Path, opened: &OpenedEpisodePlayback) -> (String
         .expect("Actual fixture requires a distinct next episode");
     assert_ne!(next, current.episode_url);
     let descriptor = json!({"operation":"episodes.resolve","parameters":{"episode_url":next},"source_kind":"request_descriptor"});
-    let next_sha = format!(
-        "{:x}",
-        Sha256::digest(serde_json::to_vec(&descriptor).unwrap())
-    );
+    let next_sha = kinekino_media_contracts::hex_lower(Sha256::digest(
+        serde_json::to_vec(&descriptor).unwrap(),
+    ));
     (sha, next_sha, current.source_descriptor_sha256)
 }

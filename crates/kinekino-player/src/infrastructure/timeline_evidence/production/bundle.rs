@@ -239,7 +239,7 @@ impl<'a> TimelineProductionSession<'a> {
             write_new(&root.join("BUNDLE.json"), &record)?,
         ];
         records.extend(producer_guards);
-        let sha = format!("{:x}", Sha256::digest(&bytes));
+        let sha = kinekino_media_contracts::hex_lower(Sha256::digest(&bytes));
         let receipt = RetainedRaw::open_bounded(&root.join("BUNDLE.json"), &sha, 64 * 1024 * 1024)?;
         let result = ProducedTimelineBundle {
             session: self,

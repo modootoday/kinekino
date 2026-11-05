@@ -6,7 +6,7 @@ struct Source {
 }
 impl CatalogRawSource for Source {
     fn load_raw(&self, artifact_id: &str) -> Result<LoadedCatalogRaw, ApiError> {
-        let sha = format!("{:x}", Sha256::digest(&self.bytes));
+        let sha = kinekino_media_contracts::hex_lower(Sha256::digest(&self.bytes));
         let reference = RawArtifact {
             artifact_id: artifact_id.into(),
             body_sha256: sha.clone(),

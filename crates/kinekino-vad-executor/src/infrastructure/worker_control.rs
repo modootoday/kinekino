@@ -62,7 +62,7 @@ pub(super) fn prepare(
     caller: &dyn RunControl,
     request: &[u8],
 ) -> Result<PreparedWorkerControl, ApiError> {
-    let request_sha256 = format!("{:x}", Sha256::digest(request));
+    let request_sha256 = kinekino_media_contracts::hex_lower(Sha256::digest(request));
     let cutoff = prepare_worker_cutoff(&clock::ParentQpcClock, original, caller, request_sha256)?;
     let bytes = serde_json::to_vec(&cutoff)
         .map_err(|error| ApiError::new(ErrorCode::Internal, error.to_string()))?;
@@ -105,7 +105,7 @@ pub(super) fn prepare(
     }
     Ok(PreparedWorkerControl {
         path,
-        sha256: format!("{:x}", Sha256::digest(&bytes)),
+        sha256: kinekino_media_contracts::hex_lower(Sha256::digest(&bytes)),
         bytes: bytes.len(),
         _guard: guard,
     })

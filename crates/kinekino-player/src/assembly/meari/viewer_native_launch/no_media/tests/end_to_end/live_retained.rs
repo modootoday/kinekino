@@ -214,7 +214,7 @@ fn read_custody_file(
     file.take(expected_bytes + 1)
         .read_to_end(&mut bytes)
         .map_err(|error| custody_failure("custody read", error))?;
-    let actual = format!("{:x}", sha2::Sha256::digest(&bytes));
+    let actual = kinekino_media_contracts::hex_lower(sha2::Sha256::digest(&bytes));
     if bytes.len() as u64 != expected_bytes || !actual.eq_ignore_ascii_case(expected_sha) {
         return Err(failure("custody input", "fixed source SHA differs"));
     }
@@ -897,7 +897,7 @@ fn seed_default_chooser(client: &ApplicationClientHandle, case: Case) -> Result<
                 let source = DocumentSourceSnapshot::from_asset(
                     "journey-document-b".into(),
                     DecimalU64(1),
-                    format!("{:x}", Sha256::digest(asset.as_bytes())),
+                    kinekino_media_contracts::hex_lower(Sha256::digest(asset.as_bytes())),
                     asset,
                 )
                 .map_err(|error| {

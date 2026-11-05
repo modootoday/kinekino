@@ -55,7 +55,8 @@ impl ChildControlFiles {
             .read_to_end(&mut bytes)
             .map_err(io)?;
         if bytes.len() as u64 != launch.control_pin.bytes()
-            || format!("{:x}", Sha256::digest(&bytes)) != launch.control_pin.sha256()
+            || kinekino_media_contracts::hex_lower(Sha256::digest(&bytes))
+                != launch.control_pin.sha256()
         {
             return Err(changed("Original guarded control pin differs"));
         }

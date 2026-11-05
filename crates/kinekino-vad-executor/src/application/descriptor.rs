@@ -47,7 +47,7 @@ pub fn persist_vad_descriptor(
     };
     let pin = ArtifactPin::new(
         "vad-descriptor".into(),
-        format!("{:x}", Sha256::digest(raw.as_bytes())),
+        kinekino_media_contracts::hex_lower(Sha256::digest(raw.as_bytes())),
         DecimalU64(raw.len() as u64),
     )?;
     let decoded = decode_descriptor(raw.as_bytes(), &pin)?;

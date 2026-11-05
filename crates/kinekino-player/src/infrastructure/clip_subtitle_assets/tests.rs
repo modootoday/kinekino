@@ -21,7 +21,7 @@ impl MutationControl for Cancelled {
 fn write(path: &Path, value: &Value) -> String {
     let bytes = serde_json::to_vec_pretty(value).unwrap();
     fs::write(path, &bytes).unwrap();
-    format!("{:x}", Sha256::digest(bytes))
+    kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
 }
 fn files(document: &Path, style: &Path) -> SubtitleAssetFiles {
     SubtitleAssetFiles::open(

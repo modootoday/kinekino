@@ -64,7 +64,7 @@ fn parent_sidecar_keeps_exact_request_pin_and_original_file_guard() {
     cutoff.validate().unwrap();
     assert_eq!(
         cutoff.request_sha256,
-        format!("{:x}", Sha256::digest(request))
+        kinekino_media_contracts::hex_lower(Sha256::digest(request))
     );
     assert_eq!(cutoff.clock.parent_pid, std::process::id());
     assert_writer_excluded(&prepared.path);

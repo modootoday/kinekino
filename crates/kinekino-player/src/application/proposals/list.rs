@@ -174,7 +174,7 @@ pub(crate) fn prepare_cursor(input: &ListProposals) -> Result<Option<Continuatio
 pub(crate) fn hash_witness(value: &impl Serialize) -> Result<String, ApiError> {
     encoded_bytes(value, MAX_METADATA_BYTES)?;
     let raw = serde_json::to_vec(value).map_err(|_| exhausted())?;
-    Ok(format!("{:x}", Sha256::digest(&raw)))
+    Ok(kinekino_media_contracts::hex_lower(Sha256::digest(&raw)))
 }
 pub(crate) fn metadata_row(state: &StoredProposal) -> Result<ProposalListRow, ApiError> {
     let doc = &state.document;

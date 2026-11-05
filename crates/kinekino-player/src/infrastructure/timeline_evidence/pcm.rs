@@ -80,7 +80,7 @@ pub(super) fn compare(
     })
 }
 fn hash(bytes: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(bytes))
+    kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
 }
 fn invalid(message: &str) -> ApiError {
     ApiError::new(ErrorCode::InvalidArgument, message)

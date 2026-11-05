@@ -32,9 +32,11 @@ impl Fixture {
         let executable = directory.join("mpv.exe");
         let bytes = b"inert routed activation fixture; never executed";
         std::fs::write(&executable, bytes).unwrap();
-        let trusted =
-            TrustedMpvExecutable::open(&executable, &format!("{:x}", Sha256::digest(bytes)))
-                .unwrap();
+        let trusted = TrustedMpvExecutable::open(
+            &executable,
+            &kinekino_media_contracts::hex_lower(Sha256::digest(bytes)),
+        )
+        .unwrap();
         let engine = NativeEpisodeEngine::new_with_scope(
             trusted,
             Some(1),

@@ -100,7 +100,7 @@ impl CatalogFiles {
 impl CatalogArtifacts for CatalogFiles {
     fn save(&self, raw: &[u8], metadata: &CaptureMetadata) -> Result<RawArtifact, ApiError> {
         if raw.len() > 2 * 1024 * 1024
-            || metadata.body_sha256 != format!("{:x}", Sha256::digest(raw))
+            || metadata.body_sha256 != kinekino_media_contracts::hex_lower(Sha256::digest(raw))
             || metadata.body_bytes.0 != raw.len() as u64
         {
             return Err(ApiError::new(
@@ -117,7 +117,7 @@ impl CatalogArtifacts for CatalogFiles {
                 "Catalog metadata exceeds limit",
             ));
         }
-        let artifact_id = format!("{:x}", Sha256::digest(&manifest));
+        let artifact_id = kinekino_media_contracts::hex_lower(Sha256::digest(&manifest));
         let body_path = format!("objects/{}.body", metadata.body_sha256);
         let metadata_path = format!("captures/{artifact_id}.json");
         self.immutable(&body_path, raw)?;

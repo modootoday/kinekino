@@ -143,13 +143,9 @@ pub fn prepare_publication(
     })
 }
 pub fn publication_sha256(value: &ClipPublication) -> Result<String, ApiError> {
-    Ok(format!(
-        "{:x}",
-        Sha256::digest(
-            serde_json::to_vec(value)
-                .map_err(|_| invalid("Invalid clip publication serialization"))?
-        )
-    ))
+    Ok(kinekino_media_contracts::hex_lower(Sha256::digest(
+        serde_json::to_vec(value).map_err(|_| invalid("Invalid clip publication serialization"))?,
+    )))
 }
 fn invalid(message: &str) -> ApiError {
     ApiError::new(ErrorCode::InvalidArgument, message)

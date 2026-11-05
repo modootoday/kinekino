@@ -38,7 +38,7 @@ fn binds_target_to_requested_observed_and_embedded_episode_identity() {
     assert_eq!(target.source_pointer, "/props/playing/body/url");
     assert_eq!(
         target.source_body_sha256,
-        format!("{:x}", Sha256::digest(&document.body))
+        kinekino_media_contracts::hex_lower(Sha256::digest(&document.body))
     );
 }
 #[test]
@@ -54,7 +54,7 @@ fn observed_secondary_provider_target_keeps_original_episode_and_dom_evidence_bi
     );
     assert_eq!(
         target.source_body_sha256,
-        format!("{:x}", Sha256::digest(&document.body))
+        kinekino_media_contracts::hex_lower(Sha256::digest(&document.body))
     );
     assert_eq!(target.source_pointer, "/props/playing/body/url");
     markup.0.playing_slug = "other".into();

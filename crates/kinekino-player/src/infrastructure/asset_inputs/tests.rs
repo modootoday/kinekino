@@ -15,7 +15,7 @@ impl MutationControl for Control {
     }
 }
 fn hash(bytes: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(bytes))
+    kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
 }
 fn png(path: &Path, color: png::ColorType, bytes: &[u8], gamma: bool, srgb: bool, trns: bool) {
     let file = OpenOptions::new()

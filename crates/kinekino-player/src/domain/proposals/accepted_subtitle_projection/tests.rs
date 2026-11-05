@@ -156,7 +156,7 @@ fn rejects_document_correction_without_inventing_cues_or_timestamps() {
     let asset = serde_json::to_string(&serde_json::json!({"messages":[{"role":"user","content":concat!(
         "Edit this ASR draft. Correct punctuation only. Do not guess unclear words. JSON only: {\"proposed\":string,\"uncertain_words\":[string]}. Under100words. /no_think\n",
         r#"["Original document."]"#)}]})).unwrap();
-    let hash = format!("{:x}", Sha256::digest(asset.as_bytes()));
+    let hash = kinekino_media_contracts::hex_lower(Sha256::digest(asset.as_bytes()));
     let document =
         DocumentSourceSnapshot::from_asset("document-1".into(), DecimalU64(7), hash, asset)
             .unwrap();

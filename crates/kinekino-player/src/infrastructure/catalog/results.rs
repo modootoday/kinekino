@@ -35,7 +35,7 @@ impl CatalogResults for CatalogFiles {
                 "Catalog result exceeds2MiB",
             ));
         }
-        let sha256 = format!("{:x}", Sha256::digest(&bytes));
+        let sha256 = kinekino_media_contracts::hex_lower(Sha256::digest(&bytes));
         let relative = format!("results/{sha256}.json");
         self.immutable(&relative, &bytes)?;
         let (_, reference) = self.read(&sha256)?;
@@ -67,7 +67,7 @@ impl CatalogResults for CatalogFiles {
             ));
         }
         let bytes = self.read_bounded(&format!("results/{sha256}.json"), MAX_RESULT_BYTES)?;
-        if format!("{:x}", Sha256::digest(&bytes)) != sha256 {
+        if kinekino_media_contracts::hex_lower(Sha256::digest(&bytes)) != sha256 {
             return Err(expired());
         }
         let result: StoredCatalogResult = serde_json::from_slice(&bytes).map_err(|_| expired())?;

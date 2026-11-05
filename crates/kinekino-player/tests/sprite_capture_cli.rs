@@ -68,7 +68,7 @@ fn fixed_sprite_cli_capture_matches_observed_source_ticks_and_preserves_original
         );
         let bytes = fs::read(&output).unwrap();
         assert_eq!(&bytes[..8], b"\x89PNG\r\n\x1a\n");
-        let sha = format!("{:x}", Sha256::digest(&bytes));
+        let sha = kinekino_media_contracts::hex_lower(Sha256::digest(&bytes));
         assert_eq!(data["output_sha256"], sha);
         call(
             &root,
@@ -79,7 +79,7 @@ fn fixed_sprite_cli_capture_matches_observed_source_ticks_and_preserves_original
             Some("revision_conflict"),
         );
         assert_eq!(
-            format!("{:x}", Sha256::digest(fs::read(&output).unwrap())),
+            kinekino_media_contracts::hex_lower(Sha256::digest(fs::read(&output).unwrap())),
             sha
         );
         original.assert_unchanged();

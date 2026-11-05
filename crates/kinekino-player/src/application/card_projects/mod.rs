@@ -127,12 +127,9 @@ pub fn prepare_publication(
 }
 
 pub fn publication_sha256(publication: &CardPublication) -> Result<String, ApiError> {
-    Ok(format!(
-        "{:x}",
-        Sha256::digest(
-            serde_json::to_vec(publication).map_err(|_| invalid("Invalid card publication"))?
-        )
-    ))
+    Ok(kinekino_media_contracts::hex_lower(Sha256::digest(
+        serde_json::to_vec(publication).map_err(|_| invalid("Invalid card publication"))?,
+    )))
 }
 
 fn invalid(message: &str) -> ApiError {

@@ -24,7 +24,7 @@ use std::{
 fn pin(id: &str, bytes: &[u8]) -> ArtifactPin {
     ArtifactPin::new(
         id.into(),
-        format!("{:x}", Sha256::digest(bytes)),
+        kinekino_media_contracts::hex_lower(Sha256::digest(bytes)),
         DecimalU64(bytes.len() as u64),
     )
     .unwrap()
@@ -66,7 +66,7 @@ impl SourceBlobStore for Blobs {
             sha256: if self.bad_metadata {
                 "a".repeat(64)
             } else {
-                format!("{:x}", Sha256::digest(source.as_bytes()))
+                kinekino_media_contracts::hex_lower(Sha256::digest(source.as_bytes()))
             },
             bytes: DecimalU64(source.len() as u64),
         })
@@ -220,7 +220,7 @@ fn descriptor_stores_exact_original_bytes_and_reads_them_back() {
     let saved = persist_vad_descriptor(&profile(), &input(), &blobs).unwrap();
     assert_eq!(
         saved.source().sha256,
-        format!("{:x}", Sha256::digest(saved.raw().as_bytes()))
+        kinekino_media_contracts::hex_lower(Sha256::digest(saved.raw().as_bytes()))
     );
     assert_eq!(saved.source().bytes.0, saved.raw().len() as u64);
     assert_eq!(saved.decoded().profile(), &profile());

@@ -106,7 +106,7 @@ impl ParentSelectedRelease {
         }
         let pin = ArtifactPin::new(
             "parent-release-configuration".into(),
-            format!("{:x}", Sha256::digest(&bytes)),
+            kinekino_media_contracts::hex_lower(Sha256::digest(&bytes)),
             DecimalU64(bytes.len() as u64),
         )?;
         Ok((bytes, pin))
@@ -152,7 +152,7 @@ pub fn decode_parent_configuration(
     if expected.id() != "parent-release-configuration"
         || bytes.len() as u64 > MAX_CHILD_CONFIGURATION_BYTES
         || bytes.len() as u64 != expected.bytes()
-        || format!("{:x}", Sha256::digest(bytes)) != expected.sha256()
+        || kinekino_media_contracts::hex_lower(Sha256::digest(bytes)) != expected.sha256()
     {
         return Err(changed("Original parent configuration bytes/SHA differ"));
     }

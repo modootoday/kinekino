@@ -17,7 +17,7 @@ pub(super) fn invalid(message: impl Into<String>) -> ApiError {
     ApiError::new(ErrorCode::InvalidArgument, message)
 }
 pub(super) fn hash(bytes: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(bytes))
+    kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
 }
 pub fn request_sha256(request: &SubmitJob) -> Result<String, ApiError> {
     let bytes = serde_json::to_vec(request).map_err(|_| invalid("Invalid batch request"))?;

@@ -26,7 +26,7 @@ impl RetainedAssetSourceImport {
     }
 }
 fn hash(bytes: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(bytes))
+    kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
 }
 fn encode(value: &impl serde::Serialize) -> Result<Vec<u8>, ApiError> {
     serde_json::to_vec(value).map_err(|_| changed())

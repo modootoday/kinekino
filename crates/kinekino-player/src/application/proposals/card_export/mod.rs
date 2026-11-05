@@ -171,7 +171,7 @@ pub fn execute(
         position: input.position,
         source_refs: card.source_refs.clone(),
         output_path: input.output_path,
-        output_sha256: format!("{:x}", Sha256::digest(&artifact.bytes)),
+        output_sha256: kinekino_media_contracts::hex_lower(Sha256::digest(&artifact.bytes)),
         output_bytes: DecimalU64(artifact.bytes.len() as u64),
         state: "review_artifact".into(),
         quality_approved: false,

@@ -9,7 +9,7 @@ impl MutationControl for Control {
     }
 }
 fn hash(bytes: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(bytes))
+    kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
 }
 fn write(path: &Path, value: &Value) -> ArtifactPin {
     let bytes = serde_json::to_vec_pretty(value).unwrap();

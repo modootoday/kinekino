@@ -62,7 +62,7 @@ impl RenderedClipSubtitleImage<'_> {
     }
 }
 fn hash(bytes: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(bytes))
+    kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
 }
 fn error(message: &str) -> ApiError {
     ApiError::new(ErrorCode::EngineFailed, message)

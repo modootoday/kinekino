@@ -73,7 +73,8 @@ impl Context<'_> {
         {
             ArtifactContent::Asset { asset } => self.input.read(&reference(asset), max),
             ArtifactContent::Empty { bytes, sha256 }
-                if *bytes == 0 && *sha256 == format!("{:x}", Sha256::digest([])) =>
+                if *bytes == 0
+                    && *sha256 == kinekino_media_contracts::hex_lower(Sha256::digest([])) =>
             {
                 Ok(Vec::new())
             }
@@ -163,7 +164,7 @@ impl TimelineEvidenceResolver for PublishedTimelineResolver {
             &format!("live-{}", &token.bundle_sha256[..12]),
             added,
         )?;
-        if format!("{:x}", Sha256::digest(&body)) != case.package_sha256
+        if kinekino_media_contracts::hex_lower(Sha256::digest(&body)) != case.package_sha256
             || serde_json::to_value(json::<crate::domain::model_review::ReviewPackage>(&body)?).ok()
                 != serde_json::to_value(input.package_snapshot()).ok()
         {

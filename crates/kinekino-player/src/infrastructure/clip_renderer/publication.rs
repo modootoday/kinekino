@@ -114,7 +114,7 @@ fn bytes(file: &mut File, maximum: u64) -> Result<Vec<u8>, ApiError> {
     Ok(data)
 }
 fn hash(data: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(data))
+    kinekino_media_contracts::hex_lower(Sha256::digest(data))
 }
 struct Check<'a>(&'a dyn ExecutionControl);
 impl MutationControl for Check<'_> {

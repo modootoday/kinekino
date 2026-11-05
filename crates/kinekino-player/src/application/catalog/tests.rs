@@ -24,7 +24,7 @@ impl CatalogFetchPort for Fetch {
                 sha256: if self.corrupt {
                     "bad".into()
                 } else {
-                    format!("{:x}", Sha256::digest(&body))
+                    kinekino_media_contracts::hex_lower(Sha256::digest(&body))
                 },
                 bytes: body.len(),
                 observed_unix_ms: 1_000,

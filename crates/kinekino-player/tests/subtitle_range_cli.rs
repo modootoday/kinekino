@@ -95,11 +95,11 @@ impl Drop for Fixture {
             let files: Vec<Value> = fs::read_dir(&self.path).unwrap().map(|entry| {
                 let entry = entry.unwrap();
                 let bytes = fs::read(entry.path()).unwrap();
-                json!({"name":entry.file_name().to_string_lossy(),"bytes":bytes.len(),"sha256":format!("{:x}",Sha256::digest(&bytes))})
+                json!({"name":entry.file_name().to_string_lossy(),"bytes":bytes.len(),"sha256":kinekino_media_contracts::hex_lower(Sha256::digest(&bytes))})
             }).collect();
             fs::write(
                 self.path.join("files.json"),
-                serde_json::to_vec_pretty(&json!({"files":files,"cli_path":crate::cli_exe::kinekino_cli_exe(),"cli_sha256":format!("{:x}",Sha256::digest(fs::read(crate::cli_exe::kinekino_cli_exe()).unwrap()))})).unwrap(),
+                serde_json::to_vec_pretty(&json!({"files":files,"cli_path":crate::cli_exe::kinekino_cli_exe(),"cli_sha256":kinekino_media_contracts::hex_lower(Sha256::digest(fs::read(crate::cli_exe::kinekino_cli_exe()).unwrap()))})).unwrap(),
             )
             .unwrap();
         } else {

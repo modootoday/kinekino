@@ -29,8 +29,11 @@ pub(super) fn engine() -> Arc<NativeEpisodeEngine> {
     let bytes = b"inert unbound task ordering artifact; never executed";
     let executable = root.join("mpv.exe");
     fs::write(&executable, bytes).unwrap();
-    let trusted =
-        TrustedMpvExecutable::open(&executable, &format!("{:x}", Sha256::digest(bytes))).unwrap();
+    let trusted = TrustedMpvExecutable::open(
+        &executable,
+        &kinekino_media_contracts::hex_lower(Sha256::digest(bytes)),
+    )
+    .unwrap();
     Arc::new(
         NativeEpisodeEngine::new(
             trusted,

@@ -19,7 +19,7 @@ impl CatalogRawSource for CatalogFiles {
         }
         let metadata_path = format!("captures/{artifact_id}.json");
         let metadata = self.read_bounded(&metadata_path, 64 * 1024)?;
-        if format!("{:x}", Sha256::digest(&metadata)) != artifact_id {
+        if kinekino_media_contracts::hex_lower(Sha256::digest(&metadata)) != artifact_id {
             return Err(expired());
         }
         let capture: CaptureMetadata = serde_json::from_slice(&metadata).map_err(|_| expired())?;
@@ -33,7 +33,7 @@ impl CatalogRawSource for CatalogFiles {
             &body_path,
             crate::domain::browser_provider::MAX_CAPTURE_BYTES,
         )?;
-        if format!("{:x}", Sha256::digest(&body)) != capture.body_sha256
+        if kinekino_media_contracts::hex_lower(Sha256::digest(&body)) != capture.body_sha256
             || body.len() as u64 != capture.body_bytes.0
         {
             return Err(expired());

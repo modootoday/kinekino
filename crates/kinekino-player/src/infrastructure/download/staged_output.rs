@@ -301,7 +301,7 @@ impl PartialOutput for Staged {
                 .into(),
             sha256: actual.iter().map(|byte| format!("{byte:02x}")).collect(),
             bytes: kinekino_media_contracts::api_values::DecimalU64(bytes),
-            receipt: serde_json::json!({"operation":"production.download_media","source_selection_sha256":format!("{:x}",Sha256::digest(selection)),"original_output_guard_retained":true}),
+            receipt: serde_json::json!({"operation":"production.download_media","source_selection_sha256":kinekino_media_contracts::hex_lower(Sha256::digest(selection)),"original_output_guard_retained":true}),
         })
     }
     fn verification_lease(&self) -> Result<Arc<dyn VerificationLease>, ApiError> {

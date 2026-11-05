@@ -382,7 +382,7 @@ fn fixture() -> &'static ProbeFixture {
         ProbeFixture {
             bin,
             held_bin,
-            sha256: format!("{:x}", Sha256::digest(&bytes)),
+            sha256: kinekino_media_contracts::hex_lower(Sha256::digest(&bytes)),
             bytes: bytes.len() as u64,
             evidence_root,
         }
@@ -407,7 +407,10 @@ fn exercise(case: Case) {
     };
     let actual = fs::read(executable).unwrap();
     assert_eq!(actual.len() as u64, fixture.bytes);
-    assert_eq!(format!("{:x}", Sha256::digest(&actual)), fixture.sha256);
+    assert_eq!(
+        kinekino_media_contracts::hex_lower(Sha256::digest(&actual)),
+        fixture.sha256
+    );
     let executable = executable.clone();
     let base = fixture.evidence_root.clone();
     let label = match case {
@@ -526,7 +529,10 @@ fn exercise(case: Case) {
             let output = finished.output.as_ref().unwrap();
             let data = fs::read(&output.path).unwrap();
             assert_eq!(data, vec![7; 1024]);
-            assert_eq!(output.sha256, format!("{:x}", Sha256::digest(&data)));
+            assert_eq!(
+                output.sha256,
+                kinekino_media_contracts::hex_lower(Sha256::digest(&data))
+            );
             assert_eq!(output.bytes, DecimalU64(1024));
             assert!(closed.load(Ordering::Acquire));
             let page = client

@@ -84,7 +84,7 @@ fn cli(request: &Request) -> (i32, Value) {
         fs::write(directory.join("stdout.raw"), &output.stdout).unwrap();
         fs::write(directory.join("stderr.raw"), &output.stderr).unwrap();
         let executable = fs::read(crate::cli_exe::kinekino_cli_exe()).unwrap();
-        fs::write(directory.join("PROCESS.json"),serde_json::to_vec_pretty(&json!({"pid":pid,"exit_code":output.status.code(),"wait_with_output_returned":true,"cli_sha256":format!("{:x}",Sha256::digest(&executable))})).unwrap()).unwrap();
+        fs::write(directory.join("PROCESS.json"),serde_json::to_vec_pretty(&json!({"pid":pid,"exit_code":output.status.code(),"wait_with_output_returned":true,"cli_sha256":kinekino_media_contracts::hex_lower(Sha256::digest(&executable))})).unwrap()).unwrap();
     }
     assert!(output.stderr.is_empty());
     (
@@ -345,7 +345,7 @@ fn actual_sintel_corpus_with_leading_blank_line_roundtrips_without_preprocessing
     let original = fs::read(&corpus).unwrap();
     if std::env::var_os("SUBTITLE_CORPUS_PATH").is_some() {
         assert_eq!(
-            format!("{:x}", Sha256::digest(&original)),
+            kinekino_media_contracts::hex_lower(Sha256::digest(&original)),
             std::env::var("SUBTITLE_CORPUS_SHA256")
                 .expect("explicit corpus SHA required")
                 .to_ascii_lowercase()

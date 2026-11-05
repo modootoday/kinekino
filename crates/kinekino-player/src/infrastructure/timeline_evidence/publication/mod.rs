@@ -129,7 +129,7 @@ fn io_error(error: std::io::Error) -> ApiError {
 fn blob(id: &str, body: &[u8], media_type: &str) -> EvidenceAsset {
     EvidenceAsset {
         asset_id: id.into(),
-        sha256: format!("{:x}", Sha256::digest(body)),
+        sha256: kinekino_media_contracts::hex_lower(Sha256::digest(body)),
         bytes: DecimalU64(body.len() as u64),
         media_type: media_type.into(),
     }
@@ -328,7 +328,7 @@ pub fn publish(
         )?);
         added.push(manifest_asset.clone());
         let body = package::derive(&exported.package, &identity.case, &prefix, added)?;
-        let sha = format!("{:x}", Sha256::digest(&body));
+        let sha = kinekino_media_contracts::hex_lower(Sha256::digest(&body));
         let path = canonical.join("packages").join(format!("{sha}.json"));
         let case = ReviewCase {
             package_sha256: sha.clone(),

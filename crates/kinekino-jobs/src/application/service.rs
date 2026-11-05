@@ -26,7 +26,7 @@ fn invalid(message: impl Into<String>) -> ApiError {
     ApiError::new(ErrorCode::InvalidArgument, message)
 }
 fn hash(bytes: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(bytes))
+    kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
 }
 fn limit(value: Option<usize>) -> Result<usize, ApiError> {
     let value = value.unwrap_or(50);

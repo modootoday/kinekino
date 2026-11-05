@@ -98,7 +98,7 @@ impl PendingOwnedAttempt {
         let body = String::from_utf8(writer.bytes).map_err(|_| {
             ApiError::new(ErrorCode::Internal, "Owned diagnostic UTF8 encoding failed")
         })?;
-        let expected = format!("{:x}", Sha256::digest(body.as_bytes()));
+        let expected = kinekino_media_contracts::hex_lower(Sha256::digest(body.as_bytes()));
         let reference = self.blobs.put_utf8(&body)?;
         if reference.sha256 != expected
             || reference.bytes.0 != body.len() as u64

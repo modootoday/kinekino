@@ -112,7 +112,7 @@ impl OwnedAttemptExecutor for VadExecutor {
         }
         let request_pin = ArtifactPin::new(
             "vad-request".into(),
-            format!("{:x}", Sha256::digest(&request)),
+            kinekino_media_contracts::hex_lower(Sha256::digest(&request)),
             DecimalU64(request.len() as u64),
         )?;
         let context = ExpectedWorkerContext::new(request_pin, descriptor);

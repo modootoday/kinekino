@@ -51,9 +51,11 @@ impl Fixture {
         let executable = root.join("mpv.exe");
         let bytes = b"Synthetic trusted identity; only the Rust child probe is executable";
         std::fs::write(&executable, bytes).unwrap();
-        let executable =
-            TrustedMpvExecutable::open(&executable, &format!("{:x}", Sha256::digest(bytes)))
-                .unwrap();
+        let executable = TrustedMpvExecutable::open(
+            &executable,
+            &kinekino_media_contracts::hex_lower(Sha256::digest(bytes)),
+        )
+        .unwrap();
         let catalog = root.join("catalog");
         std::fs::create_dir(&catalog).unwrap();
         let store = Arc::new(CatalogFiles::open(&catalog).unwrap());

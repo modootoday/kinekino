@@ -590,8 +590,11 @@ mod standalone_export_tests {
             let path = root.join("mpv.exe");
             let bytes = b"Synthetic verified identity; never executed";
             std::fs::write(&path, bytes).unwrap();
-            let executable =
-                TrustedMpvExecutable::open(&path, &format!("{:x}", Sha256::digest(bytes))).unwrap();
+            let executable = TrustedMpvExecutable::open(
+                &path,
+                &kinekino_media_contracts::hex_lower(Sha256::digest(bytes)),
+            )
+            .unwrap();
             let catalog = root.join("catalog");
             std::fs::create_dir(&catalog).unwrap();
             let store =

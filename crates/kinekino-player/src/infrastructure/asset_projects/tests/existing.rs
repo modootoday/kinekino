@@ -24,7 +24,7 @@ fn saved_project_reopens_original_input_and_renders_without_treating_save_as_rev
         std::env::var_os("ASSET_PROJECT_REQUEST").expect("Pinned existing frame request"),
     );
     let request_bytes = fs::read(&input_path).unwrap();
-    let hash = |bytes: &[u8]| format!("{:x}", Sha256::digest(bytes));
+    let hash = |bytes: &[u8]| kinekino_media_contracts::hex_lower(Sha256::digest(bytes));
     assert_eq!(
         hash(&request_bytes),
         std::env::var("ASSET_PROJECT_REQUEST_SHA256").unwrap()

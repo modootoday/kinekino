@@ -28,7 +28,7 @@ pub fn io(error: std::io::Error) -> ApiError {
 pub fn pin(id: &str, bytes: &[u8]) -> Result<ArtifactPin, ApiError> {
     ArtifactPin::new(
         id.into(),
-        format!("{:x}", Sha256::digest(bytes)),
+        kinekino_media_contracts::hex_lower(Sha256::digest(bytes)),
         DecimalU64(bytes.len() as u64),
     )
 }
@@ -98,7 +98,7 @@ impl FixtureData {
         }
         let runtime_pin = ArtifactPin::new(
             "fixture-executable".into(),
-            format!("{:x}", hash.finalize()),
+            kinekino_media_contracts::hex_lower(hash.finalize()),
             DecimalU64(bytes),
         )?;
         let profile = VadProfile::new(

@@ -116,7 +116,7 @@ impl MutationControl for Control<'_> {
     }
 }
 fn hash(bytes: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(bytes))
+    kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
 }
 impl ClipOutputVerifier {
     pub fn verify_owned(

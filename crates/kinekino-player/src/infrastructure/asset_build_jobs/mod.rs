@@ -72,7 +72,7 @@ fn error(code: ErrorCode, message: &str) -> ApiError {
     ApiError::new(code, message)
 }
 fn hash(bytes: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(bytes))
+    kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
 }
 fn local_producer_path(path: &std::path::Path) -> Result<PathBuf, ApiError> {
     use std::path::Component;

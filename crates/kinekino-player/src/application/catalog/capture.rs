@@ -113,7 +113,7 @@ impl CatalogCaptureService {
 fn validate(location: &PageLocation, bytes: &[u8], p: &Provenance) -> Result<(), ApiError> {
     if bytes.len() > crate::domain::browser_provider::MAX_CAPTURE_BYTES
         || p.bytes != bytes.len()
-        || p.sha256 != format!("{:x}", Sha256::digest(bytes))
+        || p.sha256 != kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
         || p.requested_url != location.as_str()
         || p.redirects.len() > 5
         || p.parser_revision.len() > 128

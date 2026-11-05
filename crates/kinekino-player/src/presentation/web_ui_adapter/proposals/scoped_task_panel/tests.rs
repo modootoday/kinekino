@@ -81,7 +81,7 @@ pub(crate) fn fixture(kind: Kind) -> (StateProgram, ScopedPanelInput, StoredProp
             let document = DocumentSourceSnapshot::from_asset(
                 "scoped-document-source".into(),
                 DecimalU64(9_007_199_254_740_993),
-                format!("{:x}", Sha256::digest(asset.as_bytes())),
+                kinekino_media_contracts::hex_lower(Sha256::digest(asset.as_bytes())),
                 asset,
             )
             .unwrap();

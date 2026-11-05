@@ -23,7 +23,7 @@ use std::{
 
 static NEXT: AtomicUsize = AtomicUsize::new(0);
 fn sha(bytes: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(bytes))
+    kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
 }
 
 #[test]

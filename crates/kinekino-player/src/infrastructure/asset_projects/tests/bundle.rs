@@ -167,7 +167,7 @@ fn original_project_and_source_leases_survive_real_layer_render() {
         std::env::var_os("ASSET_PROJECT_REQUEST").unwrap(),
     ))
     .unwrap();
-    let hash = |bytes: &[u8]| format!("{:x}", Sha256::digest(bytes));
+    let hash = |bytes: &[u8]| kinekino_media_contracts::hex_lower(Sha256::digest(bytes));
     assert_eq!(
         hash(&bytes),
         std::env::var("ASSET_PROJECT_REQUEST_SHA256").unwrap()

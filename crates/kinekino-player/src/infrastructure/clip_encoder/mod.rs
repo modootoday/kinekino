@@ -97,12 +97,11 @@ impl PinnedClipEncoder {
             ));
         }
         let observation_hash = |index: usize| -> Result<String, ApiError> {
-            Ok(format!(
-                "{:x}",
-                Sha256::digest(serde_json::to_vec(&observations[index]).map_err(|_| {
+            Ok(kinekino_media_contracts::hex_lower(Sha256::digest(
+                serde_json::to_vec(&observations[index]).map_err(|_| {
                     ApiError::new(ErrorCode::Internal, "Invalid encoder observation")
-                })?)
-            ))
+                })?,
+            )))
         };
         #[derive(Serialize)]
         struct Identity<'a> {
@@ -110,17 +109,14 @@ impl PinnedClipEncoder {
             tool_sha256: &'a str,
             observations: &'a [EncoderToolObservation],
         }
-        let inventory_sha256 = format!(
-            "{:x}",
-            Sha256::digest(
-                serde_json::to_vec(&Identity {
-                    contract: "clip-encoder-inventory/1",
-                    tool_sha256: sha256,
-                    observations: &observations
-                })
-                .map_err(|_| ApiError::new(ErrorCode::Internal, "Invalid encoder inventory"))?
-            )
-        );
+        let inventory_sha256 = kinekino_media_contracts::hex_lower(Sha256::digest(
+            serde_json::to_vec(&Identity {
+                contract: "clip-encoder-inventory/1",
+                tool_sha256: sha256,
+                observations: &observations,
+            })
+            .map_err(|_| ApiError::new(ErrorCode::Internal, "Invalid encoder inventory"))?,
+        ));
         let feature_names = |index: usize, table| {
             inventory::names(&observations[index].stdout, table).map_err(|mut error| {
                 error.details["stage"] = serde_json::json!(observations[index].stage);

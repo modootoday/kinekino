@@ -73,7 +73,7 @@ impl Guard {
             }
             hasher.update(&buffer[..count]);
         }
-        let sha256 = format!("{:x}", hasher.finalize());
+        let sha256 = kinekino_media_contracts::hex_lower(hasher.finalize());
         assert_eq!(identity(&file), before);
         Self {
             _directories: directories,

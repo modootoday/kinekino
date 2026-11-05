@@ -30,7 +30,7 @@ fn invalid(message: &str) -> ApiError {
     ApiError::new(ErrorCode::InvalidArgument, message)
 }
 fn digest(bytes: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(bytes))
+    kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
 }
 fn parse(operation: &str, parameters: Value) -> Result<CardBundleRequest, ApiError> {
     if operation != OPERATION {

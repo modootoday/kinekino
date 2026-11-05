@@ -107,7 +107,7 @@ fn error(code: ErrorCode, message: &str) -> ApiError {
 fn descriptor(name: String, bytes: &[u8], media_type: &str) -> AssetBundleFile {
     AssetBundleFile {
         name,
-        sha256: format!("{:x}", Sha256::digest(bytes)),
+        sha256: kinekino_media_contracts::hex_lower(Sha256::digest(bytes)),
         bytes: DecimalU64(bytes.len() as u64),
         media_type: media_type.into(),
     }

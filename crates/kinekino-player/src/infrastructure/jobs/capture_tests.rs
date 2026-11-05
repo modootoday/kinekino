@@ -120,7 +120,7 @@ fn actual_subtitle_capture_pins_source_without_admission_then_submits_and_replay
     let captured = client.capture(request.clone()).unwrap();
     assert_eq!(count(client.as_ref()), 0);
     assert!(!host.evidence.join("result.vtt").exists());
-    let source_sha = format!("{:x}", Sha256::digest(source));
+    let source_sha = kinekino_media_contracts::hex_lower(Sha256::digest(source));
     assert_eq!(
         captured.request().expected_source_sha256.as_deref(),
         Some(source_sha.as_str())
@@ -190,7 +190,7 @@ fn actual_subtitle_capture_pins_source_without_admission_then_submits_and_replay
     let bytes = fs::read(host.evidence.join("result.vtt")).unwrap();
     assert!(bytes.starts_with(b"WEBVTT"));
     assert_eq!(
-        format!("{:x}", Sha256::digest(&bytes)),
+        kinekino_media_contracts::hex_lower(Sha256::digest(&bytes)),
         done.output.as_ref().unwrap().sha256
     );
     fs::write(host.evidence.join("source.srt"), changed).unwrap();
