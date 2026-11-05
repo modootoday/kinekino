@@ -3,6 +3,7 @@
 use kinekino_player_ui::{Command, Controller, Effect, Session, activate, meari_props};
 use std::path::PathBuf;
 
+mod context_menu;
 mod prefs;
 mod resume;
 mod seek_nav;

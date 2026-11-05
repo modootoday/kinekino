@@ -363,18 +363,12 @@ impl<E: Engine> Controller<E> {
     /// Applies one user command; returns what the window must do, if anything.
     pub fn apply(&mut self, command: Command) -> Option<Effect> {
         let media = self.view.has_media;
-        // Esc closes an open ⋮ menu first; only the next Esc leaves fullscreen.
-        if matches!(command, Command::ExitFullscreen) && self.view.menu_open {
-            self.view.menu_open = false;
+        if crate::menu::route(&mut self.view, &command) {
             return None;
         }
         // Then it cancels an item still opening.
         if matches!(command, Command::ExitFullscreen) && self.cancel_open() {
             return None;
-        }
-        // Any other command (a menu item, Esc, a click elsewhere) closes the ⋮ menu.
-        if !matches!(command, Command::More) {
-            self.view.menu_open = false;
         }
         match command {
             Command::Open => return Some(Effect::PickFile),
@@ -387,9 +381,6 @@ impl<E: Engine> Controller<E> {
             // Esc in the browse view goes one level back (windowed).
             Command::ExitFullscreen if self.view.browsing && !self.view.fullscreen => {
                 self.browse(&Command::BrowseBack)
-            }
-            Command::More => {
-                self.view.menu_open = !self.view.menu_open;
             }
             Command::PlayPause if media => {
                 if self.view.playing {
@@ -570,6 +561,7 @@ impl<E: Engine> Controller<E> {
             && v.playing
             && !v.panel_open
             && !v.menu_open
+            && v.context_menu.is_none()
             && v.status.is_empty();
         let quiet = self
             .last_input

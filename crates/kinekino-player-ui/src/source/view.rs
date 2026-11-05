@@ -26,6 +26,8 @@ pub struct View {
     pub panel_open: bool,
     /// The ⋮ (더 보기) menu above the transport bar.
     pub menu_open: bool,
+    /// The right-click menu's top-left corner (document CSS px) while it is open.
+    pub context_menu: Option<(f64, f64)>,
     pub controls_visible: bool,
     pub position: f64,
     pub duration: f64,
@@ -78,6 +80,7 @@ impl Default for View {
             maximized: false,
             panel_open: false,
             menu_open: false,
+            context_menu: None,
             controls_visible: true,
             position: 0.0,
             duration: 0.0,
@@ -105,7 +108,7 @@ impl Default for View {
 }
 
 /// Fixed buttons whose click counters the host watches (episode rows add `ep{i}`).
-pub const BUTTONS: [&str; 22] = [
+pub const BUTTONS: [&str; 28] = [
     "open",
     "browseSearch",
     "browse",
@@ -128,6 +131,12 @@ pub const BUTTONS: [&str; 22] = [
     "browseLayout",
     "skipSegment",
     "clearSkip",
+    "ctxOpen",
+    "ctxBrowse",
+    "ctxPlayPause",
+    "ctxSubtitle",
+    "ctxAudio",
+    "ctxFullscreen",
 ];
 
 #[derive(Debug, Clone, PartialEq)]
@@ -247,6 +256,17 @@ pub fn props(view: &View) -> BTreeMap<String, Prop> {
         ("fullscreen".to_owned(), Prop::Bool(view.fullscreen)),
         ("panelOpen".to_owned(), Prop::Bool(view.panel_open)),
         ("noMenu".to_owned(), Prop::Bool(!view.menu_open)),
+        (
+            "noContextMenu".to_owned(),
+            Prop::Bool(view.context_menu.is_none()),
+        ),
+        (
+            "contextMenuStyle".to_owned(),
+            t(&view
+                .context_menu
+                .map(|(x, y)| format!("left: {x:.0}px; top: {y:.0}px;"))
+                .unwrap_or_default()),
+        ),
         (
             "menuPanelLabel".to_owned(),
             Prop::Text(

@@ -38,6 +38,11 @@
 .kk-player-root .kk-menu[hidden] { display: none; }
 .kk-player-root .kk-menu-item { display: flex; justify-content: flex-start; border-color: transparent; background: transparent; gap: var(--aw-space-2); white-space: nowrap; }
 .kk-player-root .kk-menu-key { margin-left: auto; padding-left: var(--aw-space-3); color: var(--aw-text-secondary); font-size: var(--aw-font-small); }
+/* Right-click menu: at the pointer (inline left/top from the view), over everything. */
+.kk-player-root { position: relative; }
+.kk-player-root .kk-context-menu { right: auto; bottom: auto; z-index: 5; width: 240px; min-width: 0; max-height: 360px; overflow: hidden; gap: 0; box-sizing: border-box; }
+.kk-player-root .kk-menu-heading { margin: 0; padding: var(--aw-space-1) var(--aw-space-2) 0; color: var(--aw-text-secondary); font-family: var(--aw-font-family); font-size: var(--aw-font-small); }
+.kk-player-root .kk-context-menu .kk-menu-item[hidden] { display: none; }
 /* 작품 탐색: the episode panel's list styling, at twice the panel width, over the start area. */
 .kk-player-root .kk-browse { place-items: stretch center; }
 .kk-player-root .kk-browse.kk-off { position: absolute; inset: 0; visibility: hidden; }
