@@ -82,9 +82,9 @@ dependencies = [
 
 [[package]]
 name = "adblock"
-version = "0.13.3"
+version = "0.13.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f44b96a666a23c12acad7c688bfe8638a7094e7eabe765b09a6864ab991c676d"
+checksum = "7a4c8558f27608dec74695c866f9a8ef897ec7a77cb826f8a5baf0b8ba461d2a"
 dependencies = [
  "addr",
  "arrayvec",
@@ -95,14 +95,12 @@ dependencies = [
  "itertools",
  "memchr",
  "percent-encoding",
- "precomputed-hash",
  "regex",
  "rustc-hash",
  "seahash",
  "serde",
  "serde_json",
  "thiserror 1.0.69",
- "url",
 ]
 
 [[package]]
