@@ -2,12 +2,13 @@
 //! The page model and its handling stay in `kinekino-app`; this crate only renders the
 //! page with the shared design tokens/components and turns user actions into the page
 //! protocol (`page`, `apply`, `dialog`, `ready`, `close`).
+mod caption;
 mod session;
 mod source;
 mod styles;
 mod window;
 
-pub use session::Session;
+pub use session::{HostControl, Session};
 pub use styles::{Styles, fetch_fonts, prepare_with};
 pub use window::MeariSettingsWindow;
 

@@ -1,6 +1,6 @@
 //! The OS window: Meari's native driver (winit + softbuffer) hosting the settings
 //! document. The same code runs on every OS; only winit/blitz pick the backend.
-use crate::session::Session;
+use crate::session::{HostControl, Session};
 use kinekino_core::platform::settings_window::{SettingsWindowPort, WindowReply};
 use meari::application::host_callbacks::PendingCallback;
 use meari::domain::Value as MeariValue;
@@ -16,8 +16,9 @@ use std::collections::{BTreeMap, VecDeque};
 use std::io;
 use std::path::PathBuf;
 use std::rc::Rc;
+use std::time::Instant;
 use winit::application::ApplicationHandler;
-use winit::event::WindowEvent;
+use winit::event::{ElementState, MouseButton, WindowEvent};
 use winit::event_loop::ActiveEventLoop;
 use winit::window::WindowId;
 
@@ -40,6 +41,8 @@ struct Pending {
     props: Option<BTreeMap<String, MeariValue>>,
     reset: bool,
     capture: Option<PathBuf>,
+    /// Caption minimize/maximize clicks to apply on the shell after collect.
+    host: Vec<HostControl>,
 }
 
 struct Shared {
@@ -54,11 +57,15 @@ struct Shared {
 struct Host(Rc<RefCell<Shared>>);
 
 impl Shared {
-    /// Collects clicks since the last turn; reset is local, the rest go to the controller.
+    /// Collects clicks since the last turn; reset/min/max are local, the rest go out.
     fn collect(&mut self) {
         let handle = self.handle.clone();
-        match handle.try_with(|doc| self.session.messages(doc)) {
-            Ok(Ok(messages)) => {
+        match handle.try_with(|doc| {
+            let messages = self.session.messages(doc)?;
+            let host = self.session.host_controls(doc)?;
+            Ok::<_, String>((messages, host))
+        }) {
+            Ok(Ok((messages, host))) => {
                 for message in messages {
                     if message.contains(r#""op":"reset""#) {
                         self.pending.reset = true;
@@ -66,6 +73,7 @@ impl Shared {
                         self.outbox.push_back(message);
                     }
                 }
+                self.pending.host.extend(host);
             }
             Ok(Err(e)) => self.failure = Some(e),
             Err(e) => self.failure = Some(e.to_string()),
@@ -138,9 +146,108 @@ struct App<'a> {
     smoke: Smoke,
     closing: Option<PathBuf>,
     dismissed: bool,
+    /// OS frame turned off; the product caption is the title bar.
+    undecorated: bool,
+    /// Last press on the caption row, for double-click maximize.
+    caption_press: Option<Instant>,
+    /// Last maximize state pushed into caption props.
+    maximized: bool,
 }
 
 impl App<'_> {
+    fn undecorate_once(&mut self) {
+        if self.undecorated {
+            return;
+        }
+        let done = self
+            .shared
+            .borrow()
+            .handle
+            .try_with(crate::caption::undecorate)
+            .unwrap_or(false);
+        self.undecorated = done;
+    }
+
+    /// Applies queued caption min/max via the shell provider (host-local).
+    fn apply_host(&mut self) {
+        let host = std::mem::take(&mut self.shared.borrow_mut().pending.host);
+        if host.is_empty() {
+            return;
+        }
+        let mut maximized = self.maximized;
+        let _ = self.shared.borrow().handle.try_with(|doc| {
+            let shell = &doc.renderer.document.shell_provider;
+            for control in &host {
+                match control {
+                    HostControl::Minimize => shell.set_window_minimized(true),
+                    HostControl::Maximize => {
+                        maximized = !shell.is_window_maximized();
+                        shell.set_window_maximized(maximized);
+                    }
+                }
+            }
+        });
+        if maximized != self.maximized {
+            self.maximized = maximized;
+            self.push_maximize_props();
+        }
+    }
+
+    fn push_maximize_props(&mut self) {
+        let mut props = BTreeMap::new();
+        for (k, v) in crate::source::maximize_props(self.maximized) {
+            let v = match v {
+                Value::Bool(b) => MeariValue::Bool(b),
+                other => MeariValue::String(other.as_str().unwrap_or_default().to_owned()),
+            };
+            props.insert(k.to_owned(), v);
+        }
+        let mut shared = self.shared.borrow_mut();
+        match &mut shared.pending.props {
+            Some(existing) => existing.extend(props),
+            None => shared.pending.props = Some(props),
+        }
+    }
+
+    fn caption_pointer(&mut self, event: &WindowEvent) -> bool {
+        let WindowEvent::PointerButton {
+            state: ElementState::Pressed,
+            position,
+            primary: true,
+            button,
+            ..
+        } = event
+        else {
+            return false;
+        };
+        if button.clone().mouse_button() != Some(MouseButton::Left) {
+            return false;
+        }
+        let (x, y) = (position.x, position.y);
+        let mut last = self.caption_press;
+        let taken = self
+            .shared
+            .borrow()
+            .handle
+            .try_with(|doc| crate::caption::press(doc, x, y, &mut last))
+            .unwrap_or(false);
+        self.caption_press = last;
+        if taken {
+            // Double-click may have toggled maximize; sync the caption icon.
+            let now = self
+                .shared
+                .borrow()
+                .handle
+                .try_with(|doc| doc.renderer.document.shell_provider.is_window_maximized())
+                .unwrap_or(self.maximized);
+            if now != self.maximized {
+                self.maximized = now;
+                self.push_maximize_props();
+            }
+        }
+        taken
+    }
+
     fn send(&mut self, message: &str) -> Result<(), String> {
         let reply = (self.on_message)(message);
         let mut shared = self.shared.borrow_mut();
@@ -166,6 +273,13 @@ impl App<'_> {
             if self.dismissed {
                 props.insert("dialogOpen".into(), MeariValue::Bool(false));
             }
+            for (k, v) in crate::source::maximize_props(self.maximized) {
+                let v = match v {
+                    Value::Bool(b) => MeariValue::Bool(b),
+                    other => MeariValue::String(other.as_str().unwrap_or_default().to_owned()),
+                };
+                props.insert(k.to_owned(), v);
+            }
             shared.pending.props = Some(props);
         }
         if reply.close {
@@ -184,6 +298,7 @@ impl App<'_> {
             event_loop.exit();
             return;
         }
+        self.apply_host();
         if let Err(e) = self.advance() {
             self.shared.borrow_mut().failure = Some(e);
         }
@@ -246,12 +361,18 @@ impl App<'_> {
 impl ApplicationHandler for App<'_> {
     fn can_create_surfaces(&mut self, event_loop: &dyn ActiveEventLoop) {
         self.driver.can_create_surfaces(event_loop);
+        self.undecorate_once();
         self.tick(event_loop);
     }
     fn destroy_surfaces(&mut self, event_loop: &dyn ActiveEventLoop) {
         self.driver.destroy_surfaces(event_loop);
     }
     fn window_event(&mut self, event_loop: &dyn ActiveEventLoop, id: WindowId, event: WindowEvent) {
+        self.undecorate_once();
+        if self.caption_pointer(&event) {
+            self.tick(event_loop);
+            return;
+        }
         self.driver.window_event(event_loop, id, event);
         self.tick(event_loop);
     }
@@ -316,6 +437,9 @@ impl SettingsWindowPort for MeariSettingsWindow {
             smoke: if smoke { Smoke::FirstFrame } else { Smoke::Off },
             closing: None,
             dismissed: false,
+            undecorated: false,
+            caption_press: None,
+            maximized: false,
         };
         // `run_app` needs a 'static handler; the borrowed `on_message` callback needs on-demand.
         winit::event_loop::run_on_demand::EventLoopExtRunOnDemand::run_app_on_demand(

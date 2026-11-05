@@ -2811,6 +2811,7 @@ version = "0.1.0"
 dependencies = [
  "kinekino-core",
  "meari",
+ "meari-dom",
  "meari-native",
  "meari-shell",
  "png",
