@@ -1,8 +1,10 @@
 //! Player prefs (ADR 20261105092851): volume, mute, speed, and auto-next survive across runs
 //! through the `PlayerPrefsStore` port. A failing store never blocks playback.
-use super::{Controller, Engine};
+use super::{Controller, Engine, SPEED_MAX, SPEED_MIN};
+use crate::session::clock;
 use kinekino_core::playback::{PlayerPrefs, PlayerPrefsStore};
 use kinekino_core::port::error::{PortError, PortResult};
+use std::time::Instant;
 
 #[derive(Default)]
 pub(super) struct Prefs {
@@ -84,5 +86,67 @@ impl<E: Engine> Controller<E> {
 
     pub(super) fn prefs_changed(&mut self) {
         self.save_prefs();
+    }
+
+    /// Sets the volume within 0–100; `unmute` lifts a mute when the result is audible.
+    pub(super) fn set_volume(&mut self, v: f64, unmute: bool) {
+        let v = v.clamp(0.0, 100.0);
+        self.view.volume = v;
+        let r = self.engine.command(&["set", "volume", &format!("{v:.0}")]);
+        self.report(r);
+        if self.view.muted && unmute && v > 0.0 {
+            self.view.muted = false;
+            let r = self.engine.command(&["set", "mute", "no"]);
+            self.report(r);
+        }
+        self.prefs_changed();
+        self.osd_volume();
+    }
+
+    /// Sets the playback speed within `SPEED_MIN`–`SPEED_MAX`; the engine keeps it for the
+    /// next item. Over a video the new speed shows as a short notice, unless one is opening.
+    pub(super) fn set_speed(&mut self, v: f64) {
+        let v = ((v * 100.0).round() / 100.0).clamp(SPEED_MIN, SPEED_MAX);
+        self.view.speed = v;
+        let r = self.engine.command(&["set", "speed", &format!("{v:.2}")]);
+        self.report(r);
+        if !self.view.opening {
+            let shown = format!("{v:.2}");
+            let shown = shown.strip_suffix('0').unwrap_or(&shown);
+            self.view.notice = format!("재생 속도 {shown}x");
+            self.notice_since = Some(Instant::now());
+        }
+        self.prefs_changed();
+    }
+
+    /// Bottom-toast OSD for seek (ADR 20261105182156). Skipped while an item is opening.
+    pub(super) fn osd_seek(&mut self) {
+        self.show_osd(format!(
+            "{} / {}",
+            clock(self.view.position),
+            clock(self.view.duration)
+        ));
+    }
+
+    /// Bottom-toast OSD for the current volume level.
+    pub(super) fn osd_volume(&mut self) {
+        self.show_osd(format!("음량 {:.0}", self.view.volume));
+    }
+
+    /// Bottom-toast OSD after toggling mute.
+    pub(super) fn osd_mute(&mut self) {
+        if self.view.muted {
+            self.show_osd("음소거".into());
+        } else {
+            self.osd_volume();
+        }
+    }
+
+    fn show_osd(&mut self, message: String) {
+        if self.view.opening {
+            return;
+        }
+        self.view.notice = message;
+        self.notice_since = Some(Instant::now());
     }
 }

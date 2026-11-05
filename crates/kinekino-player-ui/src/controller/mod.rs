@@ -399,6 +399,7 @@ impl<E: Engine> Controller<E> {
                     self.report(r);
                     self.view.position = 0.0;
                     self.resume_rewound();
+                    self.osd_seek();
                 }
             },
             Command::Next if media => {
@@ -413,6 +414,7 @@ impl<E: Engine> Controller<E> {
                 let r = self.engine.command(&["set", "mute", value]);
                 self.report(r);
                 self.prefs_changed();
+                self.osd_mute();
             }
             Command::Seek(fraction) if media && self.view.duration > 0.0 => {
                 let secs = fraction * self.view.duration;
@@ -422,6 +424,7 @@ impl<E: Engine> Controller<E> {
                 self.report(r);
                 self.view.position = secs;
                 self.resume_rewound();
+                self.osd_seek();
             }
             Command::SeekBy(delta) if media && self.view.duration > 0.0 => {
                 let secs = (self.view.position + delta).clamp(0.0, self.view.duration);
@@ -431,6 +434,7 @@ impl<E: Engine> Controller<E> {
                 self.report(r);
                 self.view.position = secs;
                 self.resume_rewound();
+                self.osd_seek();
             }
             // The slider: any audible level unmutes, as in common players.
             Command::Volume(v) => self.set_volume(v, v > 0.0),
@@ -501,36 +505,6 @@ impl<E: Engine> Controller<E> {
             || before.2 != self.view.playing
             || subtitle_changed
             || offer_changed
-    }
-
-    /// Sets the volume within 0–100; `unmute` lifts a mute when the result is audible.
-    fn set_volume(&mut self, v: f64, unmute: bool) {
-        let v = v.clamp(0.0, 100.0);
-        self.view.volume = v;
-        let r = self.engine.command(&["set", "volume", &format!("{v:.0}")]);
-        self.report(r);
-        if self.view.muted && unmute && v > 0.0 {
-            self.view.muted = false;
-            let r = self.engine.command(&["set", "mute", "no"]);
-            self.report(r);
-        }
-        self.prefs_changed();
-    }
-
-    /// Sets the playback speed within `SPEED_MIN`–`SPEED_MAX`; the engine keeps it for the
-    /// next item. Over a video the new speed shows as a short notice, unless one is opening.
-    fn set_speed(&mut self, v: f64) {
-        let v = ((v * 100.0).round() / 100.0).clamp(SPEED_MIN, SPEED_MAX);
-        self.view.speed = v;
-        let r = self.engine.command(&["set", "speed", &format!("{v:.2}")]);
-        self.report(r);
-        if !self.view.opening {
-            let shown = format!("{v:.2}");
-            let shown = shown.strip_suffix('0').unwrap_or(&shown);
-            self.view.notice = format!("재생 속도 {shown}x");
-            self.notice_since = Some(Instant::now());
-        }
-        self.prefs_changed();
     }
 
     /// Auto-next: the item after the current one, when the user turned it on and the queue

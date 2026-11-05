@@ -1,4 +1,5 @@
 //! Volume and speed keys: steps, ranges, mute, and what the bar and toast show.
+//! Volume/mute OSD toast (ADR 20261105182156).
 use super::folder;
 use super::support::FakeEngine;
 use kinekino_player_ui::{Command, Controller, Session, meari_props};
@@ -173,4 +174,45 @@ fn speed_steps_by_a_tenth_within_the_engine_range_and_shows_a_toast() {
     c.apply(Command::Next);
     assert_eq!(c.view.speed, 1.1, "the next item keeps the chosen speed");
     std::fs::remove_dir_all(dir).unwrap();
+}
+
+#[test]
+fn volume_and_mute_show_on_the_toast() {
+    let mut c = Controller::new(FakeEngine::default());
+    c.apply(Command::VolumeDown);
+    assert_eq!(c.view.volume, 95.0);
+    assert_eq!(c.view.notice, "음량 95");
+    c.apply(Command::Mute);
+    assert!(c.view.muted);
+    assert_eq!(c.view.notice, "음소거");
+    c.apply(Command::Mute);
+    assert!(!c.view.muted);
+    assert_eq!(c.view.notice, "음량 95");
+    c.apply(Command::Volume(40.0));
+    assert_eq!(c.view.notice, "음량 40");
+}
+
+#[test]
+fn seek_and_volume_osd_stay_off_while_opening() {
+    let (dir, files) = folder("osd-opening");
+    let mut c = Controller::new(FakeEngine::default());
+    c.open(&files[0]);
+    c.engine.time = 50.0;
+    c.poll();
+    // Pretend another open is in flight (opening line owns the toast).
+    c.view.opening = true;
+    c.view.notice = "여는 중…".into();
+    c.apply(Command::SeekBy(5.0));
+    assert_eq!(
+        c.view.notice, "여는 중…",
+        "seek must not cover the opening line"
+    );
+    c.apply(Command::VolumeDown);
+    assert_eq!(
+        c.view.notice, "여는 중…",
+        "volume must not cover the opening line"
+    );
+    c.apply(Command::Mute);
+    assert_eq!(c.view.notice, "여는 중…");
+    std::fs::remove_dir_all(dir).ok();
 }
