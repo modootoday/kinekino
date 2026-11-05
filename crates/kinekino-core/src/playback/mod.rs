@@ -7,6 +7,7 @@ pub mod resume;
 pub mod resume_file;
 pub mod resume_key;
 pub mod session;
+pub mod skip_range;
 pub mod store;
 pub mod surface;
 
@@ -20,5 +21,6 @@ pub use resume::{ResumePoint, ResumePolicy};
 pub use resume_file::{FileResumeStore, default_resume_file};
 pub use resume_key::ResumeKey;
 pub use session::ResumingPlayback;
+pub use skip_range::SkipRange;
 pub use store::{MemoryResumeStore, ResumeStore, check_resume_store};
 pub use surface::{FakeSurface, RgbaFrame, VideoSurface, check_surface};

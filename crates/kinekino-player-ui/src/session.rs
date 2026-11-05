@@ -85,6 +85,12 @@ pub enum Command {
     CycleSubtitle,
     /// Turn playing the next queue item at the end of the current one on or off.
     ToggleAutoNext,
+    /// Remember the current position as the start of a span to skip (this item only).
+    MarkSkipStart,
+    /// Close the span to skip at the current position, after its marked start.
+    MarkSkipEnd,
+    /// Inside the marked span: seek to its end.
+    SkipSegment,
 }
 
 pub struct Session {

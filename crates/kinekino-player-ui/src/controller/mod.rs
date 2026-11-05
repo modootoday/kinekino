@@ -6,6 +6,7 @@ mod jobs;
 mod opening;
 mod prefs;
 mod resume;
+mod skip;
 mod subtitles;
 mod tracks;
 pub use crate::port::Engine;
@@ -110,6 +111,8 @@ pub struct Controller<E: Engine> {
     prefs: prefs::Prefs,
     /// The engine draws the current subtitle into the frame (styled or picture track).
     engine_subtitles: bool,
+    /// The span the user marked to skip in the current item.
+    skip: skip::Skip,
 }
 
 fn browse_error(e: &SourceError) -> String {
@@ -144,6 +147,7 @@ impl<E: Engine> Controller<E> {
             resume: resume::Resume::default(),
             prefs: prefs::Prefs::default(),
             engine_subtitles: false,
+            skip: skip::Skip::default(),
         }
     }
 
@@ -210,6 +214,7 @@ impl<E: Engine> Controller<E> {
             .map_or_else(String::new, |s| s.to_string_lossy().into_owned());
         self.files = files.into_iter().map(Media::Local).collect();
         self.generation += 1;
+        self.forget_skip(); // a new queue: row numbers name other items
         self.play(index);
     }
 
@@ -240,6 +245,7 @@ impl<E: Engine> Controller<E> {
             .map_or_else(String::new, |l| l.item.title.clone());
         self.files = queue.into_iter().map(Media::Remote).collect();
         self.generation += 1;
+        self.forget_skip(); // a new queue: row numbers name other items
         self.play(index);
     }
 
@@ -288,6 +294,9 @@ impl<E: Engine> Controller<E> {
     fn play(&mut self, index: usize) {
         if index < self.files.len() {
             self.resume_leave();
+            if self.view.current != Some(index) {
+                self.forget_skip();
+            }
         }
         // A newer choice replaces any open in flight; its late result is ignored.
         self.opening = None;
@@ -424,6 +433,9 @@ impl<E: Engine> Controller<E> {
             Command::SpeedReset => self.set_speed(1.0),
             Command::CycleAudio if media => self.cycle_track(tracks::Track::Audio),
             Command::CycleSubtitle if media => self.cycle_track(tracks::Track::Subtitle),
+            Command::MarkSkipStart if media => self.mark_skip_start(),
+            Command::MarkSkipEnd if media => self.mark_skip_end(),
+            Command::SkipSegment if media => self.skip_segment(),
             Command::ToggleAutoNext => {
                 self.view.auto_next = !self.view.auto_next;
                 self.prefs_changed();
@@ -471,6 +483,7 @@ impl<E: Engine> Controller<E> {
         } else {
             self.resume_tick();
         }
+        let offer_changed = self.refresh_skip_offer();
         // Whole seconds are what the clock shows; finer changes need no re-projection.
         settled
             || advanced
@@ -478,6 +491,7 @@ impl<E: Engine> Controller<E> {
             || before.1 != self.view.duration
             || before.2 != self.view.playing
             || subtitle_changed
+            || offer_changed
     }
 
     /// Sets the volume within 0–100; `unmute` lifts a mute when the result is audible.
