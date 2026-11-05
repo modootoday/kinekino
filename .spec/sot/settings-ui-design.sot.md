@@ -3,7 +3,7 @@ id: sot:kinekino/settings-ui-design
 title: 설정 창 디자인 정본과 시안 대응
 status: active
 created: 2026-10-30T04:02:16Z
-updated: 2026-10-30T04:32:45Z
+updated: 2026-11-05T19:16:00Z
 verify: [cargo test -p kinekino-settings-ui]
 ---
 
@@ -29,21 +29,21 @@ verify: [cargo test -p kinekino-settings-ui]
 
 ### 아이콘 라이브러리
 
-도입된 세트는 외부 라이브러리가 아니라 저장소가 직접 그린 SVG다(`assets/design/README.md`: "Directly authored project SVGs… not copied library artwork", 24×24, stroke 1.75, round cap/join). `screens.md`·`ui-ai`·`potplayer-ui` SoT의 "Phosphor Regular"는 시안 생성 프롬프트의 **양식** 지시이며 의존성이 아니다(저장소·docs/_includes에 lucide·Phosphor 패키지 없음). 설정 창은 `undo`, `warning`, `info`, `brand`만 쓴다. 새 SVG는 추가하지 않았다.
+도입된 세트는 외부 라이브러리가 아니라 저장소가 직접 그린 SVG다(`assets/design/README.md`: "Directly authored project SVGs… not copied library artwork", 24×24, stroke 1.75, round cap/join). `screens.md`·`ui-ai`·`potplayer-ui` SoT의 "Phosphor Regular"는 시안 생성 프롬프트의 **양식** 지시이며 의존성이 아니다(저장소·docs/_includes에 lucide·Phosphor 패키지 없음). 설정 창은 `undo`, `warning`, `info`, `brand`와 창 caption용 `minimize`/`maximize`/`restore`/`close`를 쓴다(이미 `styles.rs`에 선언). 새 SVG는 추가하지 않았다.
 
 ### 시안 대응
 
 | 시안 | 구현 | 비고 |
 |---|---|---|
 | 앱 설정 화면 | 없음 → 파생 | `v2/studio/skip-settings.png`는 OP/ED 스킵 설정이며 앱 설정이 아니다 |
-| 패널 배경·머리줄 | `aw-settings-root`(`--aw-surface-panel`), `aw-settings-header`(`--aw-surface-chrome`, 높이 `--aw-primary`) | 파생: 인스펙터 패널·caption 토큰 |
+| 패널 배경·제목 줄 | `aw-settings-root`(`--aw-surface-panel`), `aw-window-chrome`(높이 `--aw-titlebar`, `--aw-surface-chrome`) | 플레이어와 같은 제품 caption ([ADR 20261105191533](../adr/20261105191533-settings-window-caption.adr.md)) |
 | 필드 행 | `aw-settings-row`: 라벨 열 `--aw-navigation`, 행 높이 `--aw-primary`, 구분선 `--aw-border` | 파생. `--aw-field-label-width`(72px)는 한국어 라벨(최대 10자)에 좁아 쓰지 않음 |
 | 텍스트·숫자·목록 입력 | `aw-text-input` | 공통 구성요소 그대로 |
 | 선택(choice) | `aw-button aw-button-compact` 묶음 + 현재 값 `--aw-accent` | 파생: 앰버 선택 표시 |
 | 토글 | checkbox | 시안에 스위치 구성요소 없음 |
 | 오류·한도 대화상자 | `--aw-warning-surface`/`--aw-warning-border` + `warning` 아이콘 | 경고 상태 토큰 |
 | 하단 동작 | `되돌리기`(`undo`), `적용`(`aw-button-outline-accent`), `닫기` | 주 동작 강조는 공통 규칙 |
-| 창 caption | OS 프레임 | `aw-window-chrome` 미사용(편차, ADR 참조) |
+| 창 caption | `aw-window-chrome` (brand + `kinekino` + `설정` + min/max/close) | 제품 공통 규약. OS 프레임 끔 |
 
 ### 충돌과 선택
 
@@ -51,7 +51,7 @@ verify: [cargo test -p kinekino-settings-ui]
 |---|---|---|
 | 아이콘 출처: "Phosphor Regular"(screens.md·SoT 프롬프트) vs 자체 SVG(assets README) | Phosphor 패키지 도입 / 자체 SVG | 자체 SVG — 실제 자산이며 index 우선순위상 아이콘 계약이 이미지 프롬프트보다 앞섬 |
 | 라벨 열 폭: `--aw-field-label-width` 72px vs 한국어 라벨 길이 | 72px(잘림) / `--aw-navigation` 180px | `--aw-navigation` — 증거로 확정할 수 없는 파생값. 권고안으로 진행, 설정 시안이 생기면 대체 |
-| 창 프레임: 제품 caption vs OS 프레임 | `aw-window-chrome` / OS | OS 프레임 — 설정 창은 모달 보조 창이고 사용자 정의 caption은 Meari 창 드래그·hit-test 연동이 필요. 권고: 플레이어 셸과 함께 제품 caption으로 통일 |
+| 창 프레임: 제품 caption vs OS 프레임 | `aw-window-chrome` / OS | **제품 caption** — M2-6 권고안 진행([ADR 20261105191533](../adr/20261105191533-settings-window-caption.adr.md)). OS 프레임은 폐기 |
 
 ## Why
 
