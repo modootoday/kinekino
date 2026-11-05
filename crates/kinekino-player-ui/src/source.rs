@@ -63,6 +63,7 @@ pub struct View {
     /// At the end of an item, play the next one in the queue. Off until the user turns it
     /// on (field rules: auto next needs an explicit setting).
     pub auto_next: bool,
+    pub skip_offer: bool, // Inside the marked skip span (controller/skip.rs).
 }
 
 impl Default for View {
@@ -99,6 +100,7 @@ impl Default for View {
             browse_grid: false,
             has_browse_plugin: false,
             auto_next: false,
+            skip_offer: false,
         }
     }
 }

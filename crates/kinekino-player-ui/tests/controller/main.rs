@@ -5,6 +5,7 @@ use std::path::PathBuf;
 
 mod prefs;
 mod resume;
+mod skip;
 mod subtitles;
 #[path = "../support/mod.rs"]
 mod support;
