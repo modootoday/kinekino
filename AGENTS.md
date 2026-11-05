@@ -13,7 +13,7 @@
 - AI 결과의 품질 승인은 사용자가 실제 GUI에서 한다. 자동 검사 통과를 사용자 승인으로 세지 않는다.
 
 ## Git
-- 기능 맥락과 검증 단계별로 명시 경로만 stage해 커밋한다. `git add .`/`git add -A` 금지. 사용자 요청 없이 push하지 않는다.
+- 기능 맥락과 검증 단계별로 명시 경로만 stage해 커밋한다. `git add .`/`git add -A` 금지. push는 사용자 요청이나 승인된 루틴 자동 push 규칙(`.agents/rules/git-and-release.md`)에 따를 때만 한다.
 - `.gitignore`는 기본 거부를 유지한다. runtime, 모델, 캐시, 개인 미디어, 비밀정보, 로컬 `.agents`/`.spec.local`은 커밋하지 않는다.
 
 ## 문서 (specfold)
