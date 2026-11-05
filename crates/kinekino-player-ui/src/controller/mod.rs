@@ -30,6 +30,14 @@ pub const NO_DIALOG_WITHIN: Duration = Duration::from_millis(400);
 pub const NOTICE_FOR: Duration = Duration::from_secs(4);
 /// Volume change per Up/Down key, in points of the 0–100 scale (PotPlayer's default).
 pub const VOLUME_STEP: f64 = 5.0;
+/// Seek step 1 (←/→), seconds (PotPlayer's default).
+pub const SEEK_STEP_1: f64 = 5.0;
+/// Seek step 2 (Ctrl+←/→), seconds.
+pub const SEEK_STEP_2: f64 = 30.0;
+/// Seek step 3 (Shift+←/→), seconds.
+pub const SEEK_STEP_3: f64 = 60.0;
+/// Seek step 4 (Ctrl+Alt+←/→), seconds.
+pub const SEEK_STEP_4: f64 = 300.0;
 /// Speed change per C/X key (PotPlayer's default), within the range the engine accepts.
 pub const SPEED_STEP: f64 = 0.1;
 pub const SPEED_MIN: f64 = 0.25;
@@ -417,6 +425,15 @@ impl<E: Engine> Controller<E> {
             }
             Command::Seek(fraction) if media && self.view.duration > 0.0 => {
                 let secs = fraction * self.view.duration;
+                let r = self
+                    .engine
+                    .command(&["seek", &format!("{secs:.3}"), "absolute"]);
+                self.report(r);
+                self.view.position = secs;
+                self.resume_rewound();
+            }
+            Command::SeekBy(delta) if media && self.view.duration > 0.0 => {
+                let secs = (self.view.position + delta).clamp(0.0, self.view.duration);
                 let r = self
                     .engine
                     .command(&["seek", &format!("{secs:.3}"), "absolute"]);

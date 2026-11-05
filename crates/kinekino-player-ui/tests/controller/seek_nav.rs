@@ -1,0 +1,158 @@
+//! Seek and navigation keys (ADR 20261105151827): arrow seek steps, PageUp/Down, Backspace.
+use super::folder;
+use super::support::FakeEngine;
+use kinekino_player_ui::{
+    Command, Controller, SEEK_STEP_1, SEEK_STEP_2, SEEK_STEP_3, SEEK_STEP_4, shortcut,
+};
+use winit::keyboard::{KeyCode as K, ModifiersState as M, PhysicalKey::Code};
+
+fn key(mods: M, code: K, repeat: bool) -> Option<Command> {
+    shortcut(mods, Code(code), repeat)
+}
+
+fn seeks(e: &FakeEngine) -> Vec<&str> {
+    e.commands
+        .iter()
+        .filter(|c| c.starts_with("seek"))
+        .map(String::as_str)
+        .collect()
+}
+
+#[test]
+fn seek_steps_match_the_potplayer_defaults() {
+    assert_eq!(
+        (SEEK_STEP_1, SEEK_STEP_2, SEEK_STEP_3, SEEK_STEP_4),
+        (5.0, 30.0, 60.0, 300.0)
+    );
+}
+
+#[test]
+fn arrow_keys_seek_by_step_with_modifiers_and_allow_repeat() {
+    let none = M::empty();
+    let ctrl = M::CONTROL;
+    let shift = M::SHIFT;
+    let ctrl_alt = M::CONTROL | M::ALT;
+    assert_eq!(key(none, K::ArrowLeft, false), Some(Command::SeekBy(-5.0)));
+    assert_eq!(key(none, K::ArrowRight, true), Some(Command::SeekBy(5.0)));
+    assert_eq!(
+        key(ctrl, K::ArrowLeft, true),
+        Some(Command::SeekBy(-30.0)),
+        "Ctrl step repeats"
+    );
+    assert_eq!(key(ctrl, K::ArrowRight, false), Some(Command::SeekBy(30.0)));
+    assert_eq!(
+        key(shift, K::ArrowLeft, false),
+        Some(Command::SeekBy(-60.0))
+    );
+    assert_eq!(key(shift, K::ArrowRight, true), Some(Command::SeekBy(60.0)));
+    assert_eq!(
+        key(ctrl_alt, K::ArrowLeft, false),
+        Some(Command::SeekBy(-300.0))
+    );
+    assert_eq!(
+        key(ctrl_alt, K::ArrowRight, true),
+        Some(Command::SeekBy(300.0))
+    );
+    // Meta alone counts as primary (macOS); Meta+Alt does not.
+    assert_eq!(
+        key(M::META, K::ArrowRight, false),
+        Some(Command::SeekBy(30.0))
+    );
+    assert_eq!(key(M::META | M::ALT, K::ArrowRight, false), None);
+    // Shift+Ctrl is not a seek chord in this table.
+    assert_eq!(key(M::CONTROL | M::SHIFT, K::ArrowLeft, false), None);
+    // Volume stays plain-only: Shift+Up is not volume and not seek.
+    assert_eq!(key(shift, K::ArrowUp, false), None);
+}
+
+#[test]
+fn page_up_down_and_backspace_navigate_without_repeat() {
+    let none = M::empty();
+    assert_eq!(key(none, K::PageUp, false), Some(Command::Previous));
+    assert_eq!(key(none, K::PageDown, false), Some(Command::Next));
+    assert_eq!(key(none, K::Backspace, false), Some(Command::Seek(0.0)));
+    assert_eq!(key(none, K::PageUp, true), None, "auto-repeat");
+    assert_eq!(key(none, K::PageDown, true), None);
+    assert_eq!(key(none, K::Backspace, true), None);
+    assert_eq!(key(M::CONTROL, K::PageUp, false), None);
+    assert_eq!(key(M::SHIFT, K::Backspace, false), None);
+}
+
+#[test]
+fn skip_keys_are_confirmed_not_provisional() {
+    let ctrl = M::CONTROL;
+    let none = M::empty();
+    assert_eq!(
+        key(ctrl, K::BracketLeft, false),
+        Some(Command::MarkSkipStart)
+    );
+    assert_eq!(
+        key(ctrl, K::BracketRight, false),
+        Some(Command::MarkSkipEnd)
+    );
+    assert_eq!(key(none, K::KeyS, false), Some(Command::SkipSegment));
+    assert_eq!(key(ctrl, K::Backslash, false), Some(Command::ClearSkip));
+}
+
+#[test]
+fn seek_by_moves_clamps_and_ignores_empty_media() {
+    let (dir, files) = folder("seek-by");
+    let mut c = Controller::new(FakeEngine::default());
+    // No media: no-op.
+    c.apply(Command::SeekBy(5.0));
+    assert!(c.engine.commands.is_empty());
+    c.open(&files[0]);
+    c.engine.time = 100.0;
+    c.poll();
+    assert_eq!(c.view.position, 100.0);
+    assert_eq!(c.view.duration, 1500.0);
+
+    c.apply(Command::SeekBy(-SEEK_STEP_1));
+    assert_eq!(c.view.position, 95.0);
+    assert_eq!(
+        seeks(&c.engine).last().copied(),
+        Some("seek 95.000 absolute")
+    );
+
+    c.apply(Command::SeekBy(SEEK_STEP_1));
+    assert_eq!(c.view.position, 100.0);
+
+    c.apply(Command::SeekBy(2000.0));
+    assert_eq!(c.view.position, 1500.0, "clamped at end");
+    assert_eq!(
+        seeks(&c.engine).last().copied(),
+        Some("seek 1500.000 absolute")
+    );
+
+    c.apply(Command::SeekBy(-10_000.0));
+    assert_eq!(c.view.position, 0.0, "clamped at start");
+    assert_eq!(
+        seeks(&c.engine).last().copied(),
+        Some("seek 0.000 absolute")
+    );
+
+    // duration ≤ 0: no-op.
+    c.view.duration = 0.0;
+    let before = c.engine.commands.len();
+    c.apply(Command::SeekBy(5.0));
+    assert_eq!(c.engine.commands.len(), before);
+    assert_eq!(c.view.position, 0.0);
+
+    std::fs::remove_dir_all(dir).ok();
+}
+
+#[test]
+fn backspace_seeks_to_the_start() {
+    let (dir, files) = folder("seek-home");
+    let mut c = Controller::new(FakeEngine::default());
+    c.open(&files[0]);
+    c.engine.time = 42.0;
+    c.poll();
+    c.apply(Command::Seek(0.0));
+    assert_eq!(c.view.position, 0.0);
+    assert_eq!(
+        seeks(&c.engine).last().copied(),
+        Some("seek 0.000 absolute")
+    );
+    std::fs::remove_dir_all(dir).ok();
+}
