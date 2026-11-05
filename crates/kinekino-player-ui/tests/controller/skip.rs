@@ -126,3 +126,131 @@ fn marking_and_skipping_need_media() {
     assert!(c.view.notice.is_empty() && c.view.status.is_empty());
     assert!(c.engine.commands.is_empty());
 }
+
+#[test]
+fn clear_skip_forgets_the_span_and_tells_the_user() {
+    let (dir, files) = folder("skip-clear");
+    let mut c = Controller::new(FakeEngine::default());
+    c.open(&files[0]);
+    at(&mut c, 10.0);
+    c.apply(Command::MarkSkipStart);
+    at(&mut c, 20.0);
+    c.apply(Command::MarkSkipEnd);
+    at(&mut c, 15.0);
+    assert!(c.view.skip_offer);
+    c.apply(Command::ClearSkip);
+    assert!(!c.view.skip_offer);
+    assert_eq!(c.view.notice, "건너뛸 구간 지움");
+    at(&mut c, 15.0);
+    assert!(!c.view.skip_offer, "the span stayed gone");
+    c.apply(Command::SkipSegment);
+    assert!(seeks(&c.engine).is_empty());
+    std::fs::remove_dir_all(dir).ok();
+}
+
+#[test]
+fn clear_skip_with_nothing_marked_is_safe() {
+    let (dir, files) = folder("skip-clear-empty");
+    let mut c = Controller::new(FakeEngine::default());
+    c.open(&files[0]);
+    c.engine.commands.clear();
+    c.apply(Command::ClearSkip);
+    assert_eq!(c.view.notice, "지울 구간이 없습니다");
+    assert!(!c.view.skip_offer);
+    assert!(
+        seeks(&c.engine).is_empty(),
+        "clearing nothing must not seek"
+    );
+    std::fs::remove_dir_all(dir).ok();
+}
+
+#[test]
+fn clear_skip_also_drops_an_open_start() {
+    let (dir, files) = folder("skip-clear-start");
+    let mut c = Controller::new(FakeEngine::default());
+    c.open(&files[0]);
+    at(&mut c, 10.0);
+    c.apply(Command::MarkSkipStart);
+    c.apply(Command::ClearSkip);
+    assert_eq!(c.view.notice, "건너뛸 구간 지움");
+    at(&mut c, 20.0);
+    c.apply(Command::MarkSkipEnd);
+    assert_eq!(
+        c.view.notice, "먼저 건너뛸 구간의 시작을 표시하세요",
+        "the start was cleared"
+    );
+    std::fs::remove_dir_all(dir).ok();
+}
+
+#[test]
+fn skip_shortcuts_match_physical_keys() {
+    use kinekino_player_ui::shortcut;
+    use winit::keyboard::{KeyCode, ModifiersState, PhysicalKey};
+    let key = |k| PhysicalKey::Code(k);
+    let ctrl = ModifiersState::CONTROL;
+    let none = ModifiersState::empty();
+    assert_eq!(
+        shortcut(ctrl, key(KeyCode::BracketLeft), false),
+        Some(Command::MarkSkipStart)
+    );
+    assert_eq!(
+        shortcut(ctrl, key(KeyCode::BracketRight), false),
+        Some(Command::MarkSkipEnd)
+    );
+    assert_eq!(
+        shortcut(none, key(KeyCode::KeyS), false),
+        Some(Command::SkipSegment)
+    );
+    assert_eq!(
+        shortcut(ctrl, key(KeyCode::Backslash), false),
+        Some(Command::ClearSkip)
+    );
+    assert_eq!(
+        shortcut(none, key(KeyCode::BracketLeft), false),
+        None,
+        "plain [ is not a skip shortcut"
+    );
+    assert_eq!(
+        shortcut(none, key(KeyCode::KeyS), true),
+        None,
+        "auto-repeat does not skip"
+    );
+    assert_eq!(
+        shortcut(ctrl, key(KeyCode::Backslash), true),
+        None,
+        "auto-repeat does not clear"
+    );
+    assert_eq!(
+        shortcut(ctrl, key(KeyCode::KeyS), false),
+        None,
+        "Ctrl+S is not SkipSegment"
+    );
+}
+
+#[test]
+fn skip_offer_props_and_buttons_are_in_the_document() {
+    use kinekino_player_ui::{Session, View, meari_props};
+    let view = View {
+        has_media: true,
+        skip_offer: false,
+        ..View::default()
+    };
+    let hidden = format!("{:?}", meari_props(&view)["noSkipOffer"]);
+    assert!(hidden.contains("true"), "no offer → hidden: {hidden}");
+    let offering = View {
+        skip_offer: true,
+        ..view.clone()
+    };
+    let shown = format!("{:?}", meari_props(&offering)["noSkipOffer"]);
+    assert!(shown.contains("false"), "offer → visible: {shown}");
+    let (_, doc) = Session::mount(&offering).unwrap();
+    let base = &*doc.renderer.document;
+    assert!(
+        base.query_selector("#skipSegment").unwrap().is_some(),
+        "skipSegment button exists"
+    );
+    assert!(
+        base.query_selector("#clearSkip").unwrap().is_some(),
+        "clearSkip button exists"
+    );
+}
