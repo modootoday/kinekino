@@ -104,3 +104,4 @@ PotPlayer를 기준으로 한 Linux 우선 플레이어를 끝까지 완성하�
 
 - 2026-11-01: 초안. 미확인 18항목을 코드로 판정해 현황표 집계를 구현 37·부분 20·미구현 13·보류 2로 맞췄다.
 - 2026-11-05: M1-7 viewing prefs (volume, mute, speed, auto-next) persist across runs (`09c159a9`).
+- 2026-11-05: M1-8 styled (ASS/SSA) and picture subtitle tracks are drawn by the engine into the frame; text tracks stay on the overlay (`9fc048f8`).
