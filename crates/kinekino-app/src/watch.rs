@@ -2,7 +2,9 @@
 //! window with libmpv frames. Same command on Linux and Windows; `--smoke` closes after
 //! the first frames (with `--capture`, after writing a PNG of the window).
 use crate::args::Args;
-use kinekino_core::playback::{FileResumeStore, default_resume_file};
+use kinekino_core::playback::{
+    FilePlayerPrefsStore, FileResumeStore, default_player_prefs_file, default_resume_file,
+};
 use kinekino_libmpv::LibMpvSurface;
 use kinekino_player_ui::{Controller, Options};
 use serde_json::json;
@@ -55,10 +57,14 @@ pub fn run(args: &Args, env: &crate::Env) -> (u8, String) {
     };
     let mut controller = Controller::new(engine)
         .with_catalog(Box::new(crate::plugins::PluginCatalog::discover(env)));
-    // A smoke run must not change the user's saved positions.
+    // A smoke run must not change the user's saved positions or prefs.
     let resume_file = default_resume_file(|k| env.get(k).map(str::to_owned));
     if let Some(path) = resume_file.filter(|_| !options.smoke) {
         controller = controller.with_resume(Box::new(FileResumeStore::at(path)));
+    }
+    let prefs_file = default_player_prefs_file(|k| env.get(k).map(str::to_owned));
+    if let Some(path) = prefs_file.filter(|_| !options.smoke) {
+        controller = controller.with_prefs(Box::new(FilePlayerPrefsStore::at(path)));
     }
     if let Some(m) = &media {
         controller.open(m);

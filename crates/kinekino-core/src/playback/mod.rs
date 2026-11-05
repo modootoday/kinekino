@@ -2,6 +2,7 @@
 //! (Windows native surface, Unix mpv IPC) implement, and resume policy (#9).
 pub mod backend;
 pub mod control;
+pub mod prefs;
 pub mod resume;
 pub mod resume_file;
 pub mod resume_key;
@@ -11,6 +12,10 @@ pub mod surface;
 
 pub use backend::{BackendStatus, FakeBackend, PlaybackBackend, check_backend};
 pub use control::{MAX_SEEK_US, PlaybackControl};
+pub use prefs::{
+    FilePlayerPrefsStore, MemoryPlayerPrefsStore, PlayerPrefs, PlayerPrefsStore,
+    check_player_prefs_store, default_player_prefs_file,
+};
 pub use resume::{ResumePoint, ResumePolicy};
 pub use resume_file::{FileResumeStore, default_resume_file};
 pub use resume_key::ResumeKey;
