@@ -3,7 +3,7 @@ id: plan:kinekino/20261031153240
 title: kinekino 완성 로드맵과 마일스톤
 status: draft
 created: 2026-10-31T15:32:40Z
-updated: 2026-11-05T18:45:00Z
+updated: 2026-11-05T19:50:00Z
 rel:
   governs: [crates]
 ---
@@ -111,3 +111,4 @@ PotPlayer를 기준으로 한 Linux 우선 플레이어를 끝까지 완성하�
 - 2026-11-06: M2-2 — right-click menu skeleton (pointer-anchored popup kept inside the window, five groups reusing existing commands, same close rules as the more menu). Visual check pending. M2 not closed.
 - 2026-11-06: M2-3 — right-click menu wired to M1 commands (flat items under open/play/skip/subtitle/audio/screen; seek ±5/±30). Visual check pending. M2 not closed.
 - 2026-11-06: M2-5 — seek and volume OSD on the existing bottom toast (`View.notice`); formats `{position} / {duration}`, `음량 N`, `음소거` (ADR 20261105182156). Transport-bar permanent speed label and centered OSD chrome deferred. Visual check pending. M2 not closed.
+- 2026-11-06: M2-6 — settings window product caption (`aw-window-chrome`); undecorate OS frame; drag, double-click maximize, caption min/max/close (ADR 20261105191533). Edge resize deferred. Visual check pending. M2 not closed.
