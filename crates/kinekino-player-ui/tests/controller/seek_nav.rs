@@ -1,4 +1,5 @@
 //! Seek and navigation keys (ADR 20261105151827): arrow seek steps, PageUp/Down, Backspace.
+//! Seek OSD toast (ADR 20261105182156).
 use super::folder;
 use super::support::FakeEngine;
 use kinekino_player_ui::{
@@ -154,5 +155,38 @@ fn backspace_seeks_to_the_start() {
         seeks(&c.engine).last().copied(),
         Some("seek 0.000 absolute")
     );
+    std::fs::remove_dir_all(dir).ok();
+}
+
+#[test]
+fn seek_by_shows_position_and_duration_on_the_toast() {
+    let (dir, files) = folder("osd-seek");
+    let mut c = Controller::new(FakeEngine::default());
+    c.open(&files[0]);
+    c.engine.time = 100.0;
+    c.poll();
+    c.apply(Command::SeekBy(SEEK_STEP_1));
+    assert_eq!(c.view.position, 105.0);
+    assert_eq!(c.view.notice, "1:45 / 25:00");
+    c.apply(Command::SeekBy(-SEEK_STEP_1));
+    assert_eq!(c.view.notice, "1:40 / 25:00");
+    c.apply(Command::Seek(0.0));
+    assert_eq!(c.view.position, 0.0);
+    assert_eq!(c.view.notice, "0:00 / 25:00");
+    std::fs::remove_dir_all(dir).ok();
+}
+
+#[test]
+fn seek_does_not_toast_without_media_or_duration() {
+    let mut c = Controller::new(FakeEngine::default());
+    c.apply(Command::SeekBy(5.0));
+    assert!(c.view.notice.is_empty());
+    let (dir, files) = folder("osd-seek-empty");
+    c.open(&files[0]);
+    c.poll();
+    c.view.notice.clear();
+    c.view.duration = 0.0;
+    c.apply(Command::SeekBy(5.0));
+    assert!(c.view.notice.is_empty());
     std::fs::remove_dir_all(dir).ok();
 }

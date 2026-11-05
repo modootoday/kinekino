@@ -3,7 +3,7 @@ id: adr:kinekino/20261105151827
 title: "단축키 표: PotPlayer 기본 시크·탐색과 확정된 구간 키"
 status: active
 created: 2026-11-05T15:18:27Z
-updated: 2026-11-05T15:18:27Z
+updated: 2026-11-05T18:30:00Z
 rel:
   governs: [crates/kinekino-player-ui]
 ---
@@ -16,7 +16,7 @@ rel:
 
 ## Decision
 
-1. **시크 단계.** 컨트롤러에 `SeekBy(초)`를 둔다. 부호 있는 상대량이며, 새 위치는 `[0, duration]`으로 클램프한 뒤 기존과 같이 `seek <secs:.3> absolute`로 엔진에 보낸다(상대 seek 모드를 쓰지 않음). `duration ≤ 0`이거나 미디어가 없으면 아무 일도 하지 않는다. 시크 뒤에는 기존 `Seek`와 같이 `resume_rewound()`를 부른다. 시크 토스트·OSD는 내지 않는다(M2-5).
+1. **시크 단계.** 컨트롤러에 `SeekBy(초)`를 둔다. 부호 있는 상대량이며, 새 위치는 `[0, duration]`으로 클램프한 뒤 기존과 같이 `seek <secs:.3> absolute`로 엔진에 보낸다(상대 seek 모드를 쓰지 않음). `duration ≤ 0`이거나 미디어가 없으면 아무 일도 하지 않는다. 시크 뒤에는 기존 `Seek`와 같이 `resume_rewound()`를 부른다. 시크 직후 위치 알림은 adr:kinekino/20261105182156(하단 토스트 OSD).
 2. **시크·탐색 키(이번 구현).** 누르고 있으면 계속 움직이는 키는 음량·속도와 같은 자동 반복 허용 블록에 둔다.
 
 | 키 | 명령 | 반복 |
@@ -47,7 +47,7 @@ rel:
 
 4. **M1-9b 잠정 키 확정.** Ctrl+[ / Ctrl+] / S / Ctrl+\\는 위 표의 수동 구간 키로 확정한다. keys.rs와 adr:kinekino/20261105111300의 provisional 문구를 이 ADR을 가리키는 확정 표현으로 바꾼다.
 
-5. **이번 범위 밖(남은 일).** Home/End 자막 큐 점프(자막 큐 API 없음), 휠 음량, 시크·상태 OSD(M2-5), 마스터 볼륨 키, 사용자 정의 단축키 설정.
+5. **이번 범위 밖(남은 일).** Home/End 자막 큐 점프(자막 큐 API 없음), 휠 음량, 마스터 볼륨 키, 사용자 정의 단축키 설정. 시크·음량 OSD는 adr:kinekino/20261105182156.
 
 ## Rationale
 
@@ -60,4 +60,4 @@ rel:
 - `tests/controller/seek_nav.rs`가 키 매핑과 `SeekBy` 클램프·no-op·맨 앞 시크를 검증한다.
 - SoT `player-window-controls`에 시크·탐색 규칙 블록을 추가하고, 수동 구간의 "M2-1에서 재확인" 문구를 이 ADR 확정으로 고친다.
 - 상수 `SEEK_STEP_1`…`SEEK_STEP_4`(5 / 30 / 60 / 300)는 컨트롤러에 두고 키 매핑이 그대로 쓴다.
-- 남은 일: Home/End 자막 점프, 휠 음량, OSD(M2-5), 마스터 볼륨·사용자 정의 키.
+- 남은 일: Home/End 자막 점프, 휠 음량, 마스터 볼륨·사용자 정의 키. OSD는 adr:kinekino/20261105182156.

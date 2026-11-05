@@ -3,7 +3,7 @@ id: sot:kinekino/player-window-controls
 title: Meari 플레이어 창의 현재 조작 동작
 status: active
 created: 2026-10-31T05:51:10Z
-updated: 2026-11-06T01:30:00Z
+updated: 2026-11-05T18:30:00Z
 verify: [cargo test -p kinekino-player-ui]
 rel:
   governs: [crates/kinekino-player-ui]
@@ -32,9 +32,14 @@ rel:
 
 시안의 플레이어 조작(메뉴·전체화면·자동 숨김)을 Meari 창에서 그대로 제공하고, 사용자가 대화상자가 없는 데스크탑에서도 다음 행동을 알 수 있게 한다. 결정 배경은 [ADR](../adr/20261031055110-player-window-controls.adr.md).
 
+
+## 재생 정보 OSD (하단 토스트)
+
+시크(`Seek`·`SeekBy`·항목 맨 앞 되감기)와 음량·음소거 직후에는 속도·트랙과 같은 `View.notice` 하단 토스트를 쓴다(adr:kinekino/20261105182156). 시크는 `{위치} / {길이}`(`session::clock`), 음량은 `음량 N`, 음소거 켜짐은 `음소거`. 항목을 여는 중에는 내지 않는다. 수명은 `NOTICE_FOR`(4초).
+
 ## Verification
 
-- `cargo test -p kinekino-player-ui` (`tests/background_open.rs`: 느린 열기·취소·교체; `tests/controller/`: 메뉴, `context_menu.rs`에 우클릭 메뉴 열기·닫기·Esc 순서·위치 고정·배치·항목 명령, Esc 순서, 대화상자 없음 안내·토스트 만료, 자동 숨김, `volume_speed.rs`에 음량 단계·범위·음소거 키와 재생 속도 키·범위, `seek_nav.rs`에 ←/→ 시크 단계·수식키·PageUp/Down·Backspace·클램프, `tracks.rs`에 Alt+A·Alt+L 매핑, `skip.rs`에 수동 구간 표시·건너뛰기·지우기·단축키·skip_offer 단추, `cycle aid`/`cycle sid`, 오디오가 '끔'을 건너뛰어 첫 트랙으로 도는 것(한 번만 더 넘김), 트랙 토스트 문구·여는 중·미디어 없음; `tests/episode_rows.rs`; `window/edges.rs`·`window/context.rs` 단위 시험)
+- `cargo test -p kinekino-player-ui` (`tests/background_open.rs`: 느린 열기·취소·교체; `tests/controller/`: 메뉴, `context_menu.rs`에 우클릭 메뉴 열기·닫기·Esc 순서·위치 고정·배치·항목 명령, Esc 순서, 대화상자 없음 안내·토스트 만료, 자동 숨김, `volume_speed.rs`에 음량 단계·범위·음소거 키와 재생 속도 키·범위, `seek_nav.rs`에 ←/→ 시크 단계·수식키·PageUp/Down·Backspace·클램프, `seek_nav.rs`·`volume_speed.rs`에 시크·음량·음소거 하단 토스트, `tracks.rs`에 Alt+A·Alt+L 매핑, `skip.rs`에 수동 구간 표시·건너뛰기·지우기·단축키·skip_offer 단추, `cycle aid`/`cycle sid`, 오디오가 '끔'을 건너뛰어 첫 트랙으로 도는 것(한 번만 더 넘김), 트랙 토스트 문구·여는 중·미디어 없음; `tests/episode_rows.rs`; `window/edges.rs`·`window/context.rs` 단위 시험)
 - 실제 libmpv 관측(오디오 2개·자막 1개 mkv): `cycle aid`는 1 → 2 → no → 1, `cycle sid`는 no → 1 → no로 돌고, `aid`/`sid`는 문자열 `1`/`no`, `track-list/count`는 실수로 읽히며, 없는 필드는 읽기 오류다. `cycle` 직후 `current-tracks/<종류>/title|lang`이 새 트랙을 가리키는지는 아직 실제 엔진에서 확인하지 않았다(미검증).
 - `cargo test -p kinekino-app --test plugins_e2e` (합성 플러그인으로 `PluginCatalog` 목록·페이지)
 - 데스크탑 확인: `launch.sh`로 띄운 앱에서 xdotool로 전체화면·⋮·Esc·포인터 이동.

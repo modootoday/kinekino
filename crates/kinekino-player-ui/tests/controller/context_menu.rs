@@ -211,8 +211,8 @@ fn m1_commands_map_from_context_menu_items() {
         c.apply(Command::ContextMenu(10.0, 10.0));
         doc.update_module_props(meari_props(&c.view)).unwrap();
         assert_eq!(
-            click(&mut session, &mut doc, &mut c, id),
-            [command.clone()],
+            click(&mut session, &mut doc, &mut c, id).as_slice(),
+            std::slice::from_ref(command),
             "{id}"
         );
         assert!(c.view.context_menu.is_none(), "{id} closes the menu");
