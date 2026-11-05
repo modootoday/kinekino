@@ -27,3 +27,15 @@ fn contains_the_start_but_not_the_end() {
     );
     assert!(!r.contains(f64::NAN));
 }
+
+#[test]
+fn milliseconds_round_trip_floors_fractional_seconds() {
+    let r = SkipRange::new(10.5, 90.25).unwrap();
+    assert_eq!(r.to_ms(), (10_500, 90_250));
+    let back = SkipRange::from_ms(10_500, 90_250).unwrap();
+    assert_eq!((back.start(), back.end()), (10.5, 90.25));
+    // 10.999s → 10999 ms (floor), not 11000.
+    assert_eq!(SkipRange::new(10.999, 20.0).unwrap().to_ms().0, 10_999);
+    assert_eq!(SkipRange::from_ms(10, 10), None, "empty after ms");
+    assert_eq!(SkipRange::from_ms(90, 10), None, "reversed after ms");
+}
