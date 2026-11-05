@@ -70,6 +70,19 @@ fn contains(hosts: &[String], host: &str) -> bool {
     hosts.iter().any(|h| h == &host)
 }
 
+/// Build admission from a plugin manifest: `media_hosts` are navigable and player hosts;
+/// optional `document_host` is navigable only (catalog pages must not activate the player).
+pub fn admitted_hosts_from_plugin(
+    media_hosts: &[String],
+    document_host: Option<&str>,
+) -> AdmittedHosts {
+    let mut navigable: Vec<&str> = media_hosts.iter().map(String::as_str).collect();
+    if let Some(host) = document_host.filter(|h| !h.is_empty()) {
+        navigable.push(host);
+    }
+    AdmittedHosts::new(navigable).with_player_hosts(media_hosts.iter().map(String::as_str))
+}
+
 static INSTALLED: OnceLock<AdmittedHosts> = OnceLock::new();
 
 /// Process-wide install. Returns `false` if already installed (same contract as `install_rules`).
@@ -156,5 +169,50 @@ mod tests {
         assert!(hosts.admits_player("media.example.test"));
         assert!(!hosts.admits("michealcdn.com"));
         assert!(!hosts.admits_player("michealcdn.com"));
+    }
+
+    #[test]
+    fn media_hosts_alone_are_navigable_and_player() {
+        let hosts = admitted_hosts_from_plugin(
+            &["Media.Example.Test".into(), "frame.example.test".into()],
+            None,
+        );
+        assert!(hosts.admits("media.example.test"));
+        assert!(hosts.admits_player("media.example.test"));
+        assert!(hosts.admits("FRAME.EXAMPLE.TEST"));
+        assert!(hosts.admits_player("frame.example.test"));
+        assert!(!hosts.admits("catalog.example.test"));
+        assert!(!hosts.admits_player("catalog.example.test"));
+    }
+
+    #[test]
+    fn document_host_is_navigable_only_not_player() {
+        let hosts = admitted_hosts_from_plugin(
+            &["media.example.test".into()],
+            Some("Catalog.Example.Test"),
+        );
+        assert!(hosts.admits("catalog.example.test"));
+        assert!(!hosts.admits_player("catalog.example.test"));
+        assert!(hosts.admits("media.example.test"));
+        assert!(hosts.admits_player("media.example.test"));
+    }
+
+    #[test]
+    fn document_host_alone_is_navigable_with_empty_player() {
+        let hosts = admitted_hosts_from_plugin(&[], Some("catalog.example.test"));
+        assert!(hosts.admits("catalog.example.test"));
+        assert!(!hosts.admits_player("catalog.example.test"));
+        assert!(!hosts.admits("media.example.test"));
+        assert!(!hosts.admits_player("media.example.test"));
+    }
+
+    #[test]
+    fn empty_media_and_document_yields_empty() {
+        let hosts = admitted_hosts_from_plugin(&[], None);
+        assert!(!hosts.admits("catalog.example.test"));
+        assert!(!hosts.admits_player("media.example.test"));
+        let hosts = admitted_hosts_from_plugin(&[], Some(""));
+        assert!(!hosts.admits(""));
+        assert!(!hosts.admits_player(""));
     }
 }

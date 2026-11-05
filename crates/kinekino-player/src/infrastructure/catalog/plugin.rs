@@ -1,6 +1,7 @@
 //! Catalog pages come from a `document/1` source plugin (ADR 0011 M4); no site
 //! knowledge lives in this crate.
 use crate::application::catalog::CatalogParser;
+use crate::domain::admitted_hosts::{admitted_hosts_from_plugin, install_admitted_hosts};
 use kinekino_core::source::document::{
     CatalogError, CatalogPage, ErrorKind, PageLocation, Provenance, RawDocument,
 };
@@ -10,6 +11,8 @@ use std::sync::{Arc, OnceLock};
 static PLUGIN: OnceLock<Result<Arc<DocumentPlugin>, CatalogError>> = OnceLock::new();
 
 /// First discovered plugin with a `document` section (sorted by directory name).
+/// Also installs `AdmittedHosts` from the plugin's `media_hosts` and document host
+/// (first install wins, same contract as `install_rules`).
 pub fn document_plugin() -> Result<Arc<DocumentPlugin>, CatalogError> {
     PLUGIN
         .get_or_init(|| {
@@ -19,6 +22,11 @@ pub fn document_plugin() -> Result<Arc<DocumentPlugin>, CatalogError> {
                 .into_iter()
                 .find(|p| p.document.is_some())
                 .ok_or_else(missing)?;
+            let hosts = admitted_hosts_from_plugin(
+                &plugin.source.media_hosts,
+                plugin.document.as_ref().map(|d| d.host.as_str()),
+            );
+            let _ = install_admitted_hosts(hosts);
             DocumentPlugin::open(plugin).map(Arc::new)
         })
         .clone()
