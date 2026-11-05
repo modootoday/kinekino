@@ -74,7 +74,8 @@ impl LibMpvSurface {
             ("idle", "yes"),
             ("pause", "yes"),
             ("keep-open", "yes"),
-            // Subtitles are drawn by the player UI from `sub-text`, not burned into frames.
+            // Text subtitles are drawn by the player UI from `sub-text`; the player turns this
+            // on for styled and picture tracks the engine must draw into the frame.
             ("sub-visibility", "no"),
         ] {
             this.option(k, v)?;

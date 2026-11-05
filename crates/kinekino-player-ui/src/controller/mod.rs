@@ -6,6 +6,7 @@ mod jobs;
 mod opening;
 mod prefs;
 mod resume;
+mod subtitles;
 mod tracks;
 pub use crate::port::Engine;
 use crate::session::Command;
@@ -107,6 +108,8 @@ pub struct Controller<E: Engine> {
     resume: resume::Resume,
     /// Volume/speed/auto-next store.
     prefs: prefs::Prefs,
+    /// The engine draws the current subtitle into the frame (styled or picture track).
+    engine_subtitles: bool,
 }
 
 fn browse_error(e: &SourceError) -> String {
@@ -140,6 +143,7 @@ impl<E: Engine> Controller<E> {
             next_page: None,
             resume: resume::Resume::default(),
             prefs: prefs::Prefs::default(),
+            engine_subtitles: false,
         }
     }
 
@@ -451,9 +455,7 @@ impl<E: Engine> Controller<E> {
             return settled;
         }
         let before = (self.view.position, self.view.duration, self.view.playing);
-        let subtitle = self.engine.text("sub-text").unwrap_or_default();
-        let subtitle_changed = subtitle != self.view.subtitle;
-        self.view.subtitle = subtitle;
+        let subtitle_changed = self.poll_subtitle();
         if let Some(p) = self.engine.property("time-pos") {
             self.view.position = p.max(0.0);
         }

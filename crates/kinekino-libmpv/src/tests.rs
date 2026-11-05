@@ -198,3 +198,43 @@ fn begin_open_of_a_missing_file_fails_later_not_at_once() {
     };
     assert_eq!(err.code, ErrorCode::InvalidInput);
 }
+
+/// M1-8: an ASS track reports its codec as `ass`, stays off the frame by default and is
+/// drawn into the frame once `sub-visibility` is on (a vector box needs no fonts).
+#[test]
+fn ass_track_is_drawn_into_the_frame_only_when_visible() {
+    let mut s = surface();
+    let dir = clip().parent().unwrap();
+    let ass = dir.join("box.ass");
+    std::fs::write(
+        &ass,
+        "[Script Info]\nScriptType: v4.00+\nPlayResX: 128\nPlayResY: 36\n\n\
+         [V4+ Styles]\nFormat: Name, Fontname, Fontsize, PrimaryColour, BorderStyle, Outline, Shadow, Alignment\n\
+         Style: Default,sans,10,&H00FFFFFF,1,0,0,7\n\n\
+         [Events]\nFormat: Layer, Start, End, Style, Text\n\
+         Dialogue: 0,0:00:00.00,0:00:10.00,Default,{\\pos(0,0)\\p1}m 0 0 l 64 0 64 36 0 36{\\p0}\n",
+    )
+    .unwrap();
+    s.command(&["sub-add", ass.to_str().unwrap(), "select"])
+        .unwrap();
+    assert_eq!(
+        s.property_string("current-tracks/sub/codec").as_deref(),
+        Some("ass")
+    );
+    let white = |p: [u8; 4]| p[..3].iter().all(|v| *v > 200);
+    let mut f = RgbaFrame::new(128, 36).unwrap();
+    s.render(&mut f).unwrap();
+    assert!(
+        !white(f.pixel(10, 18)),
+        "hidden by default: {:?}",
+        f.pixel(10, 18)
+    );
+    s.command(&["set", "sub-visibility", "yes"]).unwrap();
+    s.render(&mut f).unwrap();
+    assert!(
+        white(f.pixel(10, 18)),
+        "drawn when visible: {:?}",
+        f.pixel(10, 18)
+    );
+    assert!(!white(f.pixel(117, 18)), "only where the box is");
+}
