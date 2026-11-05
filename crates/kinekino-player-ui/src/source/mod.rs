@@ -234,7 +234,7 @@ export function KinekinoPlayer(props: Props) {{
     )
 }
 
-/// The right-click menu's five groups (ADR 20261105161614): a heading, then items.
+/// The right-click menu groups (ADR 20261105161614 / M2-3): headings, then flat items.
 fn context_items() -> String {
     let item = |id: &str, icon: &str, label: &str, key: &str, extra: &str| {
         format!(
@@ -267,6 +267,105 @@ fn context_items() -> String {
             "Space",
             media,
         ),
+        item(
+            "ctxPrevious",
+            "\"aw-icon aw-icon-previous\"",
+            "이전 항목",
+            "PageUp",
+            media,
+        ),
+        item(
+            "ctxNext",
+            "\"aw-icon aw-icon-next\"",
+            "다음 항목",
+            "PageDown",
+            media,
+        ),
+        item(
+            "ctxAutoNext",
+            "\"aw-icon aw-icon-next\"",
+            "자동 다음화",
+            "",
+            "",
+        ),
+        item(
+            "ctxSpeedDown",
+            "\"aw-icon aw-icon-previous\"",
+            "속도 느리게",
+            "X",
+            media,
+        ),
+        item(
+            "ctxSpeedUp",
+            "\"aw-icon aw-icon-next\"",
+            "속도 빠르게",
+            "C",
+            media,
+        ),
+        item(
+            "ctxSpeedReset",
+            "\"aw-icon aw-icon-play\"",
+            "속도 1.0×",
+            "Z",
+            media,
+        ),
+        item(
+            "ctxSeekBack5",
+            "\"aw-icon aw-icon-previous\"",
+            "5초 뒤로",
+            "←",
+            media,
+        ),
+        item(
+            "ctxSeekFwd5",
+            "\"aw-icon aw-icon-next\"",
+            "5초 앞으로",
+            "→",
+            media,
+        ),
+        item(
+            "ctxSeekBack30",
+            "\"aw-icon aw-icon-previous\"",
+            "30초 뒤로",
+            "Ctrl+←",
+            media,
+        ),
+        item(
+            "ctxSeekFwd30",
+            "\"aw-icon aw-icon-next\"",
+            "30초 앞으로",
+            "Ctrl+→",
+            media,
+        ),
+        heading("구간"),
+        item(
+            "ctxMarkSkipStart",
+            "\"aw-icon aw-icon-previous\"",
+            "구간 시작",
+            "Ctrl+[",
+            media,
+        ),
+        item(
+            "ctxMarkSkipEnd",
+            "\"aw-icon aw-icon-next\"",
+            "구간 끝",
+            "Ctrl+]",
+            media,
+        ),
+        item(
+            "ctxSkipSegment",
+            "\"aw-icon aw-icon-next\"",
+            "건너뛰기",
+            "S",
+            media,
+        ),
+        item(
+            "ctxClearSkip",
+            "\"aw-icon aw-icon-close\"",
+            "구간 지우기",
+            "Ctrl+\\",
+            media,
+        ),
         heading("자막"),
         item(
             "ctxSubtitle",
@@ -282,6 +381,27 @@ fn context_items() -> String {
             "오디오 바꾸기",
             "Alt+A",
             media,
+        ),
+        item(
+            "ctxVolumeUp",
+            "\"aw-icon aw-icon-volume\"",
+            "음량 올리기",
+            "↑",
+            "",
+        ),
+        item(
+            "ctxVolumeDown",
+            "\"aw-icon aw-icon-volume-zero\"",
+            "음량 내리기",
+            "↓",
+            "",
+        ),
+        item(
+            "ctxMute",
+            "\"aw-icon aw-icon-volume-zero\"",
+            "음소거",
+            "M",
+            "",
         ),
         heading("화면"),
         item(

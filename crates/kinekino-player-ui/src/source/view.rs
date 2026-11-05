@@ -108,7 +108,7 @@ impl Default for View {
 }
 
 /// Fixed buttons whose click counters the host watches (episode rows add `ep{i}`).
-pub const BUTTONS: [&str; 28] = [
+pub const BUTTONS: [&str; 45] = [
     "open",
     "browseSearch",
     "browse",
@@ -134,8 +134,25 @@ pub const BUTTONS: [&str; 28] = [
     "ctxOpen",
     "ctxBrowse",
     "ctxPlayPause",
+    "ctxPrevious",
+    "ctxNext",
+    "ctxAutoNext",
+    "ctxSpeedDown",
+    "ctxSpeedUp",
+    "ctxSpeedReset",
+    "ctxSeekBack5",
+    "ctxSeekFwd5",
+    "ctxSeekBack30",
+    "ctxSeekFwd30",
     "ctxSubtitle",
     "ctxAudio",
+    "ctxVolumeUp",
+    "ctxVolumeDown",
+    "ctxMute",
+    "ctxMarkSkipStart",
+    "ctxMarkSkipEnd",
+    "ctxSkipSegment",
+    "ctxClearSkip",
     "ctxFullscreen",
 ];
 
