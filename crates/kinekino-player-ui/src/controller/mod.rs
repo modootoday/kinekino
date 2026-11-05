@@ -4,6 +4,7 @@ use crate::catalog::{Catalog, STREAM_HEADERS};
 mod browse;
 mod jobs;
 mod opening;
+mod prefs;
 mod resume;
 mod tracks;
 pub use crate::port::Engine;
@@ -104,6 +105,8 @@ pub struct Controller<E: Engine> {
     next_page: Option<u32>,
     /// 이어보기 store and the opened item's key.
     resume: resume::Resume,
+    /// Volume/speed/auto-next store.
+    prefs: prefs::Prefs,
 }
 
 fn browse_error(e: &SourceError) -> String {
@@ -136,6 +139,7 @@ impl<E: Engine> Controller<E> {
             listing: Vec::new(),
             next_page: None,
             resume: resume::Resume::default(),
+            prefs: prefs::Prefs::default(),
         }
     }
 
@@ -396,6 +400,7 @@ impl<E: Engine> Controller<E> {
                 let value = if self.view.muted { "yes" } else { "no" };
                 let r = self.engine.command(&["set", "mute", value]);
                 self.report(r);
+                self.prefs_changed();
             }
             Command::Seek(fraction) if media && self.view.duration > 0.0 => {
                 let secs = fraction * self.view.duration;
@@ -415,7 +420,10 @@ impl<E: Engine> Controller<E> {
             Command::SpeedReset => self.set_speed(1.0),
             Command::CycleAudio if media => self.cycle_track(tracks::Track::Audio),
             Command::CycleSubtitle if media => self.cycle_track(tracks::Track::Subtitle),
-            Command::ToggleAutoNext => self.view.auto_next = !self.view.auto_next,
+            Command::ToggleAutoNext => {
+                self.view.auto_next = !self.view.auto_next;
+                self.prefs_changed();
+            }
             Command::TogglePlaylist => self.view.panel_open = !self.view.panel_open,
             Command::ToggleFullscreen if media => {
                 return Some(Effect::Fullscreen(!self.view.fullscreen));
@@ -427,6 +435,7 @@ impl<E: Engine> Controller<E> {
             Command::Maximize => return Some(Effect::Maximize(!self.view.maximized)),
             Command::Close => {
                 self.save_resume();
+                self.save_prefs();
                 return Some(Effect::Close);
             }
             _ => {}
@@ -480,6 +489,7 @@ impl<E: Engine> Controller<E> {
             let r = self.engine.command(&["set", "mute", "no"]);
             self.report(r);
         }
+        self.prefs_changed();
     }
 
     /// Sets the playback speed within `SPEED_MIN`–`SPEED_MAX`; the engine keeps it for the
@@ -495,6 +505,7 @@ impl<E: Engine> Controller<E> {
             self.view.notice = format!("재생 속도 {shown}x");
             self.notice_since = Some(Instant::now());
         }
+        self.prefs_changed();
     }
 
     /// Auto-next: the item after the current one, when the user turned it on and the queue
