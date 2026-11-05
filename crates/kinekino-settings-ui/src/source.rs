@@ -20,8 +20,21 @@ pub enum StateText {
     Bool(bool),
 }
 
-/// Source button ids whose click counters the host watches.
-pub const BUTTONS: [&str; 5] = ["apply", "reset", "close", "dialogContinue", "dialogCancel"];
+/// Product name shown in the caption brand row (same as the player).
+pub const PRODUCT: &str = "kinekino";
+
+/// Page-protocol buttons the host watches (caption close shares the close op).
+pub const BUTTONS: [&str; 6] = [
+    "apply",
+    "reset",
+    "close",
+    "windowClose",
+    "dialogContinue",
+    "dialogCancel",
+];
+
+/// Caption controls handled only in the window host (not page-protocol messages).
+pub const HOST_BUTTONS: [&str; 2] = ["minimize", "maximize"];
 
 fn quote(text: &str) -> String {
     serde_json::to_string(text).expect("string")
@@ -163,18 +176,31 @@ pub fn build(page: &Value) -> (String, Vec<Row>) {
             "      <div className=\"aw-settings-row\"><label>{label}</label>{control}</div>\n"
         ));
     }
-    for button in BUTTONS {
+    for button in BUTTONS.iter().chain(HOST_BUTTONS.iter()) {
         hooks.push_str(&format!(
             "  const [{button}Count, set{button}Count] = useState(0);\n"
         ));
     }
     let click = |id: &str| format!("onClick={{() => set{id}Count(previous => previous + 1)}}");
+    let caption = |id: &str, label: &str, icon: &str, class: &str| {
+        format!(
+            "<button id=\"{id}\" className=\"{class}\" aria-label={label} {}><span className={icon} aria-hidden=\"true\"></span></button>",
+            click(id)
+        )
+    };
     let source = format!(
         r#"import {{ useState }} from "react";
-type Props = {{ ledger: string; errors: string; hasErrors: boolean; dialogText: string; dialogOpen: boolean; canContinue: boolean }};
+type Props = {{ ledger: string; errors: string; hasErrors: boolean; dialogText: string; dialogOpen: boolean; canContinue: boolean; maximizeIcon: string; maximizeLabel: string }};
 export function SettingsWindow(props: Props) {{
-{hooks}  return <main className="aw-settings-root" aria-label="kinekino 설정">
-    <header className="aw-settings-header"><span className="aw-icon aw-icon-brand" aria-hidden="true"></span>kinekino 설정</header>
+{hooks}  return <main className="aw-settings-root" aria-label="{product} 설정">
+    <div className="aw-window-chrome" role="banner">
+      <div className="aw-window-brand"><span className="aw-icon aw-icon-brand" aria-hidden="true"></span><span className="aw-product-name">{product}</span><span className="aw-window-context">설정</span></div>
+      <div className="aw-window-captions" aria-label="창 제어">
+        {min}
+        {max}
+        {win_close}
+      </div>
+    </div>
     <section id="dialog" className="aw-settings-dialog" role="alertdialog" hidden={{!props.dialogOpen}}>
       <p><span className="aw-icon aw-icon-warning" aria-hidden="true"></span><span id="dialog-text">{{props.dialogText}}</span></p>
       <button id="dialogContinue" className="aw-button aw-button-compact aw-button-outline-accent" disabled={{!props.canContinue}} {c_continue}>계속</button>
@@ -192,6 +218,25 @@ export function SettingsWindow(props: Props) {{
   </main>;
 }}
 "#,
+        product = PRODUCT,
+        min = caption(
+            "minimize",
+            "\"최소화\"",
+            "\"aw-icon aw-icon-minimize\"",
+            "aw-caption",
+        ),
+        max = caption(
+            "maximize",
+            "{props.maximizeLabel}",
+            "{props.maximizeIcon}",
+            "aw-caption",
+        ),
+        win_close = caption(
+            "windowClose",
+            "\"닫기\"",
+            "\"aw-icon aw-icon-close\"",
+            "aw-caption aw-caption-close",
+        ),
         c_continue = click("dialogContinue"),
         c_cancel = click("dialogCancel"),
         c_reset = click("reset"),
@@ -248,5 +293,31 @@ pub fn props(page: &Value, apply_errors: &[String]) -> Vec<(&'static str, Value)
         ("dialogText", Value::String(dialog_text)),
         ("dialogOpen", Value::Bool(dialog.is_object())),
         ("canContinue", Value::Bool(can_continue)),
+        (
+            "maximizeIcon",
+            Value::String("aw-icon aw-icon-maximize".into()),
+        ),
+        ("maximizeLabel", Value::String("최대화".into())),
     ]
+}
+
+/// Caption maximize icon/label for the current maximized state.
+pub fn maximize_props(maximized: bool) -> [(&'static str, Value); 2] {
+    if maximized {
+        [
+            (
+                "maximizeIcon",
+                Value::String("aw-icon aw-icon-restore".into()),
+            ),
+            ("maximizeLabel", Value::String("이전 크기".into())),
+        ]
+    } else {
+        [
+            (
+                "maximizeIcon",
+                Value::String("aw-icon aw-icon-maximize".into()),
+            ),
+            ("maximizeLabel", Value::String("최대화".into())),
+        ]
+    }
 }

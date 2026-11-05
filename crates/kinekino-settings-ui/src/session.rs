@@ -1,6 +1,6 @@
 //! Headless half of the window: the Meari document, reading what the user did from its
 //! source state, and turning that into the settings page protocol messages.
-use crate::source::{self, BUTTONS, Row, StateText};
+use crate::source::{self, BUTTONS, HOST_BUTTONS, Row, StateText};
 use meari::application::source_modules::ModuleProgram;
 use meari::domain::{Value as MeariValue, build::BuildPath, component_state::StateValue};
 use meari_native::domain::{Viewport, widgets::Action};
@@ -16,9 +16,17 @@ pub const VIEWPORT: Viewport = Viewport {
 const ENTRY: &str = "settings/settings-window.tsx";
 
 /// What the page edits look like now versus the page model.
+/// Caption control handled only by the window host (not page protocol).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum HostControl {
+    Minimize,
+    Maximize,
+}
+
 pub struct Session {
     rows: Vec<Row>,
     counts: BTreeMap<&'static str, i64>,
+    host_counts: BTreeMap<&'static str, i64>,
     page: Value,
 }
 
@@ -81,7 +89,16 @@ impl Session {
             styles.assets,
         )?;
         let counts = BUTTONS.iter().map(|b| (*b, 0)).collect();
-        Ok((Self { rows, counts, page }, document))
+        let host_counts = HOST_BUTTONS.iter().map(|b| (*b, 0)).collect();
+        Ok((
+            Self {
+                rows,
+                counts,
+                host_counts,
+                page,
+            },
+            document,
+        ))
     }
 
     pub fn page(&self) -> &Value {
@@ -113,7 +130,7 @@ impl Session {
                     match button {
                         "apply" => json!({"op": "apply", "edits": self.edits(document)?}),
                         "reset" => json!({"op": "reset"}),
-                        "close" => json!({"op": "close"}),
+                        "close" | "windowClose" => json!({"op": "close"}),
                         "dialogContinue" => json!({"op": "dialog", "action": "continue"}),
                         _ => json!({"op": "dialog", "action": "cancel"}),
                     }
@@ -207,6 +224,26 @@ impl Session {
             })
             .unwrap_or_default();
         json!({"rendered": rows, "dialog": visible("dialog"), "errors_shown": errors})
+    }
+
+    /// Caption minimize/maximize clicks since the last call (host-local, not page protocol).
+    pub fn host_controls(
+        &mut self,
+        document: &InteractiveDocument,
+    ) -> Result<Vec<HostControl>, String> {
+        let state = state(document)?;
+        let mut out = Vec::new();
+        for button in HOST_BUTTONS {
+            let now = count(state.get(&format!("{button}Count")));
+            let seen = self.host_counts.insert(button, now).unwrap_or_default();
+            for _ in seen..now {
+                out.push(match button {
+                    "minimize" => HostControl::Minimize,
+                    _ => HostControl::Maximize,
+                });
+            }
+        }
+        Ok(out)
     }
 }
 

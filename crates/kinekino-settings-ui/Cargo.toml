@@ -12,6 +12,7 @@ meari.workspace = true
 meari-native = { workspace = true, features = ["window"] }
 winit.workspace = true
 blitz-shell.workspace = true
+blitz-dom.workspace = true
 # meari-native pins rfd without a Linux backend; xdg-portal (pure Rust, D-Bus) satisfies it on Linux and is inert elsewhere.
 rfd = { workspace = true, features = ["xdg-portal"] }
 png.workspace = true
