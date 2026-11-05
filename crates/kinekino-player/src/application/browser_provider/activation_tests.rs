@@ -103,54 +103,57 @@ fn admission_is_once_and_invocation_and_candidate_are_not_media_success() {
 #[test]
 fn observed_wrapper_and_secondary_iframe_require_original_activation_and_remain_unverified_candidates()
  {
-    let (ticket, mut work) = episode();
-    let mut child = frame();
-    child.url = "https://michealcdn.com/video/0123456789abcdef0123456789abcdef".into();
-    assert_eq!(
-        work.apply(&ticket, BrowserEvent::PlayerFrame(child.clone())),
-        EventDisposition::Stale
-    );
-    work.reserve_episode_activation(1).unwrap();
-    work.apply(
-        &ticket,
-        BrowserEvent::ActivationInvoked {
-            document_generation: 1,
-            native_navigation_id: 42,
-        },
-    );
-    let mut wrapper = frame();
-    wrapper.kind = PlayerDocumentObservationKind::PopupIntent;
-    wrapper.frame_navigation_id = None;
-    work.apply(&ticket, BrowserEvent::PlayerFrame(wrapper));
-    work.apply(&ticket, BrowserEvent::PlayerFrame(child.clone()));
-    let snapshot = work.snapshot();
-    assert_eq!(snapshot.state, BrowserWorkState::Running);
-    assert!(snapshot.result.is_none());
-    assert!(snapshot.media_requests.is_empty());
-    assert_eq!(snapshot.player_frames.len(), 2);
-    assert!(
-        snapshot.player_frames[0]
-            .url
-            .starts_with("https://frame.example.test/tv-show.php?")
-    );
-    assert_eq!(snapshot.player_frames[1].url, child.url);
-    assert!(
-        snapshot
-            .player_frames
-            .iter()
-            .all(|frame| !frame.lineage_verified)
-    );
-    work.apply(
-        &ticket,
-        BrowserEvent::Navigated {
-            url: "https://catalog.example.test/e/fixture".into(),
-            document_generation: 2,
-        },
-    );
-    assert_eq!(
-        work.apply(&ticket, BrowserEvent::PlayerFrame(child)),
-        EventDisposition::Stale
-    );
+    use crate::domain::admitted_hosts::{secondary_cdn_test_hosts, with_admitted_hosts};
+    with_admitted_hosts(secondary_cdn_test_hosts(), || {
+        let (ticket, mut work) = episode();
+        let mut child = frame();
+        child.url = "https://michealcdn.com/video/0123456789abcdef0123456789abcdef".into();
+        assert_eq!(
+            work.apply(&ticket, BrowserEvent::PlayerFrame(child.clone())),
+            EventDisposition::Stale
+        );
+        work.reserve_episode_activation(1).unwrap();
+        work.apply(
+            &ticket,
+            BrowserEvent::ActivationInvoked {
+                document_generation: 1,
+                native_navigation_id: 42,
+            },
+        );
+        let mut wrapper = frame();
+        wrapper.kind = PlayerDocumentObservationKind::PopupIntent;
+        wrapper.frame_navigation_id = None;
+        work.apply(&ticket, BrowserEvent::PlayerFrame(wrapper));
+        work.apply(&ticket, BrowserEvent::PlayerFrame(child.clone()));
+        let snapshot = work.snapshot();
+        assert_eq!(snapshot.state, BrowserWorkState::Running);
+        assert!(snapshot.result.is_none());
+        assert!(snapshot.media_requests.is_empty());
+        assert_eq!(snapshot.player_frames.len(), 2);
+        assert!(
+            snapshot.player_frames[0]
+                .url
+                .starts_with("https://frame.example.test/tv-show.php?")
+        );
+        assert_eq!(snapshot.player_frames[1].url, child.url);
+        assert!(
+            snapshot
+                .player_frames
+                .iter()
+                .all(|frame| !frame.lineage_verified)
+        );
+        work.apply(
+            &ticket,
+            BrowserEvent::Navigated {
+                url: "https://catalog.example.test/e/fixture".into(),
+                document_generation: 2,
+            },
+        );
+        assert_eq!(
+            work.apply(&ticket, BrowserEvent::PlayerFrame(child)),
+            EventDisposition::Stale
+        );
+    });
 }
 #[test]
 fn same_url_reload_rejects_old_activation_status_and_frames() {
