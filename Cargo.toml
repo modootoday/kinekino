@@ -10,7 +10,7 @@ edition = "2024"
 license = "MIT"
 
 [workspace.dependencies]
-libloading = "0.8.9"
+libloading = "0.9.0"
 linebender_resource_handle = "0.1.1"
 # Meari forks of blitz-dom/blitz-shell, published on crates.io under meari-*; imported as blitz_*.
 blitz-dom = { package = "meari-dom", version = "0.2.0", default-features = false }
