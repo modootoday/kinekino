@@ -59,6 +59,17 @@ impl<E: Engine> Controller<E> {
         self.skip_notice(SKIPPED.into());
     }
 
+    /// User asked to drop the span (and any open start). Always says what happened.
+    pub(super) fn clear_skip(&mut self) {
+        let had = self.skip.start.is_some() || self.skip.range.is_some();
+        self.forget_skip();
+        self.skip_notice(if had {
+            "건너뛸 구간 지움".into()
+        } else {
+            "지울 구간이 없습니다".into()
+        });
+    }
+
     /// Another item: its span and marked start belonged to the one before.
     pub(super) fn forget_skip(&mut self) {
         self.skip = Skip::default();

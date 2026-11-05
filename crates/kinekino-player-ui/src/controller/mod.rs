@@ -436,6 +436,7 @@ impl<E: Engine> Controller<E> {
             Command::MarkSkipStart if media => self.mark_skip_start(),
             Command::MarkSkipEnd if media => self.mark_skip_end(),
             Command::SkipSegment if media => self.skip_segment(),
+            Command::ClearSkip if media => self.clear_skip(),
             Command::ToggleAutoNext => {
                 self.view.auto_next = !self.view.auto_next;
                 self.prefs_changed();

@@ -91,6 +91,8 @@ pub enum Command {
     MarkSkipEnd,
     /// Inside the marked span: seek to its end.
     SkipSegment,
+    /// Forget the marked span and any open start for this item.
+    ClearSkip,
 }
 
 pub struct Session {
@@ -154,6 +156,8 @@ fn command(button: &str) -> Command {
         "browseMore" => Command::BrowseMore,
         "browseBack" => Command::BrowseBack,
         "browseLayout" => Command::BrowseLayout,
+        "skipSegment" => Command::SkipSegment,
+        "clearSkip" => Command::ClearSkip,
         _ => Command::Close,
     }
 }
