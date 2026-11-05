@@ -18,7 +18,8 @@ pub struct EpisodePage {
 fn site_path(value: &str, prefix: &str) -> bool {
     Url::parse(value).is_ok_and(|u| {
         u.scheme() == "https"
-            && u.host_str() == Some("catalog.example.test")
+            && u.host_str()
+                .is_some_and(|host| super::admitted_hosts::active_hosts().admits(host))
             && u.port_or_known_default() == Some(443)
             && u.username().is_empty()
             && u.password().is_none()
@@ -62,5 +63,36 @@ mod tests {
         assert!(page.valid());
         page.entries = vec![page.entries[0].clone(); 2001];
         assert!(!page.valid());
+    }
+
+    #[test]
+    fn admits_override_catalog_host_for_episode_paths() {
+        use crate::domain::admitted_hosts::{AdmittedHosts, with_admitted_hosts};
+        let other = EpisodePage {
+            page: "https://catalog.other.test/e/1".into(),
+            series: "https://catalog.other.test/c/a".into(),
+            title: "A".into(),
+            entries: vec![Episode {
+                title: "1".into(),
+                url: "https://catalog.other.test/e/1".into(),
+            }],
+        };
+        let fixture = EpisodePage {
+            page: "https://catalog.example.test/e/1".into(),
+            series: "https://catalog.example.test/c/a".into(),
+            title: "A".into(),
+            entries: vec![Episode {
+                title: "1".into(),
+                url: "https://catalog.example.test/e/1".into(),
+            }],
+        };
+        // Default fixture still accepts catalog.example.test.
+        assert!(fixture.valid());
+        assert!(!other.valid());
+        let hosts = AdmittedHosts::new(["catalog.other.test"]);
+        with_admitted_hosts(hosts, || {
+            assert!(other.valid());
+            assert!(!fixture.valid());
+        });
     }
 }
