@@ -3,7 +3,7 @@ id: adr:kinekino/20261105211630
 title: Admit media and frame hosts at runtime via AdmittedHosts
 status: active
 created: 2026-11-05T21:16:30Z
-updated: 2026-11-05T21:16:30Z
+updated: 2026-11-06T08:45:00+09:00
 rel:
   governs: [crates/kinekino-player/src/domain/navigation.rs, crates/kinekino-player/src/domain/player_document.rs, crates/kinekino-player/src/domain/admitted_hosts.rs]
   depends_on: [adr:kinekino/20261030200000]
@@ -52,3 +52,7 @@ skill: 조회 결과 무관.
 - M3-1b: 플러그인 매니페스트 `media_hosts`(및 필요 시 document.host를 네비게이션에 합류)로 `install_admitted_hosts` 호출.
 - M3-1c: `playback.rs`·`episodes.rs`·`projects/validation.rs`·`application/episode_queue.rs`·`response_purpose.rs` 등의 남은 예시 호스트 하드코드를 이 API로 치환.
 - 테스트는 픽스처 호스트만 기본으로 쓰며, 실 CDN 이름은 설치·오버라이드 증명 테스트에만 등장할 수 있다.
+
+## Record
+
+- 2026-11-06: M3-1 complete — AdmittedHosts runtime policy installed from plugin media_hosts; remaining domain hardcodes replaced with admits/admits_player (`ec74ce96`).
