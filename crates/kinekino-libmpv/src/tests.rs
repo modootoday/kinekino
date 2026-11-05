@@ -224,9 +224,17 @@ fn ass_track_is_drawn_into_the_frame_only_when_visible() {
     let white = |p: [u8; 4]| p[..3].iter().all(|v| *v > 200);
     let mut f = RgbaFrame::new(128, 36).unwrap();
     s.render(&mut f).unwrap();
-    assert!(!white(f.pixel(10, 18)), "hidden by default: {:?}", f.pixel(10, 18));
+    assert!(
+        !white(f.pixel(10, 18)),
+        "hidden by default: {:?}",
+        f.pixel(10, 18)
+    );
     s.command(&["set", "sub-visibility", "yes"]).unwrap();
     s.render(&mut f).unwrap();
-    assert!(white(f.pixel(10, 18)), "drawn when visible: {:?}", f.pixel(10, 18));
+    assert!(
+        white(f.pixel(10, 18)),
+        "drawn when visible: {:?}",
+        f.pixel(10, 18)
+    );
     assert!(!white(f.pixel(117, 18)), "only where the box is");
 }

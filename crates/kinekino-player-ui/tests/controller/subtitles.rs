@@ -16,7 +16,13 @@ fn visibility(e: &FakeEngine) -> Vec<&str> {
 
 #[test]
 fn styled_and_picture_tracks_are_drawn_by_the_engine() {
-    for codec in ["ass", "ssa", "hdmv_pgs_subtitle", "dvd_subtitle", "dvb_subtitle"] {
+    for codec in [
+        "ass",
+        "ssa",
+        "hdmv_pgs_subtitle",
+        "dvd_subtitle",
+        "dvb_subtitle",
+    ] {
         let (dir, files) = folder(&format!("subs-engine-{codec}"));
         let mut c = Controller::new(FakeEngine::default());
         c.open(&files[0]);
@@ -24,7 +30,10 @@ fn styled_and_picture_tracks_are_drawn_by_the_engine() {
         c.engine.subtitle = Some("styled line".into());
         c.poll();
         assert_eq!(visibility(&c.engine), ["set sub-visibility yes"], "{codec}");
-        assert_eq!(c.view.subtitle, "", "{codec}: no second copy on the overlay");
+        assert_eq!(
+            c.view.subtitle, "",
+            "{codec}: no second copy on the overlay"
+        );
         // Polling again does not resend the switch.
         c.poll();
         assert_eq!(visibility(&c.engine).len(), 1, "{codec}");
