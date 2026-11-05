@@ -2,7 +2,10 @@
 //! offers to skip it while playback is inside, and a skip seeks to its end.
 use super::folder;
 use super::support::FakeEngine;
+use kinekino_core::playback::{MemorySkipRangeStore, ResumeKey, SkipRange, SkipRangeStore};
+use kinekino_core::port::error::PortResult;
 use kinekino_player_ui::{Command, Controller};
+use std::sync::{Arc, Mutex};
 
 fn at(c: &mut Controller<FakeEngine>, secs: f64) {
     c.engine.time = secs;
@@ -253,4 +256,127 @@ fn skip_offer_props_and_buttons_are_in_the_document() {
         base.query_selector("#clearSkip").unwrap().is_some(),
         "clearSkip button exists"
     );
+}
+
+/// A memory store the test can still read after handing it to the controller.
+#[derive(Clone, Default)]
+struct SharedSkip {
+    store: Arc<Mutex<MemorySkipRangeStore>>,
+}
+
+impl SharedSkip {
+    fn saved(&self, key: &str) -> Option<SkipRange> {
+        self.store.lock().unwrap().get(key).unwrap()
+    }
+}
+
+impl SkipRangeStore for SharedSkip {
+    fn get(&self, key: &str) -> PortResult<Option<SkipRange>> {
+        self.store.lock().unwrap().get(key)
+    }
+    fn put(&mut self, key: &str, range: SkipRange) -> PortResult<()> {
+        self.store.lock().unwrap().put(key, range)
+    }
+    fn clear(&mut self, key: &str) -> PortResult<bool> {
+        self.store.lock().unwrap().clear(key)
+    }
+}
+
+fn skip_key(path: &std::path::Path) -> String {
+    ResumeKey::for_source(&path.to_string_lossy())
+        .expect("a local file has a key")
+        .as_str()
+        .to_owned()
+}
+
+#[test]
+fn marked_span_is_restored_when_the_same_file_opens_again() {
+    let (dir, files) = folder("skip-persist-same");
+    let store = SharedSkip::default();
+    let mut c = Controller::new(FakeEngine::default()).with_skip_store(Box::new(store.clone()));
+    c.open(&files[0]);
+    at(&mut c, 90.0);
+    c.apply(Command::MarkSkipStart);
+    at(&mut c, 180.0);
+    c.apply(Command::MarkSkipEnd);
+    assert!(
+        store.saved(&skip_key(&files[0])).is_some(),
+        "end writes the store"
+    );
+
+    // Re-open the same file: memory was forgotten with the queue rebuild, then restored.
+    c.open(&files[0]);
+    at(&mut c, 95.0);
+    assert!(
+        c.view.skip_offer,
+        "the saved span comes back for the same key"
+    );
+    c.apply(Command::SkipSegment);
+    assert_eq!(seeks(&c.engine), ["seek 180.000 absolute"]);
+    std::fs::remove_dir_all(dir).ok();
+}
+
+#[test]
+fn a_sibling_file_does_not_receive_the_saved_span() {
+    let (dir, files) = folder("skip-persist-sib");
+    let store = SharedSkip::default();
+    let mut c = Controller::new(FakeEngine::default()).with_skip_store(Box::new(store.clone()));
+    // folder() writes 02,01,03 videos → sorted playlist 01,02,03; files[0] is 02.mkv.
+    c.open(&files[0]);
+    at(&mut c, 10.0);
+    c.apply(Command::MarkSkipStart);
+    at(&mut c, 20.0);
+    c.apply(Command::MarkSkipEnd);
+    assert!(store.saved(&skip_key(&files[0])).is_some());
+
+    c.apply(Command::Next); // 03.mkv, a sibling
+    at(&mut c, 15.0);
+    assert!(!c.view.skip_offer, "siblings never receive a copied span");
+    assert!(
+        store.saved(&skip_key(&files[0])).is_some(),
+        "the previous item's store entry stays"
+    );
+    assert!(
+        store.saved(&skip_key(&files[2])).is_none(),
+        "the sibling got no store entry"
+    );
+    std::fs::remove_dir_all(dir).ok();
+}
+
+#[test]
+fn clear_skip_removes_the_store_entry_so_reopen_has_none() {
+    let (dir, files) = folder("skip-persist-clear");
+    let store = SharedSkip::default();
+    let mut c = Controller::new(FakeEngine::default()).with_skip_store(Box::new(store.clone()));
+    c.open(&files[0]);
+    at(&mut c, 10.0);
+    c.apply(Command::MarkSkipStart);
+    at(&mut c, 20.0);
+    c.apply(Command::MarkSkipEnd);
+    c.apply(Command::ClearSkip);
+    assert!(
+        store.saved(&skip_key(&files[0])).is_none(),
+        "clear drops the store"
+    );
+
+    c.open(&files[0]);
+    at(&mut c, 15.0);
+    assert!(!c.view.skip_offer, "reopen finds nothing saved");
+    std::fs::remove_dir_all(dir).ok();
+}
+
+#[test]
+fn without_a_store_skip_still_works_for_the_current_item() {
+    let (dir, files) = folder("skip-persist-nostore");
+    let mut c = Controller::new(FakeEngine::default());
+    c.open(&files[0]);
+    at(&mut c, 10.0);
+    c.apply(Command::MarkSkipStart);
+    at(&mut c, 20.0);
+    c.apply(Command::MarkSkipEnd);
+    at(&mut c, 15.0);
+    assert!(c.view.skip_offer);
+    c.apply(Command::SkipSegment);
+    assert_eq!(seeks(&c.engine), ["seek 20.000 absolute"]);
+    std::fs::remove_dir_all(dir).ok();
 }

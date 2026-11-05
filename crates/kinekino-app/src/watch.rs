@@ -3,7 +3,8 @@
 //! the first frames (with `--capture`, after writing a PNG of the window).
 use crate::args::Args;
 use kinekino_core::playback::{
-    FilePlayerPrefsStore, FileResumeStore, default_player_prefs_file, default_resume_file,
+    FilePlayerPrefsStore, FileResumeStore, FileSkipRangeStore, default_player_prefs_file,
+    default_resume_file, default_skip_ranges_file,
 };
 use kinekino_libmpv::LibMpvSurface;
 use kinekino_player_ui::{Controller, Options};
@@ -61,6 +62,10 @@ pub fn run(args: &Args, env: &crate::Env) -> (u8, String) {
     let resume_file = default_resume_file(|k| env.get(k).map(str::to_owned));
     if let Some(path) = resume_file.filter(|_| !options.smoke) {
         controller = controller.with_resume(Box::new(FileResumeStore::at(path)));
+    }
+    let skip_file = default_skip_ranges_file(|k| env.get(k).map(str::to_owned));
+    if let Some(path) = skip_file.filter(|_| !options.smoke) {
+        controller = controller.with_skip_store(Box::new(FileSkipRangeStore::at(path)));
     }
     let prefs_file = default_player_prefs_file(|k| env.get(k).map(str::to_owned));
     if let Some(path) = prefs_file.filter(|_| !options.smoke) {
