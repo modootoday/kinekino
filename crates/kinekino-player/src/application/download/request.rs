@@ -105,7 +105,8 @@ impl DownloadRequest {
         let request = Self::decode(input.parameters.clone())?;
         let descriptor = request.descriptor()?;
         if blobs.read_utf8(&input.source)? != descriptor
-            || input.source.sha256 != format!("{:x}", Sha256::digest(descriptor.as_bytes()))
+            || input.source.sha256
+                != kinekino_media_contracts::hex_lower(Sha256::digest(descriptor.as_bytes()))
         {
             return Err(ApiError::new(
                 ErrorCode::SourceExpired,

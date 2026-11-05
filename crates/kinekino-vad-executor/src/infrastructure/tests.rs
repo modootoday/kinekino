@@ -30,7 +30,7 @@ use std::{
 fn pin(id: &str, bytes: &[u8]) -> ArtifactPin {
     ArtifactPin::new(
         id.into(),
-        format!("{:x}", Sha256::digest(bytes)),
+        kinekino_media_contracts::hex_lower(Sha256::digest(bytes)),
         DecimalU64(bytes.len() as u64),
     )
     .unwrap()
@@ -373,7 +373,10 @@ fn concrete_publication_verifies_actual_file_and_rejects_changed_bytes() {
     output.publish(wire, deadline).unwrap();
     let verified = output.verify(wire, deadline).unwrap();
     let actual = std::fs::read(&path).unwrap();
-    assert_eq!(verified.sha256, format!("{:x}", Sha256::digest(&actual)));
+    assert_eq!(
+        verified.sha256,
+        kinekino_media_contracts::hex_lower(Sha256::digest(&actual))
+    );
     assert_eq!(verified.bytes.0, actual.len() as u64);
     assert!(output.publish(wire, deadline).is_err());
     std::fs::write(&path, b"changed").unwrap();

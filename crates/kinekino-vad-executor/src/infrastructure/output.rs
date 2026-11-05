@@ -83,7 +83,7 @@ impl OutputPublication for JsonOutputPublication {
         };
         let verified = VerifiedJobOutput {
             path: self.file.path().to_owned(),
-            sha256: format!("{:x}", Sha256::digest(&bytes)),
+            sha256: kinekino_media_contracts::hex_lower(Sha256::digest(&bytes)),
             bytes: DecimalU64(bytes.len() as u64),
             receipt: json!({"schema_version":"1","worker_outcome_sha256":output.raw().sha256(),"request_sha256":output.context().request().sha256(),"runtime_admission_verified":false}),
         };

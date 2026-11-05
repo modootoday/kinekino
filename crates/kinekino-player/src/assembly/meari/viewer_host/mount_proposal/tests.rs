@@ -155,7 +155,7 @@ fn seed_live_proposal(
             let document = DocumentSourceSnapshot::from_asset(
                 "r2-document".into(),
                 DecimalU64(9_007_199_254_740_993),
-                format!("{:x}", Sha256::digest(asset.as_bytes())),
+                kinekino_media_contracts::hex_lower(Sha256::digest(asset.as_bytes())),
                 asset,
             )
             .map_err(LiveFixtureSeedError::new)?;

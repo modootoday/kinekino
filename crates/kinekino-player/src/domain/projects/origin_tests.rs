@@ -9,14 +9,14 @@ fn legacy_bytes() -> Vec<u8> {
         serde_json::to_vec(&tests::proposal()).unwrap(),
         captured.as_bytes()
     );
-    let capture_sha = format!("{:x}", Sha256::digest(captured.as_bytes()));
+    let capture_sha = kinekino_media_contracts::hex_lower(Sha256::digest(captured.as_bytes()));
     r#"{"schema_version":"1","project_id":"legacy-work","revision":"1","parent_revision":null,"title":"Legacy","watching":null,"proposals":[{"capture_sha256":"__CAPTURE_HASH__","captured":__CAPTURED__,"working_draft":null,"working_state":"absent"}],"work_state":{"needs_repair":1,"editable":0,"accepted_output":0,"working_needs_input":0}}"#
         .replace("__CAPTURE_HASH__", &capture_sha).replace("__CAPTURED__", &captured).into_bytes()
 }
 #[test]
 fn legacy_v1_exact_bytes_and_canonical_sha_survive_absent_origin() {
     let raw = legacy_bytes();
-    let expected = format!("{:x}", Sha256::digest(&raw));
+    let expected = kinekino_media_contracts::hex_lower(Sha256::digest(&raw));
     let project: ProjectRevision = serde_json::from_slice(&raw).unwrap();
     project.validate().unwrap();
     assert!(project.proposals[0].proposal_origin.is_none());

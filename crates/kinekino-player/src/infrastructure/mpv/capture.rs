@@ -101,7 +101,7 @@ impl Mpv {
             engine_instance_id: input.engine_instance_id,
             resolution_artifact_id: artifact.into(),
             output_path: input.output_path,
-            output_sha256: format!("{:x}", Sha256::digest(&bytes)),
+            output_sha256: kinekino_media_contracts::hex_lower(Sha256::digest(&bytes)),
             output_bytes: DecimalU64(bytes.len() as u64),
             width,
             height,

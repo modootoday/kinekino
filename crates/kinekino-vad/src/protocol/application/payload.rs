@@ -50,7 +50,7 @@ pub(super) fn read(reader: impl Read, declared: u64, maximum: u64) -> Result<Pay
         ));
     }
     Ok(Payload {
-        sha256: format!("{:x}", Sha256::digest(&bytes)),
+        sha256: kinekino_media_contracts::hex_lower(Sha256::digest(&bytes)),
         bytes,
     })
 }

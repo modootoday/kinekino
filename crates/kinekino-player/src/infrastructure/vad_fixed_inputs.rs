@@ -282,7 +282,7 @@ mod tests {
     fn pin(id: &str, bytes: &[u8]) -> ArtifactPin {
         ArtifactPin::new(
             id.into(),
-            format!("{:x}", Sha256::digest(bytes)),
+            kinekino_media_contracts::hex_lower(Sha256::digest(bytes)),
             DecimalU64(bytes.len() as u64),
         )
         .unwrap()
@@ -610,7 +610,7 @@ mod tests {
         let output = destination.publication.verify(&wire, end).unwrap();
         assert_eq!(
             output.sha256,
-            format!("{:x}", Sha256::digest(fs::read(&output.path).unwrap()))
+            kinekino_media_contracts::hex_lower(Sha256::digest(fs::read(&output.path).unwrap()))
         );
         assert!(destination.publication.publish(&wire, end).is_err());
         drop(destination);

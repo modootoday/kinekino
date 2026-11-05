@@ -18,7 +18,10 @@ fn historical_r115_prepared_blobs_round_trip_without_changing_descriptor_bytes()
         "1c1d0ffdf62fe9017c8d4f378f3bcf8b17dd2043e1f461ec16c55c4472c499f7",
     ] {
         let bytes = std::fs::read(root.join(format!("{sha}.utf8"))).unwrap();
-        assert_eq!(format!("{:x}", Sha256::digest(&bytes)), sha);
+        assert_eq!(
+            kinekino_media_contracts::hex_lower(Sha256::digest(&bytes)),
+            sha
+        );
         let prepared: PreparedCardBundle = serde_json::from_slice(&bytes).unwrap();
         assert!(prepared.template.frame_required);
         assert!(

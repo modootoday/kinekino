@@ -133,5 +133,5 @@ fn io(error: std::io::Error) -> ApiError {
 }
 fn hash(bytes: &[u8]) -> String {
     use sha2::{Digest, Sha256};
-    format!("{:x}", Sha256::digest(bytes))
+    kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
 }

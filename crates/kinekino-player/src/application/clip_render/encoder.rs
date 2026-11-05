@@ -191,13 +191,10 @@ pub fn prepare_encoder<P: ClipEncoderAdmission, C: super::presets::ClipPresetAdm
         return Err(error);
     }
     control.checkpoint()?;
-    let document_sha256 = format!(
-        "{:x}",
-        Sha256::digest(
-            serde_json::to_vec(document)
-                .map_err(|_| ApiError::new(ErrorCode::Internal, "Invalid clip encoder document"))?
-        )
-    );
+    let document_sha256 = kinekino_media_contracts::hex_lower(Sha256::digest(
+        serde_json::to_vec(document)
+            .map_err(|_| ApiError::new(ErrorCode::Internal, "Invalid clip encoder document"))?,
+    ));
     Ok(PreparedClipEncoder {
         lease,
         document_sha256,

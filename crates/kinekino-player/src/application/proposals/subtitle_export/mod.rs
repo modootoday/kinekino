@@ -157,7 +157,7 @@ pub fn execute(
     if output.len() > MAX_SUBTITLE_BYTES {
         return Err(too_large());
     }
-    let output_sha256 = format!("{:x}", Sha256::digest(output.as_bytes()));
+    let output_sha256 = kinekino_media_contracts::hex_lower(Sha256::digest(output.as_bytes()));
     let result = ExportedAcceptedSubtitles {
         target: input.target,
         output_path: input.output_path,

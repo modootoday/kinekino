@@ -19,7 +19,7 @@ pub(super) fn observation(
     let bytes = serde_json::to_vec(archive.manifest()).map_err(|_| changed())?;
     // Persisted sources.json is canonical application JSON; inspect must pin its exact bytes.
     use sha2::{Digest, Sha256};
-    if format!("{:x}", Sha256::digest(&bytes)) != sha
+    if kinekino_media_contracts::hex_lower(Sha256::digest(&bytes)) != sha
         || publication_sha256(archive.project())? != archive.manifest().project.publication_sha256
     {
         return Err(changed());

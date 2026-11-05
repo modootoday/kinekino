@@ -25,7 +25,7 @@ pub(crate) fn read_companion(
         .read_to_end(&mut bytes)
         .map_err(|error| error.to_string())?;
     if bytes.len() as u64 != expected_bytes
-        || format!("{:x}", Sha256::digest(&bytes)) != expected_sha256
+        || kinekino_media_contracts::hex_lower(Sha256::digest(&bytes)) != expected_sha256
     {
         return Err("Actual companion differs from its preserved identity".into());
     }
@@ -49,7 +49,7 @@ pub(crate) fn correction() -> VerifiedHistoricalSample {
     }))
     .unwrap();
     let candidate = "Synthetic malformed candidate; no model inference or quality approval.";
-    let digest = |bytes: &[u8]| format!("{:x}", Sha256::digest(bytes));
+    let digest = |bytes: &[u8]| kinekino_media_contracts::hex_lower(Sha256::digest(bytes));
     let source_sha256 = digest(source.as_bytes());
     let candidate_sha256 = digest(candidate.as_bytes());
     let companion = serde_json::to_vec(&json!({

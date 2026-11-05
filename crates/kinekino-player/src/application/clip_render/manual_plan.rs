@@ -88,13 +88,10 @@ fn manual_clip_plan_inner<L: ClipSourceLease, E: ClipEncoderLease>(
     has_subtitle_adapter: bool,
 ) -> Result<ManualClipPlan, ApiError> {
     let document = &media.publication().document;
-    let digest = format!(
-        "{:x}",
-        Sha256::digest(
-            serde_json::to_vec(document)
-                .map_err(|_| ApiError::new(ErrorCode::Internal, "Invalid manual clip document"))?
-        )
-    );
+    let digest = kinekino_media_contracts::hex_lower(Sha256::digest(
+        serde_json::to_vec(document)
+            .map_err(|_| ApiError::new(ErrorCode::Internal, "Invalid manual clip document"))?,
+    ));
     if digest != encoder.document_sha256() {
         return Err(ApiError::new(
             ErrorCode::SourceExpired,

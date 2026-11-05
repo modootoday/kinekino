@@ -104,7 +104,8 @@ impl DocumentSourceSnapshot {
         {
             return Err("Invalid document source identity, selector or bound");
         }
-        let actual = format!("{:x}", Sha256::digest(self.asset_utf8.as_bytes()));
+        let actual =
+            kinekino_media_contracts::hex_lower(Sha256::digest(self.asset_utf8.as_bytes()));
         if actual != self.source_sha256 {
             return Err("Document source bytes differ from source asset SHA256");
         }

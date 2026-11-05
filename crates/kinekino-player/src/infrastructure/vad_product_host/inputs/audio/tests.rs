@@ -26,7 +26,7 @@ fn wav(sample: i16) -> Vec<u8> {
     raw
 }
 fn sha(bytes: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(bytes))
+    kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
 }
 #[test]
 fn distinct_requested_audio_ids_have_distinct_actual_pins_and_original_guards() {

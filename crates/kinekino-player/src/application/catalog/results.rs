@@ -161,8 +161,7 @@ pub(crate) fn descriptor(operation: &str, parameters: &Value) -> Result<String, 
     })
 }
 pub(crate) fn descriptor_sha256(operation: &str, parameters: &Value) -> Result<String, ApiError> {
-    Ok(format!(
-        "{:x}",
-        Sha256::digest(descriptor(operation, parameters)?.as_bytes())
-    ))
+    Ok(kinekino_media_contracts::hex_lower(Sha256::digest(
+        descriptor(operation, parameters)?.as_bytes(),
+    )))
 }

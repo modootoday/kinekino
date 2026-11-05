@@ -11,7 +11,7 @@ pub(crate) const CANDIDATE: &[u8] = b"Candidate fixed cue";
 fn asset(id: &str, bytes: &[u8]) -> EvidenceAsset {
     EvidenceAsset {
         asset_id: id.into(),
-        sha256: format!("{:x}", Sha256::digest(bytes)),
+        sha256: kinekino_media_contracts::hex_lower(Sha256::digest(bytes)),
         bytes: DecimalU64(bytes.len() as u64),
         media_type: "text/plain".into(),
     }

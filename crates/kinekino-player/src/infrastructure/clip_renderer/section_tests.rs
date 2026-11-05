@@ -63,7 +63,7 @@ fn pinned_section_crop_switches_exactly_between_decoded_frame_14_and_15() {
     let plan = ManualClipPlan {
         document_sha256: "a".repeat(64),
         source_media_id: "synthetic".into(),
-        source_sha256: format!("{:x}", Sha256::digest(&source.stdout)),
+        source_sha256: kinekino_media_contracts::hex_lower(Sha256::digest(&source.stdout)),
         source_observation_sha256: "b".repeat(64),
         segment_id: "one".into(),
         video_stream_index: 0,

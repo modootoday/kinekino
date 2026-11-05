@@ -10,7 +10,7 @@ pub fn accepted_output_sha256(output: &ProposalPayload) -> Result<String, &'stat
     canonical_sha256(&serde_json::json!({"hash_format": OUTPUT_HASH_FORMAT, "output": output}))
 }
 pub(super) fn raw_sha256(bytes: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(bytes))
+    kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
 }
 pub(super) fn canonical_sha256(value: &impl Serialize) -> Result<String, &'static str> {
     let value =

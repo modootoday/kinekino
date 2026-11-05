@@ -334,7 +334,9 @@ impl WorkerTransport for NativeTransport {
             };
             digest.update(&chunk[..n]);
         }
-        if count != self.pin.bytes() || format!("{:x}", digest.finalize()) != self.pin.sha256() {
+        if count != self.pin.bytes()
+            || kinekino_media_contracts::hex_lower(digest.finalize()) != self.pin.sha256()
+        {
             return Err(ApiError::new(
                 ErrorCode::SourceExpired,
                 "VAD executable pin mismatch",

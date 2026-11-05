@@ -28,7 +28,7 @@ impl SpeakerInput for Input {
         let mut reader = self.file.try_clone().map_err(io_error)?;
         reader.seek(SeekFrom::Start(0)).map_err(io_error)?;
         let (_, observed) = content_digest::sha256(&mut reader, MAX_DOCUMENT_BYTES as u64)?;
-        if observed != format!("{:x}", Sha256::digest(&self.bytes)) {
+        if observed != kinekino_media_contracts::hex_lower(Sha256::digest(&self.bytes)) {
             Err(ApiError::new(
                 ErrorCode::RevisionConflict,
                 "Original speaker file changed",

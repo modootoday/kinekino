@@ -311,7 +311,10 @@ pub(super) fn exercise(case: Case) {
     let manifest = env("DOWNLOAD_REAL_MEDIA_MANIFEST");
     let raw = fs::read(&manifest).unwrap();
     assert!(raw.len() <= 4096);
-    assert_eq!(format!("{:x}", Sha256::digest(&raw)), MANIFEST_SHA);
+    assert_eq!(
+        kinekino_media_contracts::hex_lower(Sha256::digest(&raw)),
+        MANIFEST_SHA
+    );
     let fixture: Value = serde_json::from_slice(&raw).unwrap();
     let media = PathBuf::from(fixture["path"].as_str().unwrap());
     let bytes = fixture["bytes"].as_u64().unwrap();
@@ -518,7 +521,9 @@ pub(super) fn exercise(case: Case) {
                 assert_eq!(output.sha256, sha);
                 assert_eq!(output.bytes.0, bytes);
                 assert_eq!(
-                    format!("{:x}", Sha256::digest(fs::read(&output.path).unwrap())),
+                    kinekino_media_contracts::hex_lower(Sha256::digest(
+                        fs::read(&output.path).unwrap()
+                    )),
                     sha
                 );
             }

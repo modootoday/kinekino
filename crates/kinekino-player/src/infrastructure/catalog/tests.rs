@@ -50,7 +50,7 @@ impl CatalogFetchPort for Fetch {
                 requested_url: location.as_str().into(),
                 final_url: location.as_str().into(),
                 redirects: vec![],
-                sha256: format!("{:x}", Sha256::digest(&body)),
+                sha256: kinekino_media_contracts::hex_lower(Sha256::digest(&body)),
                 bytes: body.len(),
                 observed_unix_ms: 1_000,
                 parser_revision: "stub-v1".into(),
@@ -85,12 +85,12 @@ fn synthetic_sdk_captures_exact_files_reopens_and_rejects_corruption() {
         let body_path = root.join(&result.raw_artifact.body_path);
         let body = fs::read(&body_path).unwrap();
         assert_eq!(
-            format!("{:x}", Sha256::digest(&body)),
+            kinekino_media_contracts::hex_lower(Sha256::digest(&body)),
             result.raw_artifact.body_sha256
         );
         let manifest = fs::read(root.join(&result.raw_artifact.metadata_path)).unwrap();
         assert_eq!(
-            format!("{:x}", Sha256::digest(&manifest)),
+            kinekino_media_contracts::hex_lower(Sha256::digest(&manifest)),
             result.raw_artifact.artifact_id
         );
         assert_eq!(

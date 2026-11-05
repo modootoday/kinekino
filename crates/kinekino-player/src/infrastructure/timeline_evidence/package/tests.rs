@@ -21,7 +21,7 @@ struct Fixture {
     mode: String,
 }
 fn sha(bytes: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(bytes))
+    kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
 }
 fn asset(root: &Path, assets: &mut Vec<Value>, id: &str, bytes: &[u8], mime: &str) -> Value {
     let digest = sha(bytes);

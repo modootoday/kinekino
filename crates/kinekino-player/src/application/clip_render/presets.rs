@@ -263,7 +263,7 @@ impl BuiltinClipPresets {
                 let pin = ArtifactPin {
                     artifact_id: definition.preset_id.clone(),
                     revision: definition.revision,
-                    sha256: format!("{:x}", Sha256::digest(&bytes)),
+                    sha256: kinekino_media_contracts::hex_lower(Sha256::digest(&bytes)),
                 };
                 Ok(ClipPresetEntry {
                     preset: definition.output_preset(pin),

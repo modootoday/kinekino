@@ -30,7 +30,7 @@ use std::{
     time::{Duration, Instant},
 };
 fn hash(bytes: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(bytes))
+    kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
 }
 #[test]
 #[ignore = "Pinned CLI, existing saved project/source/tools and fresh evidence; no GUI/network/models"]

@@ -148,7 +148,7 @@ impl<'a> TimelineProductionSession<'a> {
             clip_file.write_all(clip_bytes).map_err(io_error)?;
             clip_file.sync_all().map_err(io_error)?;
             drop(clip_file);
-            let clip_sha = format!("{:x}", Sha256::digest(clip_bytes));
+            let clip_sha = kinekino_media_contracts::hex_lower(Sha256::digest(clip_bytes));
             let clip = RetainedRaw::open_bounded(&clip_path, &clip_sha, 64 * 1024 * 1024)?;
             let facts = PcmLineage {
                 full_samples: original.pcm.samples(),

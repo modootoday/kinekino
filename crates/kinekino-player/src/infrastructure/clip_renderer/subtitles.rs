@@ -214,7 +214,7 @@ pub fn prepare_subtitle_overlay<'a, 'source>(
         let mut working = ClipWorkingFile::create(temporary, 64 * 1024 * 1024, control)?;
         let facts = working.seal(&png_bytes, control)?;
         if facts.bytes != png_bytes.len() as u64
-            || facts.sha256 != format!("{:x}", Sha256::digest(&png_bytes))
+            || facts.sha256 != kinekino_media_contracts::hex_lower(Sha256::digest(&png_bytes))
         {
             return Err(ApiError::new(
                 ErrorCode::SourceExpired,

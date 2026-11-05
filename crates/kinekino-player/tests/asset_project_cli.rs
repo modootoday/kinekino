@@ -14,7 +14,7 @@ use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::{ffi::OsString, fs, path::PathBuf, time::Duration};
 fn hash(bytes: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(bytes))
+    kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
 }
 fn document() -> AssetDocument {
     serde_json::from_value(json!({"schema_version":"asset-project/1","document_id":"asset-1","revision":"1","sources":{},"order_basis":"single_frame","frames":[],"layers":[{"layer_id":"foreground","kind":"foreground","visible":true,"locked":false,"transform":{"trim":false,"mask_threshold":0,"feather_radius":0,"scale":{"numerator":1,"denominator":1},"pivot":{"x":500000,"y":1000000},"alpha_mode":"straight","color":"srgb"}}]})).unwrap()

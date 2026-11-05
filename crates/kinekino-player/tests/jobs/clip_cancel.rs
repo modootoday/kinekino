@@ -27,7 +27,7 @@ use std::{
     time::{Duration, Instant},
 };
 fn hash(bytes: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(bytes))
+    kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
 }
 #[test]
 #[ignore = "Pinned host/normal CLI, existing media/fonts, real Jobs cancel/retry and fresh evidence; no GUI/models"]

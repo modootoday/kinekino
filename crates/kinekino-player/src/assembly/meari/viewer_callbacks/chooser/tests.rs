@@ -786,7 +786,7 @@ fn typed_targets_preserve_cue_and_document_reference_membership() {
     let source = DocumentSourceSnapshot::from_asset(
         "document-1".into(),
         DecimalU64(1),
-        format!("{:x}", Sha256::digest(asset.as_bytes())),
+        kinekino_media_contracts::hex_lower(Sha256::digest(asset.as_bytes())),
         asset,
     )
     .unwrap();

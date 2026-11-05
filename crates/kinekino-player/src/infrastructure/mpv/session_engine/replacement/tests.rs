@@ -28,7 +28,7 @@ impl CatalogArtifacts for Store {
                 "Injected diagnostic publication failure",
             ));
         }
-        let sha = format!("{:x}", Sha256::digest(raw));
+        let sha = kinekino_media_contracts::hex_lower(Sha256::digest(raw));
         Ok(RawArtifact {
             artifact_id: sha.clone(),
             body_sha256: sha,
@@ -78,8 +78,11 @@ impl Fixture {
         let bytes =
             b"Synthetic pinned executable; the internal probe adapter owns real Rust children";
         std::fs::write(&path, bytes).unwrap();
-        let trusted =
-            TrustedMpvExecutable::open(&path, &format!("{:x}", Sha256::digest(bytes))).unwrap();
+        let trusted = TrustedMpvExecutable::open(
+            &path,
+            &kinekino_media_contracts::hex_lower(Sha256::digest(bytes)),
+        )
+        .unwrap();
         let store = Arc::new(Store::default());
         let owner = NativeEpisodeEngine::new(trusted, None, store.clone()).unwrap();
         let source = EpisodePlaybackSource::synthetic_replacement_source(RequestReferer::Absent);

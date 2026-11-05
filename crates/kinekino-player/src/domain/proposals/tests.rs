@@ -10,7 +10,7 @@ fn document() -> DocumentSourceSnapshot {
     DocumentSourceSnapshot::from_asset(
         "document-1".into(),
         DecimalU64(1),
-        format!("{:x}", Sha256::digest(text.as_bytes())),
+        kinekino_media_contracts::hex_lower(Sha256::digest(text.as_bytes())),
         text,
     )
     .unwrap()
@@ -62,7 +62,7 @@ fn source_profile_never_repairs_literal_markers_truncation_or_changed_instructio
         asset().replace("/no_think", "/no_marker"),
         format!(r#"{{"messages":[],{}"#, &asset()[1..]),
     ] {
-        let sha = format!("{:x}", Sha256::digest(changed.as_bytes()));
+        let sha = kinekino_media_contracts::hex_lower(Sha256::digest(changed.as_bytes()));
         assert!(
             DocumentSourceSnapshot::from_asset("doc".into(), DecimalU64(1), sha, changed).is_err()
         );
@@ -71,7 +71,7 @@ fn source_profile_never_repairs_literal_markers_truncation_or_changed_instructio
     let content = request["messages"][0]["content"].as_str().unwrap();
     request["messages"][0]["content"] = json!(&content[..content.len() - 1]);
     let raw = serde_json::to_string(&request).unwrap();
-    let sha = format!("{:x}", Sha256::digest(raw.as_bytes()));
+    let sha = kinekino_media_contracts::hex_lower(Sha256::digest(raw.as_bytes()));
     assert!(DocumentSourceSnapshot::from_asset("doc".into(), DecimalU64(1), sha, raw).is_err());
     let mut request: serde_json::Value = serde_json::from_str(&asset()).unwrap();
     request["messages"][0]["content"] = json!(format!(
@@ -79,7 +79,7 @@ fn source_profile_never_repairs_literal_markers_truncation_or_changed_instructio
         request["messages"][0]["content"].as_str().unwrap()
     ));
     let raw = serde_json::to_string(&request).unwrap();
-    let sha = format!("{:x}", Sha256::digest(raw.as_bytes()));
+    let sha = kinekino_media_contracts::hex_lower(Sha256::digest(raw.as_bytes()));
     assert!(DocumentSourceSnapshot::from_asset("doc".into(), DecimalU64(1), sha, raw).is_err());
 }
 #[test]

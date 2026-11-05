@@ -22,13 +22,13 @@ pub(super) fn record(
         .lock()
         .map_err(|_| ApiError::new(ErrorCode::Internal, "Native diagnostics unavailable"))?
         .clone();
-    let stderr_sha256 = format!("{:x}", Sha256::digest(&snapshot.bytes));
+    let stderr_sha256 = kinekino_media_contracts::hex_lower(Sha256::digest(&snapshot.bytes));
     let stdout = mpv
         .stdout
         .lock()
         .map_err(|_| ApiError::new(ErrorCode::Internal, "Native diagnostics unavailable"))?
         .clone();
-    let stdout_sha256 = format!("{:x}", Sha256::digest(&stdout.bytes));
+    let stdout_sha256 = kinekino_media_contracts::hex_lower(Sha256::digest(&stdout.bytes));
     let truncated = snapshot.truncated || stdout.truncated;
     let read_failed = snapshot.read_failed || stdout.read_failed;
     let complete = collection_complete(&snapshot, &stdout, worker_exited);
@@ -58,7 +58,7 @@ pub(super) fn record(
         status: None,
         content_type: "application/json".into(),
         content_encoding: None,
-        body_sha256: format!("{:x}", Sha256::digest(&bytes)),
+        body_sha256: kinekino_media_contracts::hex_lower(Sha256::digest(&bytes)),
         body_bytes: DecimalU64(bytes.len() as u64),
         browser: None,
     };

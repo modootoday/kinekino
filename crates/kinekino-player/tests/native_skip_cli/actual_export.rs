@@ -190,7 +190,7 @@ impl Inputs {
             return Err(invalid("Resolution input exceeds explicit 64KiB budget"));
         }
         use sha2::{Digest, Sha256};
-        if format!("{:x}", Sha256::digest(&bytes)) != self.resolution_hash {
+        if kinekino_media_contracts::hex_lower(Sha256::digest(&bytes)) != self.resolution_hash {
             return Err(invalid("Original resolution JSON hash differs"));
         }
         let expected: StoredEpisodeResolution =

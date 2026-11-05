@@ -20,7 +20,7 @@ use sha2::{Digest, Sha256};
 use std::{ffi::OsString, fs, path::PathBuf, time::Duration};
 
 pub fn hash(bytes: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(bytes))
+    kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
 }
 
 fn document() -> CardDocument {
@@ -48,7 +48,8 @@ impl Harness {
             .map(PathBuf::from)
             .unwrap_or_else(|| PathBuf::from(crate::cli_exe::kinekino_cli_exe()));
         assert!(executable.is_absolute());
-        let digest = format!("{:x}", Sha256::digest(fs::read(&executable).unwrap()));
+        let digest =
+            kinekino_media_contracts::hex_lower(Sha256::digest(fs::read(&executable).unwrap()));
         if std::env::var_os("CARD_PROJECT_CLI").is_some() {
             assert_eq!(
                 std::env::var("CARD_PROJECT_CLI_SHA256")
@@ -116,7 +117,9 @@ impl Harness {
         )
         .unwrap();
         assert_eq!(
-            format!("{:x}", Sha256::digest(fs::read(&self.executable).unwrap())),
+            kinekino_media_contracts::hex_lower(Sha256::digest(
+                fs::read(&self.executable).unwrap()
+            )),
             self.digest
         );
         response

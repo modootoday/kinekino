@@ -278,7 +278,9 @@ impl NativeClipSourceLease {
             source_sha256: self.facts.source.sha256.clone(),
             source_observation_sha256: self.facts.source.clock.observation_sha256.clone(),
             probe_sha256: self._tool.sha256.clone(),
-            raw_frame_window_sha256: format!("{:x}", Sha256::digest(&output.stdout)),
+            raw_frame_window_sha256: kinekino_media_contracts::hex_lower(Sha256::digest(
+                &output.stdout,
+            )),
             interval,
             boundaries,
         };

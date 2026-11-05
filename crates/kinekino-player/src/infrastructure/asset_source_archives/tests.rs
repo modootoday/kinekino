@@ -184,7 +184,7 @@ fn original_archive_reopens_admits_renders_and_retains_sources() {
     let rendered = prepared.render(&RustAssetRaster, &Observe).unwrap();
     use sha2::{Digest, Sha256};
     assert_eq!(
-        format!("{:x}", Sha256::digest(&rendered.pixels().rgba)),
+        kinekino_media_contracts::hex_lower(Sha256::digest(&rendered.pixels().rgba)),
         std::env::var("SOURCE_ARCHIVE_EXPECTED_RGBA_SHA256").unwrap()
     );
     drop(rendered);

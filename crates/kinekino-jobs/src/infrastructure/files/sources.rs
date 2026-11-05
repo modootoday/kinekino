@@ -6,7 +6,7 @@ use crate::{
 use sha2::{Digest, Sha256};
 use std::io::Read;
 pub(super) fn digest(bytes: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(bytes))
+    kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
 }
 impl SourceBlobStore for JobFiles {
     fn put_utf8(&self, source: &str) -> Result<SourceBlobRef, ApiError> {

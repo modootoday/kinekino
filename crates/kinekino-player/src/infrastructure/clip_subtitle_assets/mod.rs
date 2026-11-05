@@ -62,7 +62,7 @@ impl SubtitleAssetFiles {
         use sha2::{Digest, Sha256};
         let bytes = serde_json::to_vec(&(&self.documents, &self.styles))
             .map_err(|_| error(ErrorCode::InvalidArgument, "Invalid fixed subtitle catalog"))?;
-        Ok(format!("{:x}", Sha256::digest(bytes)))
+        Ok(kinekino_media_contracts::hex_lower(Sha256::digest(bytes)))
     }
     pub fn require_selection_available(
         &self,

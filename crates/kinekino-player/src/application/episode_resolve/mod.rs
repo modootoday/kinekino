@@ -94,7 +94,7 @@ pub fn player_target(
     Ok(EpisodePlayerTarget {
         episode_id: requested.stable_id(),
         content_id: DecimalU64(decoded.content_id),
-        source_body_sha256: format!("{:x}", Sha256::digest(&document.body)),
+        source_body_sha256: kinekino_media_contracts::hex_lower(Sha256::digest(&document.body)),
         source_document_generation: document.document_generation,
         source_pointer: "/props/playing/body/url",
         document: target,

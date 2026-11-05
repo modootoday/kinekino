@@ -68,7 +68,7 @@ impl GuardedAsset {
             .map_err(kinekino_core::file_publication::io_error)?;
         if bytes.len() as u64 > self.maximum
             || bytes.len() as u64 != self.pin.bytes()
-            || format!("{:x}", Sha256::digest(&bytes)) != self.pin.sha256()
+            || kinekino_media_contracts::hex_lower(Sha256::digest(&bytes)) != self.pin.sha256()
         {
             return Err(ApiError::new(
                 ErrorCode::SourceExpired,

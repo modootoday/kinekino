@@ -117,7 +117,7 @@ pub fn decode_release_manifest(
         ));
     }
     if raw.len() as u64 != expected.bytes()
-        || format!("{:x}", Sha256::digest(raw)) != expected.sha256()
+        || kinekino_media_contracts::hex_lower(Sha256::digest(raw)) != expected.sha256()
     {
         return Err(ApiError::new(
             ErrorCode::SourceExpired,

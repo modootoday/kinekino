@@ -51,7 +51,7 @@ pub fn prepare_import(
             "Source import manifest encoding failed",
         )
     })?;
-    if format!("{:x}", Sha256::digest(&bytes)) != observed.manifest_sha256
+    if kinekino_media_contracts::hex_lower(Sha256::digest(&bytes)) != observed.manifest_sha256
         || bytes.len() as u64 != observed.manifest_bytes.0
     {
         return Err(ApiError::new(

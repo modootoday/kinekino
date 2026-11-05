@@ -13,7 +13,7 @@ use std::{
 
 const VERIFIER_PIN: &str = "e00c1726603ef7d0167c6d58deb79e694071044c20a2723de8abe8a504f45e41";
 pub fn sha(bytes: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(bytes))
+    kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
 }
 pub fn inventory(root: &Path) -> BTreeMap<PathBuf, String> {
     fn visit(root: &Path, at: &Path, files: &mut BTreeMap<PathBuf, String>) {

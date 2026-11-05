@@ -211,7 +211,7 @@ fn encode_plan(request: CandidateEncoding<'_, '_>) -> Result<EncodedClipCandidat
         encoder_tool_sha256: encoder.lease().inventory().tool_sha256.clone(),
         encoder_inventory_sha256: encoder.lease().inventory().inventory_sha256.clone(),
         boundary_window_sha256: boundaries.observation().raw_frame_window_sha256.clone(),
-        output_sha256: format!("{:x}", Sha256::digest(&output.stdout)),
+        output_sha256: kinekino_media_contracts::hex_lower(Sha256::digest(&output.stdout)),
         output_bytes: output.stdout.len(),
         plan,
         source_color_mode: "host_declared_bt709_limited_unverified".into(),

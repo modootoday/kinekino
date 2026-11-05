@@ -131,7 +131,7 @@ fn read_original(
         }
         bytes.extend_from_slice(&chunk[..count]);
     }
-    if format!("{:x}", Sha256::digest(&bytes)) != pin.sha256 {
+    if kinekino_media_contracts::hex_lower(Sha256::digest(&bytes)) != pin.sha256 {
         return Err(changed());
     }
     control.checkpoint()?;

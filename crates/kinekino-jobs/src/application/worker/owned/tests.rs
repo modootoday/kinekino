@@ -131,7 +131,7 @@ impl SourceBlobStore for Blobs {
                 "Original diagnostic store unavailable",
             ));
         }
-        let sha256 = format!("{:x}", Sha256::digest(body.as_bytes()));
+        let sha256 = kinekino_media_contracts::hex_lower(Sha256::digest(body.as_bytes()));
         self.bodies
             .lock()
             .unwrap()

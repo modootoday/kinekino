@@ -50,7 +50,7 @@ pub(super) fn canvas_declaration_sha256() -> String {
     hash.update(include_bytes!(
         "../../assembly/card_export/canvas_templates.rs"
     ));
-    format!("{:x}", hash.finalize())
+    kinekino_media_contracts::hex_lower(hash.finalize())
 }
 
 pub(super) fn resolve_template(
@@ -102,7 +102,7 @@ pub(super) fn blank_declaration_sha256() -> String {
     hash.update(include_bytes!(
         "../../assembly/card_export/blank_templates.rs"
     ));
-    format!("{:x}", hash.finalize())
+    kinekino_media_contracts::hex_lower(hash.finalize())
 }
 
 pub(super) fn frame_required(template: &TemplateSelection) -> bool {
@@ -129,7 +129,7 @@ pub(super) fn role_declaration_sha256() -> String {
     hash.update(include_bytes!(
         "../../assembly/card_export/role_templates.rs"
     ));
-    format!("{:x}", hash.finalize())
+    kinekino_media_contracts::hex_lower(hash.finalize())
 }
 pub(super) struct CardPageContext {
     pub role: crate::domain::card_document::CardRole,
@@ -138,12 +138,9 @@ pub(super) struct CardPageContext {
 }
 
 pub(super) fn declaration_sha256() -> String {
-    format!(
-        "{:x}",
-        Sha256::digest(include_bytes!(
-            "../../assembly/card_export/product_template.rs"
-        ))
-    )
+    kinekino_media_contracts::hex_lower(Sha256::digest(include_bytes!(
+        "../../assembly/card_export/product_template.rs"
+    )))
 }
 
 pub(super) fn render_content(

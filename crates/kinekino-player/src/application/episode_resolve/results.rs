@@ -41,7 +41,7 @@ impl StoredEpisodeResolution {
         use sha2::{Digest, Sha256};
         if self.schema_version != "2"
             || self.source_descriptor_sha256
-                != format!("{:x}", Sha256::digest(descriptor.as_bytes()))
+                != kinekino_media_contracts::hex_lower(Sha256::digest(descriptor.as_bytes()))
             || PlayerDocumentLocation::parse(&self.player_document_url).is_err()
             || !navigation::media_transport_allowed(&self.manifest.url)
             || self.manifest.validation_profile != crate::domain::hls::HLS_VALIDATION_PROFILE

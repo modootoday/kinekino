@@ -59,7 +59,7 @@ impl FixedClipPresets {
     pub fn catalog_binding_sha256(&self) -> Result<String, ApiError> {
         let bytes = serde_json::to_vec(&self.files)
             .map_err(|_| error(ErrorCode::InvalidArgument, "Invalid preset catalog binding"))?;
-        Ok(format!("{:x}", Sha256::digest(bytes)))
+        Ok(kinekino_media_contracts::hex_lower(Sha256::digest(bytes)))
     }
     fn read(
         &self,
@@ -107,7 +107,7 @@ impl FixedClipPresets {
                 "Preset definition exceeds byte limit",
             ));
         }
-        let sha256 = format!("{:x}", Sha256::digest(&bytes));
+        let sha256 = kinekino_media_contracts::hex_lower(Sha256::digest(&bytes));
         if expected.is_some_and(|pin| pin.sha256 != sha256) {
             return Err(error(
                 ErrorCode::SourceExpired,

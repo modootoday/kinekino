@@ -183,7 +183,7 @@ pub(super) fn parse(
         });
     }
     tracks.sort_by_key(|track| track.stream_index);
-    let raw_probe_sha256 = format!("{:x}", Sha256::digest(raw));
+    let raw_probe_sha256 = kinekino_media_contracts::hex_lower(Sha256::digest(raw));
     #[derive(Serialize)]
     struct Identity<'a> {
         contract: &'static str,
@@ -201,13 +201,10 @@ pub(super) fn parse(
         reference_stream_index: reference.index,
         duration_basis,
     };
-    let observation_sha256 = format!(
-        "{:x}",
-        Sha256::digest(
-            serde_json::to_vec(&identity)
-                .map_err(|_| unavailable("Invalid clip observation identity"))?
-        )
-    );
+    let observation_sha256 = kinekino_media_contracts::hex_lower(Sha256::digest(
+        serde_json::to_vec(&identity)
+            .map_err(|_| unavailable("Invalid clip observation identity"))?,
+    ));
     Ok(ProbeFacts {
         source: ClipSourcePin {
             media_id: media_id.into(),

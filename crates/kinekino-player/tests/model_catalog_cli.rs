@@ -252,7 +252,7 @@ fn normal_cli_catalog_reads_and_discovery_preserve_declarations_without_admissio
 
 fn sha(bytes: &[u8]) -> String {
     use sha2::{Digest, Sha256};
-    format!("{:x}", Sha256::digest(bytes))
+    kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
 }
 fn installed_fixture(root: &Path, weights: &[u8]) -> (PathBuf, Value) {
     let catalog = root.join("catalog");

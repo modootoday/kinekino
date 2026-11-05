@@ -258,7 +258,7 @@ impl FfmpegFrameCapture {
                 "Decoded frame metadata does not match the requested source",
             ));
         }
-        let output_sha256 = format!("{:x}", Sha256::digest(&decoded.stdout));
+        let output_sha256 = kinekino_media_contracts::hex_lower(Sha256::digest(&decoded.stdout));
         if Instant::now() >= deadline {
             return Err(ApiError::new(
                 ErrorCode::Timeout,

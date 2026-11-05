@@ -49,7 +49,7 @@ fn invalid(s: &str) -> ApiError {
     ApiError::new(ErrorCode::InvalidArgument, s)
 }
 fn hash(bytes: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(bytes))
+    kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
 }
 fn load(
     input: &dyn SpeakerInput,

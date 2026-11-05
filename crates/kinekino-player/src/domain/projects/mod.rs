@@ -81,5 +81,5 @@ pub struct StoredProjectRevision {
 pub fn canonical_sha256(value: &impl Serialize) -> Result<String, &'static str> {
     use sha2::{Digest, Sha256};
     let bytes = serde_json::to_vec(value).map_err(|_| "Project serialization failed")?;
-    Ok(format!("{:x}", Sha256::digest(bytes)))
+    Ok(kinekino_media_contracts::hex_lower(Sha256::digest(bytes)))
 }

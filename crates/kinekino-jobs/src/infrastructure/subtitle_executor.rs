@@ -30,7 +30,7 @@ fn invalid(message: impl Into<String>) -> ApiError {
     ApiError::new(ErrorCode::InvalidArgument, message)
 }
 fn digest(bytes: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(bytes))
+    kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
 }
 fn expired(control: &dyn ExecutionControl) -> Result<(), ApiError> {
     if std::time::Instant::now() >= control.deadline() {

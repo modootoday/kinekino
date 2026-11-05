@@ -429,7 +429,7 @@ impl DownloadPreparation for RealPreparation {
             }
             hash.update(&buffer[..count]);
         }
-        if format!("{:x}", hash.finalize()) != self.fixture.sha256 {
+        if kinekino_media_contracts::hex_lower(hash.finalize()) != self.fixture.sha256 {
             return Err(ApiError::new(
                 ErrorCode::SourceExpired,
                 "Fixture digest changed",
@@ -580,7 +580,9 @@ fn exercise(case: Case) {
             assert_eq!(output.bytes, DecimalU64(source_bytes));
             assert_eq!(output.sha256, source_hash);
             assert_eq!(
-                format!("{:x}", Sha256::digest(fs::read(&output.path).unwrap())),
+                kinekino_media_contracts::hex_lower(Sha256::digest(
+                    fs::read(&output.path).unwrap()
+                )),
                 source_hash
             );
             let events = client

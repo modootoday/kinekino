@@ -77,9 +77,8 @@ impl PreparedJobInput {
     }
     pub fn sha256(&self) -> Result<String, &'static str> {
         self.validate()?;
-        Ok(format!(
-            "{:x}",
-            Sha256::digest(serde_json::to_vec(self).map_err(|_| "Invalid job input JSON")?)
-        ))
+        Ok(kinekino_media_contracts::hex_lower(Sha256::digest(
+            serde_json::to_vec(self).map_err(|_| "Invalid job input JSON")?,
+        )))
     }
 }

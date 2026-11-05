@@ -76,13 +76,10 @@ pub fn inspect(
     store.load(id, revision)
 }
 pub fn publication_sha256(publication: &AssetPublication) -> Result<String, ApiError> {
-    Ok(format!(
-        "{:x}",
-        Sha256::digest(
-            serde_json::to_vec(publication)
-                .map_err(|_| invalid("Invalid asset publication encoding"))?
-        )
-    ))
+    Ok(kinekino_media_contracts::hex_lower(Sha256::digest(
+        serde_json::to_vec(publication)
+            .map_err(|_| invalid("Invalid asset publication encoding"))?,
+    )))
 }
 pub fn prepare_publication(
     previous: Option<&StoredAssetProject>,

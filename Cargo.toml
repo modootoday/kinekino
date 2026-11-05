@@ -46,7 +46,7 @@ x11rb = "0.13.2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 ctor = "1.0.13"
-sha2 = "=0.10.9"
+sha2 = "=0.11.1"
 url = "2"
 kinekino-app = { path = "crates/kinekino-app" }
 kinekino-host = { path = "crates/kinekino-host" }

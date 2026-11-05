@@ -260,7 +260,7 @@ fn actual_no_media_standalone_export_host_uses_original_issuer_and_owned_eof()
     let executable = fixture.root.join("mpv.exe");
     let bytes = b"Verified identity fixture; never execute or open media";
     std::fs::write(&executable, bytes).unwrap();
-    let hash = format!("{:x}", Sha256::digest(bytes));
+    let hash = kinekino_media_contracts::hex_lower(Sha256::digest(bytes));
     let original = Deadline::new(
         Instant::now(),
         Duration::from_secs(30),

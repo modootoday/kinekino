@@ -61,7 +61,7 @@ fn project() -> ProjectRevision {
     let source = DocumentSourceSnapshot::from_asset(
         "document-source".into(),
         DecimalU64(7),
-        format!("{:x}", Sha256::digest(asset.as_bytes())),
+        kinekino_media_contracts::hex_lower(Sha256::digest(asset.as_bytes())),
         asset,
     )
     .unwrap();

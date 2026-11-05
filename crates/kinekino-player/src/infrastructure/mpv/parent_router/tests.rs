@@ -62,7 +62,7 @@ impl ExportFixture {
         std::fs::write(&executable, bytes).unwrap();
         let trusted = super::super::TrustedMpvExecutable::open(
             &executable,
-            &format!("{:x}", Sha256::digest(bytes)),
+            &kinekino_media_contracts::hex_lower(Sha256::digest(bytes)),
         )
         .unwrap();
         let engine = if routed {
@@ -1909,7 +1909,7 @@ fn exhausted_sequence_duplicate_activation_and_dropped_handles_preserve_owned_ro
     std::fs::write(&executable, inert).unwrap();
     let trusted = super::super::TrustedMpvExecutable::open(
         &executable,
-        &format!("{:x}", Sha256::digest(inert)),
+        &kinekino_media_contracts::hex_lower(Sha256::digest(inert)),
     )
     .unwrap();
     let native =

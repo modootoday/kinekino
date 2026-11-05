@@ -264,7 +264,7 @@ impl JobExecutor for BrowserCatalogJobs {
             requested_url: location.as_str().into(),
             final_url: document.final_url.clone(),
             redirects: vec![],
-            sha256: format!("{:x}", Sha256::digest(&document.body)),
+            sha256: kinekino_media_contracts::hex_lower(Sha256::digest(&document.body)),
             bytes: document.body.len(),
             observed_unix_ms: document.observed_unix_ms.0,
             parser_revision: self.capture.parser_revision().into(),

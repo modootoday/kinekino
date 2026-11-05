@@ -14,7 +14,7 @@ use std::{
 fn pin(id: &str, bytes: &[u8]) -> ArtifactPin {
     ArtifactPin::new(
         id.into(),
-        format!("{:x}", Sha256::digest(bytes)),
+        kinekino_media_contracts::hex_lower(Sha256::digest(bytes)),
         DecimalU64(bytes.len() as u64),
     )
     .unwrap()

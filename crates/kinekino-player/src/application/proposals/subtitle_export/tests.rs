@@ -130,7 +130,7 @@ fn whole_domain_export_preserves_nonzero_unsorted_times_untouched_text_and_snaps
     assert_eq!(result.target, target);
     assert_eq!(
         result.output_sha256,
-        format!("{:x}", Sha256::digest(expected.as_bytes()))
+        kinekino_media_contracts::hex_lower(Sha256::digest(expected.as_bytes()))
     );
     assert_eq!(result.output_bytes.0, expected.len() as u64);
     assert_eq!(result.cue_count, 2);

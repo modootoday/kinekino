@@ -20,7 +20,7 @@ fn decode(value: &Value) -> Result<VadReleaseManifest, ApiError> {
     let raw = serde_json::to_vec(value).unwrap();
     let expected = ArtifactPin::new(
         "release".into(),
-        format!("{:x}", Sha256::digest(&raw)),
+        kinekino_media_contracts::hex_lower(Sha256::digest(&raw)),
         DecimalU64(raw.len() as u64),
     )
     .unwrap();
