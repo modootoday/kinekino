@@ -38,11 +38,14 @@
 .kk-player-root .kk-menu[hidden] { display: none; }
 .kk-player-root .kk-menu-item { display: flex; justify-content: flex-start; border-color: transparent; background: transparent; gap: var(--aw-space-2); white-space: nowrap; }
 .kk-player-root .kk-menu-key { margin-left: auto; padding-left: var(--aw-space-3); color: var(--aw-text-secondary); font-size: var(--aw-font-small); }
-/* Right-click menu: at the pointer (inline left/top from the view), over everything. */
+/* Right-click menu: at the pointer (inline left/top from the view), over everything.
+   Shares .kk-menu tokens with ⋮; density overrides keep the long flat list inside ADR size. */
 .kk-player-root { position: relative; }
-.kk-player-root .kk-context-menu { right: auto; bottom: auto; z-index: 5; width: 280px; min-width: 0; max-height: 700px; overflow: hidden; gap: 0; box-sizing: border-box; }
+.kk-player-root .kk-context-menu { right: auto; bottom: auto; z-index: 5; width: 280px; min-width: 0; max-height: 720px; overflow-x: hidden; overflow-y: auto; gap: 0; box-sizing: border-box; }
 .kk-player-root .kk-context-menu .kk-menu-item { height: 26px; min-height: 26px; padding: 0 var(--aw-space-2); font-size: var(--aw-font-small); }
-.kk-player-root .kk-menu-heading { margin: 0; padding: 2px var(--aw-space-2) 0; color: var(--aw-text-secondary); font-family: var(--aw-font-family); font-size: var(--aw-font-small); line-height: 1.2; }
+.kk-player-root .kk-context-menu .kk-menu-item .aw-icon { width: 14px; height: 14px; }
+.kk-player-root .kk-menu-heading { margin: 0; padding: var(--aw-space-1) var(--aw-space-2) 0; color: var(--aw-text-secondary); font-family: var(--aw-font-family); font-size: var(--aw-font-small); line-height: 1.2; }
+.kk-player-root .kk-context-menu .kk-menu-heading:first-child { padding-top: 2px; }
 .kk-player-root .kk-context-menu .kk-menu-item[hidden] { display: none; }
 /* 작품 탐색: the episode panel's list styling, at twice the panel width, over the start area. */
 .kk-player-root .kk-browse { place-items: stretch center; }
