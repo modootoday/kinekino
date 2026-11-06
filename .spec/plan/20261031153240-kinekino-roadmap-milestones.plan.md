@@ -3,7 +3,7 @@ id: plan:kinekino/20261031153240
 title: kinekino 완성 로드맵과 마일스톤
 status: draft
 created: 2026-10-31T15:32:40Z
-updated: 2026-11-06T11:35:00Z
+updated: 2026-11-06T11:40:00Z
 rel:
   governs: [crates]
 ---
@@ -124,3 +124,4 @@ PotPlayer를 기준으로 한 Linux 우선 플레이어를 끝까지 완성하�
 - 2026-11-06: M3-6b — long-running per-plugin PluginWorker implemented (OwnedFamily spawn, SDK serve_loop, ProcessSource reuse, idle/crash/call-timeout; contract tests) (`1250a73b`). M3 not closed.
 - 2026-11-06: M2 visual-verification slices added (M2-V1…M2-V5) after functional merges left 시각 미확인; M2 criteria (5) requires real-screen 1:1 before 시각 완료. M2 piece count 8→13; total ~55. Mockup regeneration still held.
 - 2026-11-06: M3-7 real-site check allowed by 원 님 (2026-11-06); historical user-gate noted, not erased.
+- 2026-11-06: M3-7 — external source plugin playlist protocol aligned (browse nesting + Item.kind container/playable; live check). Resolve media-host rejection left open. Plugin commit outside host repo. M3 not closed.
