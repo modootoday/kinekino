@@ -1,5 +1,5 @@
 //! Secrets port: the only path for API keys/tokens (never in config files or env-derived config).
-use super::error::PortResult;
+use super::error::{ErrorCode, PortError, PortResult};
 
 /// Opaque secret; `Debug` never prints the value.
 #[derive(Clone, PartialEq, Eq)]
@@ -18,6 +18,17 @@ impl std::fmt::Debug for Secret {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str("Secret(***)")
     }
+}
+
+/// Reject empty `service` or `account` with non-retryable `InvalidInput`.
+pub fn require_credential_key(service: &str, account: &str) -> PortResult<()> {
+    if service.is_empty() || account.is_empty() {
+        return Err(PortError::new(
+            ErrorCode::InvalidInput,
+            "credential service and account must be non-empty",
+        ));
+    }
+    Ok(())
 }
 
 /// Keyed by `service` (e.g. `"kinekino.openai"`) and `account`.
