@@ -3,7 +3,7 @@ id: adr:kinekino/20261106001220
 title: CredentialStore contract for empty keys and adapter parity
 status: active
 created: 2026-11-06T00:12:20Z
-updated: 2026-11-06T00:21:05Z
+updated: 2026-11-06T02:30:00Z
 rel:
   governs: [crates/kinekino-core/src/port/credential.rs, crates/kinekino-core/src/port/contract/mod.rs]
 ---
@@ -47,3 +47,4 @@ skill: 조회 결과 무관(자격증명 포트 계약과 직접 맞는 스킬 �
 ## Record
 
 - 2026-11-06: M3-2 complete — CredentialStore contract harness expanded; Session/File enforce empty-key InvalidInput (`e4e208e1`).
+- 2026-11-06: M3-3 Linux Secret Service adapter lands separately (`adr:kinekino/20261106022549`); product may explicitly fall back to memory when OS store open fails — not wired in M3-3.

@@ -6,6 +6,7 @@ pub mod ipc;
 pub mod mpv;
 pub mod process;
 pub mod publication;
+pub mod secret_service;
 pub mod session;
 pub mod token_file;
 
