@@ -4,6 +4,7 @@ use kinekino_player_ui::{Command, Controller, Effect, Session, activate, meari_p
 use std::path::PathBuf;
 
 mod context_menu;
+mod playlist_panel;
 mod prefs;
 mod resume;
 mod seek_nav;
