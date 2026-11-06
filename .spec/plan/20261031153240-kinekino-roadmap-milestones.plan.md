@@ -3,7 +3,7 @@ id: plan:kinekino/20261031153240
 title: kinekino 완성 로드맵과 마일스톤
 status: draft
 created: 2026-10-31T15:32:40Z
-updated: 2026-11-06T11:40:00Z
+updated: 2026-11-06T11:42:00Z
 rel:
   governs: [crates]
 ---
@@ -32,7 +32,7 @@ PotPlayer를 기준으로 한 Linux 우선 플레이어를 끝까지 완성하�
 |마일스톤|목표(사용자가 할 수 있게 되는 것)|항목 ID|조각 수(추정)|사용자 결정·실기 확인|
 |---|---|---|---|---|
 |M1 재생 핵심|Linux에서 로컬 파일을 PotPlayer처럼 이어보고, 다음 회차로 넘기고, 속도·트랙·자막을 바꾼다|PL-5, PL-6, PL-7, PL-8, PL-4, SB-2|10|없음(헤드리스 libmpv로 검증)|
-|M2 플레이어 UI|PotPlayer 기준 단축키·우클릭 메뉴·재생목록 패널·설정 연결을 갖춘 창을 쓴다|UI-5, UI-6, PL-2 후속, UI-9 후속|13|시안 밖 화면 요소는 권고안으로 진행 후 보고. 기능 병합 뒤 시각 완료는 실화면 1:1 확인(M2-V*)|
+|M2 플레이어 UI|PotPlayer 기준 단축키·우클릭 메뉴·재생목록 패널·설정 연결을 갖춘 창을 쓴다|UI-5, UI-6, PL-2 후속, UI-9 후속|13|시안 밖 화면 요소는 권고안으로 진행 후 보고. 기능 병합 뒤 시각 완료는 실화면 확인과 개선(M2-V*). 시안 일관성이 낮을 수 있으므로 시안 간 불일치는 공용 토큰·컴포넌트·화면 규칙을 우선한다(2026-11-06).|
 |M3 호스트·플러그인 경계|외부 소스 플러그인의 재생 항목을 안전하게 재생한다(호스트 정책·자격증명)|PG-5, PG-8, PG-10, PG-2 후속, ST-2|8|외부 플러그인 실사이트 확인은 사용자(2026-11-06 원 님: M3-7 실사이트 확인 허용)|
 |M4 제작 기능 기반|CLI로 캡처·스냅샷·작업 대기열·프로젝트·카드·전사를 Linux에서 쓴다|SB-3, SB-4, SB-5, SB-6, ST-3, ST-4, ST-5, ST-6|10|실제 추론 호출·과금(P7 승인 게이트)|
 |M5 구조·플랫폼 정리|어댑터 밖 cfg 0에 가까워지고 Windows 전용 경로가 포트 뒤로 들어간다|OS-5, SC-2, SC-3, OS-4, DC-4, UI-8, PG-9|8|DC-4 범위 결정, GPU 경로·OS 격리(sandbox)는 설계 조각만|
@@ -59,9 +59,9 @@ PotPlayer를 기준으로 한 Linux 우선 플레이어를 끝까지 완성하�
 ### M2 플레이어 UI
 
 - 선행: M1-2~M1-4(메뉴에 넣을 명령).
-- 완료 기준: (1) PotPlayer 기본 단축키 표(문서화된 목록)의 항목이 keys 테스트로 검증된다. (2) 우클릭 메뉴에서 열기·재생·자막·오디오·화면 명령을 고를 수 있다. (3) 재생목록 패널이 시안의 회차 목록 패턴(현재 항목 표시·도킹)을 따른다. (4) 설정 창이 같은 제목 줄 규약을 쓴다. (5) 기능 병합된 UI 조각은 `.spec/artifacts/design/` 시안과 실화면을 1:1로 대조한 뒤에만 시각 완료로 표시한다(visual-review.md). 시안의 장식·오류는 복제하지 않고, 새 팔레트·목업 재생성은 하지 않는다(보류: UI 시안 작업 재개).
+- 완료 기준: (1) PotPlayer 기본 단축키 표(문서화된 목록)의 항목이 keys 테스트로 검증된다. (2) 우클릭 메뉴에서 열기·재생·자막·오디오·화면 명령을 고를 수 있다. (3) 재생목록 패널이 시안의 회차 목록 패턴(현재 항목 표시·도킹)을 따른다. (4) 설정 창이 같은 제목 줄 규약을 쓴다. (5) 기능 병합된 UI 조각은 `.spec/artifacts/design/` 시안과 실화면을 대조·개선한 뒤에만 시각 완료로 표시한다(visual-review.md). 시안 묶음의 일관성이 낮을 수 있다(2026-11-06 원 님). 1:1 대조는 하되 시안 간 불일치·장식·오류는 복제하지 않고, 이미 정한 토큰·공용 컴포넌트·화면 규칙을 우선해 개선한다. 새 팔레트·목업 재생성은 하지 않는다(보류: UI 시안 작업 재개).
 - 조각 순서(기능): M2-1 단축키 표 설계 ADR과 탐색·시크 단축키, M2-2 우클릭 메뉴 골격, M2-3 메뉴에 M1 명령 연결, M2-4 재생목록 패널 현재 항목·도킹 정합, M2-5 재생 정보(OSD) 표시, M2-6 설정 창 사용자 정의 제목 줄(UI-5), M2-7 남은 wry 의존 정리 판정(UI-6), M2-8 창·트레이 아이콘을 마스코트 파생 자산에 연결.
-- 조각 순서(시각 검증, 기능 병합 후·화면별 1회 실행 크기): M2-V1 단축키·탐색 피드백 실화면(M2-1, 시크·탐색 키에 보이는 반응만·시안에 없는 장식 추가 금지), M2-V2 우클릭 메뉴 실화면 1:1(M2-2+M2-3, 배치·그룹·항목 대비), M2-V3 재생목록 패널 실화면 1:1(M2-4, 회차 목록 헤더·행·현재 강조·도킹), M2-V4 OSD 실화면 1:1(M2-5, 하단 토스트 시크·음량 문구·위치), M2-V5 설정 창 제목 줄 실화면 1:1(M2-6, aw-window-chrome 대비). M2-7은 UI 크롬 없음(판정만). M2-8은 사용자 보류(아이콘).
+- 조각 순서(시각 검증·개선, 기능 병합 후·화면별 1회 실행 크기): 각 조각은 실화면 대조와 함께, 시안 간 불일치가 있으면 공용 규칙 쪽으로 개선한다(목업 재생성 없음). M2-V1 단축키·탐색 피드백(M2-1, 시크·탐색 키에 보이는 반응만·시안에 없는 장식 추가 금지), M2-V2 우클릭 메뉴(M2-2+M2-3, 배치·그룹·항목을 공용 메뉴 규칙과 대조), M2-V3 재생목록 패널(M2-4, 회차 목록 헤더·행·현재 강조·도킹), M2-V4 OSD(M2-5, 하단 토스트 시크·음량 문구·위치), M2-V5 설정 창 제목 줄(M2-6, aw-window-chrome 대비). M2-7은 UI 크롬 없음(판정만). M2-8은 사용자 보류(아이콘).
 
 ### M3 호스트·플러그인 경계
 
@@ -125,3 +125,4 @@ PotPlayer를 기준으로 한 Linux 우선 플레이어를 끝까지 완성하�
 - 2026-11-06: M2 visual-verification slices added (M2-V1…M2-V5) after functional merges left 시각 미확인; M2 criteria (5) requires real-screen 1:1 before 시각 완료. M2 piece count 8→13; total ~55. Mockup regeneration still held.
 - 2026-11-06: M3-7 real-site check allowed by 원 님 (2026-11-06); historical user-gate noted, not erased.
 - 2026-11-06: M3-7 — external source plugin playlist protocol aligned (browse nesting + Item.kind container/playable; live check). Resolve media-host rejection left open. Plugin commit outside host repo. M3 not closed.
+- 2026-11-06: M2-V* visual review treats mockup-to-mockup inconsistency as expected (원 님). Verification includes consistency-first improvements; do not copy conflicting mockup details or regenerate mockups.
