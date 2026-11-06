@@ -3,7 +3,7 @@ id: plan:kinekino/20261031153240
 title: kinekino 완성 로드맵과 마일스톤
 status: draft
 created: 2026-10-31T15:32:40Z
-updated: 2026-11-05T19:50:00Z
+updated: 2026-11-06T00:21:46Z
 rel:
   governs: [crates]
 ---
