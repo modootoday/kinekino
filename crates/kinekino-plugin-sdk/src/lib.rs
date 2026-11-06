@@ -14,4 +14,4 @@ pub mod wire;
 
 pub use manifest::{MANIFEST_FILE, Manifest};
 pub use protocol::{DOCUMENT_PROTOCOL, PROTOCOL_FIELD, SOURCE_API};
-pub use serve::{SourcePlugin, handle_line, serve, unsupported};
+pub use serve::{SourcePlugin, handle_line, serve, serve_loop, serve_loop_io, unsupported};

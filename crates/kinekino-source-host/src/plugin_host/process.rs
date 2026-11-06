@@ -1,21 +1,42 @@
+use super::worker::{self, PluginWorker};
 use super::{PluginManifest, wire};
 use kinekino_core::source::{
     EpisodeAdjacency, SourceCapability, SourceError, SourceItem, SourceItemKind, SourceManifest,
     SourcePage, SourceProvider, SourceRef, StreamCandidate,
 };
-use std::io::{BufRead, BufReader, Write};
-use std::process::{Command, Stdio};
-
-/// Cap on one response line; a misbehaving plugin cannot grow host memory unbounded.
-const MAX_RESPONSE_BYTES: u64 = 4 * 1024 * 1024;
+use std::sync::{Arc, Mutex};
+use std::time::Duration;
 
 pub struct ProcessSource {
     plugin: PluginManifest,
+    worker: Arc<Mutex<PluginWorker>>,
 }
 
 impl ProcessSource {
     pub fn new(plugin: PluginManifest) -> Self {
-        Self { plugin }
+        Self::with_timeouts(
+            plugin,
+            worker::DEFAULT_CALL_TIMEOUT,
+            worker::DEFAULT_IDLE_TIMEOUT,
+        )
+    }
+
+    /// Test/harness entry: pin call and idle timeouts.
+    pub fn with_timeouts(
+        plugin: PluginManifest,
+        call_timeout: Duration,
+        idle_timeout: Duration,
+    ) -> Self {
+        let worker = PluginWorker::new(plugin.clone(), call_timeout, idle_timeout);
+        Self {
+            plugin,
+            worker: Arc::new(Mutex::new(worker)),
+        }
+    }
+
+    /// PID of the ready worker process, if any (contract tests).
+    pub fn worker_pid(&self) -> Option<u32> {
+        self.worker.lock().ok().and_then(|w| w.pid())
     }
 
     fn call(
@@ -23,48 +44,11 @@ impl ProcessSource {
         capability: SourceCapability,
         request: &wire::Request,
     ) -> Result<wire::Response, SourceError> {
-        if !self.plugin.source.supports(capability) {
-            return Err(SourceError::Unsupported(capability));
-        }
-        let unavailable = |e: std::io::Error| SourceError::Unavailable(e.to_string());
-        let mut child = Command::new(&self.plugin.executable)
-            .current_dir(&self.plugin.dir)
-            .stdin(Stdio::piped())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::null())
-            .spawn()
-            .map_err(unavailable)?;
-        let line =
-            serde_json::to_string(request).map_err(|e| SourceError::Invalid(e.to_string()))?;
-        {
-            let mut stdin = child
-                .stdin
-                .take()
-                .ok_or_else(|| SourceError::Unavailable("stdin".into()))?;
-            stdin.write_all(line.as_bytes()).map_err(unavailable)?;
-            stdin.write_all(b"\n").map_err(unavailable)?;
-        }
-        let stdout = child
-            .stdout
-            .take()
-            .ok_or_else(|| SourceError::Unavailable("stdout".into()))?;
-        let mut reply = String::new();
-        let read =
-            BufReader::new(std::io::Read::take(stdout, MAX_RESPONSE_BYTES)).read_line(&mut reply);
-        let _ = child.kill();
-        let _ = child.wait();
-        read.map_err(unavailable)?;
-        let response: wire::Response = serde_json::from_str(reply.trim())
-            .map_err(|e| SourceError::Invalid(format!("plugin reply: {e}")))?;
-        match response {
-            wire::Response::Error { kind, message } => Err(match kind.as_str() {
-                "not_found" => SourceError::NotFound,
-                "unsupported" => SourceError::Unsupported(capability),
-                "invalid" => SourceError::Invalid(message),
-                _ => SourceError::Unavailable(message),
-            }),
-            other => Ok(other),
-        }
+        let mut guard = self
+            .worker
+            .lock()
+            .map_err(|_| SourceError::Unavailable("worker lock poisoned".into()))?;
+        guard.call(capability, request, Some(Arc::clone(&self.worker)))
     }
 
     fn page(

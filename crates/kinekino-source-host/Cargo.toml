@@ -10,13 +10,14 @@ request = ["dep:url"]
 worker-buffer = ["dep:bytes"]
 metadata = ["request"]
 parent-stream = ["metadata"]
-parent-host = ["parent-stream", "dep:kinekino-process"]
+parent-host = ["parent-stream"]
 parent-host-test-support = ["parent-host", "kinekino-process/test-support"]
 http-worker = ["metadata", "worker-buffer", "dep:reqwest"]
-worker-ipc = ["http-worker", "dep:kinekino-process", "dep:tokio"]
+worker-ipc = ["http-worker", "dep:tokio"]
 
 [dependencies]
 kinekino-core.workspace = true
+kinekino-process.workspace = true
 # `fixture`: the host keeps re-exporting the fake plugin bodies its e2e tests run.
 kinekino-plugin-sdk = { workspace = true, features = ["fixture"] }
 serde.workspace = true
@@ -27,12 +28,9 @@ tokio = { workspace = true, optional = true, features = ["rt", "net", "time"] }
 reqwest = { workspace = true, optional = true, features = ["rustls-tls"] }
 
 [dev-dependencies]
+kinekino-platform.workspace = true
 http = { workspace = true }
 tokio = { workspace = true, features = ["rt"] }
-
-[target.'cfg(windows)'.dependencies]
-kinekino-process = { workspace = true, optional = true }
-
 
 [lints]
 workspace = true

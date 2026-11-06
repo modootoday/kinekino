@@ -4,6 +4,7 @@ use kinekino_core::source::{SourceError, SourceProvider, SourceRef};
 use kinekino_source_host::plugin_host::ProcessSource;
 
 fn setup(tag: &str) -> (std::path::PathBuf, Env) {
+    kinekino_platform::install();
     let root = std::env::temp_dir().join(format!("kinekino-plugins-{tag}-{}", std::process::id()));
     let dir = root.join("fixture");
     std::fs::create_dir_all(&dir).unwrap();

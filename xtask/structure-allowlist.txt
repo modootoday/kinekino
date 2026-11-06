@@ -343,6 +343,7 @@ r-cfg crates/kinekino-player/tests/vad_worker_control_process.rs
 r-cfg crates/kinekino-process/tests/polled_cleanup.rs
 r-cfg crates/kinekino-process/tests/windows_family.rs
 r-cfg crates/kinekino-source-host/src/lib.rs
+r-cfg crates/kinekino-source-host/src/plugin_host/stdio.rs
 r-cfg crates/kinekino-vad-worker/src/infrastructure.rs
 r-cfg xtask/src/demo_engine.rs
 r-cfg xtask/src/install.rs

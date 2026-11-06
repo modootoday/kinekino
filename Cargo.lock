@@ -3128,6 +3128,7 @@ dependencies = [
  "bytes",
  "http",
  "kinekino-core",
+ "kinekino-platform",
  "kinekino-plugin-sdk",
  "kinekino-process",
  "reqwest 0.12.28",
