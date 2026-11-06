@@ -3,7 +3,7 @@ id: plan:kinekino/20261031153240
 title: kinekino 완성 로드맵과 마일스톤
 status: draft
 created: 2026-10-31T15:32:40Z
-updated: 2026-11-06T00:21:46Z
+updated: 2026-11-06T02:55:00Z
 rel:
   governs: [crates]
 ---
@@ -115,3 +115,4 @@ PotPlayer를 기준으로 한 Linux 우선 플레이어를 끝까지 완성하�
 - 2026-11-06: M2-7 — remaining wry kept as the Windows WebView2 browser-engine adapter (not product UI); eframe/egui product-UI deviation closed; moving player browser modules into kinekino-browser deferred (ADR 20261105201855). M2 not closed.
 - 2026-11-06: M3-1 — player media/frame hosts admitted at runtime via AdmittedHosts (plugin media_hosts install; remaining hardcodes removed) (`ec74ce96`). M3 not closed.
 - 2026-11-06: M3-2 — CredentialStore port contract expanded (key isolation, overwrite, delete-absent, Secret Debug redaction, empty keys InvalidInput); Session/File adapters pass the same harness (`e4e208e1`). OS Secret Service adapter still M3-3. M3 not closed.
+- 2026-11-06: M3-3 — Linux Secret Service CredentialStore adapter (`SecretServiceCredentialStore`) meets `check_credential_store` on an unlocked collection (`d6c9b778`). App still uses Session store; product memory fallback not wired. Windows Credential Manager still out of scope. M3 not closed.

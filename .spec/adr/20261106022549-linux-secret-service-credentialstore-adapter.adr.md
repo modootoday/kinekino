@@ -3,7 +3,7 @@ id: adr:kinekino/20261106022549
 title: Linux Secret Service CredentialStore adapter
 status: active
 created: 2026-11-06T02:25:49Z
-updated: 2026-11-06T02:25:49Z
+updated: 2026-11-06T02:55:00Z
 rel:
   governs: [crates/kinekino-platform-unix/src/secret_service.rs, crates/kinekino-platform-unix/Cargo.toml, crates/kinekino-platform/src/lib.rs, Cargo.toml]
   depends_on: [adr:kinekino/20261106001220]
@@ -47,4 +47,4 @@ skill: 조회 결과 무관(자격증명 포트·Secret Service와 직접 맞는
 - macOS 등 Secret Service가 없는 Unix는 `Unavailable`이다.
 
 ## Record
-
+- 2026-11-06: M3-3 complete — Linux SecretServiceCredentialStore via secret-service blocking API; contract tests pass (`d6c9b778`).
