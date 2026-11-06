@@ -114,3 +114,4 @@ PotPlayer를 기준으로 한 Linux 우선 플레이어를 끝까지 완성하�
 - 2026-11-06: M2-6 — settings window product caption (`aw-window-chrome`); undecorate OS frame; drag, double-click maximize, caption min/max/close (ADR 20261105191533). Edge resize deferred. Visual check pending. M2 not closed.
 - 2026-11-06: M2-7 — remaining wry kept as the Windows WebView2 browser-engine adapter (not product UI); eframe/egui product-UI deviation closed; moving player browser modules into kinekino-browser deferred (ADR 20261105201855). M2 not closed.
 - 2026-11-06: M3-1 — player media/frame hosts admitted at runtime via AdmittedHosts (plugin media_hosts install; remaining hardcodes removed) (`ec74ce96`). M3 not closed.
+- 2026-11-06: M3-2 — CredentialStore port contract expanded (key isolation, overwrite, delete-absent, Secret Debug redaction, empty keys InvalidInput); Session/File adapters pass the same harness (`e4e208e1`). OS Secret Service adapter still M3-3. M3 not closed.
