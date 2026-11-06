@@ -6,7 +6,7 @@
 //! `"executable"` pointing at this binary. Streams go to `$KINEKINO_FAKE_MEDIA`
 //! (default `http://127.0.0.1:8765`) as `/<episode>.mp4`, with a `Referer` header.
 use kinekino_plugin_sdk::wire::source::{Item, ItemKind, Ref, Response, Stream};
-use kinekino_plugin_sdk::{SourcePlugin, serve};
+use kinekino_plugin_sdk::{SourcePlugin, serve_loop};
 
 const PROVIDER: &str = "com.example.fake";
 const CATEGORIES: [(&str, &str); 2] = [("airing", "방영 중"), ("movies", "극장판")];
@@ -153,5 +153,5 @@ fn delay() {
 }
 
 fn main() -> std::io::Result<()> {
-    serve(&mut FakeSource)
+    serve_loop(&mut FakeSource)
 }

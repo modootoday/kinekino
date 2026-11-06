@@ -1,7 +1,7 @@
 //! `serve`/`SourcePlugin` dispatch against the goldens.
 use kinekino_plugin_sdk::fixture::{FixturePlugin, serve_document_fixture, serve_fixture};
 use kinekino_plugin_sdk::golden::{self, lines};
-use kinekino_plugin_sdk::serve::serve_io;
+use kinekino_plugin_sdk::serve::{serve_io, serve_loop_io};
 use kinekino_plugin_sdk::wire::document::DocResponse;
 use kinekino_plugin_sdk::wire::source::Response;
 use kinekino_plugin_sdk::{SourcePlugin, handle_line};
@@ -42,4 +42,33 @@ fn fixture_plugin_routes_source_and_document_lines() {
     assert!(
         serve_fixture(r#"{"method":"search","query":"x","page":1}"#, "p").contains("unsupported")
     );
+}
+
+#[test]
+fn serve_loop_io_answers_two_requests_then_eof() {
+    let mut p = FixturePlugin {
+        provider: "p".into(),
+    };
+    let first = lines(golden::SOURCE_REQUESTS).next().unwrap();
+    let second = first.replace("\"page\":1", "\"page\":2");
+    let input = format!("{first}\n{second}\n");
+    let mut out = Vec::new();
+    serve_loop_io(&mut p, &mut input.as_bytes(), &mut out).unwrap();
+    let text = String::from_utf8(out).unwrap();
+    let replies: Vec<_> = text.lines().collect();
+    assert_eq!(replies.len(), 2, "{text}");
+    assert!(replies[0].contains("airing-1"), "{text}");
+    assert!(replies[1].contains("airing-2"), "{text}");
+}
+
+#[test]
+fn one_shot_serve_io_still_answers_single_line() {
+    let mut p = FixturePlugin {
+        provider: "p".into(),
+    };
+    let first = lines(golden::SOURCE_REQUESTS).next().unwrap();
+    let mut out = Vec::new();
+    serve_io(&mut p, &mut format!("{first}\n").as_bytes(), &mut out).unwrap();
+    let text = String::from_utf8(out).unwrap();
+    assert!(text.contains("airing-1") && text.ends_with('\n'), "{text}");
 }

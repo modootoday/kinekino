@@ -1,5 +1,5 @@
-//! Plugin-side loop: read one request line, dispatch to [`SourcePlugin`], write one response
-//! line. A line whose [`PROTOCOL_FIELD`] is [`DOCUMENT_PROTOCOL`] goes to `document`.
+//! Plugin-side serve: one-shot and long-running line loops over [`SourcePlugin`].
+//! A line whose [`PROTOCOL_FIELD`] is [`DOCUMENT_PROTOCOL`] goes to `document`.
 use crate::document::{CatalogError, ErrorKind};
 use crate::wire::document::{DocRequest, DocResponse};
 use crate::wire::source::{Ref, Request, Response};
@@ -87,6 +87,36 @@ pub fn serve_io(
 /// Process entry for a plugin executable: one request on stdin, one response on stdout.
 pub fn serve(plugin: &mut dyn SourcePlugin) -> std::io::Result<()> {
     serve_io(
+        plugin,
+        &mut std::io::stdin().lock(),
+        &mut std::io::stdout().lock(),
+    )
+}
+
+/// Reads request lines from `input` until EOF; each line is answered on `output`.
+/// Empty lines are skipped. EOF (or a read that yields no bytes after a prior line) ends cleanly.
+pub fn serve_loop_io(
+    plugin: &mut dyn SourcePlugin,
+    input: &mut dyn BufRead,
+    output: &mut dyn Write,
+) -> std::io::Result<()> {
+    loop {
+        let mut line = String::new();
+        let n = input.read_line(&mut line)?;
+        if n == 0 {
+            return Ok(());
+        }
+        if line.trim().is_empty() {
+            continue;
+        }
+        writeln!(output, "{}", handle_line(plugin, &line))?;
+        output.flush()?;
+    }
+}
+
+/// Long-running process entry: request lines on stdin until EOF, one response per line.
+pub fn serve_loop(plugin: &mut dyn SourcePlugin) -> std::io::Result<()> {
+    serve_loop_io(
         plugin,
         &mut std::io::stdin().lock(),
         &mut std::io::stdout().lock(),

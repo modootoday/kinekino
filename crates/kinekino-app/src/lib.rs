@@ -154,12 +154,50 @@ pub fn run_plugins(args: &Args, env: &Env) -> (u8, String) {
 }
 
 /// Fake `source/1` plugin for end-to-end tests: the SDK fixture plugin behind the SDK's own
-/// `serve` loop (plugin side written only against `kinekino-plugin-sdk`).
+/// serve loop (plugin side written only against `kinekino-plugin-sdk`).
+///
+/// Optional `fixture-mode.txt` in the process cwd selects behaviour for contract tests:
+/// empty/`loop` → [`serve_loop`]; `oneshot` → [`serve`]; `crash-on-request` aborts after
+/// reading one line with no reply; `sleep-before-ms=N` delays each reply by N milliseconds.
 pub fn fake_source_plugin() {
     let mut plugin = kinekino_plugin_sdk::fixture::FixturePlugin {
         provider: "com.example.fixture".into(),
     };
-    let _ = kinekino_plugin_sdk::serve(&mut plugin);
+    let mode = std::fs::read_to_string("fixture-mode.txt").unwrap_or_default();
+    let mode = mode.trim();
+    if mode == "oneshot" {
+        let _ = kinekino_plugin_sdk::serve(&mut plugin);
+        return;
+    }
+    if mode == "crash-on-request" {
+        let mut line = String::new();
+        let _ = std::io::BufRead::read_line(&mut std::io::stdin().lock(), &mut line);
+        std::process::abort();
+    }
+    if let Some(ms) = mode.strip_prefix("sleep-before-ms=") {
+        let ms: u64 = ms.parse().unwrap_or(0);
+        use std::io::{BufRead, Write};
+        let mut input = std::io::stdin().lock();
+        let mut output = std::io::stdout().lock();
+        loop {
+            let mut line = String::new();
+            match input.read_line(&mut line) {
+                Ok(0) => return,
+                Ok(_) if line.trim().is_empty() => continue,
+                Ok(_) => {
+                    std::thread::sleep(std::time::Duration::from_millis(ms));
+                    let _ = writeln!(
+                        output,
+                        "{}",
+                        kinekino_plugin_sdk::handle_line(&mut plugin, &line)
+                    );
+                    let _ = output.flush();
+                }
+                Err(_) => return,
+            }
+        }
+    }
+    let _ = kinekino_plugin_sdk::serve_loop(&mut plugin);
 }
 
 /// Desktop `player` process entry (bin moved from `kinekino-player`, ADR p1-port-inversion):
