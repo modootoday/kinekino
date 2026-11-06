@@ -3,7 +3,7 @@ id: plan:kinekino/20261031153240
 title: kinekino 완성 로드맵과 마일스톤
 status: draft
 created: 2026-10-31T15:32:40Z
-updated: 2026-11-06T11:42:00Z
+updated: 2026-11-06T15:57:00Z
 rel:
   governs: [crates]
 ---
@@ -126,3 +126,4 @@ PotPlayer를 기준으로 한 Linux 우선 플레이어를 끝까지 완성하�
 - 2026-11-06: M3-7 real-site check allowed by 원 님 (2026-11-06); historical user-gate noted, not erased.
 - 2026-11-06: M3-7 — external source plugin playlist protocol aligned (browse nesting + Item.kind container/playable; live check). Resolve media-host rejection left open. Plugin commit outside host repo. M3 not closed.
 - 2026-11-06: M2-V* visual review treats mockup-to-mockup inconsistency as expected (원 님). Verification includes consistency-first improvements; do not copy conflicting mockup details or regenerate mockups.
+- 2026-11-07: M2-V1 — seek/nav visual verify done (real player + mockups); text cue yields to bottom toast while notice is set; keep session clock and shared seek-thumb tokens (do not copy mockup zero-pad or missing thumb). M2 not closed.
