@@ -251,3 +251,59 @@ fn selecting_a_row_moves_the_current_marker() {
     assert!(prop(&c.view, "cur0").contains("false"));
     std::fs::remove_dir_all(dir).unwrap();
 }
+
+#[test]
+fn playlist_panel_css_uses_shared_surface_tokens() {
+    // M2-V3: mockup hex must not reappear in live rules; menu/toast/browse share tokens.
+    let css = include_str!("../../src/player.css");
+    assert!(
+        css.contains(".kk-playlist") && css.contains("background: var(--aw-surface-panel)"),
+        "playlist panel bg must use --aw-surface-panel"
+    );
+    assert!(
+        css.contains("border-left: var(--aw-border-thin) solid var(--aw-border)"),
+        "playlist border must use --aw-border"
+    );
+    assert!(
+        css.contains("background: var(--aw-selected-surface)"),
+        "current row fill must use --aw-selected-surface"
+    );
+    assert!(
+        !css.contains("background: #1b1e22"),
+        "mockup panel hex must not be a live background"
+    );
+    assert!(
+        !css.contains("background: #2f2a23"),
+        "mockup selected hex must not be a live background"
+    );
+    assert!(
+        !css.contains("solid #34363a"),
+        "mockup border hex must not be a live border color"
+    );
+    // Chrome label / dock contracts still hold alongside the color swap.
+    let view = View {
+        has_media: true,
+        panel_open: true,
+        work: "예시".into(),
+        playlist: vec![PlaylistItem {
+            number: "01".into(),
+            title: "a".into(),
+        }],
+        current: Some(0),
+        ..View::default()
+    };
+    let (_, mut doc) = Session::mount(&view).unwrap();
+    let viewport = doc.viewport.clone();
+    doc.update_module_props(meari_props(&view)).unwrap();
+    doc.renderer.rasterize(&viewport).unwrap();
+    let text = all_text(&doc);
+    assert!(text.contains("회차 목록"), "header label regress: {text:?}");
+    assert!(
+        !text.contains("재생목록"),
+        "legacy playlist label must stay gone: {text:?}"
+    );
+    assert!(
+        prop(&view, "stageClass").contains("kk-docked"),
+        "dock class regress"
+    );
+}
