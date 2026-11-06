@@ -295,3 +295,55 @@ fn m1_media_items_are_disabled_without_media_and_headings_include_skip() {
         );
     }
 }
+
+/// Content must fit inside the reserved box so overflow-y never hides the last group
+/// during normal playback (ADR CONTEXT_MENU_SIZE). Headings use shared .kk-menu-heading.
+#[test]
+fn context_menu_last_item_fits_inside_the_reserved_box() {
+    let mut c = Controller::new(FakeEngine::default());
+    c.view.has_media = true;
+    c.view.has_browse_plugin = true;
+    c.view.playing = true;
+    let (_session, mut doc) = Session::mount(&c.view).unwrap();
+    let viewport = doc.viewport.clone();
+    c.apply(Command::ContextMenu(40.0, 40.0));
+    doc.update_module_props(meari_props(&c.view)).unwrap();
+    doc.renderer.rasterize(&viewport).unwrap();
+    let base = &*doc.renderer.document;
+    let menu_id = base.query_selector("#contextMenu").unwrap().unwrap();
+    let menu = base.get_node(menu_id).unwrap();
+    let menu_layout = *menu.final_layout();
+    let last_id = base.query_selector("#ctxFullscreen").unwrap().unwrap();
+    let last = base.get_node(last_id).unwrap();
+    let last_layout = *last.final_layout();
+    // Walk parents so last.y is relative to the menu's content box origin.
+    let mut y = last_layout.location.y;
+    let mut parent = last.layout_parent.get();
+    while let Some(p) = parent {
+        if p == menu_id {
+            break;
+        }
+        let pn = base.get_node(p).unwrap();
+        y += pn.final_layout().location.y;
+        parent = pn.layout_parent.get();
+    }
+    let bottom = y + last_layout.size.height;
+    eprintln!(
+        "context content: last bottom {bottom} menu height {} reservation {:?}",
+        menu_layout.size.height, CONTEXT_MENU_SIZE
+    );
+    assert!(
+        bottom <= menu_layout.size.height + 0.5,
+        "last item must sit inside the menu box (got bottom {bottom} > {})",
+        menu_layout.size.height
+    );
+    let (w, h) = CONTEXT_MENU_SIZE;
+    assert!(
+        menu_layout.size.width <= w as f32 + 0.5 && menu_layout.size.height <= h as f32 + 0.5,
+        "menu must stay within the ADR reservation"
+    );
+    assert!(
+        menu_layout.size.height > 360.0,
+        "full flat list is taller than the M2-2 skeleton"
+    );
+}

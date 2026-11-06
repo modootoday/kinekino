@@ -3,7 +3,7 @@ id: adr:kinekino/20261105161614
 title: "우클릭 메뉴 골격: 포인터 위치 팝업과 다섯 묶음"
 status: active
 created: 2026-11-05T16:16:14Z
-updated: 2026-11-05T17:17:57Z
+updated: 2026-11-06T16:40:00Z
 rel:
   governs: [crates/kinekino-player-ui]
 ---
@@ -19,7 +19,7 @@ rel:
 1. **명령과 상태.** `Command::ContextMenu(x, y)`는 문서 좌표(CSS px)의 왼쪽 위 모서리에 메뉴를 연다. `View.context_menu: Option<(f64, f64)>`가 열린 위치다. 다시 우클릭하면 새 위치로 옮긴다. `Command::CloseMenu`는 두 메뉴(⋮, 우클릭)를 모두 닫는다. 우클릭 메뉴를 열면 ⋮ 메뉴는 닫힌다.
 2. **닫힘 규칙.** ⋮ 메뉴와 같다. Esc는 열린 메뉴만 닫고 전체화면·열기 취소보다 먼저다. `ContextMenu` 밖의 모든 명령(메뉴 항목 포함)은 우클릭 메뉴를 닫는다. 메뉴 밖을 왼쪽 단추로 누르면 창이 `CloseMenu`를 보내고 그 누름은 문서로 넘기지 않는다(데스크탑 메뉴 관례). 메뉴가 열려 있으면 전체화면 자동 숨김을 하지 않는다.
 3. **위치.** 창이 누른 점을 배율로 나눈 문서 좌표와 뷰포트 크기를 `menu::context_anchor`에 넘긴다. 메뉴 상자(`CONTEXT_MENU_SIZE`, 240×360 px 예약)가 오른쪽·아래로 넘치면 누른 점의 왼쪽·위로 펼치고, 그래도 넘치면 0에 붙인다. 위치는 `contextMenuStyle` 문자열 prop(`left: …px; top: …px;`)으로 인라인 `style`에 넣는다. Meari 0.2.0이 prop으로 바뀐 `style` 속성을 다시 배치하는 것은 레이아웃 시험으로 확인한다.
-4. **묶음과 항목(M2-2 골격 + M2-3 연결).** `#contextMenu`(`role="menu"`, `aria-label="메뉴"`) 안에 머리말과 납작한 항목을 둔다. 중첩 플라이아웃은 두지 않는다. `CONTEXT_MENU_SIZE`는 항목이 들어가도록 키운다(280×700 CSS px, 항목은 작은 높이).
+4. **묶음과 항목(M2-2 골격 + M2-3 연결).** `#contextMenu`(`role="menu"`, `aria-label="메뉴"`) 안에 머리말과 납작한 항목을 둔다. 중첩 플라이아웃은 두지 않는다. `CONTEXT_MENU_SIZE`는 항목이 들어가도록 키운다(280×720 CSS px, 항목은 작은 높이).
 
 | 묶음 | 단추 id | 명령 | 미디어 없을 때 |
 | --- | --- | --- | --- |
@@ -37,7 +37,7 @@ rel:
 
 단축키 표기는 adr:kinekino/20261105151827의 표를 따른다(Ctrl+O, Space, PageUp/Down, X/C/Z, ←/→, Ctrl+←/→, Ctrl+[/]/S/Ctrl+\\, Alt+L, Alt+A, ↑/↓/M, F).
 
-5. **이번 범위 밖(남은 일).** 키보드로 항목 이동(↑/↓·Enter), 메뉴 키·Shift+F10으로 열기, 중첩 플라이아웃, 실제 화면에서의 모양 확인(시각 미확인).
+5. **이번 범위 밖(남은 일).** 키보드로 항목 이동(↑/↓·Enter), 메뉴 키·Shift+F10으로 열기, 중첩 플라이아웃. 실화면 모양은 M2-V2에서 확인·밀도/예약(280×720)·overflow-y를 맞춤.
 
 ## Rationale
 

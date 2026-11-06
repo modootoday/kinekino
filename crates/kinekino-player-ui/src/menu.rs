@@ -5,7 +5,7 @@ use crate::source::View;
 
 /// Box reserved for the right-click menu in CSS px, used to keep it inside the window.
 /// A test checks the laid-out menu fits; grow it when items are added.
-pub const CONTEXT_MENU_SIZE: (f64, f64) = (280.0, 700.0);
+pub const CONTEXT_MENU_SIZE: (f64, f64) = (280.0, 720.0);
 
 /// Top-left corner for a right-click menu pressed at `press` in a `viewport` (both CSS px):
 /// at the pointer, opening left/up when it would overflow, pinned at 0 when it cannot fit.

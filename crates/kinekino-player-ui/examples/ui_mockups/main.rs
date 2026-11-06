@@ -17,7 +17,7 @@ use std::path::PathBuf;
 mod studio;
 
 /// Screens of the design drafts that the current player can already show.
-const SCREENS: [(&str, &str); 16] = [
+const SCREENS: [(&str, &str); 17] = [
     ("start", "첫 화면: 파일 열기와 작품 탐색"),
     ("opening", "첫 화면: 항목을 여는 중"),
     ("opening-over-video", "재생 중 다른 항목을 여는 중"),
@@ -28,6 +28,7 @@ const SCREENS: [(&str, &str); 16] = [
     ("playlist", "재생 중, 플러그인 재생목록 패널 열림"),
     ("subtitle", "재생 중, 자막 두 줄"),
     ("menu", "재생 중, ⋮ 더 보기 메뉴"),
+    ("context", "재생 중, 우클릭 메뉴"),
     ("fullscreen", "전체화면 레이아웃"),
     ("browse-sources", "작품 탐색: 소스 고르기"),
     ("browse-list", "작품 탐색: 검색창과 목록, 더 보기"),
@@ -174,6 +175,16 @@ fn view_for(screen: &str) -> Option<View> {
         "menu" => {
             playing(&mut v);
             v.menu_open = true;
+        }
+        "context" => {
+            playing(&mut v);
+            // Same placement as a mid-stage right-click on a 1280×720 mockup window
+            // (context_anchor flips up when 280×720 would overflow).
+            v.context_menu = Some(kinekino_player_ui::context_anchor(
+                (500.0, 180.0),
+                (1280.0, 720.0),
+            ));
+            v.has_browse_plugin = true;
         }
         "fullscreen" => {
             playing(&mut v);
