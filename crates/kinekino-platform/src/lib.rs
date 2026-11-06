@@ -58,6 +58,12 @@ pub mod session {
     pub use super::adapter::session::{SessionCredentialStore, target};
 }
 
+/// OS credential adapters beyond the in-process session store.
+pub mod credential {
+    #[cfg(all(not(windows), target_os = "linux"))]
+    pub use super::adapter::secret_service::SecretServiceCredentialStore;
+}
+
 /// [`kinekino_core::platform::OsPolicy`] backed by this build's OS adapter.
 #[derive(Debug, Default, Clone, Copy)]
 pub struct CurrentOs;

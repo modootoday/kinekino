@@ -24,7 +24,7 @@ pub fn target() -> TargetPlatform {
     detect(OsId::of_build(), d.as_deref(), w.as_deref())
 }
 
-/// Process-lifetime store. Used until a Secret Service (D-Bus) adapter is registered.
+/// Process-lifetime store. Prefer [`crate::secret_service::SecretServiceCredentialStore`] when the OS store is available; product may fall back here explicitly.
 #[derive(Debug, Default)]
 pub struct SessionCredentialStore {
     entries: HashMap<(String, String), Secret>,
