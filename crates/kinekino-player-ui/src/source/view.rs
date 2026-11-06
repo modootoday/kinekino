@@ -284,13 +284,14 @@ pub fn props(view: &View) -> BTreeMap<String, Prop> {
                 .map(|(x, y)| format!("left: {x:.0}px; top: {y:.0}px;"))
                 .unwrap_or_default()),
         ),
+        ("noWork".to_owned(), Prop::Bool(view.work.is_empty())),
         (
             "menuPanelLabel".to_owned(),
             Prop::Text(
                 if view.panel_open {
-                    "재생목록 닫기"
+                    "회차 목록 닫기"
                 } else {
-                    "재생목록 열기"
+                    "회차 목록 열기"
                 }
                 .into(),
             ),

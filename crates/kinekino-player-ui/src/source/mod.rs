@@ -29,7 +29,7 @@ fn icon_button(id: &str, label: &str, icon: &str, extra: &str) -> String {
 /// TSX for a window with `episodes` fixed rows.
 pub fn build(episodes: &[PlaylistItem]) -> String {
     let mut types = String::from(
-        "context: string; title: string; work: string; status: string; statusClass: string; notice: string; noNotice: boolean; noSkipOffer: boolean; hasMedia: boolean; noMedia: boolean; hideStart: boolean; noBrowse: boolean; noBrowsePlugin: boolean; browseClass: string; browseHeading: string; browseStatus: string; browseStatusClass: string; noBrowseStatus: boolean; noBrowseMore: boolean; noBrowseSearch: boolean; searchClass: string; rowsClass: string; layoutIcon: string; layoutLabel: string; fullscreen: boolean; panelOpen: boolean; noMenu: boolean; noContextMenu: boolean; contextMenuStyle: string; menuPanelLabel: string; subtitle1: string; subtitle2: string; noSubtitle: boolean; noSubtitle2: boolean; rootClass: string; stageClass: string; frameClass: string; transportClass: string; playIcon: string; playLabel: string; volumeIcon: string; maximizeIcon: string; maximizeLabel: string; fullscreenLabel: string; position: string; duration: string; seek: string; volume: string;",
+        "context: string; title: string; work: string; status: string; statusClass: string; notice: string; noNotice: boolean; noSkipOffer: boolean; hasMedia: boolean; noMedia: boolean; hideStart: boolean; noBrowse: boolean; noBrowsePlugin: boolean; browseClass: string; browseHeading: string; browseStatus: string; browseStatusClass: string; noBrowseStatus: boolean; noBrowseMore: boolean; noBrowseSearch: boolean; searchClass: string; rowsClass: string; layoutIcon: string; layoutLabel: string; fullscreen: boolean; panelOpen: boolean; noWork: boolean; noMenu: boolean; noContextMenu: boolean; contextMenuStyle: string; menuPanelLabel: string; subtitle1: string; subtitle2: string; noSubtitle: boolean; noSubtitle2: boolean; rootClass: string; stageClass: string; frameClass: string; transportClass: string; playIcon: string; playLabel: string; volumeIcon: string; maximizeIcon: string; maximizeLabel: string; fullscreenLabel: string; position: string; duration: string; seek: string; volume: string;",
     );
     let mut state = String::new();
     let mut rows = String::new();
@@ -115,12 +115,12 @@ export function KinekinoPlayer(props: Props) {{
           <button id="browseMore" className="aw-button" hidden={{props.noBrowseMore}} {c_browse_more}>더 보기</button>
         </div>
       </section>
-      <aside id="panel" className="aw-episode-panel kk-playlist" aria-label="재생목록" hidden={{!props.panelOpen}}>
+      <aside id="panel" className="aw-episode-panel kk-playlist" aria-label="회차 목록" hidden={{!(props.panelOpen && !props.fullscreen)}}>
         <div className="aw-catalog-browser">
-          <div className="aw-episode-heading"><h2>재생목록</h2>{panel_close}</div>
-          <p className="aw-episode-title">{{props.work}}</p>
-          <div className="aw-episode-body aw-catalog-lists"><div role="radiogroup" aria-label="재생 항목">
-{rows}          </div></div>
+          <div className="aw-episode-heading"><h2>회차 목록</h2>{panel_close}</div>
+          <p id="panelWork" className="aw-episode-title" hidden={{props.noWork}}>{{props.work}}</p>
+          <div className="aw-episode-body aw-catalog-lists"><div role="radiogroup" aria-label="회차">
+{rows}{empty_row}          </div></div>
         </div>
       </aside>
     </div>
@@ -214,7 +214,7 @@ export function KinekinoPlayer(props: Props) {{
         mute = icon_button("mute", "\"음소거\"", "{props.volumeIcon}", ""),
         episodes = icon_button(
             "episodes",
-            "\"재생목록\"",
+            "\"회차 목록\"",
             "\"aw-icon aw-icon-episodes\"",
             ""
         ),
@@ -227,10 +227,15 @@ export function KinekinoPlayer(props: Props) {{
         more = icon_button("more", "\"더 보기\"", "\"aw-icon aw-icon-more\"", ""),
         panel_close = icon_button(
             "panelClose",
-            "\"재생목록 닫기\"",
+            "\"회차 목록 닫기\"",
             "\"aw-icon aw-icon-close\"",
             ""
         ),
+        empty_row = if episodes.is_empty() {
+            "<p className=\"kk-pl-empty\">회차 정보가 없습니다</p>\n".to_owned()
+        } else {
+            String::new()
+        },
     )
 }
 
