@@ -3,7 +3,7 @@ id: adr:kinekino/20261106032051
 title: 플러그인 Resolve용 호스트 브라우저 캡처 능력
 status: active
 created: 2026-11-06T03:20:51Z
-updated: 2026-11-06T03:22:00Z
+updated: 2026-11-06T04:20:00Z
 rel:
   governs:
     - crates/kinekino-source-host
@@ -75,3 +75,4 @@ skill: 조회 결과 무관(도메인 스킬 미적용).
 ## Record
 
 - 2026-11-06: M3-4 — host-owned browser capture capability for plugin Resolve designed (`BrowserCaptureSession`); NetworkInterceptor stays Allow/Block; first path deferred to M3-5.
+- 2026-11-06: M3-5 — first path: mock BrowserEngine + BrowserCaptureSession contract tests; plugin maps observations to StreamCandidate; NetworkInterceptor unchanged; no real site/WebView.

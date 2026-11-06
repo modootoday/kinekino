@@ -1,5 +1,6 @@
 //! Engine-neutral port, capability-based selection, the contract suite, and the adapters
 //! behind cfg and feature gates (ADR 0002).
+pub mod capture;
 #[cfg(any(feature = "cdp", feature = "cef"))]
 pub mod chromium;
 pub mod contract;
