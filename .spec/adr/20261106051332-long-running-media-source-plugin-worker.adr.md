@@ -84,3 +84,4 @@ rel:
 ## Record
 
 - 2026-11-06: M3-6 — long-running per-plugin worker designed (OwnedFamily spawn, JSON-line loop, one in-flight request, idle/crash policy); implementation deferred to M3-6b.
+- 2026-11-06: M3-6b — PluginWorker + OwnedFamily spawn, SDK serve_loop, ProcessSource reuse, contract tests (reuse/idle/crash/timeout/oneshot) (`1250a73b`).

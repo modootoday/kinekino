@@ -119,3 +119,4 @@ PotPlayer를 기준으로 한 Linux 우선 플레이어를 끝까지 완성하�
 - 2026-11-06: M3-4 — browser-capture Resolve delegated as a host capability (`BrowserCaptureSession`); plugin never owns the browser; first path (mock engine + contract tests) is M3-5 (ADR 20261106032051). M3 not closed.
 - 2026-11-06: M3-5 — first host BrowserCaptureSession path with mock engine and contract tests; plugin maps observations to StreamCandidate; NetworkInterceptor remains Allow/Block (ADR 20261106032051).
 - 2026-11-06: M3-6 — long-running per-plugin media-source worker designed (OwnedFamily spawn, JSON-line serve loop, one in-flight request, idle/crash policy); implementation deferred (ADR 20261106051332).
+- 2026-11-06: M3-6b — long-running per-plugin PluginWorker implemented (OwnedFamily spawn, SDK serve_loop, ProcessSource reuse, idle/crash/call-timeout; contract tests) (`1250a73b`). M3 not closed.
