@@ -3,7 +3,8 @@
 use super::folder;
 use super::support::FakeEngine;
 use kinekino_player_ui::{
-    Command, Controller, SEEK_STEP_1, SEEK_STEP_2, SEEK_STEP_3, SEEK_STEP_4, shortcut,
+    Command, Controller, SEEK_STEP_1, SEEK_STEP_2, SEEK_STEP_3, SEEK_STEP_4, View, meari_props,
+    shortcut,
 };
 use winit::keyboard::{KeyCode as K, ModifiersState as M, PhysicalKey::Code};
 
@@ -189,4 +190,32 @@ fn seek_does_not_toast_without_media_or_duration() {
     c.apply(Command::SeekBy(5.0));
     assert!(c.view.notice.is_empty());
     std::fs::remove_dir_all(dir).ok();
+}
+
+#[test]
+fn seek_toast_hides_the_text_subtitle_overlay() {
+    // Toast and text cue share the stage bottom centre; while the OSD is up the cue must
+    // yield so seek/volume/speed feedback stays readable (visual-review consistency).
+    let mut view = View {
+        has_media: true,
+        subtitle: "cue line".into(),
+        ..View::default()
+    };
+    let shown = format!("{:?}", meari_props(&view)["noSubtitle"]);
+    assert!(
+        shown.contains("false"),
+        "text cue shows when there is no toast: {shown}"
+    );
+    view.notice = "1:45 / 25:00".into();
+    let hidden = format!("{:?}", meari_props(&view)["noSubtitle"]);
+    assert!(
+        hidden.contains("true"),
+        "toast owns the bottom centre while the notice is set: {hidden}"
+    );
+    view.notice.clear();
+    let back = format!("{:?}", meari_props(&view)["noSubtitle"]);
+    assert!(
+        back.contains("false"),
+        "cue returns after the toast clears: {back}"
+    );
 }

@@ -306,8 +306,10 @@ pub fn props(view: &View) -> BTreeMap<String, Prop> {
         ),
         ("noSubtitle2".to_owned(), Prop::Bool(lines.len() < 2)),
         (
+            // OSD toast (#notice) shares the stage bottom centre with the text cue; hide
+            // the cue while a notice is up so seek/volume/speed feedback stays readable.
             "noSubtitle".to_owned(),
-            Prop::Bool(!view.has_media || lines.is_empty()),
+            Prop::Bool(!view.has_media || lines.is_empty() || !view.notice.is_empty()),
         ),
         (
             "rootClass".to_owned(),
