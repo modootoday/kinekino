@@ -3,7 +3,7 @@ id: sot:kinekino/settings-ui-design
 title: 설정 창 디자인 정본과 시안 대응
 status: active
 created: 2026-10-30T04:02:16Z
-updated: 2026-11-05T19:16:00Z
+updated: 2026-11-07T04:30:00Z
 verify: [cargo test -p kinekino-settings-ui]
 ---
 
@@ -60,4 +60,5 @@ verify: [cargo test -p kinekino-settings-ui]
 ## Verification
 
 - `crates/kinekino-settings-ui/tests`: settings.css의 모든 `var(--aw-…)`가 tokens.css에 있고 색 리터럴(`#`, `rgb(`)이 없다.
+- `settings_caption_css_uses_shared_chrome_tokens`: 공유 `components.css`의 `.aw-window-chrome`이 `--aw-surface-chrome`/`--aw-titlebar`를 쓰고, settings.css가 chrome을 재정의·시안 hex를 쓰지 않으며, brand/context flex가 공유 계약에 있고 마운트 마크업이 플레이어와 같다(M2-V5).
 - 헤드리스 렌더(PNG)와 xvfb 창 스모크, Windows 실제 창 스크린숏.

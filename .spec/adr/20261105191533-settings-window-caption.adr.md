@@ -3,7 +3,7 @@ id: adr:kinekino/20261105191533
 title: 설정 창 제품 caption(aw-window-chrome)
 status: active
 created: 2026-11-05T19:15:33Z
-updated: 2026-11-05T19:16:00Z
+updated: 2026-11-07T04:30:00Z
 rel:
   governs: [crates/kinekino-settings-ui]
   related: [adr:kinekino/20261030040215, adr:kinekino/20261031055110, sot:kinekino/settings-ui-design]
@@ -27,4 +27,4 @@ rel:
 ## Consequences
 
 - [settings-ui-design](../sot/settings-ui-design.sot.md) 창 caption 행은 `aw-window-chrome`으로 갱신한다. 이전 ADR의 "OS 프레임" 서술은 당시 상태이며, 후속은 이 ADR이 정본이다.
-- 시각 일치는 실화면 확인 전 **시각 미확인**. 가장자리 크기 조절 띠는 남은 작업이다.
+- M2-V5: 설정 caption이 공유 `aw-window-chrome`/`--aw-surface-chrome`/`--aw-titlebar`를 쓰는지 DOM·CSS 잠금 테스트로 확인. brand/name/captions flex와 context 신축 규칙을 components.css로 올려 플레이어와 동일 계약. 시안 전용 제목줄 hex는 복제하지 않음. 가장자리 크기 조절 띠는 남은 작업이다.
