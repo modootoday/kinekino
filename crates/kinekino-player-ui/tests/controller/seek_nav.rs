@@ -219,3 +219,68 @@ fn seek_toast_hides_the_text_subtitle_overlay() {
         "cue returns after the toast clears: {back}"
     );
 }
+
+#[test]
+fn osd_toast_css_uses_shared_panel_tokens() {
+    // M2-V4: live toast chrome stays on shared panel tokens (menu family), not
+    // mockup translucent-pill hex. Locks the visual-review recommendation for OSD.
+    let css = include_str!("../../src/player.css");
+    assert!(
+        css.contains(".kk-toast") && css.contains(".kk-toast-text"),
+        "toast selectors must remain"
+    );
+    let toast_text_rule = css
+        .lines()
+        .find(|l| l.contains(".kk-toast-text"))
+        .expect(".kk-toast-text rule");
+    assert!(
+        toast_text_rule.contains("background: var(--aw-surface-panel)"),
+        "toast fill must use --aw-surface-panel: {toast_text_rule}"
+    );
+    assert!(
+        toast_text_rule.contains("var(--aw-border)"),
+        "toast border must use --aw-border: {toast_text_rule}"
+    );
+    assert!(
+        toast_text_rule.contains("border-radius: var(--aw-radius-control)"),
+        "toast radius must use --aw-radius-control: {toast_text_rule}"
+    );
+    assert!(
+        toast_text_rule.contains("font-family: var(--aw-font-family)"),
+        "toast font must use --aw-font-family (same as menu): {toast_text_rule}"
+    );
+    for banned in [
+        "background: rgba(0, 0, 0,",
+        "background: rgba(0,0,0,",
+        "background: #000",
+        "background: #111",
+        "background: #1a1a1a",
+        "background: #1b1e22",
+    ] {
+        assert!(
+            !toast_text_rule.contains(banned),
+            "mockup-style toast fill must not be live: {banned}"
+        );
+    }
+    // Notice channel still wired: seek toast text + subtitle yield (V1).
+    let view = View {
+        has_media: true,
+        notice: "1:45 / 25:00".into(),
+        subtitle: "cue".into(),
+        ..View::default()
+    };
+    let props = meari_props(&view);
+    assert!(
+        format!("{:?}", props["notice"]).contains("1:45 / 25:00"),
+        "seek toast text must surface: {:?}",
+        props["notice"]
+    );
+    assert!(
+        format!("{:?}", props["noNotice"]).contains("false"),
+        "notice visible while set"
+    );
+    assert!(
+        format!("{:?}", props["noSubtitle"]).contains("true"),
+        "subtitle yields while toast is up"
+    );
+}
