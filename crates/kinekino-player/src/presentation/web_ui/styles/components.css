@@ -12,8 +12,9 @@ button:focus-visible, input:focus-visible { outline: var(--aw-border-focus) soli
 .aw-window-brand { flex: 1; }
 .aw-window-caption-status { min-width: 0; max-width: var(--aw-badge-max); margin: 0 var(--aw-space-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--aw-text-secondary); font-size: var(--aw-font-small); }
 .aw-window-caption-status:empty, .aw-window-caption-status[hidden] { display: none; }
+.aw-window-brand .aw-icon-brand, .aw-product-name, .aw-window-captions { flex: 0 0 auto; }
 .aw-product-name, .aw-window-context { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.aw-window-context { color: var(--aw-text-secondary); }
+.aw-window-context { flex: 1 1 0; min-width: 0; color: var(--aw-text-secondary); }
 .aw-window-context:empty { display: none; }
 .aw-window-context:not(:empty) { border-left: var(--aw-border-thin) solid var(--aw-border); padding-left: var(--aw-space-3); }
 .aw-window-captions { display: flex; align-self: stretch; flex-shrink: 0; }
