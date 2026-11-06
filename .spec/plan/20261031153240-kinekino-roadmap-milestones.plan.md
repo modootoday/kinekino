@@ -127,3 +127,4 @@ PotPlayer를 기준으로 한 Linux 우선 플레이어를 끝까지 완성하�
 - 2026-11-06: M3-7 — external source plugin playlist protocol aligned (browse nesting + Item.kind container/playable; live check). Resolve media-host rejection left open. Plugin commit outside host repo. M3 not closed.
 - 2026-11-06: M2-V* visual review treats mockup-to-mockup inconsistency as expected (원 님). Verification includes consistency-first improvements; do not copy conflicting mockup details or regenerate mockups.
 - 2026-11-07: M2-V1 — seek/nav visual verify done (real player + mockups); text cue yields to bottom toast while notice is set; keep session clock and shared seek-thumb tokens (do not copy mockup zero-pad or missing thumb). M2 not closed.
+- 2026-11-07: M2-V3 — playlist panel visual verify done (real player + mockups); panel/border/selected colors use product tokens instead of mockup hex; keep episode-list structure (heading, dock, amber current row). M2 not closed.
