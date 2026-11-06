@@ -25,7 +25,7 @@ Subtitles are data, not burned-in text. You can convert them, export a range, an
 - **Alignment**: snap cues to speech. `status:planned`
 - **Translation and summaries**: per cue, reviewed before saving. `status:planned`
 - **OCR and search**: read on-screen text and search all subtitles. `status:planned`
-- **ASS and image subtitles**: styled rendering. `status:planned`
+- **ASS and image subtitles**: engine-drawn ASS/SSA and picture tracks; text tracks use the overlay. `status:partial`
 
 > [!NOTE]
 > AI results arrive as proposals. Nothing is written to your subtitles until you accept it in review.

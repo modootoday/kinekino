@@ -25,7 +25,7 @@ sections:
 - **정렬**: 큐를 말소리에 맞춤. `status:planned`
 - **번역과 요약**: 큐 단위, 저장 전에 리뷰. `status:planned`
 - **OCR과 검색**: 화면 글자 읽기, 전체 자막 검색. `status:planned`
-- **ASS·이미지 자막**: 스타일 렌더링. `status:planned`
+- **ASS·이미지 자막**: 엔진이 ASS/SSA·이미지 트랙을 그리고, 텍스트 트랙은 오버레이. `status:partial`
 
 > [!NOTE]
 > AI 결과는 제안으로 옵니다. 리뷰에서 수락하기 전에는 자막에 아무것도 쓰지 않습니다.

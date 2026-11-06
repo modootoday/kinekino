@@ -59,12 +59,12 @@ $ cargo xtask lint-structure
 | --- | --- | --- |
 | SDK command | `group.action` request with a JSON schema; one envelope for every client | Available |
 | Hosts | Local, playback, job and execution hosts that own long-running work | Partial |
-| Playback | WebView2 / CEF engines with segment skip and audio handoff | Partial (Windows) |
+| Playback | libmpv player with segment skip, resume and viewing prefs | Partial |
 | Subtitles | Transcribe, diarize, convert and edit SRT/VTT | Partial |
 | Proposals and projects | Clip, card and asset projects with revisioned saves | Partial |
 | Jobs | Batched background work with explicit retry and cancel | Partial |
 | OS ports | `process`, `ipc`, `clock`, `window` policies in `kinekino_core::platform` | Available (Windows runtime unverified) |
-| Linux GUI | Native window and playback on X11/Wayland | Planned |
+| Linux GUI | Meari window and libmpv playback (same path as Windows) | Partial |
 
 Design records live in [`.spec/adr`](.spec/adr) (for example [ADR 0009, native window port](.spec/adr/20261030190000-adr-0009-native-window-port.adr.md)).
 

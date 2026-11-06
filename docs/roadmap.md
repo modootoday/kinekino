@@ -15,7 +15,7 @@ Steps from the development plan. Dates are not promised.
 1. **P0 Cross-OS foundation**: ports, settings rules, OS IPC.
 2. **P1 Core contexts**: playback and studio domains.
 3. **P1b Inference port**: local and cloud models, consent, cost guard, credential store.
-4. **P2 Linux playback**: mpv host and resume.
+4. **P2 Linux playback**: hand-check the libmpv player on Linux (resume and viewing prefs already ship).
 5. **P3 Browser catalog**: sources and episode pages.
 6. **P4 Studio executors**: shorts, cards, snapshots on Linux.
 7. **P5 Subtitles and AI**: ASS, speech to text, diarization, OCR, translation, local packs.

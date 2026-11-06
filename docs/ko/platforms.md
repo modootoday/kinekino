@@ -14,7 +14,7 @@ sections:
 ## OS별 상태
 
 - **Windows**: 현재 앱(메아리 UI), 직접 확인한 네이티브 mpv 재생, 네임드 파이프 IPC, 스냅샷 내보내기. 최종 확인은 P8. `status:partial`
-- **Linux**: 개발 기준 OS. CLI와 Unix 소켓 IPC 동작, mpv 재생은 P2, 스냅샷은 P4, GUI는 P6. `status:partial`
+- **Linux**: 개발 기준 OS. CLI·Unix 소켓 IPC와 Meari+libmpv 플레이어는 Windows와 같은 코드 경로, 재생 손 확인은 남아 있고 스냅샷은 P4. `status:partial`
 - **macOS**: 아직 빌드·확인 전, P8에서 빌드 확인. `status:planned`
 
 ## 확인 방식

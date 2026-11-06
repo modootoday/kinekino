@@ -28,14 +28,14 @@ sections:
 | 자막 변환·구간 내보내기(SRT/WebVTT) | `status:available` | CLI |
 | PNG 프레임 캡처 | `status:partial` | 로컬 mp4/mkv/webm, FFmpeg 필요 |
 | 스냅샷 내보내기 | `status:partial` | 지금은 Windows, Linux는 P4 |
-| mpv 재생 | `status:partial` | Windows는 직접 확인, Linux는 P2 |
+| libmpv 재생 | `status:partial` | Windows는 직접 확인, Linux는 같은 코드 경로·손 확인은 나중 |
 | 회차 이동, 인트로 건너뛰기 | `status:partial` | 수동 건너뛰기, 자동 감지는 나중 |
-| 이어 보기와 환경설정 기억 | `status:planned` | P2 |
+| 이어 보기와 환경설정 기억 | `status:partial` | 위치·볼륨·음소거·속도·자동 다음화, 트랙 선호는 나중 |
 | 미디어·AI 제안 리뷰 | `status:partial` | |
 | 프로젝트, 지속 작업 | `status:partial` | 리비전과 멱등 키 |
 | 카드, 쇼츠, 에셋 | `status:partial` | 실행기는 P4에서 완성 |
 | 큐·화자 편집 | `status:partial` | 직접 편집 |
-| ASS·이미지 자막 | `status:planned` | P5 |
+| ASS·이미지 자막 | `status:partial` | 엔진이 ASS/SSA·이미지 트랙 그림, 텍스트는 오버레이 |
 | 음성 인식, 화자 분리, 정렬 | `status:planned` | P1b, P5 |
 | 번역과 요약 | `status:planned` | P5 |
 | OCR과 자막 검색 | `status:planned` | P5 |
@@ -43,5 +43,5 @@ sections:
 | 추론 동의와 비용 보호 | `status:planned` | P1b |
 | 설정 화면 | `status:planned` | P6, 스키마 확정 |
 | MCP 서버 | `status:planned` | P9 |
-| 메아리 UI(Windows) | `status:partial` | 설정 창은 모든 OS(P6), 플레이어 Linux GUI는 mpv(P2) 대기 |
+| 메아리 UI | `status:partial` | 플레이어·설정 창은 Linux와 Windows, macOS는 P8 |
 | 편집 출처 기록 | `status:partial` | |

@@ -75,7 +75,7 @@ kinekino --input request.json --json
 A shared Rust core with OS adapters underneath. Development targets Linux first; Windows is where the current app runs; every OS is checked again at the end (P8).
 
 - **Windows**: the current app and native mpv playback, checked by hand. `status:partial`
-- **Linux**: the CLI and local IPC run; playback (P2) and the GUI (P6) are in progress. `status:partial`
+- **Linux**: the CLI, local IPC and the Meari + libmpv player run; a hand check of playback is still open. `status:partial`
 - **macOS**: not verified yet; build check in P8. `status:planned`
 
 [Platform details](platforms.md)
