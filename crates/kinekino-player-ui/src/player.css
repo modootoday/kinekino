@@ -89,6 +89,7 @@
 .kk-player-root .kk-pl-mark .aw-icon { width: 10px; height: 10px; }
 .kk-player-root .kk-pl-num { flex: 0 0 38px; color: var(--aw-text-secondary); font-variant-numeric: tabular-nums; }
 .kk-player-root .kk-pl-row[aria-current="true"] .kk-pl-num { color: var(--aw-accent); }
+.kk-player-root .kk-pl-empty { margin: 0; padding: 15px; color: var(--aw-text-secondary); font-size: 14px; }
 /* Draft: the playback engine named small at the transport's right end. */
 .kk-player-root .kk-engine-label { padding: 0 var(--aw-space-2); color: var(--aw-text-secondary); font-size: var(--aw-font-small); white-space: nowrap; }
 /* 작품 탐색 list mode uses the playlist's flat 45px rows (grid mode keeps tiles). */

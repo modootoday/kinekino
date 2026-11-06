@@ -378,6 +378,10 @@ impl<E: Engine> Controller<E> {
             | Command::BrowseBack
             | Command::BrowseSearch(_) => self.browse(&command),
             Command::BrowseLayout => self.view.browse_grid = !self.view.browse_grid,
+            // Esc: menu (menu::route) → episode panel → browse back → leave fullscreen.
+            Command::ExitFullscreen if self.view.panel_open && !self.view.fullscreen => {
+                self.view.panel_open = false;
+            }
             // Esc in the browse view goes one level back (windowed).
             Command::ExitFullscreen if self.view.browsing && !self.view.fullscreen => {
                 self.browse(&Command::BrowseBack)
@@ -456,6 +460,10 @@ impl<E: Engine> Controller<E> {
             Command::TogglePlaylist => self.view.panel_open = !self.view.panel_open,
             Command::ToggleFullscreen if media => {
                 return Some(Effect::Fullscreen(!self.view.fullscreen));
+            }
+            // Fullscreen + open panel: Esc closes the panel first (VIEW-09a order).
+            Command::ExitFullscreen if self.view.panel_open && self.view.fullscreen => {
+                self.view.panel_open = false;
             }
             Command::ExitFullscreen if self.view.fullscreen => {
                 return Some(Effect::Fullscreen(false));

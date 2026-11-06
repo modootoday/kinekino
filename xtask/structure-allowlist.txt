@@ -243,6 +243,7 @@ file-lines crates/kinekino-vad-executor/src/infrastructure/native.rs (>600)
 file-lines crates/kinekino-vad/tests/contract.rs (>800)
 file-lines crates/kinekino-vad/tests/protocol_contract.rs (>600)
 flat-dir crates/kinekino-jobs/src/application
+flat-dir crates/kinekino-player-ui/tests/controller
 flat-dir crates/kinekino-player/src/application
 flat-dir crates/kinekino-player/src/application/api
 flat-dir crates/kinekino-player/src/application/browser_network

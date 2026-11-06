@@ -8,6 +8,7 @@ use winit::keyboard::{KeyCode, ModifiersState, PhysicalKey};
 /// As in PotPlayer's default layout, Up/Down step the volume and M mutes;
 /// Left/Right (and Ctrl/Shift/Ctrl+Alt variants) seek; PageUp/PageDown change item;
 /// Backspace goes to the start. X/C step the speed down/up and Z resets it.
+/// P opens and closes the episode list panel (mockup / potplayer-ux).
 /// Alt+A and Alt+L cycle the audio and subtitle tracks (PotPlayer's "Cycle audio stream"
 /// and "Cycle subtitle"); other Alt combinations never fire.
 /// Auto-repeat only keeps stepping the volume, speed, and seek arrows.
@@ -69,6 +70,7 @@ pub fn shortcut(mods: ModifiersState, key: PhysicalKey, repeat: bool) -> Option<
         PhysicalKey::Code(KeyCode::PageUp) if plain => Some(Command::Previous),
         PhysicalKey::Code(KeyCode::PageDown) if plain => Some(Command::Next),
         PhysicalKey::Code(KeyCode::Backspace) if plain => Some(Command::Seek(0.0)),
+        PhysicalKey::Code(KeyCode::KeyP) if plain => Some(Command::TogglePlaylist),
         _ => None,
     }
 }
