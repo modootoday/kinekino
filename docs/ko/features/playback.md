@@ -16,12 +16,12 @@ kinekino는 mpv를 네이티브로 띄우고 모든 조작을 `playback.open`, `
 - **열기, 재생, 일시정지, 탐색, 볼륨, 음소거**: mpv 호스트로. `status:partial`
 - **회차**: 이전·다음 회차, 자동 재생 카운트다운. `status:partial`
 - **인트로 건너뛰기**: 수동 건너뛰기 표시. `status:partial`
-- **이어 보기와 환경설정**: 위치, 오디오·자막 트랙 기억. `status:planned`
+- **이어 보기와 환경설정**: 위치, 볼륨, 음소거, 속도, 자동 다음화 기억. 트랙 선택은 아직 저장하지 않음. `status:partial`
 - **브라우저 소스**: 카탈로그와 회차 페이지. `status:partial`
 
 ## OS별
 
-재생은 Windows에서 직접 확인했습니다. Linux mpv 호스트는 로드맵 P2, macOS는 P8에서 확인합니다.
+재생은 Windows에서 직접 확인했습니다. Linux는 같은 Meari·libmpv 플레이어 경로를 쓰며, Linux 손 확인은 로드맵에 남아 있습니다. macOS는 P8에서 확인합니다.
 
 > [!IMPORTANT]
 > 아직 공개 빌드가 없어 개발 트리 밖에서는 재생을 써 볼 수 없습니다.

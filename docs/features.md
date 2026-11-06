@@ -28,14 +28,14 @@ Each badge is checked against the roadmap plan and the code. `status:available` 
 | Subtitle convert and range export (SRT/WebVTT) | `status:available` | CLI |
 | Frame capture to PNG | `status:partial` | Local mp4/mkv/webm, needs FFmpeg |
 | Snapshot export | `status:partial` | Windows today, Linux in P4 |
-| Playback via mpv | `status:partial` | Windows checked by hand, Linux in P2 |
+| Playback via libmpv | `status:partial` | Windows checked by hand; Linux same code path, hand check later |
 | Episode navigation, skip intro | `status:partial` | Manual skip; detection later |
-| Resume and preferences | `status:planned` | P2 |
+| Resume and preferences | `status:partial` | Position, volume, mute, speed, auto-next; track prefs later |
 | Review of media and AI proposals | `status:partial` | |
 | Projects, durable jobs | `status:partial` | Revisions and idempotency keys |
 | Cards, shorts, assets | `status:partial` | Executors finish in P4 |
 | Cue and speaker editing | `status:partial` | By hand |
-| ASS and image subtitles | `status:planned` | P5 |
+| ASS and image subtitles | `status:partial` | Engine-drawn ASS/SSA and picture tracks; text overlay fallback |
 | Speech to text, speaker diarization, alignment | `status:planned` | P1b, P5 |
 | Translation and summaries | `status:planned` | P5 |
 | OCR and subtitle search | `status:planned` | P5 |
@@ -43,5 +43,5 @@ Each badge is checked against the roadmap plan and the code. `status:available` 
 | Inference consent and cost guard | `status:planned` | P1b |
 | Settings page | `status:planned` | P6; schema decided |
 | MCP server | `status:planned` | P9 |
-| Meari UI (Windows) | `status:partial` | settings window on every OS (P6); player Linux GUI waits on mpv (P2) |
+| Meari UI | `status:partial` | Player and settings windows on Linux and Windows; macOS in P8 |
 | Provenance of edits | `status:partial` | |

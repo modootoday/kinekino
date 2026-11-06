@@ -13,7 +13,7 @@ Each use case lists the parts it needs. A case is only as ready as its least rea
 
 ## For viewers and editors
 
-- **Watch a series**: episodes and skip work; resume is planned. `status:partial`
+- **Watch a series**: episodes, resume and skip work. `status:partial`
 - **Make a short from a scene**: range draft, short render, review. `status:partial`
 - **Fix subtitles**: convert, export a range, edit cues and speakers. `status:partial`
 - **Caption a talk with speakers**: speech to text and diarization. `status:planned`

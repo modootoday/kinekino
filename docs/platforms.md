@@ -14,7 +14,7 @@ The core, the commands and the CLI are the same everywhere. Only adapters (mpv h
 ## Status per OS
 
 - **Windows**: current app (Meari UI), native mpv playback checked by hand, named pipe IPC, snapshot export. Final check in P8. `status:partial`
-- **Linux**: development base. CLI and Unix socket IPC run; mpv playback is P2, snapshot P4, GUI P6. `status:partial`
+- **Linux**: development base. CLI, Unix socket IPC and the Meari + libmpv player share the Windows code path; hand-check of playback is still open, snapshot P4. `status:partial`
 - **macOS**: not built or verified yet; build check in P8. `status:planned`
 
 ## How it is checked

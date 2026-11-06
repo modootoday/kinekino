@@ -75,7 +75,7 @@ kinekino --input request.json --json
 공용 Rust 코어 아래에 OS 어댑터가 있습니다. 개발은 Linux를 먼저, 현재 앱은 Windows에서 돌고, 마지막(P8)에 모든 OS를 다시 확인합니다.
 
 - **Windows**: 현재 앱과 네이티브 mpv 재생, 사람이 직접 확인. `status:partial`
-- **Linux**: CLI와 로컬 IPC 동작, 재생(P2)과 GUI(P6) 진행 중. `status:partial`
+- **Linux**: CLI·로컬 IPC와 Meari+libmpv 플레이어 동작, 재생 손 확인은 남아 있음. `status:partial`
 - **macOS**: 아직 확인 전, P8에서 빌드 확인. `status:planned`
 
 [플랫폼 상세](platforms.md)

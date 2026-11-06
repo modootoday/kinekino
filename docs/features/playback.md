@@ -16,12 +16,12 @@ kinekino hosts mpv natively and wraps every control in a typed command: `playbac
 - **Open, play, pause, seek, volume, mute**: through the mpv host. `status:partial`
 - **Episodes**: next and previous episode, autoplay countdown. `status:partial`
 - **Skip intro**: manual skip markers. `status:partial`
-- **Resume and preferences**: remember position, audio and subtitle track. `status:planned`
+- **Resume and preferences**: remember position, volume, mute, speed and auto-next. Track choice is not stored yet. `status:partial`
 - **Browser sources**: catalog and episode pages. `status:partial`
 
 ## Per OS
 
-Playback was checked by hand on Windows. The Linux mpv host is step P2 of the roadmap; macOS is checked in P8.
+Playback was checked by hand on Windows. Linux shares the same Meari and libmpv player path; a hand check on Linux is still on the roadmap. macOS is checked in P8.
 
 > [!IMPORTANT]
 > No public build exists yet, so you cannot try playback outside the development tree.
