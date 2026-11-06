@@ -39,14 +39,17 @@ impl SessionCredentialStore {
 
 impl CredentialStore for SessionCredentialStore {
     fn get(&self, service: &str, account: &str) -> PortResult<Option<Secret>> {
+        kinekino_core::port::credential::require_credential_key(service, account)?;
         Ok(self.entries.get(&(service.into(), account.into())).cloned())
     }
     fn set(&mut self, service: &str, account: &str, secret: Secret) -> PortResult<()> {
+        kinekino_core::port::credential::require_credential_key(service, account)?;
         self.entries
             .insert((service.into(), account.into()), secret);
         Ok(())
     }
     fn delete(&mut self, service: &str, account: &str) -> PortResult<bool> {
+        kinekino_core::port::credential::require_credential_key(service, account)?;
         Ok(self
             .entries
             .remove(&(service.into(), account.into()))

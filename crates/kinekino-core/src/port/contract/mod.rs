@@ -69,7 +69,8 @@ pub fn check_capability_table<C: CapabilityTable>(all: C) {
     );
 }
 
-/// CredentialStore round trip on a fresh store.
+/// CredentialStore contract on a fresh store: round-trip, key isolation, overwrite,
+/// delete-absent, and empty service/account → non-retryable InvalidInput.
 pub fn check_credential_store(store: &mut dyn CredentialStore) -> PortResult<()> {
     let (svc, acct) = ("kinekino.contract", "harness");
     assert_eq!(store.get(svc, acct)?, None);
@@ -81,6 +82,77 @@ pub fn check_credential_store(store: &mut dyn CredentialStore) -> PortResult<()>
     assert!(store.delete(svc, acct)?);
     assert!(!store.delete(svc, acct)?);
     assert_eq!(store.get(svc, acct)?, None);
+
+    // Key isolation: distinct (service, account) pairs stay independent.
+    store.set("svc.a", "acct.1", Secret::new("a1"))?;
+    store.set("svc.a", "acct.2", Secret::new("a2"))?;
+    store.set("svc.b", "acct.1", Secret::new("b1"))?;
+    assert_eq!(
+        store.get("svc.a", "acct.1")?.as_ref().map(Secret::expose),
+        Some("a1")
+    );
+    assert_eq!(
+        store.get("svc.a", "acct.2")?.as_ref().map(Secret::expose),
+        Some("a2")
+    );
+    assert_eq!(
+        store.get("svc.b", "acct.1")?.as_ref().map(Secret::expose),
+        Some("b1")
+    );
+
+    // Overwrite: second set on the same key replaces the value.
+    store.set("svc.a", "acct.1", Secret::new("a1-new"))?;
+    assert_eq!(
+        store.get("svc.a", "acct.1")?.as_ref().map(Secret::expose),
+        Some("a1-new")
+    );
+    assert_eq!(
+        store.get("svc.a", "acct.2")?.as_ref().map(Secret::expose),
+        Some("a2")
+    );
+
+    // Delete absent leaves other keys intact.
+    assert!(!store.delete("svc.missing", "acct.missing")?);
+    assert_eq!(
+        store.get("svc.a", "acct.1")?.as_ref().map(Secret::expose),
+        Some("a1-new")
+    );
+    assert_eq!(
+        store.get("svc.b", "acct.1")?.as_ref().map(Secret::expose),
+        Some("b1")
+    );
+    let _ = store.delete("svc.a", "acct.1")?;
+    let _ = store.delete("svc.a", "acct.2")?;
+    let _ = store.delete("svc.b", "acct.1")?;
+
+    // Empty service or account → InvalidInput (not retryable).
+    for (label, service, account) in [
+        ("empty service", "", "acct"),
+        ("empty account", "svc", ""),
+        ("both empty", "", ""),
+    ] {
+        match store.get(service, account) {
+            Err(e) => {
+                assert_eq!(e.code, ErrorCode::InvalidInput, "{label} get: {e}");
+                assert!(!e.retryable, "{label} get must not be retryable");
+            }
+            Ok(v) => panic!("{label} get returned Ok({v:?})"),
+        }
+        match store.set(service, account, Secret::new("x")) {
+            Err(e) => {
+                assert_eq!(e.code, ErrorCode::InvalidInput, "{label} set: {e}");
+                assert!(!e.retryable, "{label} set must not be retryable");
+            }
+            Ok(()) => panic!("{label} set returned Ok(())"),
+        }
+        match store.delete(service, account) {
+            Err(e) => {
+                assert_eq!(e.code, ErrorCode::InvalidInput, "{label} delete: {e}");
+                assert!(!e.retryable, "{label} delete must not be retryable");
+            }
+            Ok(v) => panic!("{label} delete returned Ok({v})"),
+        }
+    }
     Ok(())
 }
 
