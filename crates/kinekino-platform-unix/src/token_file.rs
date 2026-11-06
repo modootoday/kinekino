@@ -117,17 +117,20 @@ impl FileCredentialStore {
 
 impl CredentialStore for FileCredentialStore {
     fn get(&self, service: &str, account: &str) -> PortResult<Option<Secret>> {
+        kinekino_core::port::credential::require_credential_key(service, account)?;
         Ok(self
             .load()?
             .remove(&(service.into(), account.into()))
             .map(Secret::new))
     }
     fn set(&mut self, service: &str, account: &str, secret: Secret) -> PortResult<()> {
+        kinekino_core::port::credential::require_credential_key(service, account)?;
         let mut entries = self.load()?;
         entries.insert((service.into(), account.into()), secret.expose().into());
         self.save(&entries)
     }
     fn delete(&mut self, service: &str, account: &str) -> PortResult<bool> {
+        kinekino_core::port::credential::require_credential_key(service, account)?;
         let mut entries = self.load()?;
         let removed = entries.remove(&(service.into(), account.into())).is_some();
         if removed {
