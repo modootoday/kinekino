@@ -3,7 +3,7 @@ id: adr:kinekino/20261031111316
 title: UI mockups and mascot brand icons
 status: active
 created: 2026-10-31T11:13:16Z
-updated: 2026-10-31T12:25:00Z
+updated: 2026-11-07T23:20:00Z
 rel:
   governs: [crates/kinekino-player-ui/examples/ui_mockups/main.rs, tools/brand-icons/derive.py, crates/kinekino-player-ui/src/player.css, crates/kinekino-player-ui/src/styles.rs, docs/_includes/head-custom.html, assets/design/brand-source/kinekino-mark.svg, assets/design/brand-source/kinekino-mark-f_1.6.svg, assets/design/brand-source/kinekino-mark-f_3.3.svg, assets/design/brand-source/combo_scared-v7.png, crates/kinekino-settings-ui/src/styles.rs]
 ---
@@ -88,8 +88,9 @@ Still open:
 - Windows and macOS: Meari 0.2 `WindowOptions` has no icon field and does not expose the
   underlying window, so the icon there waits for a Meari window-icon option (`kinekino.ico`
   is ready). Wayland takes the icon from a desktop entry, not from the window.
-- Tray: the player has no tray presence yet. A tray icon needs its own port and adapter
-  (design first), then the same derived assets.
+- Tray: port and platform scope are in ADR 20261107231529 (`TrayPresence`, Linux-first
+  StatusNotifier adapter, same derived app-icon assets). Code and real-panel verify remain
+  a follow-up; Windows/macOS stay Unsupported until adapters exist.
 
 ## Correction (2026-10-31)
 
@@ -150,3 +151,7 @@ the eyeless first frame; the eyes-open frame is now the idle mascot state only.
 
 - The studio right settings panel scrolls vertically (`overflow-y: auto`) when its content is taller than the window; the main editor and the queue bar stay fixed.
 - In the fixed 1280x720 mockup a clipped last action (e.g. correction's "다시 검사") is expected and is not a layout defect.
+
+## Record
+
+- 2026-11-08: M2-8b — tray port/adapter ADR 20261107231529; wiring deferred.
