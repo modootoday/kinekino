@@ -3083,6 +3083,7 @@ dependencies = [
  "meari-dom",
  "meari-native",
  "meari-shell",
+ "png",
  "rfd",
  "winit",
  "x11rb 0.14.0",

@@ -74,6 +74,23 @@ branch; wiring `assets/design/app-icon` there is left for after that lands. Draf
 with no product counterpart (web browse tabs and ad-block chip, the skip overlay with AI
 segments, the AI studio tabs) are not mocked: they would need host features, not states.
 
+## Window icon (2026-11-08)
+
+The player window now carries the derived app icon. On Linux/X11 the 16, 24, 32, 48 and 64 px
+PNGs from `assets/design/app-icon/` are embedded unchanged, decoded once and written to the
+window's `_NET_WM_ICON` property the first time the window manager is polled
+(`crates/kinekino-player-ui/src/window/icon.rs`); a decode or X error is reported once and
+never stops the player. Checked in a real X11 session: the panel task list and workspace pager
+showed the derived icon next to the `kinekino` title.
+
+Still open:
+
+- Windows and macOS: Meari 0.2 `WindowOptions` has no icon field and does not expose the
+  underlying window, so the icon there waits for a Meari window-icon option (`kinekino.ico`
+  is ready). Wayland takes the icon from a desktop entry, not from the window.
+- Tray: the player has no tray presence yet. A tray icon needs its own port and adapter
+  (design first), then the same derived assets.
+
 ## Correction (2026-10-31)
 
 The first version of this change derived every icon from the previous

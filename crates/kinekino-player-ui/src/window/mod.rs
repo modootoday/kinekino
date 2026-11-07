@@ -10,6 +10,8 @@ mod caption;
 mod context;
 mod drop;
 mod edges;
+#[cfg(all(unix, not(target_os = "macos")))]
+pub(crate) mod icon;
 mod nochild;
 mod typing;
 use actions::{PortRefusal, WindowOps};
@@ -304,6 +306,7 @@ impl<E: Engine> App<E> {
     fn observe_fallback(&mut self) -> Option<(bool, bool)> {
         let (x11, id) = (self.x11.as_ref()?, self.window_id?);
         let window = u32::try_from(id.into_raw()).ok()?;
+        icon::send(x11, window);
         let title = &self.shared.borrow().controller.view.title;
         if *title != self.shown_title && x11.set_title(window, &window_title(title)).is_ok() {
             self.shown_title = title.clone();

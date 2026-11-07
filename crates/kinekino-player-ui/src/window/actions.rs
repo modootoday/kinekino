@@ -47,6 +47,8 @@ pub mod x11 {
     pub struct X11 {
         conn: RustConnection,
         root: u32,
+        /// The window the icon was last offered to (see `first_icon_request`).
+        icon_window: std::cell::Cell<Option<u32>>,
     }
 
     const REMOVE: u32 = 0;
@@ -61,7 +63,11 @@ pub mod x11 {
             }
             let (conn, screen) = x11rb::connect(None).ok()?;
             let root = conn.setup().roots.get(screen)?.root;
-            Some(Self { conn, root })
+            Some(Self {
+                conn,
+                root,
+                icon_window: std::cell::Cell::new(None),
+            })
         }
 
         fn atom(&self, name: &str) -> Result<u32, String> {
@@ -182,6 +188,21 @@ pub mod x11 {
                 .height(r.h.max(1) as u32);
             self.conn
                 .configure_window(window, &aux)
+                .map_err(|e| e.to_string())?;
+            self.conn.flush().map_err(|e| e.to_string())
+        }
+
+        /// `true` the first time it is asked about `window`, so the icon is sent (or its
+        /// failure reported) once per window rather than on every poll.
+        pub fn first_icon_request(&self, window: u32) -> bool {
+            self.icon_window.replace(Some(window)) != Some(window)
+        }
+
+        /// The window's icon (`_NET_WM_ICON`, see `window::icon::net_wm_icon`).
+        pub fn set_icon(&self, window: u32, words: &[u32]) -> Result<(), String> {
+            let name = self.atom("_NET_WM_ICON")?;
+            self.conn
+                .change_property32(PropMode::REPLACE, window, name, AtomEnum::CARDINAL, words)
                 .map_err(|e| e.to_string())?;
             self.conn.flush().map_err(|e| e.to_string())
         }
