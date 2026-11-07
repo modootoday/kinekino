@@ -85,3 +85,4 @@ rel:
 
 - 2026-11-06: M3-6 — long-running per-plugin worker designed (OwnedFamily spawn, JSON-line loop, one in-flight request, idle/crash policy); implementation deferred to M3-6b.
 - 2026-11-06: M3-6b — PluginWorker + OwnedFamily spawn, SDK serve_loop, ProcessSource reuse, contract tests (reuse/idle/crash/timeout/oneshot) (`1250a73b`).
+- 2026-11-07: A reused worker whose process already exited (one-shot plugin right after its reply, or exit while idle) is respawned and the request sent once more instead of failing with a broken pipe or empty reply; worker contract and plugin e2e tests run serially to avoid "Text file busy" on the copied fixture.
