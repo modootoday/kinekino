@@ -3,7 +3,7 @@ id: plan:kinekino/20261031153240
 title: kinekino 완성 로드맵과 마일스톤
 status: draft
 created: 2026-10-31T15:32:40Z
-updated: 2026-11-07T18:41:17Z
+updated: 2026-11-07T21:23:34Z
 rel:
   governs: [crates]
 ---
@@ -141,3 +141,4 @@ PotPlayer를 기준으로 한 Linux 우선 플레이어를 끝까지 완성하�
 - 2026-11-08: M1-V1 — resume notice real-window verify done (X11 with window manager): reopening a local file with a saved point shows `이어서 재생 m:ss` on the shared bottom toast, playback continues from the point, pause and seek work during the notice (seek replaces it), and app or window-manager close saves. Fix: the clock and seek bar kept the stale engine time until the restore seek landed; the restored time is now held for up to one second. M1 stays closed.
 - 2026-11-07: skill: modootoday-free/product-strategy-plus/roadmap-gating | 적용: 선행 증거·실측 완료 기준·진행/보류 이유 분리 | 버림: 분기별 점수화·신규 후보 확장(기존 범위 재정리만).
 - 2026-11-08: M1-V2 — subtitle and controls real-window verify done (X11 with window manager): with the transport shown the text cue sat flush on the seek chrome; the root now carries `kk-controls-up` and lifts `#subtitle` / `#notice` by `--aw-transport-height`, then returns them to the stage bottom when controls auto-hide. ASS engine path was exercised; syncing engine `sub-margin-y` to control visibility remains open. M1 stays closed.
+- 2026-11-08: M1-V3 — manual skip real-window verify done (X11 with window manager): mark start/end, skip offer buttons, S shortcut, and clear worked; the text cue stayed under skip/seek toasts because `.kk-subtitle { display:flex }` beat `[hidden]`; added `.kk-subtitle[hidden]` and a regression test that scans overlays with author `display:`. Visual complete; M1 stays closed.
