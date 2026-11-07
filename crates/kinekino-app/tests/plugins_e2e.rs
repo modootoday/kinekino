@@ -2,8 +2,16 @@
 use kinekino_app::{Args, Env, run_plugins};
 use kinekino_core::source::{SourceError, SourceProvider, SourceRef};
 use kinekino_source_host::plugin_host::ProcessSource;
+use std::sync::{Mutex, MutexGuard};
 
-fn setup(tag: &str) -> (std::path::PathBuf, Env) {
+/// Tests run one at a time so a copy of the fixture executable is never inherited, still open
+/// for writing, by a worker another test is forking ("Text file busy" on spawn).
+static SERIAL: Mutex<()> = Mutex::new(());
+
+fn setup(tag: &str) -> (MutexGuard<'static, ()>, std::path::PathBuf, Env) {
+    let serial = SERIAL
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
     kinekino_platform::install();
     let root = std::env::temp_dir().join(format!("kinekino-plugins-{tag}-{}", std::process::id()));
     let dir = root.join("fixture");
@@ -20,12 +28,12 @@ fn setup(tag: &str) -> (std::path::PathBuf, Env) {
     std::fs::create_dir_all(root.join("broken")).unwrap();
     std::fs::write(root.join("broken/plugin.json"), "{").unwrap();
     let env = Env::from_pairs([("KINEKINO_PLUGIN_DIR", root.to_str().unwrap())]);
-    (root, env)
+    (serial, root, env)
 }
 
 #[test]
 fn list_browse_and_capability_gate_over_process() {
-    let (root, env) = setup("list");
+    let (_serial, root, env) = setup("list");
     let (code, out) = run_plugins(&Args::new(["plugins", "list"]), &env);
     assert_eq!(code, 0);
     let v: serde_json::Value = serde_json::from_str(&out).unwrap();
@@ -58,7 +66,7 @@ fn list_browse_and_capability_gate_over_process() {
 #[test]
 fn player_catalog_browses_the_fake_plugin() {
     use kinekino_player_ui::Catalog;
-    let (root, env) = setup("catalog");
+    let (_serial, root, env) = setup("catalog");
     let catalog = kinekino_app::plugins::PluginCatalog::discover(&env);
     let sources = catalog.sources();
     assert_eq!(sources.len(), 1);

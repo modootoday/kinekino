@@ -3,13 +3,22 @@
 use kinekino_core::source::{SourceError, SourceProvider, SourceRef};
 use kinekino_source_host::plugin_host::{PluginManifest, ProcessSource};
 use std::path::PathBuf;
+use std::sync::{Mutex, MutexGuard};
 use std::time::Duration;
+
+/// Tests run one at a time: copying the fixture executable while another test forks a worker
+/// leaks the copy's write handle into that child until it execs, and spawning the copy then
+/// fails with "Text file busy".
+static SERIAL: Mutex<()> = Mutex::new(());
 
 fn install_os() {
     kinekino_platform::install();
 }
 
-fn setup(tag: &str, mode: &str) -> (PathBuf, ProcessSource) {
+fn setup(tag: &str, mode: &str) -> (MutexGuard<'static, ()>, PathBuf, ProcessSource) {
+    let serial = SERIAL
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
     install_os();
     let root = std::env::temp_dir().join(format!(
         "kinekino-worker-{tag}-{}-{}",
@@ -39,7 +48,7 @@ fn setup(tag: &str, mode: &str) -> (PathBuf, ProcessSource) {
         Duration::from_millis(400),
         Duration::from_millis(300),
     );
-    (root, source)
+    (serial, root, source)
 }
 
 fn category() -> SourceRef {
@@ -51,7 +60,7 @@ fn category() -> SourceRef {
 
 #[test]
 fn two_consecutive_browses_reuse_one_process() {
-    let (root, source) = setup("reuse", "");
+    let (_serial, root, source) = setup("reuse", "");
     let page1 = source.browse(&category(), 1).unwrap();
     let pid1 = source
         .worker_pid()
@@ -68,7 +77,7 @@ fn two_consecutive_browses_reuse_one_process() {
 
 #[test]
 fn idle_timeout_then_respawn() {
-    let (root, source) = setup("idle", "");
+    let (_serial, root, source) = setup("idle", "");
     source.browse(&category(), 1).unwrap();
     let pid1 = source.worker_pid().unwrap();
     std::thread::sleep(Duration::from_millis(450));
@@ -82,7 +91,7 @@ fn idle_timeout_then_respawn() {
 
 #[test]
 fn crash_returns_unavailable_then_next_call_restarts() {
-    let (root, source) = setup("crash", "crash-on-request");
+    let (_serial, root, source) = setup("crash", "crash-on-request");
     let err = source.browse(&category(), 1).unwrap_err();
     assert!(
         matches!(err, SourceError::Unavailable(_)),
@@ -99,7 +108,7 @@ fn crash_returns_unavailable_then_next_call_restarts() {
 
 #[test]
 fn call_timeout_terminates_worker() {
-    let (root, source) = setup("timeout", "sleep-before-ms=2000");
+    let (_serial, root, source) = setup("timeout", "sleep-before-ms=2000");
     let err = source.browse(&category(), 1).unwrap_err();
     assert!(
         matches!(err, SourceError::Unavailable(ref m) if m.contains("timeout")),
@@ -111,7 +120,7 @@ fn call_timeout_terminates_worker() {
 
 #[test]
 fn oneshot_serve_fixture_still_answers_then_respawns() {
-    let (root, source) = setup("oneshot", "oneshot");
+    let (_serial, root, source) = setup("oneshot", "oneshot");
     let page1 = source.browse(&category(), 1).unwrap();
     assert_eq!(page1.items[0].reference.id, "airing-1");
     // One-shot child exits after the reply; next call must spawn again.
@@ -124,7 +133,7 @@ fn oneshot_serve_fixture_still_answers_then_respawns() {
 fn reused_worker_that_exits_after_reply_is_respawned_for_the_next_call() {
     // One-shot plugin that is still alive right after its reply: the host cannot see the
     // exit yet, so the next call meets a dead pipe and must start a fresh process.
-    let (root, source) = setup("linger", "oneshot-linger-ms=80");
+    let (_serial, root, source) = setup("linger", "oneshot-linger-ms=80");
     for page in 1..=3 {
         let result = source.browse(&category(), page);
         let page_items = result.unwrap_or_else(|e| panic!("browse page {page}: {e:?}"));
@@ -135,7 +144,7 @@ fn reused_worker_that_exits_after_reply_is_respawned_for_the_next_call() {
 
 #[test]
 fn worker_that_exited_while_idle_is_respawned_for_the_next_call() {
-    let (root, source) = setup("exited", "oneshot-linger-ms=20");
+    let (_serial, root, source) = setup("exited", "oneshot-linger-ms=20");
     source.browse(&category(), 1).unwrap();
     // Child has exited, but the idle timeout (300 ms) has not stopped the worker yet.
     std::thread::sleep(Duration::from_millis(150));
