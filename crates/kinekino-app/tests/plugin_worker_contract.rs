@@ -119,3 +119,27 @@ fn oneshot_serve_fixture_still_answers_then_respawns() {
     assert_eq!(page2.items[0].reference.id, "airing-2");
     std::fs::remove_dir_all(root).ok();
 }
+
+#[test]
+fn reused_worker_that_exits_after_reply_is_respawned_for_the_next_call() {
+    // One-shot plugin that is still alive right after its reply: the host cannot see the
+    // exit yet, so the next call meets a dead pipe and must start a fresh process.
+    let (root, source) = setup("linger", "oneshot-linger-ms=80");
+    for page in 1..=3 {
+        let result = source.browse(&category(), page);
+        let page_items = result.unwrap_or_else(|e| panic!("browse page {page}: {e:?}"));
+        assert_eq!(page_items.items[0].reference.id, format!("airing-{page}"));
+    }
+    std::fs::remove_dir_all(root).ok();
+}
+
+#[test]
+fn worker_that_exited_while_idle_is_respawned_for_the_next_call() {
+    let (root, source) = setup("exited", "oneshot-linger-ms=20");
+    source.browse(&category(), 1).unwrap();
+    // Child has exited, but the idle timeout (300 ms) has not stopped the worker yet.
+    std::thread::sleep(Duration::from_millis(150));
+    let page = source.browse(&category(), 2).unwrap();
+    assert_eq!(page.items[0].reference.id, "airing-2");
+    std::fs::remove_dir_all(root).ok();
+}

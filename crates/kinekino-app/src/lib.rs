@@ -157,7 +157,8 @@ pub fn run_plugins(args: &Args, env: &Env) -> (u8, String) {
 /// serve loop (plugin side written only against `kinekino-plugin-sdk`).
 ///
 /// Optional `fixture-mode.txt` in the process cwd selects behaviour for contract tests:
-/// empty/`loop` → [`serve_loop`]; `oneshot` → [`serve`]; `crash-on-request` aborts after
+/// empty/`loop` → [`serve_loop`]; `oneshot` → [`serve`]; `oneshot-linger-ms=N` → [`serve`] then
+/// stays alive N milliseconds before exiting; `crash-on-request` aborts after
 /// reading one line with no reply; `sleep-before-ms=N` delays each reply by N milliseconds.
 pub fn fake_source_plugin() {
     let mut plugin = kinekino_plugin_sdk::fixture::FixturePlugin {
@@ -167,6 +168,11 @@ pub fn fake_source_plugin() {
     let mode = mode.trim();
     if mode == "oneshot" {
         let _ = kinekino_plugin_sdk::serve(&mut plugin);
+        return;
+    }
+    if let Some(ms) = mode.strip_prefix("oneshot-linger-ms=") {
+        let _ = kinekino_plugin_sdk::serve(&mut plugin);
+        std::thread::sleep(std::time::Duration::from_millis(ms.parse().unwrap_or(0)));
         return;
     }
     if mode == "crash-on-request" {
