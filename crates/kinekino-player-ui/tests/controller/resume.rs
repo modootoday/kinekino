@@ -396,6 +396,57 @@ fn restore_survives_polls_before_the_engine_reaches_the_point() {
 }
 
 #[test]
+fn the_shown_time_stays_at_the_restored_point_until_the_seek_lands() {
+    // Seen in a real window: the notice said the restored time while the clock and the
+    // seek bar still showed the stale engine time (0:00) for the first polls.
+    let (dir, files) = folder("pendingview");
+    let k = key(&files[0]);
+    let store = Shared::default();
+    store.seed(&k, 600 * S, DURATION_US);
+    let mut c = Controller::new(FakeEngine::default()).with_resume(Box::new(store.clone()));
+    c.open(&files[0]);
+    c.finish();
+    assert_eq!(c.view.position, 597.0);
+    c.poll();
+    assert_eq!(c.view.position, 597.0, "a stale time is not shown");
+    // Landed: the engine's time is shown again, and later polls follow it.
+    c.engine.time = 598.0;
+    c.poll();
+    assert_eq!(c.view.position, 598.0);
+    c.engine.time = 2.0;
+    c.poll();
+    assert_eq!(c.view.position, 2.0, "after landing every time is shown");
+    std::fs::remove_dir_all(dir).unwrap();
+}
+
+#[test]
+fn a_restore_that_never_lands_shows_the_engine_time_again() {
+    // A seek the engine silently dropped must not freeze the clock: after a short hold
+    // the engine's time is shown, while saving still waits as before.
+    let (dir, files) = folder("pendingstuck");
+    let k = key(&files[0]);
+    let store = Shared::default();
+    store.seed(&k, 600 * S, DURATION_US);
+    let mut c = Controller::new(FakeEngine::default()).with_resume(Box::new(store.clone()));
+    c.open(&files[0]);
+    c.finish();
+    c.engine.time = 1.0;
+    c.poll();
+    assert_eq!(c.view.position, 597.0);
+    std::thread::sleep(kinekino_player_ui::RESTORE_HOLD + std::time::Duration::from_millis(50));
+    c.engine.time = 2.0;
+    c.poll();
+    assert_eq!(c.view.position, 2.0, "the hold is short");
+    assert_eq!(c.apply(Command::Close), Some(Effect::Close));
+    assert_eq!(
+        store.saved(&k),
+        point(600),
+        "a stale time is still not saved"
+    );
+    std::fs::remove_dir_all(dir).unwrap();
+}
+
+#[test]
 fn a_seek_before_the_restore_lands_counts_as_the_position() {
     let (dir, files) = folder("pendingseek");
     let k = key(&files[0]);
