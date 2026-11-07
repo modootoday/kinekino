@@ -145,13 +145,10 @@ struct App<'a> {
     on_message: &'a mut dyn FnMut(&str) -> WindowReply,
     smoke: Smoke,
     closing: Option<PathBuf>,
-    dismissed: bool,
     /// OS frame turned off; the product caption is the title bar.
     undecorated: bool,
     /// Last press on the caption row, for double-click maximize.
     caption_press: Option<Instant>,
-    /// Last maximize state pushed into caption props.
-    maximized: bool,
 }
 
 impl App<'_> {
@@ -174,38 +171,30 @@ impl App<'_> {
         if host.is_empty() {
             return;
         }
-        let mut maximized = self.maximized;
+        let mut maximized = None;
         let _ = self.shared.borrow().handle.try_with(|doc| {
             let shell = &doc.renderer.document.shell_provider;
             for control in &host {
                 match control {
                     HostControl::Minimize => shell.set_window_minimized(true),
                     HostControl::Maximize => {
-                        maximized = !shell.is_window_maximized();
-                        shell.set_window_maximized(maximized);
+                        let on = !shell.is_window_maximized();
+                        shell.set_window_maximized(on);
+                        maximized = Some(on);
                     }
                 }
             }
         });
-        if maximized != self.maximized {
-            self.maximized = maximized;
-            self.push_maximize_props();
+        if let Some(on) = maximized {
+            self.sync_maximized(on);
         }
     }
 
-    fn push_maximize_props(&mut self) {
-        let mut props = BTreeMap::new();
-        for (k, v) in crate::source::maximize_props(self.maximized) {
-            let v = match v {
-                Value::Bool(b) => MeariValue::Bool(b),
-                other => MeariValue::String(other.as_str().unwrap_or_default().to_owned()),
-            };
-            props.insert(k.to_owned(), v);
-        }
+    /// Mirrors the maximize state in the caption icon/label with a full prop commit.
+    fn sync_maximized(&mut self, on: bool) {
         let mut shared = self.shared.borrow_mut();
-        match &mut shared.pending.props {
-            Some(existing) => existing.extend(props),
-            None => shared.pending.props = Some(props),
+        if shared.session.set_maximized(on) {
+            shared.pending.props = Some(shared.session.props());
         }
     }
 
@@ -225,27 +214,23 @@ impl App<'_> {
         }
         let (x, y) = (position.x, position.y);
         let mut last = self.caption_press;
-        let taken = self
+        let press = self
             .shared
             .borrow()
             .handle
             .try_with(|doc| crate::caption::press(doc, x, y, &mut last))
-            .unwrap_or(false);
+            .unwrap_or(crate::caption::Press::Ignored);
         self.caption_press = last;
-        if taken {
-            // Double-click may have toggled maximize; sync the caption icon.
-            let now = self
-                .shared
-                .borrow()
-                .handle
-                .try_with(|doc| doc.renderer.document.shell_provider.is_window_maximized())
-                .unwrap_or(self.maximized);
-            if now != self.maximized {
-                self.maximized = now;
-                self.push_maximize_props();
+        match press {
+            crate::caption::Press::Ignored => false,
+            crate::caption::Press::Drag => true,
+            // The window manager may report the new state only later (X11), so the
+            // caption follows the requested state.
+            crate::caption::Press::Maximize(on) => {
+                self.sync_maximized(on);
+                true
             }
         }
-        taken
     }
 
     fn send(&mut self, message: &str) -> Result<(), String> {
@@ -255,7 +240,7 @@ impl App<'_> {
             let body: Value = serde_json::from_str(json).map_err(|e| e.to_string())?;
             let (page, errors): (Option<Value>, Vec<String>) = match body["op"].as_str() {
                 Some("dialog") => {
-                    self.dismissed = true;
+                    shared.session.dismiss_dialog();
                     (None, Vec::new())
                 }
                 _ if body["ok"] == false => (
@@ -269,17 +254,7 @@ impl App<'_> {
                 ),
                 _ => (body.get("page").cloned(), Vec::new()),
             };
-            let mut props = shared.session.update_props(page, &errors);
-            if self.dismissed {
-                props.insert("dialogOpen".into(), MeariValue::Bool(false));
-            }
-            for (k, v) in crate::source::maximize_props(self.maximized) {
-                let v = match v {
-                    Value::Bool(b) => MeariValue::Bool(b),
-                    other => MeariValue::String(other.as_str().unwrap_or_default().to_owned()),
-                };
-                props.insert(k.to_owned(), v);
-            }
+            let props = shared.session.update_props(page, &errors);
             shared.pending.props = Some(props);
         }
         if reply.close {
@@ -436,10 +411,8 @@ impl SettingsWindowPort for MeariSettingsWindow {
             on_message,
             smoke: if smoke { Smoke::FirstFrame } else { Smoke::Off },
             closing: None,
-            dismissed: false,
             undecorated: false,
             caption_press: None,
-            maximized: false,
         };
         // `run_app` needs a 'static handler; the borrowed `on_message` callback needs on-demand.
         winit::event_loop::run_on_demand::EventLoopExtRunOnDemand::run_app_on_demand(

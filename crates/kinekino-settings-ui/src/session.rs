@@ -28,10 +28,18 @@ pub struct Session {
     counts: BTreeMap<&'static str, i64>,
     host_counts: BTreeMap<&'static str, i64>,
     page: Value,
+    /// Errors of the last rejected apply, shown until the next page or apply.
+    errors: Vec<String>,
+    /// The limit dialog was answered; keep it hidden on later prop updates.
+    dialog_dismissed: bool,
+    /// Window maximize state mirrored in the caption icon/label.
+    maximized: bool,
 }
 
-fn meari_props(page: &Value, errors: &[String]) -> BTreeMap<String, MeariValue> {
-    source::props(page, errors)
+fn to_meari(
+    props: impl IntoIterator<Item = (&'static str, Value)>,
+) -> BTreeMap<String, MeariValue> {
+    props
         .into_iter()
         .map(|(k, v)| {
             let v = match v {
@@ -76,7 +84,7 @@ impl Session {
             .map_err(|e| format!("{e:?}"))?;
         let program = ModuleProgram::mount(
             graph,
-            meari_props(&page, &[]),
+            to_meari(source::props(&page, &[])),
             "kinekino-settings".into(),
             1,
         )
@@ -96,6 +104,9 @@ impl Session {
                 counts,
                 host_counts,
                 page,
+                errors: Vec::new(),
+                dialog_dismissed: false,
+                maximized: false,
             },
             document,
         ))
@@ -158,7 +169,31 @@ impl Session {
             }
             self.page = page;
         }
-        meari_props(&self.page, errors)
+        self.errors = errors.to_vec();
+        self.props()
+    }
+
+    /// Every declared document prop for the current state. Meari rejects partial
+    /// updates ("exact declared bindings required"), so caption changes send this too.
+    pub fn props(&self) -> BTreeMap<String, MeariValue> {
+        let mut props = to_meari(source::props(&self.page, &self.errors));
+        props.extend(to_meari(source::maximize_props(self.maximized)));
+        if self.dialog_dismissed {
+            props.insert("dialogOpen".into(), MeariValue::Bool(false));
+        }
+        props
+    }
+
+    /// The limit dialog was answered (continue/cancel): later updates keep it closed.
+    pub fn dismiss_dialog(&mut self) {
+        self.dialog_dismissed = true;
+    }
+
+    /// Records the window maximize state; `true` when it changed (props need a commit).
+    pub fn set_maximized(&mut self, on: bool) -> bool {
+        let changed = self.maximized != on;
+        self.maximized = on;
+        changed
     }
 
     /// Puts every row back to the page value through the same input routes a user uses.

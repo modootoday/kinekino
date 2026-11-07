@@ -46,10 +46,26 @@ pub(crate) fn undecorate(doc: &InteractiveDocument) -> bool {
     true
 }
 
-/// Left press on caption background: drag, or double-click maximize. `true` when taken.
-pub(crate) fn press(doc: &InteractiveDocument, x: f64, y: f64, last: &mut Option<Instant>) -> bool {
+/// What a left press did.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) enum Press {
+    /// Not on the caption background; the document handles it.
+    Ignored,
+    /// Window move started.
+    Drag,
+    /// Double-click: maximize (`true`) or restore (`false`) was requested.
+    Maximize(bool),
+}
+
+/// Left press on caption background: drag, or double-click maximize/restore.
+pub(crate) fn press(
+    doc: &InteractiveDocument,
+    x: f64,
+    y: f64,
+    last: &mut Option<Instant>,
+) -> Press {
     if press_target(doc, x, y) != PressTarget::Caption {
-        return false;
+        return Press::Ignored;
     }
     let now = Instant::now();
     let double = last.is_some_and(|t| now.duration_since(t) <= DOUBLE_CLICK);
@@ -60,9 +76,9 @@ pub(crate) fn press(doc: &InteractiveDocument, x: f64, y: f64, last: &mut Option
             .document
             .shell_provider
             .set_window_maximized(on);
-        return true;
+        return Press::Maximize(on);
     }
     *last = Some(now);
     doc.renderer.document.shell_provider.drag_window();
-    true
+    Press::Drag
 }

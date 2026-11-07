@@ -3,7 +3,7 @@ id: sot:kinekino/settings-ui-design
 title: 설정 창 디자인 정본과 시안 대응
 status: active
 created: 2026-10-30T04:02:16Z
-updated: 2026-11-07T04:30:00Z
+updated: 2026-11-07T14:58:00Z
 verify: [cargo test -p kinekino-settings-ui]
 ---
 
@@ -61,4 +61,6 @@ verify: [cargo test -p kinekino-settings-ui]
 
 - `crates/kinekino-settings-ui/tests`: settings.css의 모든 `var(--aw-…)`가 tokens.css에 있고 색 리터럴(`#`, `rgb(`)이 없다.
 - `settings_caption_css_uses_shared_chrome_tokens`: 공유 `components.css`의 `.aw-window-chrome`이 `--aw-surface-chrome`/`--aw-titlebar`를 쓰고, settings.css가 chrome을 재정의·시안 hex를 쓰지 않으며, brand/context flex가 공유 계약에 있고 마운트 마크업이 플레이어와 같다(M2-V5).
+- `maximize_state_updates_the_caption_with_every_declared_prop`·`maximize_update_keeps_apply_errors_and_dismissed_dialog`: 최대화 상태 변경도 전체 prop으로 커밋해 아이콘·라벨이 바뀌고 오류·대화상자 상태가 유지된다. `input_focus_ring_uses_shared_focus_token_in_meari`: 입력 포커스는 `--aw-focus`(M2-V5b).
+- 실제 X11 창(M2-V5b): 끌기·두 번 클릭 최대화/복원·최소화·최대화·닫기·입력 포커스 확인.
 - 헤드리스 렌더(PNG)와 xvfb 창 스모크, Windows 실제 창 스크린숏.
