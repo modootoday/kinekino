@@ -313,7 +313,13 @@ pub fn props(view: &View) -> BTreeMap<String, Prop> {
         ),
         (
             "rootClass".to_owned(),
-            t("kk-player-root aw-viewing-read-root aw-viewing-panel-closed"),
+            // M1-V2: when the transport is shown, CSS lifts #subtitle/#notice above the
+            // chrome with --aw-transport-height (skip-offer family). Hidden → no class.
+            t(if view.controls_visible || !view.has_media {
+                "kk-player-root aw-viewing-read-root aw-viewing-panel-closed kk-controls-up"
+            } else {
+                "kk-player-root aw-viewing-read-root aw-viewing-panel-closed"
+            }),
         ),
         (
             "stageClass".to_owned(),

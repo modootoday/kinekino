@@ -81,3 +81,66 @@ fn switching_tracks_moves_drawing_back_and_forth() {
     );
     std::fs::remove_dir_all(dir).ok();
 }
+
+#[test]
+fn text_subtitle_css_lifts_above_transport_when_controls_are_up() {
+    // M1-V2: text cue (and toast) share the stage bottom with the transport sibling.
+    // Real-window check: with controls visible the cue sits flush on the seek chrome;
+    // lift with --aw-transport-height while `.kk-controls-up` (skip-offer family), and
+    // keep bottom:0 when controls hide so the cue can sit near the screen edge.
+    let css = include_str!("../../src/player.css");
+    assert!(
+        css.contains(".kk-subtitle"),
+        "subtitle overlay rule must remain"
+    );
+    let lift = css
+        .lines()
+        .find(|l| l.contains("kk-controls-up") && l.contains("kk-subtitle"))
+        .or_else(|| {
+            // Multi-selector rule may put the property on the next shared block; accept a
+            // combined selector line that names both controls-up and subtitle/toast.
+            css.lines().find(|l| {
+                l.contains("kk-controls-up")
+                    && (l.contains("kk-subtitle") || l.contains("kk-toast"))
+            })
+        })
+        .expect("kk-controls-up must target the subtitle (and toast) for the lift");
+    assert!(
+        lift.contains("kk-toast") || css.contains("kk-controls-up") && css.contains("kk-toast"),
+        "toast must lift with the subtitle so OSD stays consistent: {lift}"
+    );
+    // The lift offset must use the transport token (no new hex, no bare 48px).
+    let block_start = css
+        .find(".kk-player-root.kk-controls-up")
+        .expect("controls-up lift block");
+    let block = &css[block_start..block_start + 280.min(css.len() - block_start)];
+    assert!(
+        block.contains("var(--aw-transport-height)"),
+        "lift must use --aw-transport-height: {block}"
+    );
+    assert!(
+        !block.contains("bottom: 48px") && !block.contains("+ 48px"),
+        "do not hard-code 48px when the transport token exists: {block}"
+    );
+}
+
+#[test]
+fn root_marks_controls_up_with_the_transport_visibility() {
+    use kinekino_player_ui::{View, meari_props};
+    let mut view = View {
+        has_media: true,
+        controls_visible: true,
+        ..View::default()
+    };
+    let root = format!("{:?}", meari_props(&view)["rootClass"]);
+    assert!(
+        root.contains("kk-controls-up"),
+        "controls visible → root carries kk-controls-up for the subtitle lift: {root}"
+    );
+    view.controls_visible = false;
+    let root = format!("{:?}", meari_props(&view)["rootClass"]);
+    assert!(
+        !root.contains("kk-controls-up"),
+        "controls hidden → no lift class (cue returns to stage bottom): {root}"
+    );
+}
