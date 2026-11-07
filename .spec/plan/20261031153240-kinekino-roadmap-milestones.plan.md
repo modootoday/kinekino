@@ -3,7 +3,7 @@ id: plan:kinekino/20261031153240
 title: kinekino 완성 로드맵과 마일스톤
 status: draft
 created: 2026-10-31T15:32:40Z
-updated: 2026-11-07T22:43:11+09:00
+updated: 2026-11-08T01:30:00Z
 rel:
   governs: [crates]
 ---
@@ -117,7 +117,7 @@ PotPlayer를 기준으로 한 Linux 우선 플레이어를 끝까지 완성하�
 - 2026-11-06: M2-2 — right-click menu skeleton (pointer-anchored popup kept inside the window, five groups reusing existing commands, same close rules as the more menu). Visual verification completed by M2-V2 (`944e16c3`). M2 not closed.
 - 2026-11-06: M2-3 — right-click menu wired to M1 commands (flat items under open/play/skip/subtitle/audio/screen; seek ±5/±30). Visual verification completed by M2-V2 (`944e16c3`). M2 not closed.
 - 2026-11-06: M2-5 — seek and volume OSD on the existing bottom toast (`View.notice`); formats `{position} / {duration}`, `음량 N`, `음소거` (ADR 20261105182156). Transport-bar permanent speed label and centered OSD chrome deferred. Visual verification completed by M2-V4 (`8603658d`). M2 not closed.
-- 2026-11-06: M2-6 — settings window product caption (`aw-window-chrome`); undecorate OS frame; drag, double-click maximize, caption min/max/close (ADR 20261105191533). Edge resize deferred. DOM/CSS consistency checked by M2-V5 (`00c9df38`); real settings-window verification remains M2-V5b. M2 not closed.
+- 2026-11-06: M2-6 — settings window product caption (`aw-window-chrome`); undecorate OS frame; drag, double-click maximize, caption min/max/close (ADR 20261105191533). Edge resize deferred. DOM/CSS consistency checked by M2-V5 (`00c9df38`); real settings-window verification completed by M2-V5b (`4cea001f`). M2 not closed.
 - 2026-11-06: M2-7 — remaining wry kept as the Windows WebView2 browser-engine adapter (not product UI); eframe/egui product-UI deviation closed; moving player browser modules into kinekino-browser deferred (ADR 20261105201855). M2 not closed.
 - 2026-11-06: M2-4 — playlist panel follows mockup episode-list pattern (heading `회차 목록`, current-item amber bar/play/text, windowed dock, fullscreen hide keeping open state, Esc/P; ADR 20261106105936). Visual verification completed by M2-V3 (`acfe8a61`). M2 not closed.
 - 2026-11-06: M3-1 — player media/frame hosts admitted at runtime via AdmittedHosts (plugin media_hosts install; remaining hardcodes removed) (`ec74ce96`). M3 not closed.
@@ -137,4 +137,5 @@ PotPlayer를 기준으로 한 Linux 우선 플레이어를 끝까지 완성하�
 - 2026-11-07: M2-V5 — DOM/CSS consistency and mounted markup checked (`00c9df38`); shared aw-window-chrome/--aw-surface-chrome and brand/context flex lifted into components.css. Correction: this is not real-window visual completion. M2-V5b remains required for settings-window interaction and screenshots. M2 not closed.
 - 2026-11-07: M2-V2 — right-click menu real-player visual review completed (`944e16c3`): reservation 280×720, scrolling and 14px icons; keep shared kk-menu tokens instead of copying inconsistent mockup details. M2 not closed.
 - 2026-11-07: Reorganized milestones for unattended continuation: proceed with existing icon assets, tag-free SDK documentation, mock/CLI production work and bounded structural cleanup; add M2-V5b and M1-V1~V3 real-window checks, separate individual production/structure/finishing slices and OS-specific environment waits. M1 remains closed; M2 remains open. Keep releases/SDK tags/publication, P7 live inference, allowlist stages 2–4 additional scope, mockup regeneration and media download held. Execution count corrected from the initial 55 estimate (61 existing units) to 66, RC-A 23→30.
+- 2026-11-08: M2-V5b — real settings-window caption verify done (X11 with window manager): drag, double-click maximize/restore, min/max/close, body and input focus. Full prop commits on maximize (Meari rejects partial updates); shared `input:focus` uses `--aw-focus`. Keep product name, shared brand icon, and caption icon token; rounded OS chrome is mockup decoration. Button `:focus-visible` and WM-driven maximize sync remain open. M2 not closed.
 - 2026-11-07: skill: modootoday-free/product-strategy-plus/roadmap-gating | 적용: 선행 증거·실측 완료 기준·진행/보류 이유 분리 | 버림: 분기별 점수화·신규 후보 확장(기존 범위 재정리만).
