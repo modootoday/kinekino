@@ -6,6 +6,7 @@ mod jobs;
 mod opening;
 mod prefs;
 mod resume;
+pub use resume::RESTORE_HOLD;
 mod skip;
 mod subtitles;
 mod tracks;
@@ -490,7 +491,10 @@ impl<E: Engine> Controller<E> {
         let before = (self.view.position, self.view.duration, self.view.playing);
         let subtitle_changed = self.poll_subtitle();
         if let Some(p) = self.engine.property("time-pos") {
-            self.view.position = p.max(0.0);
+            // A restore seek still under way: the engine's old time is not shown.
+            if !self.resume_holds(p) {
+                self.view.position = p.max(0.0);
+            }
         }
         if let Some(d) = self.engine.property("duration") {
             self.view.duration = d.max(0.0);

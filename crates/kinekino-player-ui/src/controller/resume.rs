@@ -5,10 +5,13 @@
 use super::{Controller, Engine, Media};
 use kinekino_core::playback::{ResumeKey, ResumePolicy, ResumeStore};
 use kinekino_core::port::error::{PortError, PortResult};
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 /// While playing, the position is saved after this much media time moved since the last save.
 pub const SAVE_EVERY: f64 = 10.0;
+/// How long the restored point is shown while the engine still reports its old time; a
+/// restore seek normally lands well within this, one that never does stops freezing it.
+pub const RESTORE_HOLD: Duration = Duration::from_secs(1);
 /// The notice shown after a restore, followed by the restored time.
 const RESUMED: &str = "이어서 재생";
 const US: f64 = 1_000_000.0;
@@ -27,6 +30,8 @@ pub(super) struct Resume {
     /// A restore seek (s) the engine has not reported reaching yet; until it does, the
     /// engine's time is the old one and says nothing about where the user is.
     restoring: Option<f64>,
+    /// When the restore seek was sent; bounds how long a stale time is hidden.
+    restore_sent: Option<Instant>,
     /// A store error was already reported in this run.
     warned: bool,
 }
@@ -110,15 +115,24 @@ impl<E: Engine> Controller<E> {
     }
 
     /// True while a restore seek has not landed; the polled position is then stale.
-    fn resume_restoring(&mut self) -> bool {
+    fn resume_restoring(&self) -> bool {
+        self.resume.restoring.is_some()
+    }
+
+    /// The engine reports `time` (s): true while that is a stale time from before the
+    /// restore seek and the hold has not run out, so it is not shown. The restore ends once
+    /// the engine's time comes near the point; until then nothing is saved either way.
+    pub(super) fn resume_holds(&mut self, time: f64) -> bool {
         let Some(target) = self.resume.restoring else {
             return false;
         };
-        if (self.view.position - target).abs() < SAVE_EVERY {
+        if (time - target).abs() < SAVE_EVERY {
             self.resume.restoring = None;
             return false;
         }
-        true
+        self.resume
+            .restore_sent
+            .is_some_and(|t| t.elapsed() < RESTORE_HOLD)
     }
 
     /// Before another item opens: the current one is saved and forgotten.
@@ -164,6 +178,7 @@ impl<E: Engine> Controller<E> {
         self.view.duration = duration.unwrap_or(self.view.duration);
         self.resume.saved_at = secs;
         self.resume.restoring = Some(secs);
+        self.resume.restore_sent = Some(Instant::now());
         self.view.notice = format!("{RESUMED} {}", crate::session::clock(secs));
         self.notice_since = Some(Instant::now());
     }
