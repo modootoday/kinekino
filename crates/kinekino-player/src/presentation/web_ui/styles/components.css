@@ -5,7 +5,7 @@ html, body { margin: 0; min-height: 100%; background: var(--aw-surface-video); c
 button, input { font: inherit; }
 button { cursor: pointer; }
 button:disabled { cursor: default; opacity: var(--aw-opacity-disabled); }
-button:focus-visible, input:focus-visible { outline: var(--aw-border-focus) solid var(--aw-focus); outline-offset: calc(-1 * var(--aw-border-focus)); }
+button:focus-visible, input:focus-visible, input:focus { outline: var(--aw-border-focus) solid var(--aw-focus); outline-offset: calc(-1 * var(--aw-border-focus)); }
 .aw-player-shell { min-height: 100dvh; display: grid; grid-template-rows: var(--aw-titlebar) minmax(0, 1fr) auto; background: var(--aw-surface-video); }
 .aw-window-chrome { display: flex; align-items: center; justify-content: space-between; min-width: 0; height: var(--aw-titlebar); background: var(--aw-surface-chrome); }
 .aw-window-brand { display: flex; align-items: center; gap: var(--aw-space-2); padding-left: var(--aw-space-3); min-width: 0; }

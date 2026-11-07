@@ -181,3 +181,77 @@ fn settings_caption_css_uses_shared_chrome_tokens() {
         context.text_runs
     );
 }
+
+#[test]
+fn maximize_state_updates_the_caption_with_every_declared_prop() {
+    // M2-V5b (real X11 window): a caption-only prop update was rejected
+    // ("exact declared bindings required"), the icon stayed on maximize and later
+    // caption clicks were lost. The session must hand Meari the full prop set.
+    let (mut session, mut doc) = Session::mount(page()).unwrap();
+    assert!(session.set_maximized(true), "state changed");
+    assert!(!session.set_maximized(true), "same state is not a change");
+    doc.update_module_props(session.props()).unwrap();
+    assert!(
+        has_class(&doc, "aw-icon-restore"),
+        "restore icon while maximized"
+    );
+    assert!(!has_class(&doc, "aw-icon-maximize"));
+    let label = doc
+        .elements()
+        .iter()
+        .find(|e| e.id == "maximize")
+        .and_then(|e| e.attributes.get("aria-label").cloned());
+    assert_eq!(label.as_deref(), Some("이전 크기"));
+    assert!(session.set_maximized(false));
+    doc.update_module_props(session.props()).unwrap();
+    assert!(
+        has_class(&doc, "aw-icon-maximize"),
+        "maximize icon after restore"
+    );
+    assert!(!has_class(&doc, "aw-icon-restore"));
+}
+
+#[test]
+fn maximize_update_keeps_apply_errors_and_dismissed_dialog() {
+    let mut limit = page();
+    limit["limit_dialog"] =
+        json!({"state": "near", "reason": "월 한도 80%", "actions": ["continue", "cancel"]});
+    let (mut session, mut doc) = Session::mount(limit).unwrap();
+    let errors = vec!["inference.budget.confirm_ratio: 0..=1".to_owned()];
+    doc.update_module_props(session.update_props(None, &errors))
+        .unwrap();
+    session.dismiss_dialog();
+    session.set_maximized(true);
+    doc.update_module_props(session.props()).unwrap();
+    let shown = session.rendered(&doc);
+    assert_eq!(shown["dialog"], json!(false), "{shown}");
+    assert!(
+        shown["errors_shown"]
+            .as_str()
+            .unwrap_or_default()
+            .contains("confirm_ratio"),
+        "{shown}"
+    );
+}
+
+#[test]
+fn input_focus_ring_uses_shared_focus_token_in_meari() {
+    // M2-V5b (real X11 window): Meari never matches `:focus-visible`, so focused inputs
+    // showed the engine's blue `input:focus` outline instead of `--aw-focus`.
+    let components =
+        include_str!("../../kinekino-player/src/presentation/web_ui/styles/components.css");
+    let rule = components
+        .lines()
+        .find(|l| {
+            l.split('{')
+                .next()
+                .unwrap_or_default()
+                .split(',')
+                .any(|s| s.trim() == "input:focus")
+        })
+        .expect("shared components.css must style input:focus (Meari has no :focus-visible)");
+    assert!(
+        rule.contains("outline: var(--aw-border-focus) solid var(--aw-focus)"),
+        "input:focus must use the shared focus token: {rule}"
+    );
+}

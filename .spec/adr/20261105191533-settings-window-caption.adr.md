@@ -3,7 +3,7 @@ id: adr:kinekino/20261105191533
 title: 설정 창 제품 caption(aw-window-chrome)
 status: active
 created: 2026-11-05T19:15:33Z
-updated: 2026-11-07T04:30:00Z
+updated: 2026-11-07T14:58:00Z
 rel:
   governs: [crates/kinekino-settings-ui]
   related: [adr:kinekino/20261030040215, adr:kinekino/20261031055110, sot:kinekino/settings-ui-design]
@@ -28,3 +28,4 @@ rel:
 
 - [settings-ui-design](../sot/settings-ui-design.sot.md) 창 caption 행은 `aw-window-chrome`으로 갱신한다. 이전 ADR의 "OS 프레임" 서술은 당시 상태이며, 후속은 이 ADR이 정본이다.
 - M2-V5: 설정 caption이 공유 `aw-window-chrome`/`--aw-surface-chrome`/`--aw-titlebar`를 쓰는지 DOM·CSS 잠금 테스트로 확인. brand/name/captions flex와 context 신축 규칙을 components.css로 올려 플레이어와 동일 계약. 시안 전용 제목줄 hex는 복제하지 않음. 가장자리 크기 조절 띠는 남은 작업이다.
+- M2-V5b(실제 X11 창, 창 관리자 있음): 제목 줄 끌기 이동, 두 번 클릭 최대화/복원, 최소화·최대화(복원)·닫기 단추, 본문 입력 포커스를 실화면으로 확인했다. 확인 중 두 결함을 고쳤다. (1) caption 아이콘만 담은 부분 prop 갱신을 Meari가 거절해("exact declared bindings required") 최대화 뒤 아이콘이 바뀌지 않고 이후 caption·닫기 클릭이 사라졌다. 이제 세션이 전체 prop(페이지 상태·마지막 적용 오류·대화상자 닫힘·최대화 상태)을 함께 넘긴다. 두 번 클릭 직후에는 창 관리자가 상태를 늦게 알려 줄 수 있으므로 요청한 상태로 아이콘을 맞춘다. (2) Meari는 `:focus-visible`을 맞추지 않아 입력 포커스가 엔진 기본 파란 테두리로 보였다. 공용 `components.css`의 `input:focus`도 `--aw-focus`를 쓴다(플레이어 입력에도 같이 적용). 시안과 다른 점은 공용 규칙을 따른다: 제품명 `kinekino`, 공용 brand 아이콘(외곽선), caption 아이콘 크기 `--aw-caption-icon`, 둥근 창 모서리 없음. 단추의 키보드 포커스 표시는 엔진이 `:focus-visible`을 지원하기 전까지 남은 작업이다.
