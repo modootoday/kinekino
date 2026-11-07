@@ -47,6 +47,9 @@ enum Exchange {
     Protocol(Result<wire::Response, SourceError>),
     /// IO, timeout, death, or malformed JSON; worker must stop.
     Transport(SourceError),
+    /// The process was already gone before answering (write failed or stdout hit EOF with
+    /// no bytes); a reused worker may be respawned and the request sent once more.
+    Closed(SourceError),
 }
 
 impl PluginWorker {
@@ -76,8 +79,15 @@ impl PluginWorker {
         if !self.plugin.source.supports(capability) {
             return Err(SourceError::Unsupported(capability));
         }
-        self.ensure_ready(idle_home.clone())?;
-        match self.exchange(capability, request) {
+        let reused = self.ensure_ready(idle_home.clone())?;
+        let mut exchange = self.exchange(capability, request);
+        if reused && let Exchange::Closed(_) = exchange {
+            // A one-shot plugin may exit right after its reply, before the host can see it.
+            self.force_stop();
+            self.ensure_ready(idle_home.clone())?;
+            exchange = self.exchange(capability, request);
+        }
+        match exchange {
             Exchange::Protocol(result) => {
                 self.touch_after_response(idle_home);
                 if self.child_exited() {
@@ -85,7 +95,7 @@ impl PluginWorker {
                 }
                 result
             }
-            Exchange::Transport(err) => {
+            Exchange::Transport(err) | Exchange::Closed(err) => {
                 self.force_stop();
                 Err(err)
             }
@@ -110,24 +120,28 @@ impl PluginWorker {
         matches!(ready.family.poll_child(), Ok(Some(_)))
     }
 
+    /// Returns `true` when an already running worker is reused, `false` after a fresh spawn.
     fn ensure_ready(
         &mut self,
         idle_home: Option<Arc<Mutex<PluginWorker>>>,
-    ) -> Result<(), SourceError> {
+    ) -> Result<bool, SourceError> {
         if let State::Ready(ready) = &self.state
             && ready.last_response_at.elapsed() >= self.idle_timeout
         {
             self.graceful_stop();
         }
+        if matches!(self.state, State::Ready(_)) && self.child_exited() {
+            self.force_stop();
+        }
         if matches!(self.state, State::Ready(_)) {
-            return Ok(());
+            return Ok(true);
         }
         self.spawn_ready()?;
         self.epoch = self.epoch.wrapping_add(1);
         if let Some(home) = idle_home {
             schedule_idle(home, self.epoch, self.idle_timeout);
         }
-        Ok(())
+        Ok(false)
     }
 
     fn spawn_ready(&mut self) -> Result<(), SourceError> {
@@ -179,7 +193,7 @@ impl PluginWorker {
             ready.stdin.write_all(b"\n")?;
             ready.stdin.flush()
         })() {
-            return Exchange::Transport(SourceError::Unavailable(e.to_string()));
+            return Exchange::Closed(SourceError::Unavailable(e.to_string()));
         }
 
         let timeout = self.call_timeout;
@@ -210,6 +224,9 @@ impl PluginWorker {
             Ok(reply) => reply,
             Err(e) => return Exchange::Transport(SourceError::Unavailable(e.to_string())),
         };
+        if reply.is_empty() {
+            return Exchange::Closed(SourceError::Unavailable("empty plugin reply".into()));
+        }
         if reply.trim().is_empty() {
             return Exchange::Transport(SourceError::Unavailable("empty plugin reply".into()));
         }
