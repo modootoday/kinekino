@@ -144,3 +144,37 @@ fn root_marks_controls_up_with_the_transport_visibility() {
         "controls hidden → no lift class (cue returns to stage bottom): {root}"
     );
 }
+
+#[test]
+fn player_overlays_with_their_own_display_still_hide_when_hidden() {
+    // M1-V3: an author `display:` on a class beats the user-agent `[hidden]` rule, so the
+    // cue stayed on screen under skip and seek toasts although `noSubtitle` was set.
+    // Every player overlay (`kk-*`) toggled by `hidden` needs its own `[hidden]` rule.
+    let markup = include_str!("../../src/source/mod.rs");
+    let css = include_str!("../../src/player.css");
+    let toggled = markup
+        .lines()
+        .filter(|l| l.contains("hidden={{"))
+        .filter_map(|l| l.split("className=\"").nth(1)?.split('"').next())
+        .flat_map(str::split_whitespace)
+        .filter(|c| c.starts_with("kk-"));
+    let mut missing = Vec::new();
+    for class in toggled {
+        let own = format!(".{class}");
+        let shows = css.lines().any(|l| {
+            let Some((selector, body)) = l.split_once('{') else {
+                return false;
+            };
+            selector.trim_end().ends_with(&own)
+                && body.contains("display:")
+                && !body.contains("display: none")
+        });
+        let hides = css
+            .lines()
+            .any(|l| l.contains(&format!("{own}[hidden]")) && l.contains("display: none"));
+        if shows && !hides {
+            missing.push(class);
+        }
+    }
+    assert!(missing.is_empty(), "no [hidden] rule for: {missing:?}");
+}
