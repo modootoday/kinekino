@@ -170,7 +170,11 @@ pub fn inspect_wav(bytes: &[u8]) -> Result<WavInfo, InferenceError> {
     let channels = read_u16(bytes, 22);
     let sample_rate = read_u32(bytes, 24);
     let bits_per_sample = read_u16(bytes, 34);
-    if channels == 0 || sample_rate == 0 || bits_per_sample == 0 || !bits_per_sample.is_multiple_of(8) {
+    if channels == 0
+        || sample_rate == 0
+        || bits_per_sample == 0
+        || !bits_per_sample.is_multiple_of(8)
+    {
         return Err(bad("invalid PCM header"));
     }
     if &bytes[36..40] != b"data" {
