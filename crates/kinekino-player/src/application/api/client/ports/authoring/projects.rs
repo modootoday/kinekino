@@ -31,4 +31,11 @@ pub trait ProjectClient: ApplicationClient {
     ) -> Result<crate::domain::projects::StoredProjectRevision, ApiError> {
         review_call(self, context, "projects.save_revision", payload)
     }
+    fn export_project(
+        &self,
+        context: RequestContext,
+        payload: crate::application::projects::ExportProject,
+    ) -> Result<crate::application::projects::ExportedProject, ApiError> {
+        review_call(self, context, "projects.export", payload)
+    }
 }

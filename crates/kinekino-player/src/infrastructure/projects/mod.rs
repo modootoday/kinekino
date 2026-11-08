@@ -1,5 +1,7 @@
 use crate::infrastructure::os_policy::{OpenOptionsPolicy, ShareMode};
+mod export_files;
 mod records;
+pub use export_files::ProjectExportFiles;
 #[cfg(test)]
 mod tests;
 use crate::{

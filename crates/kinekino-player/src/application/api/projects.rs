@@ -1,9 +1,10 @@
 use super::{ApiError, ErrorCode, Request};
 use crate::application::{
-    projects::{self, ProjectStore},
+    projects::{self, ProjectExportTarget, ProjectStore},
     proposals::ProposalStore,
 };
 use serde_json::Value;
+pub const EXPORT: &str = "projects.export";
 pub fn is_command(command: &str) -> bool {
     matches!(
         command,
@@ -11,12 +12,14 @@ pub fn is_command(command: &str) -> bool {
             | "projects.inspect"
             | "projects.save_revision"
             | "projects.reconnect_source"
+            | EXPORT
     )
 }
 pub fn execute(
     request: &Request,
     store: &dyn ProjectStore,
     proposals: &dyn ProposalStore,
+    export: Option<&dyn ProjectExportTarget>,
 ) -> Result<Value, ApiError> {
     if !store.available() {
         return Err(projects::unavailable());
@@ -62,6 +65,23 @@ pub fn execute(
                     ErrorCode::Internal,
                     "Project reconnection serialization failed",
                 )
+            });
+        }
+        EXPORT => {
+            let target = export.ok_or_else(|| {
+                ApiError::new(
+                    ErrorCode::Unsupported,
+                    "Project export destination adapter unavailable",
+                )
+            })?;
+            return serde_json::to_value(projects::export(
+                store,
+                proposals,
+                target,
+                input(&request.payload)?,
+            )?)
+            .map_err(|_| {
+                ApiError::new(ErrorCode::Internal, "Project export serialization failed")
             });
         }
         "projects.create" => projects::create(store, proposals, input(&request.payload)?)?,
