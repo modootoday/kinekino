@@ -123,7 +123,7 @@ fn normal_cli_catalog_reads_and_discovery_preserve_declarations_without_admissio
         assert_eq!(schema["data"]["status"], item["status"], "{command}");
         inventory.push(json!({"command":command,"configured_status":item["status"],"functional_acceptance":"not_proven_by_discovery"}));
     }
-    assert_eq!(seen.len(), 119);
+    assert_eq!(seen.len(), 120);
     fs::write(
         root.join("INVENTORY.json"),
         serde_json::to_vec_pretty(&inventory).unwrap(),

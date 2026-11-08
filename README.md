@@ -77,7 +77,7 @@ The table is generated from `capabilities`; a test fails when it drifts.
 | Group | Commands |
 | --- | --- |
 | `asset_artifacts` | `inspect` |
-| `asset_sources` | `export`, `inspect` |
+| `asset_sources` | `export`, `inspect`, `import` |
 | `asset_projects` | `create`, `inspect`, `save_revision` |
 | `clip_projects` | `create`, `inspect`, `save_revision` |
 | `clip_sources` | `inspect` |

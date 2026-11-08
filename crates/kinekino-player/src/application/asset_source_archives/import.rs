@@ -10,6 +10,16 @@ pub struct ImportAssetSources {
     pub new_document_id: String,
     pub acknowledge_unreviewed_masks: bool,
 }
+impl ImportAssetSources {
+    pub fn validate(&self) -> Result<(), ApiError> {
+        InspectAssetSources {
+            archive_id: self.archive_id.clone(),
+            manifest_sha256: self.manifest_sha256.clone(),
+        }
+        .validate()?;
+        identity(&self.new_document_id)
+    }
+}
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct AssetSourceImportPlan {

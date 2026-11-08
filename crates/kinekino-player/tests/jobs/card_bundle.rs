@@ -164,7 +164,7 @@ fn configured_cli_card_bundle_and_typed_submission_share_durable_jobs_and_owned_
                 0,
             )?;
             assert_eq!(cap["data"]["card_projects"]["backend_available"], true);
-            assert_eq!(cap["data"]["commands"].as_array().unwrap().len(), 119);
+            assert_eq!(cap["data"]["commands"].as_array().unwrap().len(), 120);
             let templates = &cap["data"]["card_templates"];
             assert_eq!(templates["backend_available"], true);
             assert_eq!(templates["quality_approved"], false);

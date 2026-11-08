@@ -66,4 +66,11 @@ impl AssetSourceArchivePort for NativeAssetSourceArchiveService {
             .inspect(&input.archive_id, &input.manifest_sha256, control)?;
         observation(&input.archive_id, &input.manifest_sha256, &archive)
     }
+    fn import(
+        &self,
+        input: &ImportAssetSources,
+        control: &dyn MutationControl,
+    ) -> Result<ImportedAssetSources, ApiError> {
+        self.import_project(input, control)
+    }
 }

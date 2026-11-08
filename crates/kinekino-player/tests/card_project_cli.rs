@@ -153,7 +153,7 @@ fn normal_cli_card_project_create_save_inspect_matches_typed_sdk_and_preserves_b
     );
     assert_eq!(
         unavailable["data"]["commands"].as_array().unwrap().len(),
-        119
+        120
     );
     let missing = request("card_projects.inspect", json!({"document_id":"cards-1"}));
     assert_eq!(h.call(&missing, false, 3)["error"]["code"], "unsupported");

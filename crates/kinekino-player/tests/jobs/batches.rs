@@ -82,7 +82,7 @@ fn configured_batches_cli_and_typed_client_share_capture_cas_pages_and_owned_shu
                 )
             };
             let cap = call("capabilities", &request("capabilities", json!({})), 0)?;
-            assert_eq!(cap["data"]["commands"].as_array().unwrap().len(), 119);
+            assert_eq!(cap["data"]["commands"].as_array().unwrap().len(), 120);
             assert_eq!(cap["data"]["job_batches"]["backend_available"], true);
             for (index, command) in ["create", "inspect", "submit", "refresh", "retry_failed"]
                 .iter()
