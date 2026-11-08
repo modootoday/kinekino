@@ -4,6 +4,7 @@ pub const COMMANDS: &[&str] = &[
     "asset_artifacts.inspect",
     "asset_sources.export",
     "asset_sources.inspect",
+    "asset_sources.import",
     "asset_projects.create",
     "asset_projects.inspect",
     "asset_projects.save_revision",

@@ -20,5 +20,6 @@ name = "kinekino"
 path = "src/main.rs"
 
 [dev-dependencies]
+png.workspace = true
 serde_json.workspace = true
 sha2.workspace = true

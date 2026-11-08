@@ -9,8 +9,19 @@ impl MutationControl for Observe {
         Ok(())
     }
 }
+fn encode(value: impl serde::Serialize) -> Result<Value, ApiError> {
+    serde_json::to_value(value).map_err(|_| {
+        ApiError::new(
+            ErrorCode::Internal,
+            "Source archive response encoding failed",
+        )
+    })
+}
 pub(super) fn is_command(s: &str) -> bool {
-    matches!(s, "asset_sources.export" | "asset_sources.inspect")
+    matches!(
+        s,
+        "asset_sources.export" | "asset_sources.inspect" | "asset_sources.import"
+    )
 }
 pub(super) fn execute(
     request: &Request,
@@ -27,7 +38,7 @@ pub(super) fn execute(
     }
     let port = port
         .ok_or_else(|| ApiError::new(ErrorCode::Unsupported, "Source archive host unavailable"))?;
-    let result = match request.command.as_str() {
+    match request.command.as_str() {
         "asset_sources.export" => {
             let input: ExportAssetSources = serde_json::from_value(request.payload.clone())
                 .map_err(|_| {
@@ -37,7 +48,7 @@ pub(super) fn execute(
                     )
                 })?;
             input.validate()?;
-            port.export(&input, &Observe)?
+            encode(port.export(&input, &Observe)?)
         }
         "asset_sources.inspect" => {
             let input: InspectAssetSources = serde_json::from_value(request.payload.clone())
@@ -48,21 +59,24 @@ pub(super) fn execute(
                     )
                 })?;
             input.validate()?;
-            port.inspect(&input, &Observe)?
+            encode(port.inspect(&input, &Observe)?)
         }
-        _ => {
-            return Err(ApiError::new(
-                ErrorCode::InvalidArgument,
-                "Unknown source archive command",
-            ));
+        "asset_sources.import" => {
+            let input: ImportAssetSources = serde_json::from_value(request.payload.clone())
+                .map_err(|_| {
+                    ApiError::new(
+                        ErrorCode::InvalidArgument,
+                        "Strict source import payload required",
+                    )
+                })?;
+            input.validate()?;
+            encode(port.import(&input, &Observe)?)
         }
-    };
-    serde_json::to_value(result).map_err(|_| {
-        ApiError::new(
-            ErrorCode::Internal,
-            "Source archive response encoding failed",
-        )
-    })
+        _ => Err(ApiError::new(
+            ErrorCode::InvalidArgument,
+            "Unknown source archive command",
+        )),
+    }
 }
 pub(super) fn capabilities(value: &mut Value, available: bool) {
     if let Some(rows) = value["commands"].as_array_mut() {

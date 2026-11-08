@@ -271,7 +271,7 @@ fn typed_sdk_media_preparation_preserves_configuration_and_readonly_boundaries()
             .as_array()
             .unwrap()
             .len(),
-        119
+        120
     );
     assert_eq!(
         caps.data.as_ref().unwrap()["review_media_preparation"]["write_available"],

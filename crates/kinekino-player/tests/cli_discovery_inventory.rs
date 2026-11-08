@@ -297,7 +297,7 @@ fn configured_review_discovery(shard: usize) {
         false
     );
     let commands = response["data"]["commands"].as_array().unwrap();
-    assert_eq!(commands.len(), 119, "review discovery command set changed");
+    assert_eq!(commands.len(), 120, "review discovery command set changed");
     let mut inventory = Vec::new();
     let mut unique = BTreeSet::new();
     let mut observed_schemas = Vec::new();

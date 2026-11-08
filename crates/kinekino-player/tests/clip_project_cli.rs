@@ -122,7 +122,7 @@ fn normal_clip_project_cli_matches_typed_cas_history_and_preserves_originals() {
     kinekino_platform::install();
     let mut h = Harness::new();
     let caps = h.call(&Request::new("capabilities"), false, &[], 0);
-    assert_eq!(caps["data"]["commands"].as_array().unwrap().len(), 119);
+    assert_eq!(caps["data"]["commands"].as_array().unwrap().len(), 120);
     assert_eq!(caps["data"]["clip_projects"]["backend_available"], false);
     let inspect = request("clip_projects.inspect", json!({"document_id":"short-1"}));
     assert_eq!(

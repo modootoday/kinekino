@@ -77,7 +77,7 @@ fn card_batch_cli_partial_admission_reconciles_same_key_and_preserves_completed_
             assert_eq!(capability["data"]["job_batches"]["backend_available"], true);
             assert_eq!(
                 capability["data"]["commands"].as_array().unwrap().len(),
-                119
+                120
             );
             let create = request(
                 "job_batches.create",

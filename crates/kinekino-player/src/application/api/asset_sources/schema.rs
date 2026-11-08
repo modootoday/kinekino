@@ -38,6 +38,21 @@ fn response() -> Value {
         json!({"api_version":{"const":"1"},"request_id":{"type":"string"},"ok":{"type":"boolean"},"data":{"anyOf":[data,{"type":"null"}]},"error":{"type":["object","null"]}}),
     )
 }
+fn import_response() -> Value {
+    let pin =
+        crate::application::asset_bundle::AssetBundleRequest::schema()["properties"]["project"]
+            .clone();
+    let source = object(json!({"archive_id":id(),"manifest_sha256":sha()}));
+    let receipt = object(
+        json!({"schema_version":{"const":"asset-source-import/1"},"source":source,"original_project":pin.clone(),"imported_project":pin,"plan_sha256":sha(),"quality_approved":{"const":false},"review_admitted":{"const":false}}),
+    );
+    let data = object(
+        json!({"receipt":receipt,"commit_sha256":sha(),"project":crate::application::api::asset_projects::schema::response()}),
+    );
+    object(
+        json!({"api_version":{"const":"1"},"request_id":{"type":"string"},"ok":{"type":"boolean"},"data":{"anyOf":[data,{"type":"null"}]},"error":{"type":["object","null"]}}),
+    )
+}
 pub(in crate::application::api) fn describe(
     payload: &Value,
     available: bool,
@@ -54,18 +69,23 @@ pub(in crate::application::api) fn describe(
             "Schema accepts only command",
         ));
     }
-    let input = if command == "asset_sources.export" {
-        object(
-            json!({"archive_id":id(),"project":crate::application::asset_bundle::AssetBundleRequest::schema()["properties"]["project"],"missing_frames":{"enum":["reject","preserve_gap"]}}),
-        )
-    } else {
-        object(json!({"archive_id":id(),"manifest_sha256":sha()}))
+    let pin =
+        crate::application::asset_bundle::AssetBundleRequest::schema()["properties"]["project"]
+            .clone();
+    let input = match command {
+        "asset_sources.export" => object(
+            json!({"archive_id":id(),"project":pin,"missing_frames":{"enum":["reject","preserve_gap"]}}),
+        ),
+        "asset_sources.inspect" => object(json!({"archive_id":id(),"manifest_sha256":sha()})),
+        _ => object(
+            json!({"archive_id":id(),"manifest_sha256":sha(),"new_document_id":id(),"acknowledge_unreviewed_masks":{"type":"boolean"}}),
+        ),
     };
     let mut context = crate::application::api::schema::context_schema();
     for field in ["timeout_ms", "idempotency_key", "expected_revision"] {
         context["properties"][field] = json!({"type":"null"});
     }
     Ok(
-        json!({"schema_version":"1","command":command,"status":if available{"experimental"}else{"unsupported"},"request":object(json!({"context":context,"command":{"const":command},"payload":input})),"response":response(),"error_codes":ErrorCode::ALL,"constraints":{"backend_available":available,"create_only":true,"missing_policy_explicit":true,"render_units_required":false,"point_in_time_response":true,"jobs_publication":false,"quality_approved":false,"review_admitted":false,"in_flight_cancel":false}}),
+        json!({"schema_version":"1","command":command,"status":if available{"experimental"}else{"unsupported"},"request":object(json!({"context":context,"command":{"const":command},"payload":input})),"response":if command=="asset_sources.import"{import_response()}else{response()},"error_codes":ErrorCode::ALL,"constraints":{"backend_available":available,"create_only":true,"missing_policy_explicit":true,"render_units_required":false,"point_in_time_response":true,"jobs_publication":false,"quality_approved":false,"review_admitted":false,"in_flight_cancel":false}}),
     )
 }

@@ -121,7 +121,7 @@ fn actual_nine_source_context_cli_and_typed_client_share_guarded_state() {
         kinekino_player::application::api::ErrorCode::InvalidArgument
     );
     let caps = f.ok("context-capabilities", "capabilities", json!({}), None);
-    assert_eq!(caps["commands"].as_array().unwrap().len(), 119);
+    assert_eq!(caps["commands"].as_array().unwrap().len(), 120);
     assert_eq!(caps["proposals"]["source_context"]["available"], true);
     let schema = f.ok("context-schema", "schema", json!({"command":COMMAND}), None);
     assert_eq!(schema["status"], "supported");

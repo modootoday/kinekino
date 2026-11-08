@@ -2915,6 +2915,7 @@ name = "kinekino-cli"
 version = "0.1.0"
 dependencies = [
  "kinekino-app",
+ "png",
  "serde_json",
  "sha2 0.11.1",
 ]

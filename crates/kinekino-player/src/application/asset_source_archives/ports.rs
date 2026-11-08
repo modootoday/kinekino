@@ -12,4 +12,9 @@ pub trait AssetSourceArchivePort: Send + Sync {
         input: &InspectAssetSources,
         control: &dyn MutationControl,
     ) -> Result<AssetSourcesObservation, ApiError>;
+    fn import(
+        &self,
+        input: &ImportAssetSources,
+        control: &dyn MutationControl,
+    ) -> Result<ImportedAssetSources, ApiError>;
 }

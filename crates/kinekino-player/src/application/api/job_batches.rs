@@ -194,7 +194,7 @@ mod tests {
         let sdk = PlayerSdk::new(UnavailableStorage);
         let cap = sdk.execute(Request::new("capabilities"));
         let data = cap.data.unwrap();
-        assert_eq!(data["commands"].as_array().unwrap().len(), 119);
+        assert_eq!(data["commands"].as_array().unwrap().len(), 120);
         assert_eq!(data["job_batches"]["backend_available"], false);
         for command in COMMANDS {
             assert_eq!(

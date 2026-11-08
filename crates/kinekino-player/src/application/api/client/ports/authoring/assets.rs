@@ -17,6 +17,13 @@ pub trait AssetClient: ApplicationClient {
     ) -> Result<crate::application::asset_source_archives::AssetSourcesObservation, ApiError> {
         review_call(self, context, "asset_sources.inspect", input)
     }
+    fn import_asset_sources(
+        &self,
+        context: RequestContext,
+        input: crate::application::asset_source_archives::ImportAssetSources,
+    ) -> Result<crate::application::asset_source_archives::ImportedAssetSources, ApiError> {
+        review_call(self, context, "asset_sources.import", input)
+    }
     fn inspect_asset_artifact(
         &self,
         context: RequestContext,
