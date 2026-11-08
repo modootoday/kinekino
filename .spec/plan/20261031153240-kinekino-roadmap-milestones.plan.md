@@ -3,7 +3,7 @@ id: plan:kinekino/20261031153240
 title: kinekino 완성 로드맵과 마일스톤
 status: draft
 created: 2026-10-31T15:32:40Z
-updated: 2026-11-07T22:37:18Z
+updated: 2026-11-08T00:55:00Z
 rel:
   governs: [crates]
 ---
@@ -103,7 +103,7 @@ PotPlayer를 기준으로 한 Linux 우선 플레이어를 끝까지 완성하�
 
 - 우선 실행: M2-V5b → M1-V1 → M1-V2 → M1-V3 → M2-8 → M3-8 → M4 개별 조각. M5 개별 조각은 선행을 지켜 빈 슬롯에 진행하고, M6는 위 선행을 갖춘 후 OS별 환경 대기를 건너뛴다. 승인·환경 장벽은 해제하거나 완료로 가장하지 않는다.
 - 정기 슬롯은 매일 22회(Asia/Seoul 10시·15시 제외)이며 처리량은 보장하지 않는다. 현재 후속 31조각 중 환경 대기 2조각, 가용 범위 후보 29조각이다. 모든 후보가 1회에 끝난다고 가정하면 29 ÷ 22 ≈ 1.3일이지만, 이는 테스트·빌드 락·분할·실화면 검증 시간을 무시한 산술 하한이지 납기 예측이 아니다.
-- RC-A는 누적 30조각 중 완료 27·후속 3(M1-V2·M1-V3·M2-8)다. 실제 검증 전 완료 날짜를 약속하지 않는다.
+- RC-A는 누적 30조각 중 완료 30(M1-V2·M1-V3·M2-8 포함, 2026-11-08)이다. 실제 검증 전 완료 날짜를 약속하지 않는다.
 - 불확실 요인: 공유 빌드 락·전체 테스트·GUI 실행 가능 여부·미검증 CLI 상태·Windows/Wayland/macOS 환경·CI 결과·P7 승인·DC-4 결정. 실제 처리량을 관측해 다시 추정하며 환경 대기는 무인 완료를 보장하지 않는다.
 
 ## Record
@@ -144,3 +144,4 @@ PotPlayer를 기준으로 한 Linux 우선 플레이어를 끝까지 완성하�
 - 2026-11-08: M1-V3 — manual skip real-window verify done (X11 with window manager): mark start/end, skip offer buttons, S shortcut, and clear worked; the text cue stayed under skip/seek toasts because `.kk-subtitle { display:flex }` beat `[hidden]`; added `.kk-subtitle[hidden]` and a regression test that scans overlays with author `display:`. Visual complete; M1 stays closed.
 - 2026-11-08: M2-8 (window part) — the player window now carries the mascot-derived app icon on Linux/X11 (16–64 px set on `_NET_WM_ICON`); real-window check showed it in the panel task list and pager. Windows/macOS wait for a Meari window-icon option, and the tray icon needs a tray port design first, so M2 stays open.
 - 2026-11-08: M2-8b — tray icon port and platform adapters designed (ADR 20261107231529): host `TrayPresence`, Linux StatusNotifier first, same mascot-derived app-icon assets, no implementation; Windows/macOS Unsupported; wiring and xfce4-panel verify deferred. M2 stays open.
+- 2026-11-08: M2-8c — the player shows the mascot-derived app icon in the Linux system tray (StatusNotifierItem, tooltip `kinekino`, activating it raises the window; registration off the window loop, a missing tray host is reported once). Real-window check on xfce4-panel (X11): tray icon shown, minimize then activate restored the window. With M2-1…M2-8 and M2-V1…M2-V5b done, M2 criteria (1)–(5) and the window/tray icon check are met on Linux — M2 closed. Windows/macOS window and tray icons wait for platform adapters (M6 platform checks); Wayland tray is unverified.
