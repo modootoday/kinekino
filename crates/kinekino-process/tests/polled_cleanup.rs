@@ -382,9 +382,8 @@ fn late_closed_observation_is_closed_with_timeout_not_fresh_budget_success() {
     assert!(owner.cleanup_progress().unwrap().settled());
 }
 
-#[cfg(windows)]
 #[test]
-fn actual_windows_family_supervisor_is_send_without_unsafe_trait_implementations() {
+fn actual_owned_family_supervisor_is_send_without_unsafe_trait_implementations() {
     kinekino_platform::install();
     fn assert_send<T: Send>() {}
     assert_send::<Supervisor<kinekino_process::infrastructure::family::OwnedProcessFamily>>();
