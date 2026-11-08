@@ -173,10 +173,13 @@ fn playlists_disguised_as_local_media_are_refused_without_connecting() {
         std::fs::write(&path, &playlist).unwrap();
         sources.push(path);
     }
-    #[cfg(unix)]
+    let link = fixture.dir.join("linked.mp4");
+    if std::process::Command::new("ln")
+        .args(["-s", &target.to_string_lossy(), &link.to_string_lossy()])
+        .status()
+        .map(|status| status.success())
+        .unwrap_or(false)
     {
-        let link = fixture.dir.join("linked.mp4");
-        std::os::unix::fs::symlink(&target, &link).unwrap();
         sources.push(link);
     }
 

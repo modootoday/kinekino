@@ -5,6 +5,8 @@ use crate::{
 };
 use std::sync::atomic::{AtomicUsize, Ordering};
 
+mod partial_failure;
+
 #[test]
 #[ignore = "Explicit read-only allocation of the original R115 source blobs"]
 fn historical_r115_prepared_blobs_round_trip_without_changing_descriptor_bytes() {
