@@ -253,7 +253,7 @@ pub fn run() -> u8 {
             "Proposal commands proposals.create/inspect/edit/accept require --proposal-root ABSOLUTE_DIRECTORY (existing empty local directory initially). Typed output revisions preserve source and generated originals; rendering/export is separate. proposals.export_subtitles explicitly consumes a fixed accepted OutputReviewTarget and writes a new SRT/VTT file; inspect schema, review losses and explicitly acknowledge allow_loss. It does not infer cue timing, Accept, overwrite or apply a project. Malformed imports remain needs_repair. Edit/accept require expected_revision; acceptance is explicit and independent of model quality reviews. Do not combine local roots with --endpoint."
         );
         println!(
-            "Project commands projects.create/inspect/save_revision require --project-root ABSOLUTE_DIRECTORY. Live proposal captures also require --proposal-root; saved captures can be reopened and saved without it. Nonempty source/work context is mandatory. Save requires expected_revision and does not automatically retry conflicts. Stored locators never open media or URLs. Project-current acceptance and media binding remain unverified. Do not combine local roots with --endpoint."
+            "Project commands projects.create/inspect/save_revision/export require --project-root ABSOLUTE_DIRECTORY. projects.export writes one fixed stored revision to a new absolute output_path and never overwrites an existing file. Live proposal captures also require --proposal-root; saved captures can be reopened and saved without it. Nonempty source/work context is mandatory. Save requires expected_revision and does not automatically retry conflicts. Stored locators never open media or URLs. Project-current acceptance and media binding remain unverified. Do not combine local roots with --endpoint."
         );
         println!(
             "Capture edits: proposals.edit_capture / proposals.accept_capture require both --project-root and --proposal-root. Payload anchor selects an immutable project revision/hash and proposal capture/hash. Omit expected for the original capture, then explicitly reuse returned continuation for later mutations; it is a CAS expectation, not an authority token. Exact accept retry repeats the original request. Legacy captures without origin stay read-only. Context expected_revision/idempotency_key/timeout_ms are unsupported. No automatic refresh, project save or media application."
@@ -663,7 +663,6 @@ fn execute_local(args: &[String], request: Request) -> Response {
             ),
         );
     }
-    #[cfg(windows)]
     let client = if let Some(root) = args
         .windows(2)
         .find(|p| p[0] == "--project-root")
@@ -672,7 +671,9 @@ fn execute_local(args: &[String], request: Request) -> Response {
         match kinekino_player::infrastructure::projects::ProjectFiles::open(std::path::Path::new(
             root,
         )) {
-            Ok(store) => client.with_project_store(store),
+            Ok(store) => client
+                .with_project_store(store)
+                .with_project_export(kinekino_player::infrastructure::projects::ProjectExportFiles),
             Err(error) => return Response::failure(request.context.request_id, error),
         }
     } else {
@@ -750,16 +751,6 @@ fn execute_local(args: &[String], request: Request) -> Response {
             ApiError::new(
                 ErrorCode::Unsupported,
                 "Rooted clip project storage requires Windows",
-            ),
-        );
-    }
-    #[cfg(not(windows))]
-    if args.iter().any(|a| a == "--project-root") {
-        return Response::failure(
-            request.context.request_id,
-            ApiError::new(
-                ErrorCode::Unsupported,
-                "Rooted project storage requires Windows",
             ),
         );
     }

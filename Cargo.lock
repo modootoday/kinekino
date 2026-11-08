@@ -2916,6 +2916,7 @@ version = "0.1.0"
 dependencies = [
  "kinekino-app",
  "serde_json",
+ "sha2 0.11.1",
 ]
 
 [[package]]

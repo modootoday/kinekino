@@ -1,7 +1,9 @@
 #[path = "ports.rs"]
 mod ports;
-pub use ports::ProjectStore;
+pub use ports::{ProjectExportTarget, ProjectStore};
 mod capture;
+pub mod export;
+pub use export::{ExportProject, ExportedProject, export};
 mod reconnect;
 pub use reconnect::{ReconnectProjectSource, ReconnectedProjectSource, reconnect_source};
 #[cfg(test)]

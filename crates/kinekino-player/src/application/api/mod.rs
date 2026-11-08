@@ -97,6 +97,7 @@ pub struct PlayerSdk<
     >,
     proposal_store: std::sync::Arc<dyn crate::application::proposals::ProposalStore>,
     project_store: std::sync::Arc<dyn crate::application::projects::ProjectStore>,
+    project_export: Option<std::sync::Arc<dyn crate::application::projects::ProjectExportTarget>>,
     card_project_store:
         Option<std::sync::Arc<dyn crate::application::card_projects::CardProjectStore>>,
     asset_artifact_inspector:
@@ -163,6 +164,7 @@ impl<S: SubtitleStorage> PlayerSdk<S> {
             speaker_annotations: None,
             episode_playback: None,
             episode_transitions: None,
+            project_export: None,
             project_store: std::sync::Arc::new(
                 crate::application::projects::UnavailableProjectStore,
             ),
@@ -198,6 +200,7 @@ impl<
             proposal_store: self.proposal_store,
             review_playback: self.review_playback,
             project_store: self.project_store,
+            project_export: self.project_export,
             card_project_store: self.card_project_store,
             asset_project_store: self.asset_project_store,
             asset_source_archives: self.asset_source_archives,
@@ -232,6 +235,7 @@ impl<
             proposal_store: self.proposal_store,
             review_playback: self.review_playback,
             project_store: self.project_store,
+            project_export: self.project_export,
             card_project_store: self.card_project_store,
             asset_project_store: self.asset_project_store,
             asset_source_archives: self.asset_source_archives,
@@ -266,6 +270,7 @@ impl<
             proposal_store: self.proposal_store,
             review_playback: self.review_playback,
             project_store: self.project_store,
+            project_export: self.project_export,
             card_project_store: self.card_project_store,
             asset_project_store: self.asset_project_store,
             asset_source_archives: self.asset_source_archives,
@@ -297,6 +302,7 @@ impl<
             proposal_store: self.proposal_store,
             review_playback: self.review_playback,
             project_store: self.project_store,
+            project_export: self.project_export,
             card_project_store: self.card_project_store,
             asset_project_store: self.asset_project_store,
             asset_source_archives: self.asset_source_archives,
@@ -370,6 +376,14 @@ impl<
         store: impl crate::application::projects::ProjectStore + 'static,
     ) -> Self {
         self.project_store = std::sync::Arc::new(store);
+        self
+    }
+    /// Adds the create-only destination used by `projects.export`.
+    pub fn with_project_export(
+        mut self,
+        target: impl crate::application::projects::ProjectExportTarget + 'static,
+    ) -> Self {
+        self.project_export = Some(std::sync::Arc::new(target));
         self
     }
     pub fn with_card_project_store(
@@ -655,6 +669,7 @@ impl<
                     &request,
                     self.project_store.as_ref(),
                     self.proposal_store.as_ref(),
+                    self.project_export.as_deref(),
                 );
             }
             if card_projects::is_command(&request.command) {
@@ -690,7 +705,8 @@ impl<
                     .as_str()
                     .is_some_and(projects::is_command)
             {
-                return project_schema::describe(&request.payload, self.project_store.available());
+                let export = request.payload["command"] != projects::EXPORT || self.project_export.is_some();
+                return project_schema::describe(&request.payload, self.project_store.available() && export);
             }
             if request.command == crate::application::proposals::subtitle_export::COMMAND {
                 return crate::application::proposals::subtitle_export::execute_request(&request, self.proposal_store.as_ref(), &self.storage);
@@ -749,7 +765,7 @@ impl<
                     crate::application::proposals::cue_edit::capabilities(&mut value,self.proposal_store.available());
                     job_schema::capabilities(&mut value, self.jobs.capability());
                     job_batches::capabilities(&mut value, self.job_batches.is_some());
-                    project_schema::capabilities(&mut value, self.project_store.available());
+                    project_schema::capabilities(&mut value, self.project_store.available(), self.project_export.is_some());
                     card_projects::capabilities(&mut value, self.card_project_store.is_some());
                     asset_sources::capabilities(&mut value,self.asset_source_archives.is_some());
                     asset_projects::capabilities(&mut value, self.asset_project_store.is_some());

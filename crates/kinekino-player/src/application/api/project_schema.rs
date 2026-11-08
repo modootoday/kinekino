@@ -117,6 +117,24 @@ fn response() -> Value {
     )
 }
 
+fn export_response() -> Value {
+    object(
+        json!({"project_id":id(),"revision":decimal(),"revision_sha256":sha(),"output_path":{"type":"string"},"output_sha256":sha(),"output_bytes":decimal(),"format":{"const":crate::application::projects::export::FORMAT},"format_version":{"const":crate::application::projects::export::FORMAT_VERSION},"collision_policy":{"const":crate::application::projects::export::COLLISION_POLICY},"overwrite":{"const":false}}),
+        &[
+            "project_id",
+            "revision",
+            "revision_sha256",
+            "output_path",
+            "output_sha256",
+            "output_bytes",
+            "format",
+            "format_version",
+            "collision_policy",
+            "overwrite",
+        ],
+    )
+}
+
 pub(super) fn describe(input: &Value, available: bool) -> Result<Value, ApiError> {
     let command = input["command"]
         .as_str()
@@ -132,6 +150,11 @@ pub(super) fn describe(input: &Value, available: bool) -> Result<Value, ApiError
         object(
             json!({"project_id":id(),"revision":nullable(decimal())}),
             &["project_id"],
+        )
+    } else if command == super::projects::EXPORT {
+        object(
+            json!({"project_id":id(),"revision":decimal(),"output_path":{"type":"string","minLength":1,"maxLength":32768,"description":"Absolute path naming a new file; existing files are never replaced"}}),
+            &["project_id", "revision", "output_path"],
         )
     } else if command == "projects.reconnect_source" {
         object(
@@ -160,7 +183,9 @@ pub(super) fn describe(input: &Value, available: bool) -> Result<Value, ApiError
         context["required"] = json!(["request_id", "api_version", "expected_revision"]);
     }
     let response = || {
-        if command == "projects.reconnect_source" {
+        if command == super::projects::EXPORT {
+            export_response()
+        } else if command == "projects.reconnect_source" {
             object(
                 json!({"state":response(),"scope":{"const":"watching_locator_only"},"content_identity_verified":{"const":false},"source_opened":{"const":false},"playback_rebound":{"const":false}}),
                 &[
@@ -179,14 +204,15 @@ pub(super) fn describe(input: &Value, available: bool) -> Result<Value, ApiError
         json!({"schema_version":"1","command":command,"status":if available {"supported"} else {"unsupported"},"request":object(json!({"context":context,"command":{"const":command},"payload":payload}), &["context","command","payload"]),"response":object(json!({"api_version":{"const":"1"},"request_id":{"type":"string"},"ok":{"type":"boolean"},"data":nullable(response()),"error":{"type":["object","null"]}}), &["api_version","request_id","ok","data","error"]),"error_codes":ErrorCode::ALL,"constraints":{"nonempty_context":true,"create_origins":["live"],"save_origins":["live","saved"],"record_max_bytes":crate::domain::projects::MAX_RECORD_BYTES,"working_total_max_bytes":crate::domain::projects::MAX_WORKING_BYTES,"saved_capture_requires_expected_project_match":true,"working_draft_may_need_input":true},"project_current_revision_verified":false,"media_binding_verified":false,"automatic_application_enabled":false}),
     )
 }
-pub(super) fn capabilities(value: &mut Value, available: bool) {
+pub(super) fn capabilities(value: &mut Value, available: bool, export_available: bool) {
     if let Some(commands) = value["commands"].as_array_mut() {
         for command in commands {
-            if command["command"]
+            if let Some(name) = command["command"]
                 .as_str()
-                .is_some_and(super::projects::is_command)
+                .filter(|name| super::projects::is_command(name))
             {
-                command["status"] = json!(if available {
+                let supported = available && (name != super::projects::EXPORT || export_available);
+                command["status"] = json!(if supported {
                     "supported"
                 } else {
                     "unsupported"
@@ -197,6 +223,7 @@ pub(super) fn capabilities(value: &mut Value, available: bool) {
     value["projects"] = json!({"backend_available":available,"schema_version":"1","immutable_revisions":true,"nonempty_context":true,"proposal_backend_required_for_live_capture":true,"saved_capture_independent":true,"record_max_bytes":crate::domain::projects::MAX_RECORD_BYTES,"working_total_max_bytes":crate::domain::projects::MAX_WORKING_BYTES,"project_current_revision_verified":false,"media_binding_verified":false,"automatic_application_enabled":false});
     value["projects"]["supported_record_schema_versions"] = json!(["1", "2"]);
     value["projects"]["reconnection"] = json!({"available":available,"scope":"watching_locator_only","content_identity_verified":false,"source_opened":false,"playback_rebound":false,"in_flight_cancel":false});
+    value["projects"]["export"] = json!({"available":available && export_available,"format":crate::application::projects::export::FORMAT,"format_version":crate::application::projects::export::FORMAT_VERSION,"collision_policies":[crate::application::projects::export::COLLISION_POLICY],"overwrite":false,"fixed_revision_required":true});
     value["projects"]["capture_origin"] = json!({
         "producer":"proposal_backend",
         "legacy_absent_origin_read_only":true,

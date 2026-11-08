@@ -135,6 +135,7 @@ fn configured_project_proposal_job_stores_match_schemas_without_mutating_initial
         "projects.inspect",
         "projects.save_revision",
         "projects.reconnect_source",
+        "projects.export",
         "proposals.create",
         "proposals.list",
         "proposals.inspect",

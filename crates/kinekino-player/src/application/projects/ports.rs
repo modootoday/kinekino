@@ -16,3 +16,8 @@ pub trait ProjectStore: Send + Sync {
         project: &ProjectRevision,
     ) -> Result<StoredProjectRevision, ApiError>;
 }
+
+/// Create-only destination for a project export; must never replace an existing file.
+pub trait ProjectExportTarget: Send + Sync {
+    fn publish_new(&self, path: &str, bytes: &[u8]) -> Result<(), ApiError>;
+}
