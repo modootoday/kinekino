@@ -84,7 +84,8 @@ pub fn serve_io(
     output.flush()
 }
 
-/// Process entry for a plugin executable: one request on stdin, one response on stdout.
+/// One-shot process entry: one request on stdin, one response on stdout, then return.
+/// The host keeps plugins running and restarts one that exited, so prefer [`serve_loop`].
 pub fn serve(plugin: &mut dyn SourcePlugin) -> std::io::Result<()> {
     serve_io(
         plugin,

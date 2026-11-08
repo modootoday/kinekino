@@ -1,5 +1,5 @@
-//! Plugin wire protocol `source/1`: the host writes one request line to stdin, the
-//! plugin answers one response line on stdout and exits.
+//! Plugin wire protocol `source/1`: the host writes one JSON request line to stdin and
+//! reads one JSON response line from stdout before sending the next request.
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

@@ -3,7 +3,7 @@ id: sot:kinekino/plugin-sdk-extraction
 title: kinekino-plugin-sdk 추출 설계
 status: active
 created: 2026-10-30T06:40:19Z
-updated: 2026-10-30T13:15:00Z
+updated: 2026-11-08T09:30:00Z
 rel:
   governs: [crates/kinekino-source-host, crates/kinekino-plugin-sdk]
 ---
@@ -20,12 +20,25 @@ SDK는 `serde`·`serde_json`에만 의존하고 kinekino 내부 크레이트에 
 
 ## Verification
 
-`cargo test -p kinekino-plugin-sdk`(골든 왕복), `cargo test -p kinekino-source-host`(같은 골든을 호스트 쪽에서 읽음), `cargo xtask lint-structure`(SDK는 Contract 등급, 신규 위반 0).
+`cargo test -p kinekino-plugin-sdk`(골든 왕복, 크레이트 문서의 작성 예제 doctest), `cargo test -p kinekino-source-host`(같은 골든을 호스트 쪽에서 읽음), `cargo xtask lint-structure`(SDK는 Contract 등급, 신규 위반 0).
+
+## 현재 계약 (2026-11-08 관측)
+
+M3-8에서 문서를 코드에 맞췄다. 태그·릴리즈·게시는 하지 않았다.
+
+| 항목 | 현재 계약 | 확인 |
+|---|---|---|
+| 프로세스 모델 | 호스트는 플러그인마다 프로세스 하나를 오래 띄우고, 요청 한 줄을 쓴 뒤 응답 한 줄을 받을 때까지 다음 요청을 보내지 않는다(ADR 20261106051332). 유휴 시간이 지나면 끝내고 다음 호출에서 다시 띄운다 | `cargo test -p kinekino-app --test plugin_worker_contract` |
+| 플러그인 진입점 | 권장 `serve_loop`(stdin EOF까지 반복, 빈 줄 건너뜀). `serve`는 한 줄만 답하고 끝나는 단발 진입점으로 남기며, 호스트가 끝난 프로세스를 다시 띄워 동작은 하지만 권장하지 않는다. `handle_line`·`unsupported`는 공개 도우미 | `cargo test -p kinekino-plugin-sdk --test serve` |
+| 항목 종류 | `Item.kind`는 선택 필드 `container`(다시 목록 조회) / `playable`(resolve로 스트림). 없으면 구형 플러그인으로 보고 `container`로 다룬다(ADR 20261031101741) | `cargo test -p kinekino-plugin-sdk --doc` |
+| 매니페스트 | `plugin.json`: `id`, `version`, `api`, `capabilities`(`browse`·`search`·`series`·`episode`·`resolve` 중), `media_hosts`, `executable`, 선택 `document`·`signature`·`entry_sha256`. 모르는 필드는 거절 | `cargo test -p kinekino-plugin-sdk --test golden_roundtrip` |
+| 배포 | `publish = false`, 태그 `plugin-sdk-v0.1.0`은 아직 없다. 그때까지 경로 또는 git rev로 의존한다 | `git tag -l 'plugin-sdk-v*'` 결과 없음 |
+
 ## 목적
 
 [ADR 0011](../adr/20261030200000-adr-0011-media-source-plugin.adr.md) 결정 5에 따라 비공개 소스 플러그인 저장소가 git 태그로 의존할 공개 크레이트 `kinekino-plugin-sdk`의 경계·버저닝·분리 순서를 정한다. 2026-10-30 22:11 KST 원 님 지시로 승인(S0)되어 진행 중이다. 조사 기준은 main `5bcf812`.
 
-## 현재 위치(관측)
+## 추출 전 위치(2026-10-30 관측, 이력)
 
 | 타입·기능 | 현재 위치 | 성격 |
 |---|---|---|
@@ -45,8 +58,8 @@ SDK는 `serde`·`serde_json`에만 의존하고 kinekino 내부 크레이트에 
 SDK에 들어가는 것(플러그인 작성자가 의존하는 최소 집합):
 1. 프로토콜 상수: `SOURCE_API`, `DOCUMENT_PROTOCOL`, `PROTOCOL_FIELD`.
 2. 와이어 타입: `source/1`의 `Request`/`Response`/`Ref`/`Item`/`Stream`, `document/1`의 `DocRequest`/`DocResponse`와 그 안의 값(`CatalogPage`, `RawDocument`, `Provenance`, `CatalogError`, `EpisodeDocumentData`).
-3. 매니페스트 스키마: `plugin.json`의 직렬화 구조(`id`, `version`, `api`, `capabilities`, `media_hosts`, `executable`, `document`)와 검증 함수. 발견(`discover`, OS 경로)은 호스트 책임이라 넣지 않는다.
-4. 플러그인 쪽 실행 도우미: stdin 한 줄 읽기 → 디스패치 → stdout 한 줄 쓰기를 하는 `serve(handler)`와 `SourcePlugin` 트레이트(능력별 기본 `unsupported`). `serve_fixture`는 `fixture` 기능 뒤로 옮긴다.
+3. 매니페스트 스키마: `plugin.json`의 직렬화 구조(`id`, `version`, `api`, `capabilities`, `media_hosts`, `executable`, `document`, `signature`, `entry_sha256`)와 검증 함수. 발견(`discover`, OS 경로)은 호스트 책임이라 넣지 않는다.
+4. 플러그인 쪽 실행 도우미: 줄마다 디스패치하는 `handle_line`, EOF까지 반복하는 `serve_loop`(권장), 한 줄만 답하는 `serve`, `SourcePlugin` 트레이트(능력별 기본 `unsupported`). `serve_fixture`는 `fixture` 기능 뒤로 옮긴다.
 
 SDK에 넣지 않는 것: `SourceProvider`(호스트 포트), `ProcessSource`, `DocumentPlugin`, `LocationRules` 설치, HTTP 워커 코덱, reqwest·tokio 의존. SDK 의존성은 `serde`, `serde_json`만 허용한다.
 
@@ -76,14 +89,14 @@ crates/kinekino-plugin-sdk/
 
 ## 마일스톤
 
-| 단계 | 내용 | 완료 기준 |
-|---|---|---|
-| S0 | 이 설계 승인 | 이 문서 active |
-| S1 | 새 크레이트 생성, `wire.rs`·`document_wire.rs`·document 값 이동, source-host는 재노출로 유지 | 기존 테스트 무변경 통과, clippy·lint-structure 0 |
-| S2 | 매니페스트 스키마 분리(발견은 host에 남김), 골든 fixture | 양쪽 계약 테스트 통과 |
-| S3 | `serve`/`SourcePlugin` 추가, 테스트용 가짜 플러그인을 SDK만으로 작성 | 가짜 플러그인 e2e(`kinekino plugins list`) |
-| S4 | 비공개 플러그인 저장소가 로컬 경로 의존으로 빌드 | 로컬 빌드 성공(push 없음) |
-| S5 | 첫 공개 push 뒤 `plugin-sdk-v0.1.0` 태그(사용자 승인) | 비공개 저장소가 태그로 빌드 |
+| 단계 | 내용 | 완료 기준 | 상태(2026-11-08) |
+|---|---|---|---|
+| S0 | 이 설계 승인 | 이 문서 active | 완료 |
+| S1 | 새 크레이트 생성, `wire.rs`·`document_wire.rs`·document 값 이동, source-host는 재노출로 유지 | 기존 테스트 무변경 통과, clippy·lint-structure 0 | 완료 |
+| S2 | 매니페스트 스키마 분리(발견은 host에 남김), 골든 fixture | 양쪽 계약 테스트 통과 | 완료 |
+| S3 | `serve`/`SourcePlugin` 추가, 테스트용 가짜 플러그인을 SDK만으로 작성 | 가짜 플러그인 e2e(`kinekino plugins list`) | 완료(`examples/fake_source.rs`) |
+| S4 | 비공개 플러그인 저장소가 로컬 경로 의존으로 빌드 | 로컬 빌드 성공(push 없음) | 저장소 밖 작업이라 이 문서에서 판정하지 않음 |
+| S5 | 첫 공개 push 뒤 `plugin-sdk-v0.1.0` 태그(사용자 승인) | 비공개 저장소가 태그로 빌드 | 보류(태그 미생성) |
 
 ## 미결
 
