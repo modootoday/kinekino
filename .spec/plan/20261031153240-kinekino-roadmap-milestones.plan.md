@@ -3,7 +3,7 @@ id: plan:kinekino/20261031153240
 title: kinekino 완성 로드맵과 마일스톤
 status: draft
 created: 2026-10-31T15:32:40Z
-updated: 2026-11-08T11:40:00Z
+updated: 2026-11-08T17:27:47Z
 rel:
   governs: [crates]
 ---
@@ -150,3 +150,4 @@ PotPlayer를 기준으로 한 Linux 우선 플레이어를 끝까지 완성하�
 - 2026-11-08: M4-3 — `production.export_snapshot` is already wired on Linux (fixed-SHA local PNG, explicit pixel crop, create-only output, no FFmpeg). CLI fixture tests now lock schema, capabilities, invalid payloads, unsupported context options, remote or relative path rejection, overwrite and stale-hash conflicts, and CRC-damaged sources (`233e15a4`). Frame-capture remote-input rejection remains (M4-4). M4 not closed.
 - 2026-11-08: M4-4 — `production.capture_frame` keeps refusing remote input on Linux: URLs and protocol prefixes, UNC and relative paths, playlists, playlists disguised as MP4/MKV/WebM (including symlinks) and remote output paths fail with nothing published, and a local listener confirms no connection is opened. Locked with CLI fixture tests, no product code change (`f410430b`). M4 not closed.
 - 2026-11-09: M4-5 — card bundle partial failure, cancellation and explicit retry stay on the shared fixture path: a mid-bundle render error keeps its original code and publishes nothing, cancel is acknowledged without writing the in-flight card, verification and existing-output failures stop before publication, and retry uses a fresh staging under the original Jobs attempt identity. The Linux CLI refuses card host and export commands in this build without writing files or claiming quality approval. Locked with application fixture tests and CLI contract tests, no product code change (`43196174`). The native bundle renderer remains unavailable here. M4 not closed.
+- 2026-11-09: M4-6 — rotation and variable frame rate first step is locked on Linux with locally generated fixtures. Frame capture through the CLI reports a display-matrix rotation (90, 270 stored as -90, 180 stored as -180) without applying it, keeping stored dimensions and the unrotated pixels, and on a variable frame rate source returns the first original frame at or after the request from source timestamps. Clip source inspection reports the rotation and the candidate encoder refuses rotated sources as unsupported before encoding; an unrotated variable frame rate source keeps original timestamp membership and encodes to the preset's constant rate. Test-only, no product code change (`4c49e234`). Applying rotation and HDR remain out of scope. M4 not closed.
