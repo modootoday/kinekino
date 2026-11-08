@@ -20,7 +20,8 @@ pub struct OcrSpans {
 }
 
 /// `frame_secs` is the sampling interval: a frame's text lasts until the next frame or
-/// `time + frame_secs`, whichever is first. Frames must be strictly increasing in time.
+/// `time + frame_secs`, whichever is first. The interval must be finite and positive, and frame
+/// times finite, non-negative and strictly increasing; anything else is refused before a call.
 pub fn ocr_frames(
     backend: &mut dyn InferenceBackend,
     guard: &mut CostGuard,
@@ -32,8 +33,11 @@ pub fn ocr_frames(
 ) -> Result<OcrSpans, StepError<OcrSpans>> {
     let mut out = OcrSpans::default();
     let invalid = |m: &str| step::Stop::Error(InferenceError::InvalidInput(m.into()));
-    if frame_secs.is_nan() || frame_secs <= 0.0 {
-        return Err(invalid("frame interval must be positive").at(0, &out));
+    if !frame_secs.is_finite() || frame_secs <= 0.0 {
+        return Err(invalid("frame interval must be finite and positive").at(0, &out));
+    }
+    if frames.iter().any(|f| !f.time.is_finite() || f.time < 0.0) {
+        return Err(invalid("frame times must be finite and non-negative").at(0, &out));
     }
     if frames.windows(2).any(|w| w[1].time <= w[0].time) {
         return Err(invalid("frames must be strictly increasing in time").at(0, &out));
