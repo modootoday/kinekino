@@ -79,7 +79,7 @@ segments, the AI studio tabs) are not mocked: they would need host features, not
 The player window now carries the derived app icon. On Linux/X11 the 16, 24, 32, 48 and 64 px
 PNGs from `assets/design/app-icon/` are embedded unchanged, decoded once and written to the
 window's `_NET_WM_ICON` property the first time the window manager is polled
-(`crates/kinekino-player-ui/src/window/icon.rs`); a decode or X error is reported once and
+(`crates/kinekino-player-ui/src/window/presence/icon.rs`); a decode or X error is reported once and
 never stops the player. Checked in a real X11 session: the panel task list and workspace pager
 showed the derived icon next to the `kinekino` title.
 

@@ -3,7 +3,7 @@ id: adr:kinekino/20261107231529
 title: Player tray icon port and platform adapters
 status: active
 created: 2026-11-07T23:15:29Z
-updated: 2026-11-07T23:20:00Z
+updated: 2026-11-08T00:45:00Z
 rel:
   governs:
     - crates/kinekino-player-ui/src/window
@@ -71,3 +71,4 @@ skill: 조회했으나 트레이 포트·데스크톱 셸 어댑터에 맞는 �
 ## Record
 
 - 2026-11-08: M2-8b — tray port (`TrayPresence`), Linux-first SNI adapter scope, same derived app-icon assets, no implementation; Windows/macOS Unsupported until real adapters; follow-up wires Linux tray and verifies on xfce4-panel.
+- 2026-11-08: M2-8c — Linux adapter wired (`window/presence/tray.rs`; the window icon moved beside it to `window/presence/icon.rs`): StatusNotifierItem over the session bus via the zbus version already in the lockfile, derived 16/24/32/48 px icons as `IconPixmap`, tooltip `kinekino`, `Activate` raises the window through `_NET_ACTIVE_WINDOW`. Installed once per window, registering on its own thread so a slow tray host never stalls the window loop; no tray host gives one `Unsupported` warning and the player continues. Each item asks for its own bus name so a window rebuild does not collide with the old one. Real-window check on xfce4-panel 4.20 (X11): icon shown in the system tray, minimize then Activate restored the window. Windows/macOS and other Unix stay Unsupported; menu and close-to-tray remain out of scope.

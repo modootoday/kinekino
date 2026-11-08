@@ -10,9 +10,9 @@ mod caption;
 mod context;
 mod drop;
 mod edges;
-#[cfg(all(unix, not(target_os = "macos")))]
-pub(crate) mod icon;
 mod nochild;
+#[cfg(all(unix, not(target_os = "macos")))]
+mod presence;
 mod typing;
 use actions::{PortRefusal, WindowOps};
 use kinekino_core::playback::{RgbaFrame, VideoSurface};
@@ -236,6 +236,8 @@ struct App<E: Engine> {
     resized_to: Option<edges::Rect>,
     /// Last press on the caption row, for double-click maximize.
     caption_press: Option<Instant>,
+    #[cfg(all(unix, not(target_os = "macos")))]
+    presence: presence::Presence,
 }
 
 impl<E: Engine> WindowOps for App<E> {
@@ -306,7 +308,6 @@ impl<E: Engine> App<E> {
     fn observe_fallback(&mut self) -> Option<(bool, bool)> {
         let (x11, id) = (self.x11.as_ref()?, self.window_id?);
         let window = u32::try_from(id.into_raw()).ok()?;
-        icon::send(x11, window);
         let title = &self.shared.borrow().controller.view.title;
         if *title != self.shown_title && x11.set_title(window, &window_title(title)).is_ok() {
             self.shown_title = title.clone();
@@ -375,6 +376,8 @@ impl<E: Engine> App<E> {
             }
         }
         let poll = Instant::now() >= self.next_poll;
+        #[cfg(all(unix, not(target_os = "macos")))]
+        self.presence.step(self.x11.as_ref(), self.window_id);
         self.observe(poll);
         {
             let mut shared = self.shared.borrow_mut();
@@ -568,6 +571,8 @@ pub fn run<E: Engine>(controller: Controller<E>, options: Options) -> Result<Rep
             #[cfg(all(unix, not(target_os = "macos")))]
             resized_to: None,
             caption_press: None,
+            #[cfg(all(unix, not(target_os = "macos")))]
+            presence: presence::Presence::default(),
         };
         winit::event_loop::run_on_demand::EventLoopExtRunOnDemand::run_app_on_demand(
             &mut event_loop,

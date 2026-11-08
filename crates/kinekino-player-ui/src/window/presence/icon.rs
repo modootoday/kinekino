@@ -7,23 +7,23 @@
 const SIZES: [(u32, &[u8]); 5] = [
     (
         16,
-        include_bytes!("../../../../assets/design/app-icon/kinekino-16.png"),
+        include_bytes!("../../../../../assets/design/app-icon/kinekino-16.png"),
     ),
     (
         24,
-        include_bytes!("../../../../assets/design/app-icon/kinekino-24.png"),
+        include_bytes!("../../../../../assets/design/app-icon/kinekino-24.png"),
     ),
     (
         32,
-        include_bytes!("../../../../assets/design/app-icon/kinekino-32.png"),
+        include_bytes!("../../../../../assets/design/app-icon/kinekino-32.png"),
     ),
     (
         48,
-        include_bytes!("../../../../assets/design/app-icon/kinekino-48.png"),
+        include_bytes!("../../../../../assets/design/app-icon/kinekino-48.png"),
     ),
     (
         64,
-        include_bytes!("../../../../assets/design/app-icon/kinekino-64.png"),
+        include_bytes!("../../../../../assets/design/app-icon/kinekino-64.png"),
     ),
 ];
 
@@ -79,7 +79,7 @@ fn decode(size: u32, bytes: &[u8]) -> Result<IconImage, String> {
 
 /// Hands the app icon to the player's X window, once per window. A failure is reported
 /// once, never fatal.
-pub fn send(x11: &super::actions::x11::X11, window: u32) {
+pub fn send(x11: &crate::window::actions::x11::X11, window: u32) {
     if !x11.first_icon_request(window) {
         return;
     }
