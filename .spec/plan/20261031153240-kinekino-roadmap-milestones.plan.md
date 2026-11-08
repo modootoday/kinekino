@@ -3,7 +3,7 @@ id: plan:kinekino/20261031153240
 title: kinekino 완성 로드맵과 마일스톤
 status: draft
 created: 2026-10-31T15:32:40Z
-updated: 2026-11-08T00:55:00Z
+updated: 2026-11-08T09:40:00Z
 rel:
   governs: [crates]
 ---
@@ -145,3 +145,4 @@ PotPlayer를 기준으로 한 Linux 우선 플레이어를 끝까지 완성하�
 - 2026-11-08: M2-8 (window part) — the player window now carries the mascot-derived app icon on Linux/X11 (16–64 px set on `_NET_WM_ICON`); real-window check showed it in the panel task list and pager. Windows/macOS wait for a Meari window-icon option, and the tray icon needs a tray port design first, so M2 stays open.
 - 2026-11-08: M2-8b — tray icon port and platform adapters designed (ADR 20261107231529): host `TrayPresence`, Linux StatusNotifier first, same mascot-derived app-icon assets, no implementation; Windows/macOS Unsupported; wiring and xfce4-panel verify deferred. M2 stays open.
 - 2026-11-08: M2-8c — the player shows the mascot-derived app icon in the Linux system tray (StatusNotifierItem, tooltip `kinekino`, activating it raises the window; registration off the window loop, a missing tray host is reported once). Real-window check on xfce4-panel (X11): tray icon shown, minimize then activate restored the window. With M2-1…M2-8 and M2-V1…M2-V5b done, M2 criteria (1)–(5) and the window/tray icon check are met on Linux — M2 closed. Windows/macOS window and tray icons wait for platform adapters (M6 platform checks); Wayland tray is unverified.
+- 2026-11-08: M3-8 — plugin SDK docs aligned with the current contract without a tag: crate docs and a doctest show `serve_loop` as the plugin entry (host keeps one long-running process per plugin; one-shot `serve` still restarts but is not recommended), `Item.kind` container/playable, and path or git-rev dependency until a tag exists; extraction SoT records S0–S3 done and S5 held (`4d888796`). M3 not closed: product memory fallback for the credential store is not wired.
