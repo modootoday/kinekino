@@ -279,7 +279,6 @@ r-cfg crates/kinekino-player/src/assembly/meari/async_proposals/mod.rs
 r-cfg crates/kinekino-player/src/assembly/meari/async_proposals/tests/policy.rs
 r-cfg crates/kinekino-player/src/assembly/meari/mod.rs
 r-cfg crates/kinekino-player/src/assembly/mod.rs
-r-cfg crates/kinekino-player/src/domain/local_video.rs
 r-cfg crates/kinekino-player/src/infrastructure/asset_raster/mod.rs
 r-cfg crates/kinekino-player/src/infrastructure/frame_capture/mod.rs
 r-cfg crates/kinekino-player/src/infrastructure/mod.rs

@@ -23,19 +23,24 @@ impl LocalVideo {
         &self.0
     }
 }
-#[cfg(all(test, windows))]
+#[cfg(test)]
 mod tests {
     use super::*;
     #[test]
     fn rejects_programs_playlists_and_relative_sources() {
-        assert!(LocalVideo::selected(PathBuf::from(r"C:\media\sample.MKV")).is_ok());
+        // The OS temp directory is absolute on every target, so the rule is
+        // checked without platform-specific path literals.
+        let root = std::env::temp_dir();
+        assert!(root.is_absolute());
+        assert!(LocalVideo::selected(root.join("sample.MKV")).is_ok());
         for path in [
-            r"C:\media\run.exe",
-            r"C:\media\remote.m3u",
-            "relative.mp4",
-            "https://example.com/a.mp4",
+            root.join("run.exe"),
+            root.join("remote.m3u"),
+            root.join("no_extension"),
+            PathBuf::from("relative.mp4"),
+            PathBuf::from("https://example.com/a.mp4"),
         ] {
-            assert!(LocalVideo::selected(PathBuf::from(path)).is_err());
+            assert!(LocalVideo::selected(path).is_err());
         }
     }
 }
