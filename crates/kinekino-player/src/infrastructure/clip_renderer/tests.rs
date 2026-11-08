@@ -1,4 +1,6 @@
 use super::*;
+#[path = "rotation_vfr_tests.rs"]
+mod rotation_vfr;
 #[path = "section_tests.rs"]
 mod sections;
 use crate::{
