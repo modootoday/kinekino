@@ -109,6 +109,12 @@ pub mod x11 {
             self.state(window, on, v, Some(h))
         }
 
+        /// Brings `window` to the front, restoring it if iconified (`_NET_ACTIVE_WINDOW`,
+        /// source indication 2: a pager or tray asked on the user's behalf).
+        pub fn activate(&self, window: u32) -> Result<(), String> {
+            self.message(window, "_NET_ACTIVE_WINDOW", [2, 0, 0, 0, 0])
+        }
+
         /// ICCCM iconify (`WM_CHANGE_STATE` → IconicState).
         pub fn minimize(&self, window: u32) -> Result<(), String> {
             self.message(window, "WM_CHANGE_STATE", [3, 0, 0, 0, 0])
@@ -198,7 +204,7 @@ pub mod x11 {
             self.icon_window.replace(Some(window)) != Some(window)
         }
 
-        /// The window's icon (`_NET_WM_ICON`, see `window::icon::net_wm_icon`).
+        /// The window's icon (`_NET_WM_ICON`, see `window::presence::icon::net_wm_icon`).
         pub fn set_icon(&self, window: u32, words: &[u32]) -> Result<(), String> {
             let name = self.atom("_NET_WM_ICON")?;
             self.conn

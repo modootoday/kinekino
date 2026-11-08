@@ -23,5 +23,9 @@ rfd = { workspace = true, features = ["xdg-portal"] }
 x11rb.workspace = true
 png.workspace = true
 
+# Tray presence (StatusNotifierItem over the session bus, ADR 20261107231529).
+[target.'cfg(target_os = "linux")'.dependencies]
+zbus.workspace = true
+
 [lints]
 workspace = true
