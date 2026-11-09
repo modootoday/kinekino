@@ -3,7 +3,7 @@ id: plan:kinekino/20261031153240
 title: kinekino 완성 로드맵과 마일스톤
 status: draft
 created: 2026-10-31T15:32:40Z
-updated: 2026-11-09T09:40:00Z
+updated: 2026-11-09T12:30:00Z
 rel:
   governs: [crates]
 ---
@@ -167,3 +167,4 @@ PotPlayer를 기준으로 한 Linux 우선 플레이어를 끝까지 완성하�
 - 2026-11-09: M6-2 — the Linux CI gate was reproduced locally with the workflow's own commands (`d67678ba`, evidence 20261109092655): format, clippy, structure lint, spec check and the full workspace tests pass on x86_64 Linux. The ARM test job, the site build, the Windows compile check and the macOS tests were not run on this host, and the CI workflow has no remote run yet, so no green remote run is claimed. M6 not closed.
 - 2026-11-09: M6-3 — the installable package was designed (`9a6d2779`, ADR 20261109101726) without code or workflow changes: the first format is a Linux `.deb` built from the release binaries, with libmpv declared as a dependency rather than bundled and Chrome installed separately; the font cache must stop falling back into the program directory before a package is built; Windows MSI and macOS DMG layouts wait for a libmpv supply decision and signing. No package is built, signed or published. M6 not closed.
 - 2026-11-09: M6-4 — a mascot event port was added to the core SDK (`17c52d93`, ADR 20261109111833): the host can report app start and exit, loads, success, errors, warnings, notifications, playback start and pause, offline and online, and finished tasks under the preset state machine's event names; the default adapter ignores them. Pointer and idle events stay with the mascot. No call sites, adapter or artwork yet. M6 not closed.
+- 2026-11-09: M6-6 — macOS support was assessed from Linux (ADR 20261109121745) without code changes: the workspace libraries and binaries type-check for `aarch64-apple-darwin` with no errors, but nothing was linked or run on macOS. macOS uses the POSIX adapter; the first code slice is a macOS process start stamp, without which IPC endpoints cannot be created. A first macOS build would have no tray, no Keychain store, no owner-death cleanup and no browser provider. macOS stays planned; CI and real-machine checks wait for a Mac or a hand-started run. M6 not closed.
