@@ -18,7 +18,7 @@ sections:
 - **쇼츠와 클립**: 구간을 쇼츠로 렌더. `status:partial`
 - **카드와 에셋**: 카드 내보내기, 에셋 팩 빌드. `status:partial`
 - **프레임 캡처**: FFmpeg로 한 프레임을 PNG로. `status:partial`
-- **스냅샷**: 잘라서 내보내기, 지금은 Windows, Linux는 P4. `status:partial`
+- **스냅샷**: 잘라서 내보내기, Windows, Linux는 CLI로. `status:partial`
 - **피사체 분할과 투영 패키지**: 설계만 됨. `status:planned`
 
 ## 바뀌기 전에 리뷰

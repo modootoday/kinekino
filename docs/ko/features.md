@@ -27,8 +27,8 @@ sections:
 | 조회: `version`, `capabilities`, `schema` | `status:available` | CLI |
 | 자막 변환·구간 내보내기(SRT/WebVTT) | `status:available` | CLI |
 | PNG 프레임 캡처 | `status:partial` | 로컬 mp4/mkv/webm, FFmpeg 필요 |
-| 스냅샷 내보내기 | `status:partial` | 지금은 Windows, Linux는 P4 |
-| libmpv 재생 | `status:partial` | Windows는 직접 확인, Linux는 같은 코드 경로·손 확인은 나중 |
+| 스냅샷 내보내기 | `status:partial` | Windows, Linux는 CLI로 |
+| libmpv 재생 | `status:partial` | Windows는 직접 확인, Linux는 X11 창 세션에서 확인·Wayland는 아직 |
 | 회차 이동, 인트로 건너뛰기 | `status:partial` | 수동 건너뛰기, 자동 감지는 나중 |
 | 이어 보기와 환경설정 기억 | `status:partial` | 위치·볼륨·음소거·속도·자동 다음화, 트랙 선호는 나중 |
 | 미디어·AI 제안 리뷰 | `status:partial` | |

@@ -43,7 +43,7 @@ kinekino는 영상을 재생하고, 자르고, 자막을 붙입니다. 모든 �
 
 - 구간 초안과 쇼츠 렌더 `status:partial`
 - PNG 프레임 캡처(FFmpeg 필요) `status:partial`
-- 스냅샷 내보내기: 지금은 Windows, Linux는 P4 `status:partial`
+- 스냅샷 내보내기: Windows, Linux는 CLI로 `status:partial`
 
 [스튜디오 기능](features/studio.md)
 
@@ -75,7 +75,7 @@ kinekino --input request.json --json
 공용 Rust 코어 아래에 OS 어댑터가 있습니다. 개발은 Linux를 먼저, 현재 앱은 Windows에서 돌고, 마지막(P8)에 모든 OS를 다시 확인합니다.
 
 - **Windows**: 현재 앱과 네이티브 mpv 재생, 사람이 직접 확인. `status:partial`
-- **Linux**: CLI·로컬 IPC와 Meari+libmpv 플레이어 동작, 재생 손 확인은 남아 있음. `status:partial`
+- **Linux**: CLI·로컬 IPC와 Meari+libmpv 플레이어 동작, 재생은 X11 창 세션에서 확인, Wayland는 아직 확인 전. `status:partial`
 - **macOS**: 아직 확인 전, P8에서 빌드 확인. `status:planned`
 
 [플랫폼 상세](platforms.md)

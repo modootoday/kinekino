@@ -43,7 +43,7 @@ Mark a range while you watch and turn it into a short, a card or a snapshot. Ren
 
 - Range drafts and short renders `status:partial`
 - Frame capture to PNG (needs FFmpeg) `status:partial`
-- Snapshot export: Windows today, Linux in P4 `status:partial`
+- Snapshot export: Windows, and Linux through the CLI `status:partial`
 
 [Studio features](features/studio.md)
 
@@ -75,7 +75,7 @@ kinekino --input request.json --json
 A shared Rust core with OS adapters underneath. Development targets Linux first; Windows is where the current app runs; every OS is checked again at the end (P8).
 
 - **Windows**: the current app and native mpv playback, checked by hand. `status:partial`
-- **Linux**: the CLI, local IPC and the Meari + libmpv player run; a hand check of playback is still open. `status:partial`
+- **Linux**: the CLI, local IPC and the Meari + libmpv player run, and playback was checked in an X11 window session; Wayland is not checked yet. `status:partial`
 - **macOS**: not verified yet; build check in P8. `status:planned`
 
 [Platform details](platforms.md)

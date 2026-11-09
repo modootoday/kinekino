@@ -14,7 +14,7 @@ The core, the commands and the CLI are the same everywhere. Only adapters (mpv h
 ## Status per OS
 
 - **Windows**: current app (Meari UI), native mpv playback checked by hand, named pipe IPC, snapshot export. Final check in P8. `status:partial`
-- **Linux**: development base. CLI, Unix socket IPC and the Meari + libmpv player share the Windows code path; hand-check of playback is still open, snapshot P4. `status:partial`
+- **Linux**: development base. CLI, Unix socket IPC and the Meari + libmpv player share the Windows code path; the player was checked in an X11 window session (resume, subtitles over the controls, manual skip, settings window, window and tray icons) and snapshot export runs from the CLI; Wayland is not checked yet. `status:partial`
 - **macOS**: not built or verified yet; build check in P8. `status:planned`
 
 ## How it is checked
