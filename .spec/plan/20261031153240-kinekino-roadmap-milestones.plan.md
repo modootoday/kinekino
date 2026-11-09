@@ -3,7 +3,7 @@ id: plan:kinekino/20261031153240
 title: kinekino 완성 로드맵과 마일스톤
 status: draft
 created: 2026-10-31T15:32:40Z
-updated: 2026-11-09T07:30:00Z
+updated: 2026-11-09T09:40:00Z
 rel:
   governs: [crates]
 ---
@@ -164,3 +164,4 @@ PotPlayer를 기준으로 한 Linux 우선 플레이어를 끝까지 완성하�
 - 2026-11-09: M5-7 — the OS sandbox for plugin processes was recorded as a decision without code changes (ADR 20261109051610, `a72cdae6`). A platform-neutral sandbox policy rides on the existing process ownership spawn, each OS adapter reports file, network and system-call guarantees as enforced, advisory or unsupported, and a plugin spawn fails visibly when a requested guarantee is not enforced unless the user grants that plugin an unsandboxed run; there is no automatic fallback. Document calls run without network, source workers keep network in the first stage, both launch paths move onto the process port, and the signature and hash check before spawn is its own slice. Linux (landlock and seccomp) and Windows (AppContainer inside the Job Object) are in scope; macOS reports unsupported. M5 not closed.
 - 2026-11-09: M5-8 — the browser provider on Unix was assessed without code changes (ADR 20261109071720, `71368a04`). No new engine is added and WebKitGTK is not adopted; the provider reads DevTools protocol traffic that the engine port cannot carry today, so the first code slice adds a protocol session capability to the port. On Linux X11 the provider would use the installed Chrome adapter, CEF only after its adapter declares and passes the same capabilities, and a missing engine fails as unsupported with no automatic fallback. The provider and playback hosts stay Windows-only until a Linux provider passes a real run. Native Wayland and macOS stay unsupported. All eight M5 steps are recorded; M5 is not closed, since its completion criteria still need the held allowlist stages and the follow-up slices.
 - 2026-11-09: M6-1 — the site's public status was aligned with the current state (`ee0452aa`): on Linux the player is now described as checked in an X11 window session (resume, subtitles over the controls, manual skip, settings window, window and tray icons) with Wayland not checked yet, and snapshot export as available through the CLI. The README already matched. No version, badge or command table change. M6 not closed.
+- 2026-11-09: M6-2 — the Linux CI gate was reproduced locally with the workflow's own commands (`d67678ba`, evidence 20261109092655): format, clippy, structure lint, spec check and the full workspace tests pass on x86_64 Linux. The ARM test job, the site build, the Windows compile check and the macOS tests were not run on this host, and the CI workflow has no remote run yet, so no green remote run is claimed. M6 not closed.
