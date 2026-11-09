@@ -21,7 +21,7 @@ kinekino는 mpv를 네이티브로 띄우고 모든 조작을 `playback.open`, `
 
 ## OS별
 
-재생은 Windows에서 직접 확인했습니다. Linux는 같은 Meari·libmpv 플레이어 경로를 쓰며, Linux 손 확인은 로드맵에 남아 있습니다. macOS는 P8에서 확인합니다.
+재생은 Windows에서 직접 확인했습니다. Linux는 같은 Meari·libmpv 플레이어 경로를 쓰며 X11 창 세션에서 확인했습니다. Wayland는 아직 확인 전입니다. macOS는 P8에서 확인합니다.
 
 > [!IMPORTANT]
 > 아직 공개 빌드가 없어 개발 트리 밖에서는 재생을 써 볼 수 없습니다.

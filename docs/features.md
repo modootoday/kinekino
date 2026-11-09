@@ -27,8 +27,8 @@ Each badge is checked against the roadmap plan and the code. `status:available` 
 | Discovery: `version`, `capabilities`, `schema` | `status:available` | CLI |
 | Subtitle convert and range export (SRT/WebVTT) | `status:available` | CLI |
 | Frame capture to PNG | `status:partial` | Local mp4/mkv/webm, needs FFmpeg |
-| Snapshot export | `status:partial` | Windows today, Linux in P4 |
-| Playback via libmpv | `status:partial` | Windows checked by hand; Linux same code path, hand check later |
+| Snapshot export | `status:partial` | Windows, and Linux through the CLI |
+| Playback via libmpv | `status:partial` | Windows checked by hand; Linux checked in an X11 window session, Wayland not yet |
 | Episode navigation, skip intro | `status:partial` | Manual skip; detection later |
 | Resume and preferences | `status:partial` | Position, volume, mute, speed, auto-next; track prefs later |
 | Review of media and AI proposals | `status:partial` | |

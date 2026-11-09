@@ -21,7 +21,7 @@ kinekino hosts mpv natively and wraps every control in a typed command: `playbac
 
 ## Per OS
 
-Playback was checked by hand on Windows. Linux shares the same Meari and libmpv player path; a hand check on Linux is still on the roadmap. macOS is checked in P8.
+Playback was checked by hand on Windows. Linux shares the same Meari and libmpv player path and was checked in an X11 window session; Wayland is not checked yet. macOS is checked in P8.
 
 > [!IMPORTANT]
 > No public build exists yet, so you cannot try playback outside the development tree.

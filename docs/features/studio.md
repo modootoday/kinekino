@@ -18,7 +18,7 @@ A project holds your media, ranges and outputs. Each change has a revision, so t
 - **Shorts and clips**: render a range as a short. `status:partial`
 - **Cards and assets**: export cards and build asset packs. `status:partial`
 - **Frame capture**: one frame to PNG with FFmpeg. `status:partial`
-- **Snapshots**: crop and export; Windows today, Linux in P4. `status:partial`
+- **Snapshots**: crop and export; Windows, and Linux through the CLI. `status:partial`
 - **Subject segmentation and projection packages**: designed, not built. `status:planned`
 
 ## Review before it changes
