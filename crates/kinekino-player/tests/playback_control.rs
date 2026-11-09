@@ -118,7 +118,6 @@ fn invalid_payload_and_unimplemented_context_do_not_reach_adapter() {
 }
 
 #[test]
-#[cfg(windows)]
 fn provider_capability_and_schema_agree_without_claiming_engine_readiness() {
     kinekino_platform::install();
     let (_, native) =
