@@ -1,5 +1,6 @@
 //! kinekino-core: OS-neutral shared SDK for the GUI player and the CLI.
 pub mod file_publication;
+pub mod mascot;
 pub mod platform;
 pub mod playback;
 pub mod port;
