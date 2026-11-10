@@ -17,6 +17,8 @@ use std::{
     io::Cursor,
     path::{Path, PathBuf},
     sync::Arc,
+    thread,
+    time::{Duration, Instant},
 };
 
 pub const MAX_TRANSACTION_BYTES: u64 = 262_144;
@@ -114,11 +116,7 @@ impl UserReviewStore for UserReviewFiles {
         }
         let mut guards = vec![rooted::directory(&directory)?];
         let lock = directory.join("writer.lock");
-        let reservation = if access == StoreAccess::Write {
-            rooted::lock(&lock)?
-        } else {
-            read_reservation(&lock)?
-        };
+        let reservation = reserve(&lock, access)?;
         let transactions = directory.join("transactions");
         if access == StoreAccess::Write {
             create_directory(&transactions)?;
@@ -145,6 +143,30 @@ fn create_directory(path: &Path) -> Result<(), ApiError> {
         }
         Err(e) => Err(io_error(e)),
     }
+}
+/// Retry a writer-lock conflict for about a second. A just-dropped writer, or a
+/// child that briefly inherited the lock file description across fork, can otherwise
+/// make the next open fail immediately with RevisionConflict.
+fn reserve(path: &Path, access: StoreAccess) -> Result<File, ApiError> {
+    const BUDGET: Duration = Duration::from_millis(1000);
+    const STEP: Duration = Duration::from_millis(50);
+    let started = Instant::now();
+    loop {
+        let result = if access == StoreAccess::Write {
+            rooted::lock(path)
+        } else {
+            read_reservation(path)
+        };
+        match result {
+            Err(error) if reservation_conflict(&error) && started.elapsed() < BUDGET => {
+                thread::sleep(STEP);
+            }
+            other => return other,
+        }
+    }
+}
+fn reservation_conflict(error: &ApiError) -> bool {
+    error.code == ErrorCode::RevisionConflict && error.message.contains("writer is active")
 }
 /// Read-only reservation belongs to this adapter; the shared rooted-path module
 /// is also included by older fixtures that only need its writer API.
