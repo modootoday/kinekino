@@ -39,7 +39,7 @@ $ cargo build --locked -p kinekino-cli
 
 ## Quick start
 
-These commands run without media, models or a GUI. Output is a JSON envelope: `{"ok": …, "data": …, "error": …}`.
+The CLI commands below run without media, models or a GUI. Output is a JSON envelope: `{"ok": …, "data": …, "error": …}`.
 
 ```console
 $ cargo run -q -p kinekino-cli -- version
@@ -49,7 +49,14 @@ $ cargo run -q -p kinekino-cli -- capabilities
 $ cargo run -q -p kinekino-cli -- schema playback status
 {"api_version":"1","request_id":"cli","ok":true,"data":{"command":"playback.status",…},"error":null}
 $ cargo run -q -p kinekino-cli -- --help
-$ cargo test --workspace --features kinekino-vad-worker/test-control-process
+```
+
+Workspace tests need the development libmpv path from `source .github/scripts/dev-env.sh` and the pinned Noto font cache from `kinekino fonts fetch`. They still do not need a media file, downloaded models, or a GUI.
+
+```console
+$ source .github/scripts/dev-env.sh
+$ cargo run -q -p kinekino-cli -- fonts fetch
+$ cargo test --workspace
 $ cargo xtask lint-structure
 ```
 

@@ -104,6 +104,44 @@ fn terminate(mut child: OwnedChild, root: &Path) {
     .unwrap();
 }
 #[test]
+fn reservation_retries_while_a_brief_writer_lock_is_held() {
+    let root = root();
+    let store = UserReviewFiles::open(&root, true).unwrap();
+    let body = body();
+    drop(store.open(&body.request.case, StoreAccess::Write).unwrap());
+    let lock = fs::read_dir(root.join("cases"))
+        .unwrap()
+        .next()
+        .unwrap()
+        .unwrap()
+        .path()
+        .join("writer.lock");
+    let (held_tx, held_rx) = std::sync::mpsc::channel();
+    let join = std::thread::spawn(move || {
+        let holder = rooted::lock(&lock).unwrap();
+        held_tx.send(()).unwrap();
+        std::thread::sleep(Duration::from_millis(200));
+        drop(holder);
+    });
+    held_rx.recv().unwrap();
+    let started = Instant::now();
+    let opened = store.open(&body.request.case, StoreAccess::Read);
+    join.join().unwrap();
+    if let Err(error) = opened {
+        panic!("read should wait for a short-lived writer lock: {error:?}");
+    }
+    let elapsed = started.elapsed();
+    assert!(
+        elapsed >= Duration::from_millis(150),
+        "open returned before the holder released: {elapsed:?}"
+    );
+    assert!(
+        elapsed < Duration::from_secs(2),
+        "open waited longer than the retry budget: {elapsed:?}"
+    );
+}
+
+#[test]
 fn process_reservation_conflicts_then_recovers_after_owner_termination() {
     let root = root();
     let child = spawn(&root, "reservation");
