@@ -23,6 +23,23 @@ public static class W {
   [DllImport("user32.dll")] public static extern void mouse_event(uint f, int dx, int dy, uint d, UIntPtr e);
   [DllImport("user32.dll")] public static extern bool SetProcessDPIAware();
   [DllImport("user32.dll")] public static extern bool IsWindow(IntPtr h);
+  public delegate bool EnumProc(IntPtr h, IntPtr l);
+  [DllImport("user32.dll")] public static extern bool EnumWindows(EnumProc f, IntPtr l);
+  [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr h, out uint pid);
+  [DllImport("user32.dll")] public static extern bool IsWindowVisible(IntPtr h);
+  [DllImport("user32.dll", CharSet=CharSet.Unicode)] public static extern int GetClassName(IntPtr h, System.Text.StringBuilder s, int n);
+  // The player's own top-level window: visible, owned by pid, not a console window.
+  public static IntPtr PlayerWindow(uint pid) {
+    IntPtr found = IntPtr.Zero;
+    EnumWindows((h, l) => {
+      uint p; GetWindowThreadProcessId(h, out p);
+      if (p != pid || !IsWindowVisible(h)) return true;
+      var c = new System.Text.StringBuilder(256); GetClassName(h, c, 256);
+      if (c.ToString() == "ConsoleWindowClass") return true;
+      found = h; return false;
+    }, IntPtr.Zero);
+    return found;
+  }
   public static Bitmap Grab(int x, int y, int w, int h) {
     var b = new Bitmap(w, h); using (var g = Graphics.FromImage(b)) g.CopyFromScreen(x, y, 0, 0, new Size(w, h)); return b;
   }
@@ -53,20 +70,21 @@ $screen = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
 $result.screen = "$($screen.Width)x$($screen.Height)"
 
 $env:KINEKINO_TRACE_RESIZE = '1'
-$p = Start-Process -FilePath $Bin -ArgumentList @('watch', $Clip) -PassThru `
+$p = Start-Process -FilePath $Bin -ArgumentList @('watch', $Clip) -PassThru -NoNewWindow `
   -RedirectStandardOutput (Join-Path $Out 'player.stdout') -RedirectStandardError (Join-Path $Out 'player.stderr')
 $sw = [Diagnostics.Stopwatch]::StartNew()
 $h = [IntPtr]::Zero
 while ($sw.Elapsed.TotalSeconds -lt 60 -and $h -eq [IntPtr]::Zero) {
   Start-Sleep -Milliseconds 100; $p.Refresh()
   if ($p.HasExited) { break }
-  $h = $p.MainWindowHandle
+  $h = [W]::PlayerWindow([uint32]$p.Id)
 }
 if ($h -eq [IntPtr]::Zero) {
   $result.errors += "player window never appeared (exited: $($p.HasExited))"
   $result | ConvertTo-Json -Depth 6 | Set-Content (Join-Path $Out 'results.json'); Shot 'no-window.png'; exit 1
 }
-$result.window = @{ title = $p.MainWindowTitle; appeared_ms = [int]$sw.ElapsedMilliseconds }
+$cls = New-Object System.Text.StringBuilder 256; [W]::GetClassName($h, $cls, 256) | Out-Null
+$result.window = @{ class = $cls.ToString(); appeared_ms = [int]$sw.ElapsedMilliseconds }
 Start-Sleep -Seconds 3
 [W]::SetForegroundWindow($h) | Out-Null
 [W]::SetCursorPos($screen.Width - 5, $screen.Height - 5) | Out-Null
