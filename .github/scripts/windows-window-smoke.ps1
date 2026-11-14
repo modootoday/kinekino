@@ -72,6 +72,10 @@ Start-Sleep -Seconds 3
 [W]::SetCursorPos($screen.Width - 5, $screen.Height - 5) | Out-Null
 $SWP = 0x0004 -bor 0x0010  # NOZORDER | NOACTIVATE
 [W]::SetWindowPos($h, [IntPtr]::Zero, 40, 40, 720, 450, $SWP) | Out-Null
+$c = Client $h
+# Keep the pointer over the caption (left part, inside every tested size) so the player
+# chrome stays shown during playback; the measured corner is at the right end.
+[W]::SetCursorPos($c.x + 150, $c.y + 10) | Out-Null
 Start-Sleep -Seconds 2
 Shot 'start.png'
 $c = Client $h
