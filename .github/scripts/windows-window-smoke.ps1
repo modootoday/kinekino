@@ -35,7 +35,9 @@ public static class W {
       uint p; GetWindowThreadProcessId(h, out p);
       if (p != pid || !IsWindowVisible(h)) return true;
       var c = new System.Text.StringBuilder(256); GetClassName(h, c, 256);
-      if (c.ToString() == "ConsoleWindowClass") return true;
+      var cn = c.ToString();
+      // Skip the console and winit's hidden message window.
+      if (cn == "ConsoleWindowClass" || cn == "Winit Thread Event Target") return true;
       found = h; return false;
     }, IntPtr.Zero);
     return found;
