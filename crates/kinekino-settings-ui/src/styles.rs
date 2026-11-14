@@ -69,8 +69,29 @@ fn face(family: &str) -> Result<fonts::Pin, String> {
 }
 
 /// Downloads (once) and verifies the pinned Noto UI set into the font cache.
+/// The font cache shared with the player window: `$MEARI_FONT_CACHE`, else the nearest
+/// `runtime/fonts` above the current directory or the executable, else the per-user cache
+/// (ADR 20261109101726: the program directory is never written).
+pub fn font_cache() -> meari_native::infrastructure::fonts::FontCache {
+    use kinekino_core::platform::font_cache::{FontCacheLookup, font_cache_root};
+    use std::path::{Path, PathBuf};
+    let cwd = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+    let exe = std::env::current_exe()
+        .ok()
+        .and_then(|p| p.parent().map(Path::to_path_buf));
+    meari_native::infrastructure::fonts::FontCache::at(font_cache_root(
+        |k| std::env::var(k).ok(),
+        Path::is_dir,
+        &FontCacheLookup {
+            cwd: &cwd,
+            exe_dir: exe.as_deref(),
+            macos: std::env::consts::OS == "macos",
+        },
+    ))
+}
+
 pub fn fetch_fonts() -> Result<serde_json::Value, String> {
-    let cache = meari_native::infrastructure::fonts::FontCache::default_location();
+    let cache = font_cache();
     let fetched = cache.ensure(fonts::UI_SCRIPTS)?;
     Ok(serde_json::json!({
         "cache": cache.root(),
@@ -100,7 +121,7 @@ pub fn prepare_with(styles: &[(&str, &str)], icons: &[(&str, &[u8])]) -> Result<
     };
     let mut blobs = BTreeMap::new();
     // Pinned Noto faces from the verified download cache; never compiled into the binary.
-    let cache = meari_native::infrastructure::fonts::FontCache::default_location();
+    let cache = font_cache();
     let mut faces = String::new();
     let mut fonts = Vec::new();
     for face in FACES.map(face).into_iter().collect::<Result<Vec<_>, _>>()? {
