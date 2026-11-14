@@ -1,6 +1,7 @@
 //! The same SDK call owns the original family until physical closure and a final receipt.
 //! Pending cleanup never detaches a worker or serializes/drops an incomplete owner.
 mod launch;
+#[cfg(test)]
 pub(crate) use launch::evidence_base;
 pub(crate) mod operation;
 mod output_drain;

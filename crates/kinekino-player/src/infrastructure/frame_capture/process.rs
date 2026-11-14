@@ -2,6 +2,7 @@ use crate::application::api::ApiError;
 #[cfg(test)]
 use crate::application::api::ErrorCode;
 pub(crate) mod owned;
+#[cfg(test)]
 pub(crate) use owned::evidence_base;
 #[cfg(test)]
 use std::time::Duration;
