@@ -50,6 +50,8 @@ jobs:
       - name: Install sway, grim, libmpv and ffmpeg
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends sway grim libmpv2 ffmpeg libxkbcommon0 libwayland-client0 libwayland-cursor0 libfontconfig1-dev
       - run: cargo build --locked -p kinekino-cli --bin kinekino
+      # Pinned Noto faces (verified download, never committed); the window needs them.
+      - run: target/debug/kinekino fonts fetch
       - name: Wayland resize smoke
         run: bash .github/scripts/wayland-resize-smoke.sh target/debug/kinekino "$RUNNER_TEMP/wayland-smoke"
       - name: Summary
@@ -110,6 +112,7 @@ jobs:
           if (-not (Get-Command ffmpeg -ErrorAction SilentlyContinue)) { choco install ffmpeg -y --no-progress | Out-Null; Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"; refreshenv }
           ffmpeg -loglevel error -y -f lavfi -i testsrc2=size=1280x720:rate=30 -t 120 -pix_fmt yuv420p "$env:RUNNER_TEMP\clip.mp4"
       - run: cargo build --locked -p kinekino-cli --bin kinekino
+      - run: target/debug/kinekino.exe fonts fetch
       - name: Windows window smoke
         shell: pwsh
         run: .github/scripts/windows-window-smoke.ps1 -Bin target/debug/kinekino.exe -Clip "$env:RUNNER_TEMP\clip.mp4" -Out "$env:RUNNER_TEMP\windows-smoke"
