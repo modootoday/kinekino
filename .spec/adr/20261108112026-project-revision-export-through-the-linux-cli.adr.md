@@ -19,7 +19,7 @@ rel:
 
 로드맵 plan:kinekino/20261031153240의 M4-2(ST-6)다. M4 완료 기준은 기존 항목의 Linux CLI 경로가 Unsupported가 아니고 fixture 기반 테스트가 있는 것이다.
 
-관측(2026-11-08, main `399e8b2b`):
+관측(2026-11-08, main `cf71db44`):
 
 - `projects.export`는 `capabilities` 명령 목록에만 있고 dispatch·schema·어댑터가 없어 항상 `unsupported`였다.
 - Linux에서 `--project-root`를 주면 러너가 `Rooted project storage requires Windows`로 거절했다. 그러나 `ProjectFiles` 어댑터는 OS 정책 포트(`os_policy`)를 거쳐 Linux에서도 컴파일되고 단위 테스트가 Linux에서 돈다. 막힌 곳은 러너의 `cfg(windows)` 분기뿐이다.

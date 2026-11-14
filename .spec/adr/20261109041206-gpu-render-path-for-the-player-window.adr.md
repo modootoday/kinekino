@@ -22,7 +22,7 @@ that high-resolution fullscreen is expensive on this path and leaves a GPU path 
 The roadmap step M5-6 (UI-8) asks for the port, error and platform scope of that path as a
 decision record only; no GPU code and no mockup work belong to this step.
 
-Facts read on the Linux dev host on 2026-11-09 at main `e50c4ccb`:
+Facts read on the Linux dev host on 2026-11-09 at main `f5aa628c`:
 
 - The workspace depends on `meari`, `meari-native`, `meari-dom` and `meari-shell` 0.2.0 from
   crates.io. Meari 0.3.0 adds an opt-in GPU window renderer behind the `window-gpu` feature

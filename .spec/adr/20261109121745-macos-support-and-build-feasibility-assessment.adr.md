@@ -18,7 +18,7 @@ Linux dev host. It is an assessment only: no macOS build, real-window check or t
 possible here, and this record does not claim one. Signing, notarization, store submission and
 release stay out of scope.
 
-Facts read on the Linux dev host on 2026-11-09 at main `372010da`:
+Facts read on the Linux dev host on 2026-11-09 at main `f45b0f74`:
 
 - **Adapter selection.** `kinekino-platform` picks the OS adapter with `cfg(windows)` /
   `cfg(not(windows))`, so a macOS build uses `kinekino-platform-unix`. The core target model

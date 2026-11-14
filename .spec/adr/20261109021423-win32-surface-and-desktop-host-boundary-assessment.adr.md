@@ -20,7 +20,7 @@ gated because they really drive Win32 windows (and so need a Windows desktop to 
 which parts are gated only because they sit next to such code. Nothing may be ungated here
 without a Windows run. This record is an assessment; it changes no code.
 
-Inputs, read on the Linux dev host on 2026-11-09 at main `592c0e84`:
+Inputs, read on the Linux dev host on 2026-11-09 at main `3d5ec6f3`:
 
 - `kinekino-host` and `kinekino-player-ui` are adapter crates in the structure lint class
   table, so their platform `cfg` is allowed and is not counted in the allowlist. The mpv

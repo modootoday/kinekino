@@ -47,4 +47,4 @@ skill: 조회 결과 무관(자격증명 포트·Secret Service와 직접 맞는
 - macOS 등 Secret Service가 없는 Unix는 `Unavailable`이다.
 
 ## Record
-- 2026-11-06: M3-3 complete — Linux SecretServiceCredentialStore via secret-service blocking API; contract tests pass (`d6c9b778`).
+- 2026-11-06: M3-3 complete — Linux SecretServiceCredentialStore via secret-service blocking API; contract tests pass (`a5c72dbf`).

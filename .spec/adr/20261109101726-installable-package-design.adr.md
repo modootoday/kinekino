@@ -19,7 +19,7 @@ design only. Signing, store submission, publishing, tags and releases are outsid
 and no workflow or script changes here. ADR 20261029201516 (ADR 0010, item 5) deferred
 installers and signing; today the release workflow ships only archives and checksums.
 
-Facts read on the Linux dev host on 2026-11-09 at main `35c8c227`:
+Facts read on the Linux dev host on 2026-11-09 at main `be02cb7f`:
 
 - `.github/workflows/release.yml` builds five targets (x86_64 and aarch64 Linux on
   ubuntu-22.04, so glibc 2.35; x86_64 and aarch64 macOS; x86_64 Windows MSVC).

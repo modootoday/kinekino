@@ -46,5 +46,5 @@ skill: 조회 결과 무관(자격증명 포트 계약과 직접 맞는 스킬 �
 
 ## Record
 
-- 2026-11-06: M3-2 complete — CredentialStore contract harness expanded; Session/File enforce empty-key InvalidInput (`e4e208e1`).
+- 2026-11-06: M3-2 complete — CredentialStore contract harness expanded; Session/File enforce empty-key InvalidInput (`f1f17551`).
 - 2026-11-06: M3-3 Linux Secret Service adapter lands separately (`adr:kinekino/20261106022549`); product may explicitly fall back to memory when OS store open fails — not wired in M3-3.

@@ -12,7 +12,7 @@ rel:
 # CI 로컬 재현 점검 (Linux, 2026-11-09)
 
 ## What was measured
-`.github/workflows/ci.yml`(수동 실행, ADR 0010)의 Linux 게이트 단계를 개발 호스트(x86_64 Linux, rustc 1.99.1 = `rust-toolchain.toml`)에서 같은 명령으로 돌렸다. 커밋 `1f049c9d` 기준, 2026-11-09 KST. 로컬 차이: `CARGO_BUILD_JOBS` 대신 `-j 1`, 공유 빌드 캐시, specfold는 CI 고정 `v0.2.6`이 아니라 설치된 `0.5.1`.
+`.github/workflows/ci.yml`(수동 실행, ADR 0010)의 Linux 게이트 단계를 개발 호스트(x86_64 Linux, rustc 1.99.1 = `rust-toolchain.toml`)에서 같은 명령으로 돌렸다. 커밋 `98e21cbf` 기준, 2026-11-09 KST. 로컬 차이: `CARGO_BUILD_JOBS` 대신 `-j 1`, 공유 빌드 캐시, specfold는 CI 고정 `v0.2.6`이 아니라 설치된 `0.5.1`.
 
 | CI job·단계 | 로컬 명령 | 결과 |
 |---|---|---|

@@ -59,4 +59,4 @@ rel:
 - 로컬 검증: actionlint 1.7.12 + shellcheck 0.11.0 오류 0, 스크립트 로컬 실행(버전 추출, specfold 설치·체크섬, 패키징, Windows 게이트 clippy).
 - 미검증: GitHub에서 한 번도 실행하지 않음(push 승인 대기). macOS 테스트, Windows 네이티브 clippy, 릴리스 빌드, `site` 잡.
 - 승인 필요: push, remote 추가(저장소 `modootoday/kinekino`는 빈 상태로 존재), 환경 생성 없음(레지스트리 추가 시 그때 승인), Pages 활성화(Settings → Pages → main `/docs`), DNS, 서명 시크릿 등록.
-- 2026-11-14 원격 실행: CI 첫 원격 실행. fontconfig 헤더 설치, specfold 0.5.1, 테스트 잡 Ubuntu 26.04(mpv 0.38+), 테스트 전 고정 폰트 내려받기를 더한 뒤 run 43584035922(main `f052a12a`)에서 lint·site·windows-gate·x86_64/arm64 테스트 통과. macOS는 권고 잡으로 남김(run 43580044326에서 빌드는 되고 테스트 약 284건 실패). `window-smoke.yml`은 수동 실행이며 Windows 실제 창과 Wayland 리사이즈를 러너에서 확인한다.
+- 2026-11-14 원격 실행: CI 첫 원격 실행. fontconfig 헤더 설치, specfold 0.5.1, 테스트 잡 Ubuntu 26.04(mpv 0.38+), 테스트 전 고정 폰트 내려받기를 더한 뒤 run 43584035922(main `21fd0998`)에서 lint·site·windows-gate·x86_64/arm64 테스트 통과. macOS는 권고 잡으로 남김(run 43580044326에서 빌드는 되고 테스트 약 284건 실패). `window-smoke.yml`은 수동 실행이며 Windows 실제 창과 Wayland 리사이즈를 러너에서 확인한다.

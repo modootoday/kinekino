@@ -19,7 +19,7 @@ supported. It is an assessment only; no adapter code belongs to this step. ADR 2
 (M5-4) moved `playback_host` and `provider_host` here because they depend on the browser
 engine, not on the Win32 surface.
 
-Facts read on the Linux dev host on 2026-11-09 at main `5c092c5c`:
+Facts read on the Linux dev host on 2026-11-09 at main `e665ffe7`:
 
 - The provider jobs implement `BrowserProviderPort`
   (`kinekino-player/src/application/browser_provider/ports.rs`). Its only implementation,

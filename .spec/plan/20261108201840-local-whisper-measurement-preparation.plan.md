@@ -30,7 +30,7 @@ This prep is not a measured result, not a quality approval, and not an install o
 
 ## Evidence
 
-Observed on 2026-11-09 (Asia/Seoul) against main `db347b36` and this branch:
+Observed on 2026-11-09 (Asia/Seoul) against main `a1171f11` and this branch:
 
 - `WhisperCliBackend` already parses `whisper-cli -oj` JSON, records provenance `local-pack/whisper.cpp` and cost `0.0`, and checks that the program and model paths are files. Contract tests use `KK_FAKE_WHISPER`; they do not run a real model.
 - The crate docs already say the pack is user-installed and the crate never downloads anything.

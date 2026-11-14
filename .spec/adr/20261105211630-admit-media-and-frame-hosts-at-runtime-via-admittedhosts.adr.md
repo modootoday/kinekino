@@ -55,4 +55,4 @@ skill: 조회 결과 무관.
 
 ## Record
 
-- 2026-11-06: M3-1 complete — AdmittedHosts runtime policy installed from plugin media_hosts; remaining domain hardcodes replaced with admits/admits_player (`ec74ce96`).
+- 2026-11-06: M3-1 complete — AdmittedHosts runtime policy installed from plugin media_hosts; remaining domain hardcodes replaced with admits/admits_player (`ca156012`).

@@ -20,7 +20,7 @@ sandbox-exec, Windows AppContainer) as a follow-up and states that a separate pr
 sandbox. The roadmap step M5-7 (PG-9) asks for the adapter contract, the security boundary
 and what stays unsupported, as a decision record only; no sandbox code belongs to this step.
 
-Facts read on the Linux dev host on 2026-11-09 at main `1fc7c783`:
+Facts read on the Linux dev host on 2026-11-09 at main `b37c9593`:
 
 - Plugins start in two ways. The long-running `source/1` worker
   (`kinekino-source-host` `plugin_host/worker.rs`) goes through the process ownership port of
