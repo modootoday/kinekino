@@ -17,6 +17,7 @@ output HEADLESS-1 resolution 1600x1000 position 0 0 bg #ff00ff solid_color
 default_border none
 default_floating_border none
 focus_follows_mouse no
+for_window [title=".*"] floating enable
 CONF
 WLR_BACKENDS=headless WLR_RENDERER=pixman WLR_LIBINPUT_NO_DEVICES=1 \
   sway -c "$out/sway.conf" > "$out/sway.log" 2>&1 &

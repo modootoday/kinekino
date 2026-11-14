@@ -6,9 +6,11 @@ how long the client takes to show a frame at a new size after each resize:
   1. compositor resizes (`resize set`), and
   2. an edge drag with a virtual pointer (wlr-virtual-pointer), which the player hands to
      the compositor through BeginResize (xdg_toplevel.resize).
-"Followed" means sway reports the client's committed surface geometry at the new size;
-a grim capture of the window is saved after each step and checked for unpainted pixels
-(the output background is a solid colour no player pixel uses).
+"Followed" is read from the screen: the output background is a solid colour no player
+pixel uses, and the step counts as followed once grim shows player pixels up to the new
+right and bottom edges and background just past them (both edges, so growing and
+shrinking are measured the same way). The latency is from the request to the first such
+capture, so it includes up to one capture interval (reported as capture_ms).
 Writes results.json and PNGs under --out.
 """
 import argparse, json, os, socket, struct, subprocess, sys, time
@@ -130,8 +132,37 @@ def wait_for(sway, pid, check, timeout):
     return None, find_view(sway.tree(), pid), polls
 
 
+def grab(x, y, w, h):
+    ppm = subprocess.run(["grim", "-t", "ppm", "-g", f"{x},{y} {w}x{h}", "-"],
+                         check=True, capture_output=True).stdout
+    return ppm.split(b"\n", 3)[3]
+
+
+def shows_size(x0, y0, w, h, background, band=6):
+    """True when the screen shows the window at exactly w x h from (x0, y0)."""
+    row = grab(x0 + w - band, y0 + h // 2, 2 * band, 1)
+    col = grab(x0 + w // 2, y0 + h - band, 1, 2 * band)
+    px = lambda data, i: data[3 * i:3 * i + 3]
+    inside = [px(row, i) for i in range(band)] + [px(col, i) for i in range(band)]
+    outside = [px(row, i) for i in range(band, 2 * band)] + [px(col, i) for i in range(band, 2 * band)]
+    return all(p != background for p in inside) and all(p == background for p in outside)
+
+
+def wait_screen(x0, y0, w, h, background, timeout):
+    start = time.monotonic()
+    polls = 0
+    while time.monotonic() - start < timeout:
+        t = time.monotonic()
+        ok = shows_size(x0, y0, w, h, background)
+        polls += 1
+        if ok:
+            return (time.monotonic() - start) * 1000.0, polls, (time.monotonic() - t) * 1000.0
+    return None, polls, None
+
+
 def geometry(view):
-    g = view["geometry"]
+    # Container rect (sway applies it once the client commits or its transaction times out).
+    g = view["rect"]
     return g["width"], g["height"]
 
 
@@ -181,51 +212,59 @@ def main():
     result["window"] = {"app_id": view.get("app_id"), "shell": view.get("shell"),
                         "name": view.get("name"), "mapped_ms": round(took, 1)}
     con = view["id"]
-    sway.command(f"[con_id={con}] floating enable, move position 40 40, resize set 960 600")
-    _, view, _ = wait_for(sway, a.pid, lambda v: geometry(v) == (960, 600), a.timeout)
+    sway.command(f"[con_id={con}] floating enable")
+    time.sleep(0.5)
+    sway.command(f"[con_id={con}] resize set 960 px 600 px, move position 40 40")
+    took, _, _ = wait_screen(40, 40, 960, 600, background, a.timeout)
+    result["window"]["start_followed_ms"] = took and round(took, 1)
     time.sleep(1.0)
     result["captures"] = [capture(a.out, "start.png", find_view(sway.tree(), a.pid), background)]
 
     # 1. Compositor resize: configure -> client commit at the new size.
     sizes = [(1280, 800), (720, 450), (1100, 700), (640, 400), (1440, 900), (960, 600)]
+    x0, y0 = 40, 40
+    result["origin"] = [x0, y0]
     configure = []
     for round_ in range(a.rounds):
         for w, h in sizes:
+            time.sleep(0.25)
             sway.command(f"[con_id={con}] resize set {w} px {h} px")
-            took, view, polls = wait_for(sway, a.pid, lambda v, w=w, h=h: geometry(v) == (w, h), a.timeout)
+            took, polls, capture_ms = wait_screen(x0, y0, w, h, background, a.timeout)
+            view = find_view(sway.tree(), a.pid)
             row = {"round": round_, "target": [w, h], "followed_ms": took and round(took, 1),
-                   "got": list(geometry(view)) if view else None, "polls": polls}
+                   "polls": polls, "capture_ms": capture_ms and round(capture_ms, 1),
+                   "rect": list(geometry(view)) if view else None}
             configure.append(row)
             if took is None:
-                result["errors"].append(f"configure {w}x{h}: no commit at that size")
+                result["errors"].append(f"configure {w}x{h}: screen did not show that size")
             if round_ == 0:
-                time.sleep(0.4)
+                time.sleep(0.3)
                 result["captures"].append(capture(a.out, f"configure-{w}x{h}.png", view, background))
     result["configure"] = {"rows": configure,
-                           "stats": stats([r["followed_ms"] for r in configure if r["followed_ms"] is not None])}
+                           "stats": stats([r["followed_ms"] for r in configure if r["followed_ms"] is not None]),
+                           "capture_ms": stats([r["capture_ms"] for r in configure if r["capture_ms"]])}
 
     # 2. Edge drag: virtual pointer presses on the right edge band and drags.
     drag = {"steps": [], "errors": []}
     try:
         vp = VirtualPointer(os.environ["XDG_RUNTIME_DIR"], os.environ["WAYLAND_DISPLAY"])
-        sway.command(f"[con_id={con}] move position 40 40, resize set 960 600")
-        wait_for(sway, a.pid, lambda v: geometry(v) == (960, 600), a.timeout)
+        sway.command(f"[con_id={con}] resize set 960 px 600 px, move position 40 40")
+        wait_screen(40, 40, 960, 600, background, a.timeout)
         time.sleep(0.5)
         view = find_view(sway.tree(), a.pid)
-        r = view["rect"]
-        x, y = r["x"] + r["width"] - 3, r["y"] + r["height"] // 2
+        x, y = 40 + 960 - 3, 40 + 600 // 2
         vp.move_to(x, y, extent)
         time.sleep(0.3)
         vp.button(True)
         time.sleep(0.3)
-        start_w = geometry(view)[0]
+        start_w, start_h = 960, 600
         for step in range(1, 9):
             nx = x + 40 * step
             vp.move_to(nx, y, extent)
             want = start_w + 40 * step
-            took, view, polls = wait_for(sway, a.pid, lambda v, want=want: geometry(v)[0] == want, a.timeout)
-            drag["steps"].append({"pointer_x": nx, "want_width": want, "followed_ms": took and round(took, 1),
-                                  "got": list(geometry(view)) if view else None})
+            took, polls, _ = wait_screen(40, 40, want, start_h, background, a.timeout)
+            drag["steps"].append({"pointer_x": nx, "want": [want, start_h], "followed_ms": took and round(took, 1),
+                                  "polls": polls})
         vp.button(False)
         time.sleep(0.5)
         view = find_view(sway.tree(), a.pid)
