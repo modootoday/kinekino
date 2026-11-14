@@ -34,7 +34,7 @@ env:
   # Runners get their own in-repo target (rust-cache saves it) and all cores.
   CARGO_TARGET_DIR: target
   CARGO_BUILD_JOBS: "4"
-  SPECFOLD_VERSION: v0.2.6
+  SPECFOLD_VERSION: v0.5.1
 
 jobs:
   lint:
