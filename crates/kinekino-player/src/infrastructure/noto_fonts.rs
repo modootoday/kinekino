@@ -9,7 +9,8 @@ use meari::domain::{
 use std::path::{Path, PathBuf};
 
 /// Environment variable naming the cache root; shared with Meari's `FontCache`.
-pub const CACHE_ENV: &str = "MEARI_FONT_CACHE";
+pub use kinekino_core::platform::font_cache::CACHE_ENV;
+use kinekino_core::platform::font_cache::{FontCacheLookup, font_cache_root};
 /// Asset path prefix of a delivered face (`fonts/noto/<file>`), as in Meari's font catalog.
 pub const SOURCE_PREFIX: &str = "fonts/noto/";
 
@@ -55,22 +56,22 @@ pub fn revision() -> &'static str {
 }
 
 /// `$MEARI_FONT_CACHE`, else the nearest `runtime/fonts` above the current directory or the
-/// executable, else `runtime/fonts` beside the executable (same rule as Meari's cache).
+/// executable, else the per-user cache (`kinekino_core::platform::font_cache`); never a new
+/// directory beside the executable (ADR 20261109101726).
 pub fn cache_root() -> PathBuf {
-    if let Some(root) = std::env::var_os(CACHE_ENV).filter(|v| !v.is_empty()) {
-        return PathBuf::from(root);
-    }
     let cwd = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
     let exe = std::env::current_exe()
         .ok()
         .and_then(|p| p.parent().map(Path::to_path_buf));
-    let starts = [Some(cwd.clone()), exe.clone()];
-    starts
-        .iter()
-        .flatten()
-        .flat_map(|start| start.ancestors().map(|dir| dir.join("runtime/fonts")))
-        .find(|dir| dir.is_dir())
-        .unwrap_or_else(|| exe.unwrap_or(cwd).join("runtime/fonts"))
+    font_cache_root(
+        |k| std::env::var(k).ok(),
+        Path::is_dir,
+        &FontCacheLookup {
+            cwd: &cwd,
+            exe_dir: exe.as_deref(),
+            macos: std::env::consts::OS == "macos",
+        },
+    )
 }
 
 pub fn path(root: &Path, pin: &Pin) -> PathBuf {

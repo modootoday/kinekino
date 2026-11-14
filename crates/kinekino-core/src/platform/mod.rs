@@ -1,5 +1,6 @@
 //! Platform port: capabilities the core needs from an OS adapter crate.
 pub mod clock;
+pub mod font_cache;
 pub mod ipc;
 pub mod process;
 pub mod settings_window;

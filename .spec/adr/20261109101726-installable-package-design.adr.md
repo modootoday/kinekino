@@ -3,7 +3,7 @@ id: adr:kinekino/20261109101726
 title: Installable package design
 status: active
 created: 2026-11-09T10:17:26Z
-updated: 2026-11-09T10:17:26Z
+updated: 2026-11-14T10:00:00Z
 rel:
   governs: [.github/scripts/package.sh]
   depends_on: [adr:kinekino/20261029201516, adr:kinekino/20261109071720]
@@ -117,3 +117,4 @@ Facts read on the Linux dev host on 2026-11-09 at main `35c8c227`:
 ## Record
 
 - 2026-11-09: M6-3 (CI-2) designed the installable package without code or workflow changes.
+- 2026-11-14: slice (a) done. `kinekino_core::platform::font_cache` decides the font cache root for both the player window and `kinekino fonts fetch`: `MEARI_FONT_CACHE`, then the nearest existing `runtime/fonts` above the working directory or the executable, then the per-user cache (`XDG_CACHE_HOME`, `LOCALAPPDATA`, `~/Library/Caches` on macOS, `~/.cache`); it never creates a directory beside the executable. Unit tests cover each step, including an installed binary under `/usr/lib/kinekino`. Before this, `fonts fetch` wrote under the working directory while the player fell back beside the executable.
