@@ -51,6 +51,9 @@ jobs:
         with:
           save-if: ${{ github.ref == 'refs/heads/main' }}
       - run: mkdir -p runtime/build-cache/tmp
+      # The Meari text stack (fontique) links fontconfig on Linux.
+      - name: Install fontconfig headers
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libfontconfig1-dev
       - run: cargo fmt --all --check
       - run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - run: cargo xtask lint-structure
@@ -107,7 +110,7 @@ jobs:
             brew install mpv ffmpeg
             echo "KINEKINO_LIBMPV=$(brew --prefix mpv)/lib/libmpv.2.dylib" >> "$GITHUB_ENV"
           else
-            sudo apt-get update && sudo apt-get install -y --no-install-recommends mpv libmpv2 ffmpeg xvfb
+            sudo apt-get update && sudo apt-get install -y --no-install-recommends mpv libmpv2 ffmpeg xvfb libfontconfig1-dev
           fi
       - run: cargo test --workspace --locked --no-fail-fast
 
@@ -139,7 +142,7 @@ jobs:
             brew install mpv ffmpeg
             echo "KINEKINO_LIBMPV=$(brew --prefix mpv)/lib/libmpv.2.dylib" >> "$GITHUB_ENV"
           else
-            sudo apt-get update && sudo apt-get install -y --no-install-recommends mpv libmpv2 ffmpeg xvfb
+            sudo apt-get update && sudo apt-get install -y --no-install-recommends mpv libmpv2 ffmpeg xvfb libfontconfig1-dev
           fi
       - run: cargo test --workspace --locked --no-fail-fast
 

@@ -1,0 +1,121 @@
+name: Window smoke
+
+# By hand only (ADR 0010): real player windows on hosted runners.
+# windows: M6-5a, the window on a Windows desktop session (outside resize, edge drag).
+# wayland: M6-5b, the window on headless sway (Wayland, no Xwayland), resize-to-frame latency.
+# Results, logs and screenshots are uploaded as artifacts.
+on:
+  workflow_dispatch:
+    inputs:
+      windows:
+        description: Windows real window (M6-5a)
+        type: boolean
+        default: true
+      wayland:
+        description: Wayland resize measurement (M6-5b)
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: window-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_TARGET_DIR: target
+  CARGO_BUILD_JOBS: "4"
+  # libmpv for Windows: shinchiro build linked from mpv.io, pinned by tag and SHA-256.
+  MPV_DEV_URL: https://github.com/shinchiro/mpv-winbuild-cmake/releases/download/20261111/mpv-dev-x86_64-20261111-git-bcde6b93cc.7z
+  MPV_DEV_SHA256: 273c079b11ea5575822f972756f4c9a71149a5c10130353abeb8586738938452
+
+jobs:
+  wayland:
+    if: inputs.wayland
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Toolchain from rust-toolchain.toml
+        run: rustup toolchain install && rustup show active-toolchain
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          key: window-smoke
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - run: mkdir -p runtime/build-cache/tmp
+      - name: Install sway, grim, libmpv and ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends sway grim libmpv2 ffmpeg libxkbcommon0 libwayland-client0 libwayland-cursor0 libfontconfig1-dev
+      - run: cargo build --locked -p kinekino-cli --bin kinekino
+      - name: Wayland resize smoke
+        run: bash .github/scripts/wayland-resize-smoke.sh target/debug/kinekino "$RUNNER_TEMP/wayland-smoke"
+      - name: Summary
+        if: always()
+        run: |
+          f="$RUNNER_TEMP/wayland-smoke/results.json"
+          if [ -f "$f" ]; then
+            python3 - "$f" >> "$GITHUB_STEP_SUMMARY" <<'PY'
+          import json, sys
+          r = json.load(open(sys.argv[1]))
+          print("### Wayland resize-to-frame (ms)")
+          print("- ok:", r.get("ok"), "| window:", r.get("window"))
+          print("- compositor resize:", r.get("configure", {}).get("stats"))
+          print("- edge drag:", r.get("drag", {}).get("stats"), "final", r.get("drag", {}).get("final"))
+          print("- errors:", r.get("errors"))
+          PY
+          fi
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: wayland-resize-smoke
+          path: ${{ runner.temp }}/wayland-smoke
+          retention-days: 30
+
+  windows:
+    if: inputs.windows
+    runs-on: windows-2022
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Toolchain from rust-toolchain.toml
+        shell: bash
+        run: rustup toolchain install && rustup show active-toolchain
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          key: window-smoke
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - shell: bash
+        run: mkdir -p runtime/build-cache/tmp
+      - name: libmpv (checksum-verified, runner only)
+        shell: pwsh
+        run: |
+          $dir = Join-Path $env:RUNNER_TEMP 'mpv'
+          New-Item -ItemType Directory -Force -Path $dir | Out-Null
+          $archive = Join-Path $dir 'mpv-dev.7z'
+          Invoke-WebRequest -Uri $env:MPV_DEV_URL -OutFile $archive
+          $hash = (Get-FileHash $archive -Algorithm SHA256).Hash.ToLower()
+          if ($hash -ne $env:MPV_DEV_SHA256) { throw "mpv-dev checksum mismatch: $hash" }
+          7z x $archive "-o$dir" -y | Out-Null
+          $dll = Get-ChildItem -Path $dir -Recurse -Filter 'libmpv-2.dll' | Select-Object -First 1
+          if (-not $dll) { throw 'libmpv-2.dll not in archive' }
+          "KINEKINO_LIBMPV=$($dll.FullName)" >> $env:GITHUB_ENV
+      - name: Test clip
+        shell: pwsh
+        run: |
+          if (-not (Get-Command ffmpeg -ErrorAction SilentlyContinue)) { choco install ffmpeg -y --no-progress | Out-Null; Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"; refreshenv }
+          ffmpeg -loglevel error -y -f lavfi -i testsrc2=size=1280x720:rate=30 -t 120 -pix_fmt yuv420p "$env:RUNNER_TEMP\clip.mp4"
+      - run: cargo build --locked -p kinekino-cli --bin kinekino
+      - name: Windows window smoke
+        shell: pwsh
+        run: .github/scripts/windows-window-smoke.ps1 -Bin target/debug/kinekino.exe -Clip "$env:RUNNER_TEMP\clip.mp4" -Out "$env:RUNNER_TEMP\windows-smoke"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: windows-window-smoke
+          path: ${{ runner.temp }}/windows-smoke
+          retention-days: 30
