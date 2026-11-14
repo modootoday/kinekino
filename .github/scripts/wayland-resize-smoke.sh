@@ -20,7 +20,7 @@ focus_follows_mouse no
 for_window [title=".*"] floating enable
 CONF
 WLR_BACKENDS=headless WLR_RENDERER=pixman WLR_LIBINPUT_NO_DEVICES=1 \
-  sway -c "$out/sway.conf" > "$out/sway.log" 2>&1 &
+  sway -d -c "$out/sway.conf" > "$out/sway.log" 2>&1 &
 sway_pid=$!
 trap 'kill "${app_pid:-}" "$sway_pid" 2>/dev/null || true' EXIT
 for _ in $(seq 100); do
@@ -44,6 +44,9 @@ status=0
 python3 "$here/wayland_resize_probe.py" --pid "$app_pid" --out "$out" || status=$?
 kill -0 "$app_pid" 2>/dev/null && echo "player still running after probe: yes" | tee -a "$out/summary.txt" \
   || { echo "player exited during probe" | tee -a "$out/summary.txt"; status=1; }
+# Did sway give up waiting for the client (transaction timeout) instead of the client
+# answering the resize? Counted from the debug log.
+echo "sway transaction timeouts: $(grep -c 'timed out' "$out/sway.log" || true)" | tee -a "$out/summary.txt"
 kill "$app_pid" 2>/dev/null || true
 wait "$app_pid" 2>/dev/null || true
 rm -f "$clip"
