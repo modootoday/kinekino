@@ -20,7 +20,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: window-smoke-${{ github.ref }}
+  group: window-smoke-${{ github.ref }}-${{ inputs.windows }}-${{ inputs.wayland }}
   cancel-in-progress: true
 
 env:
@@ -37,6 +37,9 @@ jobs:
     # 26.04: libmpv 0.38 or later (24.04 ships 0.37).
     runs-on: ubuntu-26.04
     timeout-minutes: 45
+    env:
+      # One cache for `fonts fetch` and Meari's own text path (which reads only this or ./runtime/fonts).
+      MEARI_FONT_CACHE: ${{ github.workspace }}/runtime/fonts
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -83,6 +86,8 @@ jobs:
     if: inputs.windows
     runs-on: windows-2022
     timeout-minutes: 120
+    env:
+      MEARI_FONT_CACHE: ${{ github.workspace }}\runtime\fonts
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
