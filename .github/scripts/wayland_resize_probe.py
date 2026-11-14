@@ -228,7 +228,8 @@ def main():
     for round_ in range(a.rounds):
         for w, h in sizes:
             time.sleep(0.25)
-            sway.command(f"[con_id={con}] resize set {w} px {h} px")
+            # Floating resize keeps the centre in sway; pin the top-left so the edges are known.
+            sway.command(f"[con_id={con}] resize set {w} px {h} px, move position {x0} {y0}")
             took, polls, capture_ms = wait_screen(x0, y0, w, h, background, a.timeout)
             view = find_view(sway.tree(), a.pid)
             row = {"round": round_, "target": [w, h], "followed_ms": took and round(took, 1),
