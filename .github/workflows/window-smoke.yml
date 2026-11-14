@@ -116,6 +116,18 @@ jobs:
           $dll = Get-ChildItem -Path $dir -Recurse -Filter 'libmpv-2.dll' | Select-Object -First 1
           if (-not $dll) { throw 'libmpv-2.dll not in archive' }
           "KINEKINO_LIBMPV=$($dll.FullName)" >> $env:GITHUB_ENV
+      - name: libmpv load check (dependents and Win32 error)
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
+          $dumpbin = Get-ChildItem "$vs\VC\Tools\MSVC" -Recurse -Filter dumpbin.exe | Where-Object { $_.FullName -like '*Hostx64\x64*' } | Select-Object -First 1
+          & $dumpbin.FullName /nologo /dependents $env:KINEKINO_LIBMPV
+          Add-Type -Name K -Namespace N -MemberDefinition '[DllImport("kernel32.dll", SetLastError=true, CharSet=CharSet.Unicode)] public static extern IntPtr LoadLibraryExW(string p, IntPtr h, uint f);'
+          $h = [N.K]::LoadLibraryExW($env:KINEKINO_LIBMPV, [IntPtr]::Zero, 0)
+          "LoadLibraryExW handle=$h win32=$([Runtime.InteropServices.Marshal]::GetLastWin32Error())"
+          $h2 = [N.K]::LoadLibraryExW($env:KINEKINO_LIBMPV, [IntPtr]::Zero, 0x1100)
+          "with LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR|DEFAULT_DIRS handle=$h2 win32=$([Runtime.InteropServices.Marshal]::GetLastWin32Error())"
       - name: Test clip
         shell: pwsh
         run: |
