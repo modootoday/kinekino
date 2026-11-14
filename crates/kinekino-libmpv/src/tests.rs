@@ -238,3 +238,15 @@ fn ass_track_is_drawn_into_the_frame_only_when_visible() {
     );
     assert!(!white(f.pixel(117, 18)), "only where the box is");
 }
+
+#[test]
+fn windows_load_flags_search_the_dll_folder_only_for_absolute_paths() {
+    let absolute = std::env::temp_dir().join("mpv").join("libmpv-2.dll");
+    assert!(absolute.is_absolute());
+    assert_eq!(crate::ffi::windows_load_flags(&absolute), 0x1100);
+    assert_eq!(crate::ffi::windows_load_flags(Path::new("libmpv-2.dll")), 0);
+    assert_eq!(
+        crate::ffi::windows_load_flags(Path::new("mpv/libmpv-2.dll")),
+        0
+    );
+}

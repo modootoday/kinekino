@@ -74,12 +74,39 @@ pub struct Api {
     pub render_free: unsafe extern "C" fn(RenderCtx),
 }
 
+/// Windows `LoadLibraryExW` flags for `path`: search the DLL's own folder, then the default
+/// folders, so dependencies shipped beside `libmpv-2.dll` (e.g. `vulkan-1.dll`) load. The
+/// DLL-folder search only accepts a fully qualified path, so a bare name (the default
+/// `libmpv-2.dll`) keeps the standard search order (flags 0). Pure, so it is tested on every OS.
+#[cfg_attr(
+    all(not(windows), not(test)),
+    expect(
+        dead_code,
+        reason = "only the Windows loader calls it; tests cover it everywhere"
+    )
+)]
+pub(crate) fn windows_load_flags(path: &std::path::Path) -> u32 {
+    // Values from libloaderapi.h.
+    const LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR: u32 = 0x0000_0100;
+    const LOAD_LIBRARY_SEARCH_DEFAULT_DIRS: u32 = 0x0000_1000;
+    if path.is_absolute() {
+        LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_DEFAULT_DIRS
+    } else {
+        0
+    }
+}
+
 impl Api {
     /// # Safety
     /// `path` must name a genuine libmpv (API 2.x); its initialisers run on load.
     pub unsafe fn load(path: &std::path::Path) -> Result<Self, libloading::Error> {
         // SAFETY: caller guarantees the library is libmpv; symbol types match client.h/render.h.
         unsafe {
+            #[cfg(windows)]
+            let lib: libloading::Library =
+                libloading::os::windows::Library::load_with_flags(path, windows_load_flags(path))?
+                    .into();
+            #[cfg(not(windows))]
             let lib = libloading::Library::new(path)?;
             macro_rules! sym {
                 ($n:literal) => {
