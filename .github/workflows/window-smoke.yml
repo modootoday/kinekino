@@ -147,6 +147,11 @@ jobs:
           if (-not (Get-Command ffmpeg -ErrorAction SilentlyContinue)) { choco install ffmpeg -y --no-progress | Out-Null; Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"; refreshenv }
           ffmpeg -loglevel error -y -f lavfi -i testsrc2=size=1280x720:rate=30 -t 120 -pix_fmt yuv420p "$env:RUNNER_TEMP\clip.mp4"
       - run: cargo build --locked -p kinekino-cli --bin kinekino
+      # The player loads libmpv with default search (its own directory first), so libmpv's
+      # vulkan-1.dll import is found only beside kinekino.exe, not beside libmpv-2.dll.
+      - name: Vulkan loader beside the player
+        shell: pwsh
+        run: Copy-Item (Join-Path (Split-Path $env:KINEKINO_LIBMPV) 'vulkan-1.dll') target/debug/
       - run: target/debug/kinekino.exe fonts fetch
       - name: Windows window smoke
         # Windows PowerShell 5.1 (.NET Framework): System.Drawing screen capture is built in.
