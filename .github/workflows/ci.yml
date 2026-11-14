@@ -34,7 +34,7 @@ env:
   # Runners get their own in-repo target (rust-cache saves it) and all cores.
   CARGO_TARGET_DIR: target
   CARGO_BUILD_JOBS: "4"
-  SPECFOLD_VERSION: v0.2.6
+  SPECFOLD_VERSION: v0.5.1
 
 jobs:
   lint:
@@ -89,7 +89,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04, ubuntu-24.04-arm]
+        # 26.04: playback needs mpv/libmpv 0.38 or later (24.04 ships 0.37).
+        os: [ubuntu-26.04, ubuntu-26.04-arm]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     steps:
@@ -112,6 +113,8 @@ jobs:
           else
             sudo apt-get update && sudo apt-get install -y --no-install-recommends mpv libmpv2 ffmpeg xvfb libfontconfig1-dev
           fi
+      # Pinned Noto faces (verified download, never committed); UI tests render with them.
+      - run: cargo run --locked -p kinekino-cli --bin kinekino -- fonts fetch
       - run: cargo test --workspace --locked --no-fail-fast
 
   test-macos:
@@ -144,6 +147,8 @@ jobs:
           else
             sudo apt-get update && sudo apt-get install -y --no-install-recommends mpv libmpv2 ffmpeg xvfb libfontconfig1-dev
           fi
+      # Pinned Noto faces (verified download, never committed); UI tests render with them.
+      - run: cargo run --locked -p kinekino-cli --bin kinekino -- fonts fetch
       - run: cargo test --workspace --locked --no-fail-fast
 
   site:
