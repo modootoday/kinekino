@@ -116,6 +116,19 @@ jobs:
           $dll = Get-ChildItem -Path $dir -Recurse -Filter 'libmpv-2.dll' | Select-Object -First 1
           if (-not $dll) { throw 'libmpv-2.dll not in archive' }
           "KINEKINO_LIBMPV=$($dll.FullName)" >> $env:GITHUB_ENV
+      # libmpv-2.dll imports vulkan-1.dll and the runner has no Vulkan loader. Build the
+      # Khronos loader from a pinned tag and put it beside libmpv (video renders in software).
+      - name: Vulkan loader for libmpv (pinned source, runner only)
+        shell: pwsh
+        run: |
+          $src = Join-Path $env:RUNNER_TEMP 'vulkan-loader'
+          git clone --quiet --depth 1 --branch vulkan-sdk-1.4.363.0 https://github.com/KhronosGroup/Vulkan-Loader.git $src
+          if ((git -C $src rev-parse HEAD) -ne 'fa218055ff4948b159f31d43f800c808a13d51df') { throw 'Vulkan-Loader tag moved' }
+          cmake -S $src -B "$src/build" -DUPDATE_DEPS=ON -DBUILD_TESTS=OFF | Out-Null
+          cmake --build "$src/build" --config Release --target vulkan | Out-Null
+          $dll = Get-ChildItem "$src/build" -Recurse -Filter 'vulkan-1.dll' | Select-Object -First 1
+          if (-not $dll) { throw 'vulkan-1.dll not built' }
+          Copy-Item $dll.FullName (Split-Path $env:KINEKINO_LIBMPV)
       - name: libmpv load check (dependents and Win32 error)
         shell: pwsh
         continue-on-error: true
