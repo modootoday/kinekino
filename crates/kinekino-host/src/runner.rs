@@ -579,7 +579,6 @@ fn execute_local(args: &[String], request: Request) -> Response {
         .with_card_image_export(kinekino_player::infrastructure::card_export::PngCardReviewExport);
     let client = client
         .with_snapshot_export(kinekino_player::infrastructure::snapshot_export::PngSnapshotExport);
-    #[cfg(windows)]
     let client = if let Some(root) = args
         .windows(2)
         .find(|pair| pair[0] == "--catalog-root")
@@ -603,16 +602,6 @@ fn execute_local(args: &[String], request: Request) -> Response {
     } else {
         client
     };
-    #[cfg(not(windows))]
-    if args.iter().any(|arg| arg == "--catalog-root") {
-        return Response::failure(
-            request.context.request_id,
-            ApiError::new(
-                ErrorCode::Unsupported,
-                "Catalog artifacts require the Windows path guard adapter",
-            ),
-        );
-    }
     let client = if let Some(root) = args
         .windows(2)
         .find(|pair| pair[0] == "--job-root")
