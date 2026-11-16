@@ -3,7 +3,7 @@ id: adr:kinekino/20261108112026
 title: Project revision export through the Linux CLI
 status: active
 created: 2026-11-08T11:20:26Z
-updated: 2026-11-08T11:20:26Z
+updated: 2026-11-16T12:30:00Z
 rel:
   governs:
     - crates/kinekino-player/src/application/projects
@@ -45,3 +45,7 @@ rel:
 - Linux CLI에서 `projects.create/inspect/save_revision/reconnect_source/export`가 `--project-root`로 동작하고 CLI fixture 테스트로 잠긴다.
 - 남은 일: 명시적 덮어쓰기·새 이름 정책(OUT-04), 다항목·preset 내보내기(OUT-07/08), Linux `--proposal-root`, 내보낸 문서 import.
 - skill: modoo.today skills 조회(파일 내보내기 계약)했으나 맞는 도메인 스킬 없음 → 미적용.
+
+## Record
+
+- 2026-11-16: `--review-root` (and `--user-review-root`, `--review-media-config`) opens on Linux. The runner refused it there ("Rooted review storage requires the Windows adapter"). Opening it surfaced a latent Linux bug in review decisions. `create_transient_lock` releases its lock on drop on both OSes, but only Windows deletes the file (delete-on-close); POSIX keeps it. `model_review` treated the `.publish.lock` file existing as "publication busy" and counted it as a stray entry when listing decisions, so after the first recorded decision every read on Linux reported busy. New `os_policy::transient_lock_held` checks whether the file exists on hosts with mandatory share modes, and on POSIX tries a shared lock instead. Decision listing skips the lock file. `tests/model_review.rs` (8) and `tests/review_source_cli.rs` (3) now run on Linux and pass. Before the change, model_review failed with "Review publication is busy", and the CLI cases failed with the runner refusal. The writer-denied asset check runs only where share modes are mandatory. `tests/output_review_cli.rs` stays Windows-only until `--proposal-root` opens on Linux.

@@ -759,66 +759,52 @@ fn execute_local(args: &[String], request: Request) -> Response {
         .find(|pair| pair[0] == "--review-root")
         .map(|pair| pair[1].as_str())
     {
-        #[cfg(windows)]
-        {
-            match kinekino_player::infrastructure::model_review::ReviewFiles::open(
-                std::path::Path::new(root),
-            ) {
-                Ok(store) => {
-                    let client = client.with_review_store(store);
-                    if let Some(user_root) = args
-                        .windows(2)
-                        .find(|pair| pair[0] == "--user-review-root")
-                        .map(|pair| pair[1].as_str())
-                    {
-                        let writable = !kinekino_player::application::review_source::api::is_read(
-                            &request.command,
-                        ) && request.command
-                            != kinekino_player::application::review_source::media_api::INSPECT;
-                        match kinekino_player::infrastructure::review_source::open_api(
-                            std::path::Path::new(root),
-                            std::path::Path::new(user_root),
-                            writable,
-                        ) {
-                            Ok(api) => {
-                                let api = if let Some(path) = args
+        match kinekino_player::infrastructure::model_review::ReviewFiles::open(
+            std::path::Path::new(root),
+        ) {
+            Ok(store) => {
+                let client = client.with_review_store(store);
+                if let Some(user_root) = args
+                    .windows(2)
+                    .find(|pair| pair[0] == "--user-review-root")
+                    .map(|pair| pair[1].as_str())
+                {
+                    let writable = !kinekino_player::application::review_source::api::is_read(
+                        &request.command,
+                    ) && request.command
+                        != kinekino_player::application::review_source::media_api::INSPECT;
+                    match kinekino_player::infrastructure::review_source::open_api(
+                        std::path::Path::new(root),
+                        std::path::Path::new(user_root),
+                        writable,
+                    ) {
+                        Ok(api) => {
+                            let api = if let Some(path) = args
+                                .windows(2)
+                                .find(|pair| pair[0] == "--review-media-config")
+                                .map(|pair| pair[1].as_str())
+                            {
+                                let sha = args
                                     .windows(2)
-                                    .find(|pair| pair[0] == "--review-media-config")
+                                    .find(|pair| pair[0] == "--review-media-config-sha256")
                                     .map(|pair| pair[1].as_str())
-                                {
-                                    let sha = args
-                                        .windows(2)
-                                        .find(|pair| pair[0] == "--review-media-config-sha256")
-                                        .map(|pair| pair[1].as_str())
-                                        .unwrap_or("");
-                                    match kinekino_player::infrastructure::review_source::media_preparation::MediaPreparationFiles::from_pinned_settings(std::path::PathBuf::from(root), std::path::Path::new(path), sha, writable) {
-                                        Ok(port) => api.with_media_preparation(port),
-                                        Err(error) => return Response::failure(request.context.request_id, error),
-                                    }
-                                } else {
-                                    api
-                                };
-                                client.with_review_source(api).execute(request)
-                            }
-                            Err(error) => Response::failure(request.context.request_id, error),
+                                    .unwrap_or("");
+                                match kinekino_player::infrastructure::review_source::media_preparation::MediaPreparationFiles::from_pinned_settings(std::path::PathBuf::from(root), std::path::Path::new(path), sha, writable) {
+                                    Ok(port) => api.with_media_preparation(port),
+                                    Err(error) => return Response::failure(request.context.request_id, error),
+                                }
+                            } else {
+                                api
+                            };
+                            client.with_review_source(api).execute(request)
                         }
-                    } else {
-                        client.execute(request)
+                        Err(error) => Response::failure(request.context.request_id, error),
                     }
+                } else {
+                    client.execute(request)
                 }
-                Err(error) => Response::failure(request.context.request_id, error),
             }
-        }
-        #[cfg(not(windows))]
-        {
-            let _ = root;
-            Response::failure(
-                request.context.request_id,
-                ApiError::new(
-                    ErrorCode::Unsupported,
-                    "Rooted review storage requires the Windows adapter",
-                ),
-            )
+            Err(error) => Response::failure(request.context.request_id, error),
         }
     } else {
         client.execute(request)
