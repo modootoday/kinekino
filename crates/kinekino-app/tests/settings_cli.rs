@@ -2,7 +2,11 @@
 use kinekino_app::{Args, Env, settings};
 
 fn env(file: &std::path::Path) -> Env {
-    Env::from_pairs([("KINEKINO_SETTINGS_FILE", file.display().to_string())])
+    Env::from_pairs([
+        ("KINEKINO_SETTINGS_FILE", file.display().to_string()),
+        // Never read or write the developer's real keyring from tests.
+        ("KINEKINO_CREDENTIALS", "session".to_owned()),
+    ])
 }
 
 fn run(env: &Env, argv: &[&str]) -> (u8, serde_json::Value) {
@@ -59,4 +63,21 @@ fn get_set_validate_and_ledger() {
     .unwrap();
     assert_eq!(run(&env, &["settings", "ledger"]).1["total_usd"], 0.25);
     let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn credentials_report_the_selected_store() {
+    let file = std::env::temp_dir().join(format!("kk-settings-cred-{}.json", std::process::id()));
+    assert_eq!(
+        run(&env(&file), &["settings", "credentials"]),
+        (
+            0,
+            serde_json::json!({ "backing": "session", "persistent": false })
+        )
+    );
+    let bad = Env::from_pairs([("KINEKINO_CREDENTIALS", "keychain")]);
+    let (code, out) = settings::run(&Args::new(["settings", "credentials"]), &bad);
+    assert_eq!(code, 2);
+    let v: serde_json::Value = serde_json::from_str(&out).unwrap();
+    assert_eq!(v["code"], "invalid_input");
 }
