@@ -3,7 +3,7 @@ id: adr:kinekino/20261108112026
 title: Project revision export through the Linux CLI
 status: active
 created: 2026-11-08T11:20:26Z
-updated: 2026-11-08T11:20:26Z
+updated: 2026-11-16T12:00:00Z
 rel:
   governs:
     - crates/kinekino-player/src/application/projects
@@ -45,3 +45,7 @@ rel:
 - Linux CLI에서 `projects.create/inspect/save_revision/reconnect_source/export`가 `--project-root`로 동작하고 CLI fixture 테스트로 잠긴다.
 - 남은 일: 명시적 덮어쓰기·새 이름 정책(OUT-04), 다항목·preset 내보내기(OUT-07/08), Linux `--proposal-root`, 내보낸 문서 import.
 - skill: modoo.today skills 조회(파일 내보내기 계약)했으나 맞는 도메인 스킬 없음 → 미적용.
+
+## Record
+
+- 2026-11-16: `--model-root` opens on Linux. The runner refused it there ("requires Windows path guards"), but `LocalModelCatalog` reads through the same `immutable_storage_paths` guards as the project stores, and those go through the OS policy port. On Linux the guards hold descriptors and refuse symlinks. They do not stop another process from replacing a file the way Windows share modes do; `models.verify` hashes the descriptors it opened, so a concurrent replacement cannot change the bytes it reports. A new cross-platform CLI test (`tests/model_catalog_root_cli.rs`) runs `models.list`, `models.inspect` and `models.verify` through the normal CLI and matches each against the typed SDK on the same root. It also checks a stale catalog pin, and that the stored files are left unchanged. It failed on Linux before the runner change. The detailed Windows custody test stays Windows-only because its file-identity guard uses Windows APIs.
