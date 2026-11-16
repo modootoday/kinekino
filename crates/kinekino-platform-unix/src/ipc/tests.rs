@@ -27,6 +27,27 @@ fn parses_proc_start_with_hostile_comm() {
     assert!(process_start(std::process::id()).unwrap() > 0);
 }
 
+/// Linux reads `/proc`, macOS asks the kernel (`proc_pidinfo`); both must give a non-zero
+/// stamp that stays the same for the life of the process and refuse a missing pid.
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+#[test]
+fn start_stamp_is_stable_and_refuses_missing_pids() {
+    let me = std::process::id();
+    let first = process_start(me).unwrap();
+    assert!(first > 0);
+    std::thread::sleep(std::time::Duration::from_millis(20));
+    assert_eq!(process_start(me).unwrap(), first);
+    let mut child = std::process::Command::new("sleep")
+        .arg("5")
+        .spawn()
+        .unwrap();
+    let child_stamp = process_start(child.id());
+    child.kill().unwrap();
+    child.wait().unwrap();
+    assert!(child_stamp.unwrap() > 0);
+    assert!(process_start(i32::MAX as u32).is_err());
+}
+
 #[test]
 fn refuses_shared_or_foreign_runtime_dirs() {
     let dir = private_dir("mode");
