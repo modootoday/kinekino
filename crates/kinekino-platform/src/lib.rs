@@ -39,7 +39,7 @@ static WINDOW: kinekino_core::platform::window::UnsupportedWindows =
 pub mod fs {
     pub use super::adapter::fs::{
         apply_open_flags, apply_share_mode, file_identity, is_reparse_point, is_sharing_violation,
-        open_reserved_read, symlink_file,
+        open_reserved_read, symlink_dir, symlink_file,
     };
 }
 
