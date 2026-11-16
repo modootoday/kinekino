@@ -1,4 +1,3 @@
-#![cfg(windows)]
 //! Fixed local tool observations, separate from owned media and product support.
 #[path = "../src/infrastructure/immutable_storage_paths.rs"]
 pub mod immutable_storage_paths;
