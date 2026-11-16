@@ -28,7 +28,7 @@ All AI features call one inference port. You pick where models run; kinekino ask
 | Consent scope | per project (task, project or always) |
 | Upload | only needed segments or frames, never a whole video |
 | Network timeouts | 10 s connect, 120 s request, 3 retries |
-| Token | kept for the current session only for now (OS credential store not wired yet); settings show status only |
+| Token | kept in the OS credential store (Linux Secret Service, unlocked collection only); when that store is unavailable, kept for the current session only and reported as such (`kinekino settings credentials`); settings show status only |
 
 > [!WARNING]
 > Cloud models may charge you. The cost guard stops a job before it goes over budget, not after.

@@ -147,8 +147,11 @@ fn exercise(partial: bool, cancel_before_run: bool) {
     .unwrap();
     drop(producer);
     drop(admission);
-    // Original staging lease retains request/sidecars and source admission.
-    assert!(fs::write(stage.join("stdin.raw"), b"changed").is_err());
+    // Original staging lease retains request/sidecars and source admission. Only mandatory
+    // share modes let the lease deny writers; a POSIX open cannot.
+    if kinekino_player::infrastructure::os_policy::has_mandatory_share_modes() {
+        assert!(fs::write(stage.join("stdin.raw"), b"changed").is_err());
+    }
     original
         .cancelled
         .store(cancel_before_run, Ordering::SeqCst);

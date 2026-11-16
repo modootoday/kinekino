@@ -39,7 +39,7 @@ static WINDOW: kinekino_core::platform::window::UnsupportedWindows =
 pub mod fs {
     pub use super::adapter::fs::{
         apply_open_flags, apply_share_mode, file_identity, is_reparse_point, is_sharing_violation,
-        open_reserved_read, symlink_file,
+        open_reserved_read, symlink_dir, symlink_file,
     };
 }
 
@@ -62,6 +62,25 @@ pub mod session {
 pub mod credential {
     #[cfg(all(not(windows), target_os = "linux"))]
     pub use super::adapter::secret_service::SecretServiceCredentialStore;
+    use kinekino_core::port::PortResult;
+    use kinekino_core::port::credential::CredentialStore;
+
+    /// Opens this build's OS credential store. `Unavailable` when the store cannot be
+    /// reached (no unlocked Secret Service collection) or this OS has no adapter yet.
+    pub fn open_os_store() -> PortResult<Box<dyn CredentialStore>> {
+        #[cfg(all(not(windows), target_os = "linux"))]
+        {
+            SecretServiceCredentialStore::try_open()
+                .map(|s| Box::new(s) as Box<dyn CredentialStore>)
+        }
+        #[cfg(not(all(not(windows), target_os = "linux")))]
+        {
+            Err(kinekino_core::port::PortError::new(
+                kinekino_core::port::ErrorCode::Unavailable,
+                "no OS credential store adapter for this platform",
+            ))
+        }
+    }
 }
 
 /// [`kinekino_core::platform::OsPolicy`] backed by this build's OS adapter.

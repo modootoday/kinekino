@@ -34,7 +34,7 @@ Settings live on one page, and the same keys are readable and writable with `kin
 ## Privacy
 
 - Only the segments or frames a task needs are uploaded, never a whole video.
-- A token is kept in memory for the current session only. The OS credential store adapters (Linux Secret Service first) are built but not wired into the app yet. Settings show only whether a token is set.
+- A token is kept in the OS credential store. On Linux that is the Secret Service, and only an already unlocked collection is used, so nothing waits on a keyring prompt. When that store is unavailable (no Secret Service, a locked keyring, or an OS without an adapter yet, which today means Windows and macOS), the token is kept in memory for the current session only. `kinekino settings credentials` prints which store is in use (`os`, `session` or `session-fallback` with the reason). `KINEKINO_CREDENTIALS=os` refuses the fallback and `KINEKINO_CREDENTIALS=session` never touches the OS store. Settings show only whether a token is set.
 - Settings load in this order: defaults, file, environment, command line.
 
 > [!TIP]

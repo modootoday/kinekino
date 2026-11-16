@@ -4,6 +4,7 @@
 //! `XDG_CONFIG_HOME`, `HOME/.config` or `APPDATA`. Sections: `mcp` (`crate::mcp::McpSettings`), `inference` (validated by
 //! [`InferenceSettings`]). Tokens never go here.
 use crate::Env;
+pub mod credentials;
 pub mod gui;
 pub mod page;
 use kinekino_core::port::credential::CredentialStore;
@@ -131,13 +132,25 @@ fn ledger(env: &Env, doc: &Value) -> PortResult<Value> {
     }))
 }
 
-/// [`run_with`] on the process session credential store.
+/// [`run_with`] on the store [`credentials::open`] selects: the OS store, or the
+/// session store as a reported fallback. `settings credentials` prints that choice.
 pub fn run(args: &crate::Args, env: &Env) -> (u8, String) {
-    run_with(
-        args,
-        env,
-        &kinekino_platform::session::SessionCredentialStore::new(),
-    )
+    let selected = match credentials::open(env) {
+        Ok(s) => s,
+        Err(e) => return (2, e.to_json()),
+    };
+    if args.get(1) == Some("credentials") && args.get(2).is_none() {
+        return (0, backing_report(&selected.backing).to_string());
+    }
+    run_with(args, env, selected.store.as_ref())
+}
+
+fn backing_report(backing: &credentials::CredentialBacking) -> Value {
+    let mut v = json!({ "backing": backing.name(), "persistent": backing.persistent() });
+    if let credentials::CredentialBacking::SessionFallback { reason } = backing {
+        v["reason"] = reason.clone().into();
+    }
+    v
 }
 
 fn current_month() -> String {
@@ -147,7 +160,8 @@ fn current_month() -> String {
     page::month_of(secs)
 }
 
-/// `settings path|get <key>|set <key> <value>|validate|ledger|page [YYYY-MM]|apply <json>|gui`.
+/// `settings path|get <key>|set <key> <value>|validate|ledger|page [YYYY-MM]|apply <json>|gui`
+/// (`credentials` is answered by [`run`], which knows the selected store).
 pub fn run_with(args: &crate::Args, env: &Env, credentials: &dyn CredentialStore) -> (u8, String) {
     if args.get(1) == Some("gui") {
         return gui::run(
@@ -187,7 +201,7 @@ pub fn run_with(args: &crate::Args, env: &Env, credentials: &dyn CredentialStore
             }
         }
         other => Err(invalid(format!(
-            "usage: kinekino settings <path|get KEY|set KEY VALUE|validate|ledger|page [YYYY-MM]|apply JSON|gui [YYYY-MM] [--smoke] [--capture BMP]>, got {other:?}"
+            "usage: kinekino settings <path|credentials|get KEY|set KEY VALUE|validate|ledger|page [YYYY-MM]|apply JSON|gui [YYYY-MM] [--smoke] [--capture BMP]>, got {other:?}"
         ))),
     });
     match result {

@@ -27,6 +27,7 @@ fn request<'a>(script: &str, root: &Path) -> SpawnRequest<'a> {
         deadline,
         source: None,
         fault: None,
+        sandbox: None,
     }
 }
 fn root(name: &str) -> std::path::PathBuf {
@@ -57,6 +58,34 @@ fn capability_table_is_honest_for_this_os() {
         Enforcement::Unsupported
     };
     assert_eq!(caps.cleanup_on_owner_death, expected);
+    // No sandbox adapter yet (ADR 20261109051610): every guarantee is reported unsupported.
+    assert_eq!(caps.sandbox_file_access, Enforcement::Unsupported);
+    assert_eq!(caps.sandbox_network, Enforcement::Unsupported);
+    assert_eq!(caps.sandbox_system_calls, Enforcement::Unsupported);
+}
+
+#[test]
+fn sandboxed_spawn_is_refused_before_anything_starts() {
+    use kinekino_core::platform::process::{SandboxNetwork, SandboxPolicy};
+    let root = root("sandbox");
+    let marker = root.join("ran");
+    let mut req = request(&format!("touch '{}'", marker.display()), &root);
+    req.sandbox = Some(SandboxPolicy {
+        read_only: vec![root.clone()],
+        scratch: None,
+        network: SandboxNetwork::None,
+        environment: Default::default(),
+    });
+    let failure = match UnixOwnership.spawn(req, None) {
+        Ok(_) => panic!("an unenforced sandbox must not spawn"),
+        Err(f) => f,
+    };
+    assert_eq!(failure.stage, "sandbox");
+    assert_eq!(failure.error.kind(), std::io::ErrorKind::Unsupported);
+    assert!(failure.owner.is_none());
+    thread::sleep(Duration::from_millis(100));
+    assert!(!marker.exists(), "the child must not have run");
+    let _ = std::fs::remove_dir_all(&root);
 }
 
 #[test]

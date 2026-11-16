@@ -17,13 +17,13 @@ blitz-dom = { package = "meari-dom", version = "0.2.0", default-features = false
 # Settings window (kinekino-settings-ui): the versions meari-native pins.
 winit = "=0.31.0-beta.3"
 blitz-shell = { package = "meari-shell", version = "0.2.0", default-features = false }
-rfd = { version = "=0.17.2", default-features = false }
+rfd = { version = "=0.18.0", default-features = false }
 adblock = { version = "0.13.3", default-features = false }
 anyhow = "1"
 async-tungstenite = { version = "=0.32.1", default-features = false }
 base64 = "=0.23.1"
 bytes = "=1.12.1"
-cef = { version = "=156.3.0", default-features = false }
+cef = { version = "=156.4.0", default-features = false }
 chromiumoxide = { version = "0.9.1", default-features = false }
 futures = "0.3"
 http = "=1.5.0"

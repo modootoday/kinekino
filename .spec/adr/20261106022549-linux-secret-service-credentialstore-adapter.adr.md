@@ -3,7 +3,7 @@ id: adr:kinekino/20261106022549
 title: Linux Secret Service CredentialStore adapter
 status: active
 created: 2026-11-06T02:25:49Z
-updated: 2026-11-06T02:55:00Z
+updated: 2026-11-16T08:38:37Z
 rel:
   governs: [crates/kinekino-platform-unix/src/secret_service.rs, crates/kinekino-platform-unix/Cargo.toml, crates/kinekino-platform/src/lib.rs, Cargo.toml]
   depends_on: [adr:kinekino/20261106001220]
@@ -32,7 +32,7 @@ skill: 조회 결과 무관(자격증명 포트·Secret Service와 직접 맞는
 4. **키 매핑.** 속성 `service` / `account`, 라벨 `{service}/{account}`. `set`은 `replace=true`로 덮어쓴다.
 5. **계약.** 라이브 테스트가 `check_credential_store`를 호출한다. 서비스가 없으면 해당 테스트를 건너뛰고, `try_open`의 Unavailable은 별도 테스트로 단언한다.
 6. **파사드.** `kinekino-platform::credential`에서 Unix 빌드에 `SecretServiceCredentialStore`를 재수출한다. 앱 설정은 계속 `SessionCredentialStore`를 쓴다.
-7. **제품 폴백(설계만).** Secret Service `try_open` 실패 시 제품이 `SessionCredentialStore`(또는 동등한 메모리 저장소)로 **명시적으로** 대체할 수 있다. 이 ADR은 그 배선을 구현하지 않는다(M3 완료 기준 (2)의 조립은 후속).
+7. **제품 폴백(설계만).** Secret Service `try_open` 실패 시 제품이 `SessionCredentialStore`(또는 동등한 메모리 저장소)로 **명시적으로** 대체할 수 있다. 이 ADR은 그 배선을 구현하지 않는다(M3 완료 기준 (2)의 조립은 후속). 2026-11-16: 배선은 `kinekino-app`의 `settings::credentials`에서 했다. 대체는 `Unavailable`에서만 일어나고 `settings credentials`로 보고된다.
 
 ## Rationale
 

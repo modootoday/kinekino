@@ -1,5 +1,4 @@
 //! Read-only normal CLI discovery; never executes the advertised operations.
-#![cfg(windows)]
 #[path = "support/cli_exe.rs"]
 mod cli_exe;
 #[path = "review_source_cli/fixture.rs"]
