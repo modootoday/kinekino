@@ -3,7 +3,7 @@ id: adr:kinekino/20261029201516
 title: "ADR 0010: GitHub Actions CI/CD — specfold 방식(수동 CI, 태그 릴리스, 환경 승인, main:/docs Pages)"
 status: active
 created: 2026-10-30
-updated: 2026-11-14
+updated: 2026-11-16T06:29:55Z
 rel:
   governs: [.github]
 ---
@@ -17,7 +17,7 @@ rel:
 
 | 항목 | specfold | kinekino 결정 | 근거 |
 |---|---|---|---|
-| CI 트리거 | `workflow_dispatch`만(push/PR 없음) | 같음 | 사용자 지시(specfold와 동일). push/PR 추가는 한 줄 변경이며 사용자 결정 항목 |
+| CI 트리거 | `workflow_dispatch`만(push/PR 없음) | 같음 → 2026-11-16 `pull_request`(main) 추가, [[adr:kinekino/20261116062843]] | 사용자 지시(specfold와 동일). push/PR 추가는 사용자 결정 항목이었고 2026-11-16 PR 기반으로 결정 |
 | CI 매트릭스 | ubuntu-24.04, -arm, macos-15, macos-15-intel, windows-2022 테스트 | Linux 2·macOS 2는 테스트, Windows는 clippy 컴파일 게이트만 | Windows 실행 검증은 P8(마지막) |
 | 정적 검사 | fmt, clippy `-D warnings` | + `xtask lint-structure`, `xtask spec-check` | 저장소 공통 완료 기준 |
 | spec 설치 | 자체 composite action(체크섬 검증) | 같은 방식 스크립트 `.github/scripts/install-specfold.sh`, `v0.2.6` 고정 | v0.2.6 태그에는 `action.yml`이 없음 |
@@ -36,7 +36,7 @@ rel:
 
 ## Decision
 1. 파일: `.github/workflows/ci.yml`(lint, windows-gate, test, site), `.github/workflows/release.yml`(draft, binaries, finish), `.github/workflows/window-smoke.yml`(수동 실행, 실제 플레이어 창: Windows 스모크·Wayland 리사이즈 실측, 2026-11-14 추가), `.github/dependabot.yml`, `.github/scripts/*.sh`, `.github/RELEASING.md`.
-2. 포크 PR: CI가 수동 실행뿐이라 포크 코드가 시크릿과 함께 도는 경로가 없다. `pull_request_target`은 쓰지 않는다. PR 트리거를 켜면 `pull_request`만 쓴다.
+2. 포크 PR: CI는 시크릿을 쓰지 않으므로 포크 코드가 시크릿과 함께 도는 경로가 없다(2026-11-16부터 PR에서도 실행). `pull_request_target`은 쓰지 않는다. PR 트리거를 켜면 `pull_request`만 쓴다.
 3. GitHub Environments: specfold 규칙을 그대로 따른다(2026-10-30 사용자 지시로 `release` 환경 폐기). 규칙은 "레지스트리 하나당 환경 하나, 이름은 레지스트리 이름(`crates`, `npm`), 필수 검토자, 태그 규칙 `v*`, 해당 레지스트리에 게시하는 잡에만 `github.event_name == 'push'`일 때 붙임, 인증은 Trusted Publishing(OIDC)"이다. kinekino는 현재 게시할 레지스트리가 없으므로 환경은 **0개**다.
    - `crates`: 해당 없음. 앱 crate는 `publish` 대상이 아니다. 라이브러리 crate를 공개하면 specfold와 같은 `crates` 잡·환경을 추가한다.
    - `npm`: 해당 없음. npm 런처 패키지가 없다. 따라서 `bootstrap` 모드와 `npm/release/*`도 두지 않는다.
