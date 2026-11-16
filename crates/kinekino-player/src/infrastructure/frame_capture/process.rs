@@ -48,25 +48,29 @@ mod tests {
     use super::*;
     use std::io::{Read, Write};
 
-    /// An absolute echo: the owned launcher refuses bare or root-relative programs, and
-    /// `/bin/echo` has no drive on Windows.
-    #[cfg(not(windows))]
+    /// Re-runs this test binary as the child: its path is absolute on every OS, which the
+    /// owned launcher requires (`/bin/echo` has no drive on Windows).
     fn echo(text: &str) -> Command {
-        let mut command = Command::new("/bin/echo");
-        command.arg(text);
+        let mut command = Command::new(std::env::current_exe().unwrap());
+        command
+            .args([
+                "--exact",
+                "infrastructure::frame_capture::process::tests::echo_child",
+                "--ignored",
+                "--nocapture",
+            ])
+            .env("FRAME_CAPTURE_PROCESS_TEST_ECHO", text);
         command
     }
 
-    #[cfg(windows)]
-    fn echo(text: &str) -> Command {
-        let root = std::env::var_os("SystemRoot").expect("SystemRoot is set on Windows");
-        let mut command = Command::new(
-            std::path::PathBuf::from(root)
-                .join("System32")
-                .join("cmd.exe"),
-        );
-        command.args(["/C", "echo", text]);
-        command
+    #[test]
+    #[ignore = "Subprocess fixture invoked by successful_run_removes_its_evidence_root"]
+    fn echo_child() {
+        if let Some(text) = std::env::var_os("FRAME_CAPTURE_PROCESS_TEST_ECHO") {
+            let mut stdout = std::io::stdout();
+            stdout.write_all(text.to_string_lossy().as_bytes()).unwrap();
+            stdout.flush().unwrap();
+        }
     }
 
     #[test]

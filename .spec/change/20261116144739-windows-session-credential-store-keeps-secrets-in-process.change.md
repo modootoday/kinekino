@@ -13,7 +13,7 @@ rel:
 
 ## Change
 - Windows `SessionCredentialStore` was a placeholder that refused every call with `Unavailable`. The product's credential selection falls back to the session store exactly when the OS store is `Unavailable` (there is no Windows Credential Manager adapter yet), so on Windows the fallback store refused too and `kinekino-app --test credential_selection auto_falls_back_to_session_and_keeps_the_reason` failed (Windows run, issue 45). The Windows store is now the same process-lifetime map as the Unix one, with the shared empty-key check and a contract test.
-- The frame-capture test `successful_run_removes_its_evidence_root` ran `/bin/echo`, which has no drive on Windows, so the owned launcher refused it as a non-absolute executable. The test now uses `%SystemRoot%\System32\cmd.exe /C echo` on Windows and `/bin/echo` elsewhere.
+- The frame-capture test `successful_run_removes_its_evidence_root` ran `/bin/echo`, which has no drive on Windows, so the owned launcher refused it as a non-absolute executable. The test now re-runs its own test binary (an absolute path on every OS) as the child, through a new ignored fixture `echo_child`, so it needs no platform `cfg` outside the adapter crates.
 
 ## Migration
 - None. No persisted data or public API changes. The Credential Manager adapter stays unwritten; `open_os_store` still reports `Unavailable` on Windows.
