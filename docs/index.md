@@ -85,7 +85,7 @@ A shared Rust core with OS adapters underneath. Development targets Linux first;
 Inference runs locally first when you choose it. Cloud models need your consent and stay under a cost budget. Only the needed segments or frames are uploaded, never a whole video.
 
 > [!NOTE]
-> The settings page and the inference port are planned (P1b, P6). Their defaults are already decided and listed on the settings page.
+> The settings window and the inference port are built. The window is checked on Linux, and the port is tested against a mock server only; no real model has been called yet. The defaults are listed on the settings page.
 
 [Settings and privacy](settings.md)
 

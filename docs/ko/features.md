@@ -16,9 +16,9 @@ sections:
 - **[재생](features/playback.md)**: mpv 재생, 회차, 이어 보기, 건너뛰기. `status:partial`
 - **[스튜디오](features/studio.md)**: 타임라인 구간, 클립, 스냅샷, 리뷰, 작업. `status:partial`
 - **[자막과 AI](features/subtitles-ai.md)**: 자막 편집, 음성 인식, 화자, 번역. `status:partial`
-- **[로컬·클라우드 추론](features/inference.md)**: 로컬과 클라우드 모델을 하나의 포트로, 동의와 비용 보호 포함. `status:planned`
+- **[로컬·클라우드 추론](features/inference.md)**: 로컬과 클라우드 모델을 하나의 포트로, 동의와 비용 보호 포함. 목 서버로만 시험. `status:partial`
 - **[AI 에이전트](agents.md)**: CLI, 요청 JSON, MCP 서버. `status:partial`
-- **[설정과 개인정보](settings.md)**: 추론, 재생, 에이전트를 한 설정 화면에서. `status:planned`
+- **[설정과 개인정보](settings.md)**: 추론, 재생, 에이전트를 한 설정 화면에서. `status:partial`
 
 ## 전체 기능
 
@@ -40,8 +40,8 @@ sections:
 | 번역과 요약 | `status:planned` | P5 |
 | OCR과 자막 검색 | `status:planned` | P5 |
 | 로컬 모델 팩 | `status:planned` | P5 |
-| 추론 동의와 비용 보호 | `status:planned` | P1b |
-| 설정 화면 | `status:planned` | P6, 스키마 확정 |
+| 추론 동의와 비용 보호 | `status:partial` | 목 서버로 시험, 실제 모델 호출은 아직 없음(P7) |
+| 설정 화면 | `status:partial` | 창은 Linux X11에서 확인, `kinekino settings` CLI 사용 가능 |
 | MCP 서버 | `status:partial` | 기본 꺼짐, 호스트 없이 되는 명령만 도구로 |
-| 메아리 UI | `status:partial` | 플레이어·설정 창은 Linux와 Windows, macOS는 P8 |
+| 메아리 UI | `status:partial` | 플레이어·설정 창은 Linux X11에서 확인, 플레이어 창은 Windows·Wayland 러너에서 스모크, macOS는 미확인 |
 | 편집 출처 기록 | `status:partial` | |
