@@ -1,0 +1,49 @@
+name: Settings drift
+
+# Compares the live repository settings with the files that are their canon
+# (.github/rulesets/*.json, .github/labels.json, .github/settings/repository.json) and opens or
+# updates one needs-owner issue when they differ, including a merged change not yet applied.
+# Shared automation rules C2.6-C2.11: it only reads; the owner applies the files from their own
+# computer. No admin token: GITHUB_TOKEN reads settings and writes the issue. Not a required check.
+on:
+  schedule:
+    - cron: "17 3 * * 1"
+  push:
+    branches: [main]
+    paths:
+      - .github/rulesets/**
+      - .github/settings/**
+      - .github/labels.json
+      - .github/workflows/settings-drift.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: settings-drift
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_TARGET_DIR: target
+  CARGO_BUILD_JOBS: "4"
+
+jobs:
+  settings-drift:
+    name: Settings drift
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Toolchain from rust-toolchain.toml
+        run: rustup toolchain install && rustup show active-toolchain
+      - name: Compare live settings with the files
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: cargo xtask settings-drift --repo "$GITHUB_REPOSITORY" --issue

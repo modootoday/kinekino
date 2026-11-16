@@ -43,6 +43,9 @@
             "context": "Public surface"
           },
           {
+            "context": "Secret scan"
+          },
+          {
             "context": "test (ubuntu-26.04)"
           }
         ]
