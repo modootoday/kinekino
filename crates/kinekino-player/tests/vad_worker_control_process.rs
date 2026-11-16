@@ -1,4 +1,3 @@
-#![cfg(windows)]
 //! Explicit actual-child gate. No operation registration or model inference.
 pub use kinekino_vad_executor::{application, domain};
 #[path = "../../kinekino-vad-worker/tests/support/fixture_barrier.rs"]
