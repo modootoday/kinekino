@@ -1,3 +1,5 @@
+Agent-Provider: <!-- Claude Code, Codex, ... or none for a person's own change -->
+
 ## Summary
 
 <!-- What changes and why. Link the spec documents (adr:, plan:, sot:) it follows. -->

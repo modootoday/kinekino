@@ -2,7 +2,9 @@
 //! Fails when a commit range adds a private term: commit messages, added diff lines and
 //! changed file names in `BASE..HEAD`, plus any text passed through `--text-env` (the pull
 //! request title and body). It also fails on a `Co-authored-by` line whose address is not
-//! `@users.noreply.github.com` in commits made at or after `--coauthor-since`.
+//! `@users.noreply.github.com` in commits made at or after `--coauthor-since`, and on a commit
+//! author or committer outside that domain from `--identity-since` on (GitHub's own web
+//! committer is allowed).
 //! The term list comes from `KINEKINO_DENY_TERMS` or `--terms-file`; an empty or missing
 //! list fails (fail-closed). Reports name only the place and the term's list number,
 //! never the term or the address, because CI logs of a public repository are public.
@@ -16,7 +18,7 @@ use terms::Terms;
 
 const ENV_VAR: &str = "KINEKINO_DENY_TERMS";
 const USAGE: &str = "usage: deny-terms --range BASE..HEAD [--terms-file PATH] \
-                     [--text-env NAME]... [--coauthor-since YYYY-MM-DDTHH:MM:SSZ]";
+                     [--text-env NAME]... [--coauthor-since TIME] [--identity-since TIME]";
 
 pub fn run(args: &[String]) -> ExitCode {
     match parse(args).and_then(|o| scan(&o)) {
@@ -40,6 +42,7 @@ struct Opts {
     terms_file: Option<String>,
     text_envs: Vec<String>,
     coauthor_since: i64,
+    identity_since: i64,
 }
 
 fn parse(args: &[String]) -> Result<Opts, String> {
@@ -48,6 +51,7 @@ fn parse(args: &[String]) -> Result<Opts, String> {
         terms_file: None,
         text_envs: Vec::new(),
         coauthor_since: i64::MIN,
+        identity_since: i64::MIN,
     };
     let mut it = args.iter();
     while let Some(a) = it.next() {
@@ -57,6 +61,7 @@ fn parse(args: &[String]) -> Result<Opts, String> {
             "--terms-file" => o.terms_file = Some(value()?),
             "--text-env" => o.text_envs.push(value()?),
             "--coauthor-since" => o.coauthor_since = trailers::parse_utc(&value()?)?,
+            "--identity-since" => o.identity_since = trailers::parse_utc(&value()?)?,
             _ => return Err(format!("unknown argument {a}; {USAGE}")),
         }
     }
@@ -121,6 +126,26 @@ fn scan(o: &Opts) -> Result<usize, String> {
                 c.sha
             );
             hits += n;
+        }
+    }
+    for c in changes
+        .messages
+        .iter()
+        .filter(|c| c.time >= o.identity_since)
+    {
+        if !trailers::author_ok(&c.author) {
+            eprintln!(
+                "hit: commit {} author is not a users.noreply.github.com address",
+                c.sha
+            );
+            hits += 1;
+        }
+        if !trailers::committer_ok(&c.committer) {
+            eprintln!(
+                "hit: commit {} committer is not a users.noreply.github.com address",
+                c.sha
+            );
+            hits += 1;
         }
     }
     println!(

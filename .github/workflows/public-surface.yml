@@ -1,6 +1,7 @@
 name: Public surface
 
-# Shared required check `Public surface` (shared automation rules C4; adr:kinekino/20261116065239).
+# Shared required checks `Public surface` and `Secret scan`.
+# `Public surface` (shared automation rules C4; adr:kinekino/20261116065239).
 # Scans what a change will land: commit messages, added lines and file names in the range,
 # and the pull request title and body. Also rejects Co-authored-by trailers whose address is
 # not @users.noreply.github.com in commits from the cutoff on (earlier history is not rewritten).
@@ -28,6 +29,9 @@ env:
   CARGO_BUILD_JOBS: "4"
   # Co-authored-by rule applies to commits made at or after this time.
   COAUTHOR_SINCE: "2026-11-16T06:55:00Z"
+  # Author and committer rule (C10.5) applies to commits made at or after this time.
+  IDENTITY_SINCE: "2026-11-16T07:10:00Z"
+  GITLEAKS_VERSION: "8.28.0"
 
 jobs:
   public-surface:
@@ -52,3 +56,25 @@ jobs:
           cargo xtask deny-terms --range "$BASE..$HEAD"
           --text-env PR_TITLE --text-env PR_BODY
           --coauthor-since "$COAUTHOR_SINCE"
+          --identity-since "$IDENTITY_SINCE"
+
+  secret-scan:
+    # Shared required check `Secret scan` (shared rules C4.5): gitleaks on the same range,
+    # from a pinned release checked against its checksums file. Findings are redacted in logs.
+    name: Secret scan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Install gitleaks (checksum-verified release)
+        run: bash .github/scripts/install-gitleaks.sh "$GITLEAKS_VERSION" "$RUNNER_TEMP/gitleaks"
+      - name: gitleaks on the change
+        env:
+          BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+          HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.event.after }}
+        run: >-
+          "$RUNNER_TEMP/gitleaks/gitleaks" git --no-banner --redact --exit-code 1
+          --log-opts="$BASE..$HEAD" .

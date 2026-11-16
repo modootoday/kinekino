@@ -1,6 +1,19 @@
-//! Co-authored-by rule (shared rule C10.2/C4.8): only `@users.noreply.github.com` addresses.
+//! Identity rules: Co-authored-by trailers (shared rules C10.2/C4.8) and commit author and
+//! committer (C10.5) use `@users.noreply.github.com` addresses.
 
 const ALLOWED_SUFFIX: &str = "@users.noreply.github.com";
+/// GitHub's own committer for merges and web edits made on github.com.
+const GITHUB_WEB_COMMITTER: &str = "noreply@github.com";
+
+/// Whether a commit author address is allowed.
+pub fn author_ok(addr: &str) -> bool {
+    addr.trim().to_ascii_lowercase().ends_with(ALLOWED_SUFFIX)
+}
+
+/// Whether a committer address is allowed: an author address, or GitHub's web committer.
+pub fn committer_ok(addr: &str) -> bool {
+    author_ok(addr) || addr.trim().eq_ignore_ascii_case(GITHUB_WEB_COMMITTER)
+}
 
 /// Number of `Co-authored-by` lines in `message` whose address is not allowed.
 /// A line without an `<address>` counts as not allowed.
@@ -64,6 +77,16 @@ mod tests {
         let bad = "x\n\nCo-Authored-By: Tool <noreply@example.com>\nco-authored-by: B\n";
         assert_eq!(bad_coauthors(bad), 2);
         assert_eq!(bad_coauthors("subject only"), 0);
+    }
+
+    #[test]
+    fn author_and_committer_addresses() {
+        assert!(author_ok("1+a@users.noreply.github.com"));
+        assert!(!author_ok("noreply@github.com"));
+        assert!(!author_ok("someone@example.com"));
+        assert!(committer_ok("noreply@github.com"));
+        assert!(committer_ok("1+a@Users.Noreply.GitHub.com"));
+        assert!(!committer_ok("noreply@example.com"));
     }
 
     #[test]
