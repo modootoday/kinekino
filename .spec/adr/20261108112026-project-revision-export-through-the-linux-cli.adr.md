@@ -3,7 +3,7 @@ id: adr:kinekino/20261108112026
 title: Project revision export through the Linux CLI
 status: active
 created: 2026-11-08T11:20:26Z
-updated: 2026-11-08T11:20:26Z
+updated: 2026-11-16T11:00:00Z
 rel:
   governs:
     - crates/kinekino-player/src/application/projects
@@ -45,3 +45,7 @@ rel:
 - Linux CLI에서 `projects.create/inspect/save_revision/reconnect_source/export`가 `--project-root`로 동작하고 CLI fixture 테스트로 잠긴다.
 - 남은 일: 명시적 덮어쓰기·새 이름 정책(OUT-04), 다항목·preset 내보내기(OUT-07/08), Linux `--proposal-root`, 내보낸 문서 import.
 - skill: modoo.today skills 조회(파일 내보내기 계약)했으나 맞는 도메인 스킬 없음 → 미적용.
+
+## Record
+
+- 2026-11-16: `--proposal-root` opens on Linux (the Linux proposal root listed as remaining above). `ProposalFiles` uses the same root guards and writer lock as `ProjectFiles`. Off Windows, a request that also configures the historical evidence verifier (`--historical-verifier` and related flags) is refused as `unsupported`, because the verifier starts a pinned external program whose process ownership has not been checked there; bound reads that need it stay unavailable on Linux. Five proposal test files are no longer Windows-only. `tests/projects.rs` now builds its stored locators from the temp directory instead of drive-letter paths. The pinned normal-CLI capture-mutation and accepted-subtitle-export cases pass on Linux; capture-mutation needs a stripped CLI because the debug build is larger than that test's 128 MiB hashing bound.
