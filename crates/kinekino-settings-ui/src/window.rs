@@ -149,6 +149,8 @@ struct App<'a> {
     undecorated: bool,
     /// Last press on the caption row, for double-click maximize.
     caption_press: Option<Instant>,
+    /// Caption maximize state against what the window manager reports.
+    maximize: crate::MaximizeFollow,
 }
 
 impl App<'_> {
@@ -186,6 +188,28 @@ impl App<'_> {
             }
         });
         if let Some(on) = maximized {
+            self.maximize.requested(on, Instant::now());
+            self.sync_maximized(on);
+        }
+    }
+
+    /// After a resize or move, shows the state the window manager reports (it may have
+    /// maximized or restored the window itself).
+    fn follow_window(&mut self, event: &WindowEvent) {
+        if !matches!(
+            event,
+            WindowEvent::SurfaceResized(_) | WindowEvent::Moved(_)
+        ) {
+            return;
+        }
+        let reported = self
+            .shared
+            .borrow()
+            .handle
+            .try_with(|doc| doc.renderer.document.shell_provider.is_window_maximized());
+        if let Ok(reported) = reported
+            && let Some(on) = self.maximize.observed(reported, Instant::now())
+        {
             self.sync_maximized(on);
         }
     }
@@ -227,6 +251,7 @@ impl App<'_> {
             // The window manager may report the new state only later (X11), so the
             // caption follows the requested state.
             crate::caption::Press::Maximize(on) => {
+                self.maximize.requested(on, Instant::now());
                 self.sync_maximized(on);
                 true
             }
@@ -348,6 +373,7 @@ impl ApplicationHandler for App<'_> {
             self.tick(event_loop);
             return;
         }
+        self.follow_window(&event);
         self.driver.window_event(event_loop, id, event);
         self.tick(event_loop);
     }
@@ -413,6 +439,7 @@ impl SettingsWindowPort for MeariSettingsWindow {
             closing: None,
             undecorated: false,
             caption_press: None,
+            maximize: crate::MaximizeFollow::default(),
         };
         // `run_app` needs a 'static handler; the borrowed `on_message` callback needs on-demand.
         winit::event_loop::run_on_demand::EventLoopExtRunOnDemand::run_app_on_demand(
