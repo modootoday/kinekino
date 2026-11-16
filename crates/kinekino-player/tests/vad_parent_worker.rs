@@ -1,4 +1,3 @@
-#![cfg(windows)]
 //! Same product sources and common crates; no process or operation registration.
 #[path = "vad_parent_worker/child_configuration.rs"]
 mod child_configuration;
