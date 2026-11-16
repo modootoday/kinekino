@@ -1,10 +1,10 @@
 //! CDP adapter: drives installed Google Chrome (codecs + Widevine) via chromiumoxide.
+mod connection;
 mod intercept;
 mod launch;
 mod protocol;
 
 pub use launch::CdpLaunch;
-pub use protocol::FORWARDED;
 
 use crate::engine::port::{
     AudioControl, BrowserEngine, BrowserEvent, EngineError, EngineKind, EngineResult, FrameCapture,
@@ -22,8 +22,8 @@ pub struct CdpEngine {
     browser: Browser,
     page: Page,
     events: Arc<Mutex<Vec<BrowserEvent>>>,
-    /// Forwarded DevTools protocol events (see [`FORWARDED`]).
-    protocol_events: Arc<Mutex<Vec<ProtocolEvent>>>,
+    /// The DevTools protocol session's own connection to the page target.
+    protocol: connection::ProtocolConnection,
     muted: bool,
     /// Driving a pre-existing (`--app`) target: chromiumoxide gets no lifecycle events for it,
     /// so `Page.navigate` never resolves and navigation is done and awaited from the page.
@@ -50,14 +50,16 @@ impl CdpEngine {
             };
             Ok::<_, EngineError>((browser, page))
         })?;
-        let protocol_events = Arc::default();
-        runtime.block_on(protocol::listen(&page, Arc::clone(&protocol_events)))?;
+        let protocol = runtime.block_on(connection::ProtocolConnection::attach(
+            browser.websocket_address(),
+            page.target_id().as_ref(),
+        ))?;
         Ok(Self {
             runtime,
             browser,
             page,
             events: Arc::default(),
-            protocol_events,
+            protocol,
             muted: false,
             attached: spec.app_url.is_some(),
         })
@@ -167,23 +169,12 @@ impl ProtocolSession for CdpEngine {
         method: &str,
         params: serde_json::Value,
     ) -> EngineResult<serde_json::Value> {
-        self.runtime.block_on(async {
-            let target = protocol::target(&self.browser, &self.page, session).await?;
-            let response = target
-                .execute(protocol::RawCommand::new(method, params))
-                .await
-                .map_err(call)?;
-            Ok(response.result)
-        })
+        self.runtime
+            .block_on(self.protocol.call(session, method, params))
     }
 
     fn drain_protocol_events(&mut self) -> Vec<ProtocolEvent> {
-        std::mem::take(
-            &mut *self
-                .protocol_events
-                .lock()
-                .unwrap_or_else(|p| p.into_inner()),
-        )
+        self.protocol.drain()
     }
 
     fn set_auto_attach(&mut self, on: bool) -> EngineResult<()> {

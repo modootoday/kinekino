@@ -178,3 +178,79 @@ fn headless_cdp_protocol_session_passes_calls_and_events() {
     engine.close().expect("close");
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// Drains protocol events until one matches `want`, for up to five seconds.
+fn wait_event(
+    p: &mut dyn kinekino_browser::engine::port::ProtocolSession,
+    want: impl Fn(&kinekino_browser::engine::port::ProtocolEvent) -> bool,
+) -> kinekino_browser::engine::port::ProtocolEvent {
+    let mut seen = Vec::new();
+    for _ in 0..50 {
+        let batch = p.drain_protocol_events();
+        if let Some(e) = batch.iter().find(|e| want(e)) {
+            return e.clone();
+        }
+        seen.extend(batch.into_iter().map(|e| (e.session, e.method)));
+        std::thread::sleep(Duration::from_millis(100));
+    }
+    panic!("no matching protocol event: {seen:?}")
+}
+
+/// ADR 20261109071720: auto-attached children (here a dedicated worker) are reachable by
+/// their session id, and their events carry that id.
+#[test]
+fn headless_cdp_protocol_session_reaches_auto_attached_children() {
+    if !CdpLaunch::executable().exists() {
+        eprintln!("skip: chrome not installed");
+        return;
+    }
+    let dir = std::env::temp_dir().join(format!("kk-children-{}", std::process::id()));
+    let base = support::serve(None);
+    let mut engine = CdpEngine::launch(&CdpLaunch {
+        headless: true,
+        profile_dir: dir.join("profile"),
+        window: (800, 600),
+        app_url: None,
+    })
+    .expect("launch chrome");
+    engine.navigate(&format!("{base}/")).expect("navigate");
+    let p = engine.protocol().expect("declared protocol session");
+    p.set_auto_attach(true).expect("auto-attach on");
+    p.call(
+        None,
+        "Runtime.evaluate",
+        serde_json::json!({"expression":
+            "window.__w = new Worker(URL.createObjectURL(new Blob(['self.ready = 1'])))"}),
+    )
+    .expect("start a worker");
+    let attached = wait_event(p, |e| {
+        e.session.is_none()
+            && e.method == "Target.attachedToTarget"
+            && e.params["targetInfo"]["type"] == "worker"
+    });
+    let child = attached.params["sessionId"]
+        .as_str()
+        .expect("child session id")
+        .to_owned();
+    p.call(Some(&child), "Runtime.enable", serde_json::json!({}))
+        .expect("Runtime.enable in the worker");
+    p.call(
+        Some(&child),
+        "Runtime.runIfWaitingForDebugger",
+        serde_json::json!({}),
+    )
+    .expect("resume the worker");
+    let created = wait_event(p, |e| e.method == "Runtime.executionContextCreated");
+    assert_eq!(created.session.as_deref(), Some(child.as_str()));
+    let kind = p
+        .call(
+            Some(&child),
+            "Runtime.evaluate",
+            serde_json::json!({"expression": "typeof WorkerGlobalScope"}),
+        )
+        .expect("evaluate in the worker");
+    assert_eq!(kind["result"]["value"], "function", "{kind}");
+    p.set_auto_attach(false).expect("auto-attach off");
+    engine.close().expect("close");
+    let _ = std::fs::remove_dir_all(&dir);
+}
