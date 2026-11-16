@@ -2897,7 +2897,7 @@ name = "kinekino-card-render"
 version = "0.1.0"
 dependencies = [
  "kinekino-media-contracts",
- "meari",
+ "meari 0.2.0",
  "meari-native",
  "png",
  "serde",
@@ -3050,7 +3050,7 @@ dependencies = [
  "kinekino-vad",
  "kinekino-vad-executor",
  "kinekino-vad-worker",
- "meari",
+ "meari 0.2.0",
  "meari-native",
  "png",
  "raw-window-handle",
@@ -3075,10 +3075,10 @@ dependencies = [
  "kinekino-libmpv",
  "kinekino-settings-ui",
  "linebender_resource_handle",
- "meari",
- "meari-dom",
+ "meari 0.2.0",
+ "meari-dom 0.2.0",
  "meari-native",
- "meari-shell",
+ "meari-shell 0.2.0",
  "png",
  "rfd 0.18.0",
  "winit",
@@ -3109,10 +3109,10 @@ name = "kinekino-settings-ui"
 version = "0.1.0"
 dependencies = [
  "kinekino-core",
- "meari",
- "meari-dom",
+ "meari 0.2.0",
+ "meari-dom 0.2.0",
  "meari-native",
- "meari-shell",
+ "meari-shell 0.2.0",
  "png",
  "rfd 0.18.0",
  "serde_json",
@@ -3152,7 +3152,7 @@ version = "0.1.0"
 dependencies = [
  "kinekino-media-contracts",
  "kinekino-subtitles",
- "meari",
+ "meari 0.2.0",
  "serde",
  "serde_json",
 ]
@@ -3372,7 +3372,27 @@ version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9b8ebe959d76729fc33552eb8b657ea5fb2dce2d31cf2c7bd44259473fff0e86"
 dependencies = [
- "meari-platform",
+ "meari-platform 0.2.0",
+ "oxc_allocator",
+ "oxc_ast",
+ "oxc_parser",
+ "oxc_span",
+ "oxc_syntax",
+ "proc-macro2",
+ "ryu-js",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "syn 2.0.117",
+]
+
+[[package]]
+name = "meari"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7edab5106aa2d3d1044484d0ae8da0416aa31e1a2189d394a2422aade47c9500"
+dependencies = [
+ "meari-platform 0.3.0",
  "oxc_allocator",
  "oxc_ast",
  "oxc_parser",
@@ -3391,6 +3411,51 @@ name = "meari-dom"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "33072d529b2b87aa5e726789c9865c32e52842bd9e145002cdb0831ee81acbfd"
+dependencies = [
+ "app_units",
+ "atomic_refcell",
+ "bitflags 2.13.2",
+ "blitz-traits",
+ "color",
+ "cssparser",
+ "cursor-icon",
+ "debug_timer",
+ "euclid",
+ "html-escape",
+ "icu_locale_core",
+ "icu_properties",
+ "icu_segmenter",
+ "image",
+ "keyboard-types",
+ "kurbo",
+ "linebender_resource_handle",
+ "markup5ever",
+ "meari-platform 0.2.0",
+ "objc2 0.6.5",
+ "parley",
+ "percent-encoding",
+ "rayon",
+ "selectors",
+ "skrifa 0.44.0",
+ "slotmap",
+ "smallvec",
+ "stylo",
+ "stylo_dom",
+ "stylo_static_prefs",
+ "stylo_taffy",
+ "stylo_traits",
+ "taffy",
+ "thin-vec",
+ "thread_local",
+ "url",
+ "web-time",
+]
+
+[[package]]
+name = "meari-dom"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ced0f4d6126f6416b441f241bef1eafecdcdb273af575d86ef33a3b68aeb54c6"
 dependencies = [
  "accesskit",
  "app_units",
@@ -3411,7 +3476,7 @@ dependencies = [
  "kurbo",
  "linebender_resource_handle",
  "markup5ever",
- "meari-platform",
+ "meari-platform 0.3.0",
  "objc2 0.6.5",
  "parley",
  "percent-encoding",
@@ -3436,21 +3501,21 @@ dependencies = [
 
 [[package]]
 name = "meari-html"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1a36c73c0c16991cea2ea459d45d6e6568d49ad39e3e00c63a33d14dfb6cfa93"
+checksum = "3361aa36dffc55ca6337ae498cd27d471f3c2086fd8e06247f2a0845b629afd2"
 dependencies = [
  "blitz-traits",
  "html5ever",
- "meari-dom",
+ "meari-dom 0.3.0",
  "xml5ever",
 ]
 
 [[package]]
 name = "meari-native"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "595b40965fa966b97a27a652f0afaaffcfd9040a49fdd7c7f017a948959de6bc"
+checksum = "19ef54a30b7504efff9b539af31222c834f14a3a13deb43bb6d730bce7eee357"
 dependencies = [
  "accesskit",
  "accesskit_xplat",
@@ -3461,17 +3526,19 @@ dependencies = [
  "dioxus-shadcn-primitives",
  "image",
  "keyboard-types",
- "meari",
- "meari-dom",
+ "kurbo",
+ "meari 0.3.0",
+ "meari-dom 0.3.0",
  "meari-html",
- "meari-paint",
- "meari-platform",
- "meari-shell",
+ "meari-paint 0.3.0",
+ "meari-platform 0.3.0",
+ "meari-shell 0.3.0",
  "oxc_allocator",
  "oxc_ast",
  "oxc_parser",
  "oxc_span",
  "parley",
+ "peniko",
  "png",
  "read-fonts 0.46.0",
  "regex",
@@ -3482,6 +3549,7 @@ dependencies = [
  "sha2 0.10.9",
  "skera",
  "skrifa 0.49.0",
+ "softbuffer",
  "stylo",
  "stylo_traits",
  "ttf-parser",
@@ -3499,13 +3567,34 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "811fd4d159832309c67ab702e0f5359229304c9c185a3091cc892f5cd69ae665"
 dependencies = [
  "anyrender",
+ "blitz-traits",
+ "bytemuck",
+ "color",
+ "euclid",
+ "kurbo",
+ "meari-dom 0.2.0",
+ "parley",
+ "peniko",
+ "skrifa 0.44.0",
+ "smallvec",
+ "stylo",
+ "taffy",
+]
+
+[[package]]
+name = "meari-paint"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "639f4a8b04162b8561b06d90af12b84389d6377aef5ae7d5cd234315b0144b03"
+dependencies = [
+ "anyrender",
  "anyrender_svg",
  "blitz-traits",
  "bytemuck",
  "color",
  "euclid",
  "kurbo",
- "meari-dom",
+ "meari-dom 0.3.0",
  "parley",
  "peniko",
  "skrifa 0.44.0",
@@ -3524,6 +3613,17 @@ dependencies = [
  "raw-window-handle",
  "serde_json",
  "windows",
+]
+
+[[package]]
+name = "meari-platform"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3ddb101060cb1a971c716e1178d0910774e8158f05282eaa234f95f61f6efb59"
+dependencies = [
+ "raw-window-handle",
+ "serde_json",
+ "windows",
  "winit",
 ]
 
@@ -3535,13 +3635,33 @@ checksum = "22211e0462e956faa80e908b9fff0784865e7b3b1fd0104fe928ff7244a1f0a9"
 dependencies = [
  "android-activity",
  "anyrender",
+ "atomic_refcell",
+ "blitz-traits",
+ "futures-util",
+ "keyboard-types",
+ "meari-dom 0.2.0",
+ "meari-paint 0.2.0",
+ "wasm-bindgen",
+ "web-sys",
+ "web-time",
+ "winit",
+]
+
+[[package]]
+name = "meari-shell"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e45a3c413c45543d96f18c6557218e560bc58d246effe3a97438c771dbe4c7de"
+dependencies = [
+ "android-activity",
+ "anyrender",
  "arboard",
  "atomic_refcell",
  "blitz-traits",
  "futures-util",
  "keyboard-types",
- "meari-dom",
- "meari-paint",
+ "meari-dom 0.3.0",
+ "meari-paint 0.3.0",
  "wasm-bindgen",
  "web-sys",
  "web-time",
