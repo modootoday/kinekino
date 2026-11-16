@@ -1,4 +1,3 @@
-#![cfg(windows)]
 //! Written acceptance cases. Actual CLI cases require a separate allocated gate.
 use kinekino_player::application::api::ProposalClient;
 #[path = "support/proposal_list_fixture.rs"]
@@ -505,7 +504,7 @@ fn reparse_proposal_is_denied_without_reading_or_modifying_external_source() {
     ));
     std::fs::create_dir(&outside).unwrap();
     std::fs::write(outside.join("sentinel"), b"outside unchanged").unwrap();
-    std::os::windows::fs::symlink_dir(&outside, f.root.join("p-escape")).unwrap();
+    kinekino_platform::fs::symlink_dir(&outside, &f.root.join("p-escape")).unwrap();
     assert_eq!(
         f.request(json!({})).error.unwrap().code,
         ErrorCode::PermissionDenied
