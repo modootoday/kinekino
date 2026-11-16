@@ -3,8 +3,15 @@
 !/.gitignore
 !/.gitattributes
 !/AGENTS.md
+!/CLAUDE.md
+!/.claude/
+/.claude/*
+!/.claude/rules
+!/.claude/skills
+!/.claude/agents
 !/README.md
 !/THIRD_PARTY.md
+!/SECURITY.md
 !/LICENSE
 !/Cargo.toml
 !/Cargo.lock

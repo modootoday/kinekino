@@ -1,0 +1,23 @@
+name: Needs owner decision
+description: Work that waits for the repository owner to decide. Automation skips work items linked to an open issue of this kind.
+labels: [needs-owner]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Decision needed
+      description: One question the owner can answer.
+    validations:
+      required: true
+  - type: textarea
+    id: options
+    attributes:
+      label: Options
+      description: Each option with what it changes. Mark the recommended one.
+    validations:
+      required: true
+  - type: input
+    id: blocked
+    attributes:
+      label: Blocked work
+      description: Roadmap item, document ID or pull request this blocks.
