@@ -48,6 +48,31 @@ mod tests {
     use super::*;
     use std::io::{Read, Write};
 
+    /// Re-runs this test binary as the child: its path is absolute on every OS, which the
+    /// owned launcher requires (`/bin/echo` has no drive on Windows).
+    fn echo(text: &str) -> Command {
+        let mut command = Command::new(std::env::current_exe().unwrap());
+        command
+            .args([
+                "--exact",
+                "infrastructure::frame_capture::process::tests::echo_child",
+                "--ignored",
+                "--nocapture",
+            ])
+            .env("FRAME_CAPTURE_PROCESS_TEST_ECHO", text);
+        command
+    }
+
+    #[test]
+    #[ignore = "Subprocess fixture invoked by successful_run_removes_its_evidence_root"]
+    fn echo_child() {
+        if let Some(text) = std::env::var_os("FRAME_CAPTURE_PROCESS_TEST_ECHO") {
+            let mut stdout = std::io::stdout();
+            stdout.write_all(text.to_string_lossy().as_bytes()).unwrap();
+            stdout.flush().unwrap();
+        }
+    }
+
     #[test]
     fn successful_run_removes_its_evidence_root() {
         let _ = crate::infrastructure::os_policy::host();
@@ -57,7 +82,7 @@ mod tests {
             Instant::now()
         );
         let output = run(
-            Command::new("/bin/echo").arg(&marker),
+            &mut echo(&marker),
             Instant::now() + Duration::from_secs(10),
             4096,
         )

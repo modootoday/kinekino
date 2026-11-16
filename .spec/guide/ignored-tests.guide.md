@@ -3,7 +3,7 @@ id: guide:kinekino/ignored-tests
 title: "#[ignore] 테스트 사유와 실행법"
 status: active
 created: 2026-10-30T06:43:36Z
-updated: 2026-10-30T06:43:36Z
+updated: 2026-11-16T14:53:10Z
 rel:
   governs: [crates]
 ---
@@ -53,6 +53,7 @@ rel:
 | C | `crates/kinekino-player/src/infrastructure/download/process_source/tests/live/jobs/cli.rs:378` | `normal_cli_uses_shared_source_and_original_publication` | real pinned normal CLI/local endpoint/source child; centrally assigned |
 | C | `crates/kinekino-player/src/infrastructure/download/process_source/tests/live/jobs/cli.rs:398` | `normal_cli_cancel_retains_partial_until_probe_close_and_records_terminal_cancelled` | real CLI cancellation, original source child and held sealed output lease |
 | C | `crates/kinekino-player/src/infrastructure/frame_capture/process.rs:50` | `held_file_child` | Subprocess fixture invoked by deadline_kills_and_reaps_child |
+| C | `crates/kinekino-player/src/infrastructure/frame_capture/process.rs:66` | `echo_child` | Subprocess fixture invoked by successful_run_removes_its_evidence_root (added 2026-11-16) |
 | C | `crates/kinekino-player/src/infrastructure/frame_capture/process.rs:69` | `held_descendant_parent` | Owned descendant fixture; invoked only by the explicit central deadline test |
 | C | `crates/kinekino-player/src/infrastructure/frame_capture/process/owned/operation.rs:242` | `prepared_operation_launches_once_and_consumes_only_settled_result_once` | Real original Windows operation: prepare before launch, one child, polling and one result; central allocation |
 | C | `crates/kinekino-player/src/infrastructure/frame_capture/process/owned/tests.rs:155` | `regular_stdin_consumed_child_fixture` | Owned child fixture, only original parent supplies the marker environment |
