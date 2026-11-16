@@ -292,10 +292,7 @@ r-cfg crates/kinekino-player/src/presentation/web_ui_adapter/proposals/repair_pa
 r-cfg crates/kinekino-player/src/presentation/web_ui_adapter/proposals/window_bridge.rs
 r-cfg crates/kinekino-player/src/test_support/mod.rs
 r-cfg crates/kinekino-player/tests/accepted_card_export_cli.rs
-r-cfg crates/kinekino-player/tests/asset_project_cli.rs
-r-cfg crates/kinekino-player/tests/card_project_cli.rs
 r-cfg crates/kinekino-player/tests/cli_discovery_inventory.rs
-r-cfg crates/kinekino-player/tests/clip_project_cli.rs
 r-cfg crates/kinekino-player/tests/download_cli.rs
 r-cfg crates/kinekino-player/tests/execution_host_cli.rs
 r-cfg crates/kinekino-player/tests/ffprobe_observation.rs

@@ -669,7 +669,6 @@ fn execute_local(args: &[String], request: Request) -> Response {
     } else {
         client
     };
-    #[cfg(windows)]
     let client = if let Some(root) = args
         .windows(2)
         .find(|p| p[0] == "--card-project-root")
@@ -684,17 +683,6 @@ fn execute_local(args: &[String], request: Request) -> Response {
     } else {
         client
     };
-    #[cfg(not(windows))]
-    if args.iter().any(|a| a == "--card-project-root") {
-        return Response::failure(
-            request.context.request_id,
-            ApiError::new(
-                ErrorCode::Unsupported,
-                "Rooted card project storage requires Windows",
-            ),
-        );
-    }
-    #[cfg(windows)]
     let client = if let Some(root) = args
         .windows(2)
         .find(|pair| pair[0] == "--asset-project-root")
@@ -709,17 +697,6 @@ fn execute_local(args: &[String], request: Request) -> Response {
     } else {
         client
     };
-    #[cfg(not(windows))]
-    if args.iter().any(|arg| arg == "--asset-project-root") {
-        return Response::failure(
-            request.context.request_id,
-            ApiError::new(
-                ErrorCode::Unsupported,
-                "Rooted asset project storage requires Windows",
-            ),
-        );
-    }
-    #[cfg(windows)]
     let client = if let Some(root) = args
         .windows(2)
         .find(|pair| pair[0] == "--clip-project-root")
@@ -734,16 +711,6 @@ fn execute_local(args: &[String], request: Request) -> Response {
     } else {
         client
     };
-    #[cfg(not(windows))]
-    if args.iter().any(|arg| arg == "--clip-project-root") {
-        return Response::failure(
-            request.context.request_id,
-            ApiError::new(
-                ErrorCode::Unsupported,
-                "Rooted clip project storage requires Windows",
-            ),
-        );
-    }
     if let Some(root) = args
         .windows(2)
         .find(|pair| pair[0] == "--review-root")
