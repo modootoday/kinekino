@@ -1,8 +1,8 @@
 //! The suite itself, exercised with in-memory engines (no browser).
 use super::{Outcome, run};
 use crate::engine::port::{
-    AudioControl, BrowserEngine, BrowserEvent, CapabilitySet, EngineError, EngineKind,
-    EngineResult, NetworkInterceptor,
+    AudioControl, BrowserEngine, BrowserEvent, Capability, CapabilitySet, EngineError, EngineKind,
+    EngineResult, NetworkInterceptor, ProtocolEvent, ProtocolSession,
 };
 
 /// Pretends to be CEF: eval and mute work, injection/interception refused.
@@ -92,4 +92,114 @@ fn flags_table_drift() {
     e.lie_about_table = true;
     let r = run(&mut e, "http://fixture");
     assert!(r.failures().iter().any(|f| f.starts_with("declared-table")));
+}
+
+/// CEF stand-in that also claims the DevTools protocol session (ADR 20261109071720).
+struct FakeProtocol {
+    inner: FakeCef,
+    serve_protocol: bool,
+    attached: bool,
+}
+
+impl BrowserEngine for FakeProtocol {
+    fn kind(&self) -> EngineKind {
+        EngineKind::Cef
+    }
+    fn capabilities(&self) -> CapabilitySet {
+        self.inner
+            .capabilities()
+            .union(CapabilitySet::of(&[Capability::ProtocolSession]))
+    }
+    fn navigate(&mut self, url: &str) -> EngineResult<()> {
+        self.inner.navigate(url)
+    }
+    fn eval(&mut self, script: &str) -> EngineResult<serde_json::Value> {
+        self.inner.eval(script)
+    }
+    fn inject_script(&mut self, s: &str) -> EngineResult<()> {
+        self.inner.inject_script(s)
+    }
+    fn set_interceptor(&mut self, _: Box<dyn NetworkInterceptor>) -> EngineResult<()> {
+        Err(EngineError::Unsupported("fake"))
+    }
+    fn drain_events(&mut self) -> Vec<BrowserEvent> {
+        self.inner.drain_events()
+    }
+    fn protocol(&mut self) -> Option<&mut dyn ProtocolSession> {
+        if self.serve_protocol {
+            Some(self)
+        } else {
+            None
+        }
+    }
+}
+
+impl ProtocolSession for FakeProtocol {
+    fn call(
+        &mut self,
+        session: Option<&str>,
+        method: &str,
+        params: serde_json::Value,
+    ) -> EngineResult<serde_json::Value> {
+        match (session, method) {
+            (None, "Runtime.evaluate") if params["expression"] == "1 + 1" => {
+                Ok(serde_json::json!({ "result": { "type": "number", "value": 2 } }))
+            }
+            _ => Err(EngineError::Unsupported("fake method")),
+        }
+    }
+    fn drain_protocol_events(&mut self) -> Vec<ProtocolEvent> {
+        vec![ProtocolEvent {
+            session: None,
+            method: "Page.frameNavigated".into(),
+            params: serde_json::json!({}),
+        }]
+    }
+    fn set_auto_attach(&mut self, on: bool) -> EngineResult<()> {
+        self.attached = on;
+        Ok(())
+    }
+}
+
+fn outcome(r: &super::ContractReport, name: &str) -> Option<Outcome> {
+    r.checks
+        .iter()
+        .find(|(k, _)| *k == name)
+        .map(|(_, o)| o.clone())
+}
+
+#[test]
+fn protocol_session_undeclared_is_not_declared() {
+    let r = run(&mut fake(), "http://fixture");
+    assert_eq!(outcome(&r, "protocol-session"), Some(Outcome::NotDeclared));
+}
+
+#[test]
+fn declared_protocol_session_must_answer() {
+    let mut e = FakeProtocol {
+        inner: fake(),
+        serve_protocol: true,
+        attached: false,
+    };
+    let r = run(&mut e, "http://fixture");
+    assert_eq!(outcome(&r, "protocol-session"), Some(Outcome::Pass));
+    assert!(!e.attached, "the suite switches auto-attach back off");
+    e.serve_protocol = false;
+    let r = run(&mut e, "http://fixture");
+    assert_eq!(
+        outcome(&r, "protocol-session"),
+        Some(Outcome::Fail("declared but protocol() is None".into()))
+    );
+}
+
+#[test]
+fn protocol_session_has_a_stable_name_and_no_adapter_declares_it_yet() {
+    assert_eq!(Capability::ProtocolSession.name(), "protocol-session");
+    for kind in EngineKind::ALL {
+        assert!(
+            !kind.declared().contains(Capability::ProtocolSession),
+            "{} must not declare protocol-session before its adapter passes calls through",
+            kind.name()
+        );
+    }
 }

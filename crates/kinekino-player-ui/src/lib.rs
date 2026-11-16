@@ -15,7 +15,8 @@ mod window;
 pub use catalog::{BROWSE_ROWS, Catalog};
 pub use controller::{
     Controller, Effect, Engine, HIDE_AFTER, NOTICE_FOR, RESTORE_HOLD, SEEK_STEP_1, SEEK_STEP_2,
-    SEEK_STEP_3, SEEK_STEP_4, SPEED_MAX, SPEED_MIN, SPEED_STEP, VOLUME_STEP, siblings,
+    SEEK_STEP_3, SEEK_STEP_4, SPEED_MAX, SPEED_MIN, SPEED_STEP, TRANSPORT_HEIGHT_PX, VOLUME_STEP,
+    siblings,
 };
 pub use keys::shortcut;
 pub use menu::{CONTEXT_MENU_SIZE, context_anchor};
