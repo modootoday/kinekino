@@ -33,11 +33,20 @@ The rules are written in English because all participating repositories are publ
 - C1.6 An unattended session ends its work by opening or updating a pull request (a draft is fine). The scheduled task prompt says so explicitly, because CI authority (C3.4) exists only on a pull request.
 
 ### 2. Branch protection
-- C2.1 The protection rules are a ruleset named `main-protected`, stored as JSON under `.github/rulesets/`. The file is the canon. The owner applies it with `gh api`. Agents cannot apply it and do not try.
+- C2.1 The protection rules are a ruleset named `main-protected`, stored as JSON under `.github/rulesets/`. The file is the canon. It is applied from the owner's computer (C2.7). Agents in cloud sessions cannot apply it and do not try.
 - C2.2 Minimum rules: `deletion`, `non_fast_forward`, `pull_request`, `required_status_checks`.
 - C2.3 The ruleset covers every base branch agents open pull requests against.
 - C2.4 Release tags are protected by a `v-tags` ruleset (no update, no deletion, no non-fast-forward) as soon as a release workflow exists.
 - C2.5 The merge method is a project value. It is set in the ruleset.
+
+#### Settings sync (v1.2, owner decision 2026-11-16)
+Repository settings are files in the repository. They are applied from the owner's computer, where `gh` is already signed in, so no admin credential is stored in GitHub and no cloud session ever holds one.
+- C2.6 Three kinds of file are the canon for repository settings: every ruleset JSON under `.github/rulesets/` (matched by `name`: update if it exists, create if not), the label list `.github/labels.json`, and the repository settings file `.github/settings/repository.json` (delete head branches on merge, allowed merge methods, auto-merge switch, secret scanning and push protection).
+- C2.7 Applying them is an owner task. The owner runs it, or tells a session that runs on the owner's own computer to run it, after the pull request that changes those files has merged. A cloud session cannot apply them and does not try. No admin token is created for automation, and none is stored as a secret.
+- C2.8 What may run in GitHub Actions is the comparison only: a job named `Settings drift`, on a weekly schedule and on a push to the protected base branch that changes those paths. It uses `GITHUB_TOKEN`, compares the live rulesets and labels with the files, changes nothing, and opens or updates a `needs-owner` issue when they differ or when a merged change has not been applied yet. It compares only the keys present in the files. It is not a required check.
+- C2.9 Applying never deletes a ruleset that has no file, and never touches secrets. Deny-term secrets stay an owner task.
+- C2.10 Every pull request that touches `.github/rulesets/`, `.github/settings/`, `.github/labels.json`, or the drift workflow is `needs-human` (C7.3). Phase 2 merging (C7.2) must refuse these paths by a path check, not by the label alone.
+- C2.11 The comparison logic is a project choice like any other check (C4.7). The behaviour above is what is shared.
 
 ### 3. Required checks
 - C3.1 Required checks are the project's own gate jobs plus two shared checks named exactly `Public surface` and `Secret scan`. The name is the job's `name:`; the job id is the project's choice.
@@ -110,6 +119,8 @@ The rules are written in English because all participating repositories are publ
 |Merge method|merge commit (plan records cite commit hashes)|
 |Lock unit (C1.5)|the repository|
 |Ruleset file|`.github/rulesets/main-protected.json` (applied as ruleset 27354229)|
+|Settings files (C2.6)|`.github/labels.json`, `.github/settings/repository.json`|
+|Settings drift (C2.8)|`.github/workflows/settings-drift.yml`, Rust `cargo xtask settings-drift` (reads with `gh api`); weekly on Monday 03:17 UTC and on a push to `main` that changes the settings files|
 |Project gate checks|`lint`, `test (ubuntu-26.04)`|
 |Shared checks|`Public surface`, `Secret scan` (`.github/workflows/public-surface.yml`)|
 |Deny secret|`KINEKINO_DENY_TERMS` (Actions and Dependabot). No private terms (owner, 2026-11-16): the secret holds one placeholder line (C4.3), so the check still fails closed when the secret is missing|
@@ -119,7 +130,7 @@ The rules are written in English because all participating repositories are publ
 |Commit author (C10.5)|the owner's GitHub `users.noreply.github.com` address, also for agent commits (user decision 2026-11-16). Checked from 2026-11-16T07:10:00Z (`IDENTITY_SINCE`); GitHub's own web committer `noreply@github.com` (merges, web edits) is allowed as committer|
 |Document language|Korean for rules and SoT; English and Korean for public docs; English for this document|
 |Roadmap source|[[plan:kinekino/20261031153240]], status [[sot:kinekino/project-status]]|
-|Merging phase|Phase 1 (the owner merges)|
+|Merging phase|Phase 2 from 2026-11-16 (owner instruction): the agent that opens a pull request turns on GitHub auto-merge (merge commit) unless a changed path is human-gated (C7.3, C2.10: `.github/workflows/`, `.github/rulesets/`, `.github/settings/`, `.github/labels.json`, this document, releases and the areas below), decided from the changed paths, not the label; otherwise it adds `needs-human`. Requires `allow_auto_merge` in `.github/settings/repository.json`|
 |Human-gated areas|GUI quality approval; real inference, billing, model downloads; media download; updates past `=` pins; release, tags, crates.io; allowlist scope expansion; UI mock-up work; DC-4 scope|
 
 ### Open items (owner decisions, shared)
