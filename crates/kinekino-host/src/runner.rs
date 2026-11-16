@@ -626,7 +626,18 @@ fn execute_local(args: &[String], request: Request) -> Response {
     } else {
         client
     };
-    #[cfg(windows)]
+    // The historical evidence verifier runs a pinned external program; off Windows it is
+    // refused until its process ownership is checked there. Proposal storage itself opens.
+    #[cfg(not(windows))]
+    if historical.is_some() {
+        return Response::failure(
+            request.context.request_id,
+            ApiError::new(
+                ErrorCode::Unsupported,
+                "The historical evidence verifier requires Windows",
+            ),
+        );
+    }
     let client = if let Some(root) = args
         .windows(2)
         .find(|p| p[0] == "--proposal-root")
@@ -642,16 +653,6 @@ fn execute_local(args: &[String], request: Request) -> Response {
     } else {
         client
     };
-    #[cfg(not(windows))]
-    if args.iter().any(|a| a == "--proposal-root") {
-        return Response::failure(
-            request.context.request_id,
-            ApiError::new(
-                ErrorCode::Unsupported,
-                "Rooted proposal storage requires Windows",
-            ),
-        );
-    }
     let client = if let Some(root) = args
         .windows(2)
         .find(|p| p[0] == "--project-root")
@@ -948,6 +949,45 @@ mod tests {
         assert_eq!(parse(&local).unwrap().command, "capabilities");
         local.extend(args(&["--endpoint", "explicit-endpoint"]));
         assert!(parse(&local).is_err());
+    }
+
+    /// Proposal storage opens off Windows; the historical evidence verifier (a pinned
+    /// external process) stays Windows-only there and is refused, not silently ignored.
+    #[cfg(not(windows))]
+    #[test]
+    fn proposal_root_opens_but_the_historical_verifier_is_refused_off_windows() {
+        kinekino_platform::install();
+        let base = std::env::temp_dir().join(format!("kk-proposal-root-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&base);
+        std::fs::create_dir_all(&base).unwrap();
+        let root = base.canonicalize().unwrap();
+        let root = root.to_str().unwrap();
+        let capabilities = || Request::new("capabilities");
+        let plain = execute_local(
+            &args(&["capabilities", "--proposal-root", root]),
+            capabilities(),
+        );
+        assert!(plain.ok, "{:?}", plain.error);
+        let pin = "a".repeat(64);
+        let verified = execute_local(
+            &args(&[
+                "capabilities",
+                "--proposal-root",
+                root,
+                "--historical-verifier",
+                root,
+                "--historical-verifier-sha256",
+                &pin,
+                "--historical-workspace",
+                root,
+                "--historical-package",
+                "test",
+            ]),
+            capabilities(),
+        );
+        let error = verified.error.expect("refused");
+        assert_eq!(error.code, ErrorCode::Unsupported, "{}", error.message);
+        let _ = std::fs::remove_dir_all(&base);
     }
 
     #[cfg(windows)]

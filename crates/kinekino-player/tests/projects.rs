@@ -1,4 +1,3 @@
-#![cfg(windows)]
 use kinekino_player::application::api::ProjectClient;
 #[path = "support/cli_exe.rs"]
 mod cli_exe;
@@ -147,8 +146,12 @@ fn reconnect_locator_preserves_history_and_rejects_stale_selection() {
     let proposal_root = fixture.root.join("proposals");
     let captured = fixture_proposal(&proposal_root);
     let proposal_id = &captured[0].document.proposal_id;
-    let old = json!({"kind":"local_video","source_id":"movie","path":"D:/old/movie.mp4"});
-    let new = json!({"kind":"local_video","source_id":"movie","path":"C:/media/movie.mp4"});
+    // Stored locators are never opened; they only need to be absolute on this OS.
+    let located = |dir: &str| {
+        let path = std::env::temp_dir().join(dir).join("movie.mp4");
+        json!({"kind":"local_video","source_id":"movie","path":path.to_str().unwrap()})
+    };
+    let (old, new) = (located("kk-old"), located("kk-media"));
     let first = fixture.call(
         "create",
         &request(

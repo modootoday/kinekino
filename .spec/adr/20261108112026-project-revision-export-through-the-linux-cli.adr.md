@@ -3,7 +3,7 @@ id: adr:kinekino/20261108112026
 title: Project revision export through the Linux CLI
 status: active
 created: 2026-11-08T11:20:26Z
-updated: 2026-11-16T12:00:00Z
+updated: 2026-11-16T11:00:00Z
 rel:
   governs:
     - crates/kinekino-player/src/application/projects
@@ -49,3 +49,4 @@ rel:
 ## Record
 
 - 2026-11-16: `--model-root` opens on Linux. The runner refused it there ("requires Windows path guards"), but `LocalModelCatalog` reads through the same `immutable_storage_paths` guards as the project stores, and those go through the OS policy port. On Linux the guards hold descriptors and refuse symlinks. They do not stop another process from replacing a file the way Windows share modes do; `models.verify` hashes the descriptors it opened, so a concurrent replacement cannot change the bytes it reports. A new cross-platform CLI test (`tests/model_catalog_root_cli.rs`) runs `models.list`, `models.inspect` and `models.verify` through the normal CLI and matches each against the typed SDK on the same root. It also checks a stale catalog pin, and that the stored files are left unchanged. It failed on Linux before the runner change. The detailed Windows custody test stays Windows-only because its file-identity guard uses Windows APIs.
+- 2026-11-16: `--proposal-root` opens on Linux (the Linux proposal root listed as remaining above). `ProposalFiles` uses the same root guards and writer lock as `ProjectFiles`. Off Windows, a request that also configures the historical evidence verifier (`--historical-verifier` and related flags) is refused as `unsupported`, because the verifier starts a pinned external program whose process ownership has not been checked there; bound reads that need it stay unavailable on Linux. Five proposal test files are no longer Windows-only. `tests/projects.rs` now builds its stored locators from the temp directory instead of drive-letter paths. The pinned normal-CLI capture-mutation and accepted-subtitle-export cases pass on Linux; capture-mutation needs a stripped CLI because the debug build is larger than that test's 128 MiB hashing bound.
