@@ -4,6 +4,7 @@ mod demo;
 mod demo_engine;
 mod deny_terms;
 mod install;
+mod package_check;
 mod spec_check;
 mod structure;
 mod workspace;
@@ -18,6 +19,7 @@ fn main() -> std::process::ExitCode {
         Some("demo-engine") => demo_engine::run(&args[1..]),
         Some("clean-cache") => clean_cache::run(&args[1..]),
         Some("deny-terms") => deny_terms::run(&args[1..]),
+        Some("package-check") => package_check::run(&args[1..]),
         Some("print-root") => match workspace::root() {
             Ok(root) => {
                 println!("{}", root.display());
@@ -30,7 +32,7 @@ fn main() -> std::process::ExitCode {
         },
         _ => {
             eprintln!(
-                "usage: cargo xtask <lint-structure [--write-allowlist] | install [--from BINARY] [--bin-dir DIR] | spec-check [SPEC CHECK ARGS] | demo-browser [URL] | demo-engine <cef|chrome> [--hold] | clean-cache [--max-size 8G] [--target-dir DIR] [--dry-run] | deny-terms --range BASE..HEAD [--terms-file PATH]>"
+                "usage: cargo xtask <lint-structure [--write-allowlist] | install [--from BINARY] [--bin-dir DIR] | spec-check [SPEC CHECK ARGS] | demo-browser [URL] | demo-engine <cef|chrome> [--hold] | clean-cache [--max-size 8G] [--target-dir DIR] [--dry-run] | deny-terms --range BASE..HEAD [--terms-file PATH] | package-check --target TRIPLE --archive PATH>"
             );
             std::process::ExitCode::from(2)
         }
