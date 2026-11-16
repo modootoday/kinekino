@@ -1,11 +1,20 @@
 name: CI
 
-# By hand only, as in specfold: no run on every push or pull request (ADR 0010).
+# The `Public surface` check lives in public-surface.yml.
+# Runs on every pull request to main, after each merge to main (keeps the main build cache
+# that pull requests restore) and by hand (ADR 0010, amended by the PR gate ADR).
 # Jobs: lint (fmt, clippy, lint-structure, spec check), Windows compile gate,
 # tests on Linux and macOS, and the docs/ Jekyll build when the site exists.
-# Linux (lint, test, site) is the pass/fail gate. Windows and macOS are advisory:
-# off by default, chosen per run, and continue-on-error so they never fail the run.
+# Linux (lint, test, site) is the pass/fail gate and always runs on a pull request or push;
+# on a manual run it follows the `linux` input. Windows and macOS are advisory:
+# off on pull requests and pushes, chosen per manual run, and continue-on-error so they never fail the run.
+# Pull request and push runs have no inputs, so a bare `if: inputs.linux` would skip the gate
+# and a skipped required check counts as passed; the Linux jobs test the event name first.
 on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       linux:
@@ -26,7 +35,8 @@ permissions:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  # A newer push to a pull request replaces its run; runs on main finish so each merge saves the cache.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   CARGO_TERM_COLOR: always
@@ -38,7 +48,7 @@ env:
 
 jobs:
   lint:
-    if: inputs.linux
+    if: github.event_name != 'workflow_dispatch' || inputs.linux
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
@@ -85,7 +95,7 @@ jobs:
         run: bash .github/scripts/windows-gate.sh
 
   test:
-    if: inputs.linux
+    if: github.event_name != 'workflow_dispatch' || inputs.linux
     strategy:
       fail-fast: false
       matrix:
@@ -152,7 +162,7 @@ jobs:
       - run: cargo test --workspace --locked --no-fail-fast
 
   site:
-    if: inputs.linux
+    if: github.event_name != 'workflow_dispatch' || inputs.linux
     # Pages serves main:/docs with the github-pages gem (as specfold); this only proves it builds.
     runs-on: ubuntu-24.04
     timeout-minutes: 15
