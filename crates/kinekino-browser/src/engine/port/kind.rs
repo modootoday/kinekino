@@ -20,6 +20,7 @@ const CDP_API: CapabilitySet = CapabilitySet::of(&[
     RequestInterception,
     FrameCapture,
     AudioMute,
+    ProtocolSession,
 ]);
 
 impl EngineKind {
@@ -55,6 +56,7 @@ impl EngineKind {
                 RequestInterception,
                 FrameCapture,
                 AudioMute,
+                ProtocolSession,
                 WindowEmbed,
             ]),
             Self::ChromeCdp => CHROME_MEDIA.union(CDP_API),

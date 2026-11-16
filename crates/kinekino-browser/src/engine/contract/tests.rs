@@ -193,12 +193,14 @@ fn declared_protocol_session_must_answer() {
 }
 
 #[test]
-fn protocol_session_has_a_stable_name_and_no_adapter_declares_it_yet() {
+fn protocol_session_is_declared_only_by_the_chrome_cdp_adapters() {
     assert_eq!(Capability::ProtocolSession.name(), "protocol-session");
     for kind in EngineKind::ALL {
-        assert!(
-            !kind.declared().contains(Capability::ProtocolSession),
-            "{} must not declare protocol-session before its adapter passes calls through",
+        let chrome = matches!(kind, EngineKind::ChromeCdp | EngineKind::SystemChrome);
+        assert_eq!(
+            kind.declared().contains(Capability::ProtocolSession),
+            chrome,
+            "{}: only adapters that pass calls through declare protocol-session",
             kind.name()
         );
     }
