@@ -16,14 +16,15 @@ rel:
 - `--proposal-root` opens on every OS.
 - Off Windows, a configured historical verifier is refused as `unsupported`. A runner unit test covers this; it failed before the guard was added.
 
-Five proposal test files lose `#![cfg(windows)]`:
+Six proposal test files lose `#![cfg(windows)]`:
 - `proposals.rs`
 - `capture_mutation.rs`
 - `projects.rs`
 - `cue_edit_cli.rs`
 - `accepted_subtitle_export_cli.rs`
+- `output_review_cli.rs` (10 accepted-output review cases)
 
-`projects.rs` now uses temp-dir locators. The structure allowlist drops 5 `r-cfg` entries. `proposals.rs` and `cue_edit_cli.rs` fail without the runner change.
+`projects.rs` now uses temp-dir locators. The structure allowlist drops 6 `r-cfg` entries. `proposals.rs` and `cue_edit_cli.rs` fail without the runner change.
 
 ## Migration
 
