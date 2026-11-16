@@ -1,11 +1,12 @@
+//! Holds an original file and its parent directories open, without following links, while a
+//! CLI child runs, and proves afterwards that the same file is still in place. Opens go through
+//! the installed OS policy port: Windows denies writers and renames while the guard is held
+//! (share modes); POSIX keeps the descriptors and checks identity (dev + inode) afterwards.
+use kinekino_player::infrastructure::os_policy::{self, OpenFlags, ShareMode};
 use sha2::{Digest, Sha256};
 use std::{
     fs::{File, OpenOptions},
     io::{Read, Seek, SeekFrom},
-    os::windows::{
-        fs::{MetadataExt, OpenOptionsExt},
-        io::AsRawHandle,
-    },
     path::Path,
 };
 pub struct Guard {
@@ -15,52 +16,49 @@ pub struct Guard {
     before: String,
 }
 fn identity(file: &File) -> String {
-    #[link(name = "kernel32")]
-    unsafe extern "system" {
-        fn GetFileInformationByHandle(handle: *mut std::ffi::c_void, information: *mut u32) -> i32;
-    }
-    let mut information = [0u32; 13];
-    assert_ne!(
-        unsafe { GetFileInformationByHandle(file.as_raw_handle(), information.as_mut_ptr()) },
-        0
-    );
+    let id = os_policy::file_identity(file).unwrap();
     let metadata = file.metadata().unwrap();
     format!(
-        "{:08X}-{:08X}{:08X}:{}:{}:{}",
-        information[7],
-        information[11],
-        information[12],
+        "{:016X}-{:016X}:{}:{:?}",
+        id.volume,
+        id.index,
         metadata.len(),
-        metadata.creation_time(),
-        metadata.last_write_time()
+        metadata.modified().unwrap()
     )
+}
+fn open(path: &Path, share: ShareMode, directory: bool) -> File {
+    let mut options = OpenOptions::new();
+    options.read(true);
+    os_policy::apply_share_mode(&mut options, share);
+    os_policy::apply_open_flags(
+        &mut options,
+        OpenFlags {
+            no_follow: true,
+            directory_handle: directory,
+            ..OpenFlags::default()
+        },
+    );
+    let file = options.open(path).unwrap();
+    let metadata = file.metadata().unwrap();
+    assert_eq!(metadata.is_dir(), directory, "{}", path.display());
+    assert!(
+        !os_policy::is_reparse_point(&metadata),
+        "{}",
+        path.display()
+    );
+    file
 }
 impl Guard {
     pub fn acquire(path: &Path) -> Self {
         let canonical = path.canonicalize().unwrap();
         let mut parents: Vec<_> = path.ancestors().skip(1).collect();
         parents.reverse();
-        let mut directories = vec![];
-        for directory in parents {
-            let file = OpenOptions::new()
-                .read(true)
-                .share_mode(3)
-                .custom_flags(0x02200000)
-                .open(directory)
-                .unwrap();
-            let metadata = file.metadata().unwrap();
-            assert!(metadata.is_dir());
-            assert_eq!(metadata.file_attributes() & 0x400, 0);
-            directories.push(file);
-        }
-        let mut file = OpenOptions::new()
-            .read(true)
-            .share_mode(1)
-            .custom_flags(0x00200000)
-            .open(path)
-            .unwrap();
-        assert!(file.metadata().unwrap().is_file());
-        assert_eq!(file.metadata().unwrap().file_attributes() & 0x400, 0);
+        let directories = parents
+            .into_iter()
+            .filter(|directory| !directory.as_os_str().is_empty())
+            .map(|directory| open(directory, ShareMode::ReadWrite, true))
+            .collect();
+        let mut file = open(path, ShareMode::ReadOnly, false);
         assert_eq!(path.canonicalize().unwrap(), canonical);
         let before = identity(&file);
         let mut hasher = Sha256::new();

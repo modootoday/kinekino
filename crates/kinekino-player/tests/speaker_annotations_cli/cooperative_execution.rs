@@ -22,13 +22,7 @@ struct Gate {
 }
 impl Gate {
     fn pause(&self) -> Result<(), ApiError> {
-        assert!(
-            fs::OpenOptions::new()
-                .write(true)
-                .open(&self.input)
-                .is_err(),
-            "original source lease must remain held"
-        );
+        assert_writer_denied(&self.input);
         self.entered.send(()).unwrap();
         let (released, timeout) = self
             .release
