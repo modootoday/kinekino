@@ -205,7 +205,7 @@ file-and-dir crates/kinekino-vad-worker/src/infrastructure/windows_loaded_runtim
 file-and-dir crates/kinekino-vad-worker/src/parent_configuration.rs
 file-and-dir crates/kinekino-vad-worker/src/payload_tests.rs
 file-and-dir crates/kinekino-vad-worker/src/production.rs
-file-lines crates/kinekino-host/src/runner.rs (>1100)
+file-lines crates/kinekino-host/src/runner.rs (>1000)
 file-lines crates/kinekino-jobs/src/application/owned_attempt/tests.rs (>600)
 file-lines crates/kinekino-jobs/src/application/worker/owned/tests.rs (>600)
 file-lines crates/kinekino-jobs/src/infrastructure/subtitle_executor/tests.rs (>700)
@@ -305,7 +305,6 @@ r-cfg crates/kinekino-player/tests/manual_skip_cli.rs
 r-cfg crates/kinekino-player/tests/media_download.rs
 r-cfg crates/kinekino-player/tests/media_download_owned.rs
 r-cfg crates/kinekino-player/tests/model_catalog_cli.rs
-r-cfg crates/kinekino-player/tests/model_review.rs
 r-cfg crates/kinekino-player/tests/native_gui_endpoint.rs
 r-cfg crates/kinekino-player/tests/native_product_launch.rs
 r-cfg crates/kinekino-player/tests/native_skip_cli.rs
@@ -315,7 +314,6 @@ r-cfg crates/kinekino-player/tests/review_matroska_input.rs
 r-cfg crates/kinekino-player/tests/review_matroska_timeline.rs
 r-cfg crates/kinekino-player/tests/review_media_preparation.rs
 r-cfg crates/kinekino-player/tests/review_playback_b0.rs
-r-cfg crates/kinekino-player/tests/review_source_cli.rs
 r-cfg crates/kinekino-player/tests/review_startup_actual.rs
 r-cfg crates/kinekino-player/tests/review_worker_actual.rs
 r-cfg crates/kinekino-player/tests/sdk_capability_parity.rs
