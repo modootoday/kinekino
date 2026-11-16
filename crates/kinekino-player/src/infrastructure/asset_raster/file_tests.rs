@@ -132,7 +132,8 @@ fn existing_png_manual_mask_outputs_roundtrip_and_independent_probe_without_muta
     );
     let probe = PathBuf::from(std::env::var_os("ASSET_PNG_PROBE").expect("Pinned ffprobe"));
     let probe_sha = std::env::var("ASSET_PNG_PROBE_SHA256").unwrap();
-    let (probe, _probe_guards) = tools::open(&probe, &probe_sha).unwrap();
+    let pinned = tools::open(&probe, &probe_sha).unwrap();
+    let (probe, _probe_guards) = (pinned.program, pinned.guards);
     for (name, path, pixel_format) in [
         ("foreground", &png_path, "rgba"),
         ("mask", &mask_path, "gray"),

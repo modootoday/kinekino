@@ -2,14 +2,23 @@
 use crate::{
     application::api::{ApiError, ErrorCode},
     domain::identifiers::valid_sha256,
-    infrastructure::{content_digest, immutable_storage_paths as paths},
+    infrastructure::{content_digest, immutable_storage_paths as paths, os_policy},
 };
 use std::{
     fs::File,
     path::{Path, PathBuf},
 };
 
-pub(crate) fn open(path: &Path, expected: &str) -> Result<(PathBuf, Vec<File>), ApiError> {
+/// A hash-verified pinned tool. `path` is the verified local path, for evidence and messages.
+/// `program` is what to spawn (ADR 20261116151137): on Linux it names the verified handle and
+/// is valid only while `guards` are held, so keep both together.
+pub(crate) struct PinnedTool {
+    pub path: PathBuf,
+    pub program: PathBuf,
+    pub guards: Vec<File>,
+}
+
+pub(crate) fn open(path: &Path, expected: &str) -> Result<PinnedTool, ApiError> {
     if !valid_sha256(expected) || !path.is_absolute() {
         return Err(ApiError::new(
             ErrorCode::InvalidArgument,
@@ -32,8 +41,23 @@ pub(crate) fn open(path: &Path, expected: &str) -> Result<(PathBuf, Vec<File>), 
             "Frame tool SHA256 differs from the explicit host configuration",
         ));
     }
+    let program = os_policy::pinned_program(&file, &path).map_err(program_error)?;
     guards.push(file);
-    Ok((path, guards))
+    Ok(PinnedTool {
+        path,
+        program,
+        guards,
+    })
+}
+
+fn program_error(error: std::io::Error) -> ApiError {
+    let code = match error.kind() {
+        std::io::ErrorKind::PermissionDenied => ErrorCode::PermissionDenied,
+        std::io::ErrorKind::InvalidData | std::io::ErrorKind::NotFound => ErrorCode::SourceExpired,
+        std::io::ErrorKind::InvalidInput => ErrorCode::InvalidArgument,
+        _ => ErrorCode::EngineFailed,
+    };
+    ApiError::new(code, format!("Pinned tool cannot run: {error}"))
 }
 
 #[cfg(test)]
@@ -49,7 +73,7 @@ mod tests {
         let wrong = open(&path, &"0".repeat(64)).err().unwrap();
         assert_eq!(wrong.code, ErrorCode::SourceExpired);
         let (_, expected) = content_digest::sha256(&mut File::open(&path).unwrap(), 4096).unwrap();
-        let (_, guards) = open(&path, &expected).unwrap();
+        let PinnedTool { guards, .. } = open(&path, &expected).unwrap();
         let mandatory = crate::infrastructure::os_policy::has_mandatory_share_modes();
         assert_eq!(
             std::fs::OpenOptions::new().write(true).open(&path).is_err(),
@@ -70,5 +94,55 @@ mod tests {
         drop(guards);
         std::fs::remove_file(path).unwrap();
         std::fs::remove_dir(root).unwrap();
+    }
+
+    #[test]
+    fn evidence_path_stays_the_verified_path_and_program_is_absolute() {
+        let root = std::env::temp_dir().join(format!("frame-pin-program-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&root);
+        std::fs::create_dir(&root).unwrap();
+        let path = root.join("tool.exe");
+        std::fs::write(&path, b"not executed").unwrap();
+        let (_, expected) = content_digest::sha256(&mut File::open(&path).unwrap(), 4096).unwrap();
+        let tool = open(&path, &expected).unwrap();
+        // Evidence records the verified local path, never a handle path.
+        assert_eq!(tool.path, root.canonicalize().unwrap().join("tool.exe"));
+        assert!(tool.program.is_absolute());
+        drop(tool);
+        std::fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn pinned_frame_capture_reports_verified_paths_and_runs_its_programs() {
+        use crate::application::frame_capture::FrameCapturePort;
+        use crate::infrastructure::frame_capture::FfmpegFrameCapture;
+        let _ = crate::infrastructure::os_policy::host();
+        let discovered = FfmpegFrameCapture::discover().capability();
+        let (Some(ffmpeg), Some(ffprobe)) = (discovered.ffmpeg_path, discovered.ffprobe_path)
+        else {
+            eprintln!("FFmpeg/FFprobe not installed; pinned frame capture check skipped");
+            return;
+        };
+        let real = |path: String| PathBuf::from(path).canonicalize().unwrap();
+        let (ffmpeg, ffprobe) = (real(ffmpeg), real(ffprobe));
+        let sha = |path: &Path| {
+            content_digest::sha256(&mut File::open(path).unwrap(), 512 * 1024 * 1024)
+                .unwrap()
+                .1
+        };
+        let pinned =
+            FfmpegFrameCapture::pinned(&ffmpeg, &sha(&ffmpeg), &ffprobe, &sha(&ffprobe)).unwrap();
+        let capability = pinned.capability();
+        // The version and feature probes ran through the pinned programs.
+        assert!(capability.available, "{:?}", capability.unavailable_reason);
+        // Evidence names the verified files, never a handle path.
+        assert_eq!(
+            capability.ffmpeg_path.as_deref(),
+            Some(ffmpeg.to_string_lossy().as_ref())
+        );
+        assert_eq!(
+            capability.ffprobe_path.as_deref(),
+            Some(ffprobe.to_string_lossy().as_ref())
+        );
     }
 }

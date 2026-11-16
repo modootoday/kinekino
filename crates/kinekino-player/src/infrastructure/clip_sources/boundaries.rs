@@ -234,7 +234,7 @@ impl NativeClipSourceLease {
             deadline,
         };
         control.checkpoint()?;
-        let mut command = Command::new(&self._tool.path);
+        let mut command = Command::new(&self._tool.program);
         command.args([
             "-v",
             "error",

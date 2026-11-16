@@ -6,7 +6,7 @@ use std::os::unix::fs::{MetadataExt, OpenOptionsExt};
 use std::path::Path;
 
 mod pinned;
-pub use pinned::{has_handle_execution, pinned_program};
+pub use pinned::{has_handle_execution, is_handle_program, pinned_program};
 
 /// No-op on Unix: there are no mandatory share modes.
 pub fn apply_share_mode(_options: &mut OpenOptions, _mode: ShareMode) {}

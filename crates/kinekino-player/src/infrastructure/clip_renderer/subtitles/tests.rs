@@ -41,9 +41,9 @@ fn guarded_common_font_overlay_switches_exactly_on_source_frame_6_12_18_and_end(
     fs::create_dir(&root).unwrap();
     let tool = PathBuf::from(std::env::var_os("CLIP_RENDER_ENCODER").unwrap());
     let pin = std::env::var("CLIP_RENDER_ENCODER_SHA256").unwrap();
-    let (_verified_tool_path, _tool_guards) =
-        crate::infrastructure::frame_capture::tools::open(&tool, &pin).unwrap();
-    let mut fixture = Command::new(&tool);
+    let pinned = crate::infrastructure::frame_capture::tools::open(&tool, &pin).unwrap();
+    let (program, _tool_guards) = (pinned.program, pinned.guards);
+    let mut fixture = Command::new(&program);
     fixture.args([
         "-hide_banner",
         "-nostdin",
@@ -251,7 +251,7 @@ fn guarded_common_font_overlay_switches_exactly_on_source_frame_6_12_18_and_end(
         serde_json::to_vec_pretty(verified.verification()).unwrap(),
     )
     .unwrap();
-    let mut decode = Command::new(&tool);
+    let mut decode = Command::new(&program);
     decode
         .args([
             "-hide_banner",

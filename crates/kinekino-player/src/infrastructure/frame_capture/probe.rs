@@ -47,7 +47,7 @@ impl MediaInfo {
     }
 }
 pub fn inspect(
-    tool: &str,
+    tool: &Path,
     input: &Path,
     demuxer: &str,
     deadline: Instant,

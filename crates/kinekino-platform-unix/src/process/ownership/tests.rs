@@ -186,3 +186,39 @@ fn source_socket_pair_round_trips_and_reports_eof() {
     };
     assert!(done.eof);
 }
+
+#[test]
+fn handle_program_runs_the_verified_file_after_its_path_is_replaced() {
+    use std::os::unix::fs::PermissionsExt;
+    if !crate::fs::has_handle_execution() {
+        return;
+    }
+    let root = root("pinned");
+    std::fs::set_permissions(&root, std::fs::Permissions::from_mode(0o700)).unwrap();
+    let native = |name: &str| {
+        ["/bin", "/usr/bin"]
+            .iter()
+            .map(|dir| Path::new(dir).join(name))
+            .find(|path| path.is_file())
+            .unwrap()
+    };
+    let tool = root.join("tool");
+    std::fs::copy(native("true"), &tool).unwrap();
+    let verified = File::open(&tool).unwrap();
+    let program = crate::fs::pinned_program(&verified, &tool).unwrap();
+    let swapped = root.join("swapped");
+    std::fs::copy(native("false"), &swapped).unwrap();
+    std::fs::rename(&swapped, &tool).unwrap();
+    let mut req = request("", &root);
+    req.executable = program;
+    req.arguments = Vec::new();
+    let mut family = UnixOwnership
+        .spawn(req, None)
+        .map_err(|failure| failure.error)
+        .unwrap();
+    assert_eq!(wait_empty(family.as_mut()), FamilyObservation::Empty);
+    // `true` exits 0; the replacement `false` would exit 1.
+    assert_eq!(family.poll_child().unwrap(), Some(0));
+    drop(verified);
+    let _ = std::fs::remove_dir_all(root);
+}

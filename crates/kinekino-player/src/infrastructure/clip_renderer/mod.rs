@@ -163,7 +163,7 @@ fn encode_plan(request: CandidateEncoding<'_, '_>) -> Result<EncodedClipCandidat
         ));
     }
     let deadline = Instant::now() + timeout;
-    let mut command = Command::new(encoder.lease().path());
+    let mut command = Command::new(encoder.lease().program());
     command.args(if overlay.is_some() {
         command::arguments_with_overlay(source.path(), source.demuxer(), &plan, overlay)?
     } else {

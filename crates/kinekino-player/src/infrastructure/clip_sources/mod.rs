@@ -64,7 +64,8 @@ pub struct FixedClipSource {
     pub container: ClipContainer,
 }
 struct ProbeTool {
-    path: PathBuf,
+    /// What to spawn (ADR 20261116151137); valid while `_guards` are held.
+    program: PathBuf,
     sha256: String,
     _guards: Vec<File>,
 }
@@ -144,11 +145,13 @@ impl FfmpegClipSources {
                 "Invalid bounded clip source catalog or budget",
             ));
         }
-        let (path, guards) = tools::open(probe, probe_sha256)?;
+        let tools::PinnedTool {
+            program, guards, ..
+        } = tools::open(probe, probe_sha256)?;
         Ok(Self {
             catalog,
             tool: Arc::new(ProbeTool {
-                path,
+                program,
                 sha256: probe_sha256.into(),
                 _guards: guards,
             }),

@@ -87,6 +87,7 @@ impl VerifiedClipCandidate<'_> {
     }
 }
 pub struct ClipOutputVerifier {
+    /// Programs to spawn (ADR 20261116151137); valid while `_guards` are held.
     probe: PathBuf,
     probe_sha256: String,
     decoder: PathBuf,
@@ -144,15 +145,16 @@ impl ClipOutputVerifier {
                 "Bounded output verification timeout required",
             ));
         }
-        let (probe, mut guards) = tools::open(probe, probe_sha256)?;
-        let (decoder, held) = tools::open(decoder, decoder_sha256)?;
-        guards.extend(held);
+        let probe = tools::open(probe, probe_sha256)?;
+        let decoder = tools::open(decoder, decoder_sha256)?;
+        let mut guards = probe.guards;
+        guards.extend(decoder.guards);
         let (_canonical_temporary, held) = paths::root(temporary)?;
         guards.extend(held);
         Ok(Self {
-            probe,
+            probe: probe.program,
             probe_sha256: probe_sha256.into(),
-            decoder,
+            decoder: decoder.program,
             decoder_sha256: decoder_sha256.into(),
             temporary: temporary.to_path_buf(),
             timeout,

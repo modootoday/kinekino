@@ -28,6 +28,10 @@ use std::{
 
 pub struct FfmpegFrameCapture {
     capability: FrameCaptureCapability,
+    /// What to spawn. Pinned tools may differ from the capability's evidence paths
+    /// (ADR 20261116151137); discovered tools spawn their own paths.
+    ffmpeg_program: Option<PathBuf>,
+    ffprobe_program: Option<PathBuf>,
     _tool_guards: Vec<File>,
 }
 impl FfmpegFrameCapture {
@@ -44,10 +48,16 @@ impl FfmpegFrameCapture {
         if let Some(capability) = cache.lock().ok().and_then(|map| map.get(&key).cloned()) {
             return Self {
                 capability,
+                ffmpeg_program: ffmpeg,
+                ffprobe_program: ffprobe,
                 _tool_guards: Vec::new(),
             };
         }
-        let found = Self::inspect_tools(ffmpeg, ffprobe, Vec::new());
+        let found = Self::inspect_tools(
+            ffmpeg.map(|path| (path.clone(), path)),
+            ffprobe.map(|path| (path.clone(), path)),
+            Vec::new(),
+        );
         if found.capability.available
             && let Ok(mut map) = cache.lock()
         {
@@ -57,20 +67,31 @@ impl FfmpegFrameCapture {
     }
 
     /// Trusted host configuration only; no search or fallback on a rejected pin.
-    #[cfg(windows)]
     pub fn pinned(
         ffmpeg: &Path,
         ffmpeg_sha256: &str,
         ffprobe: &Path,
         ffprobe_sha256: &str,
     ) -> Result<Self, ApiError> {
-        let (ffmpeg, mut guards) = tools::open(ffmpeg, ffmpeg_sha256)?;
-        let (ffprobe, probe_guards) = tools::open(ffprobe, ffprobe_sha256)?;
-        guards.extend(probe_guards);
-        Ok(Self::inspect_tools(Some(ffmpeg), Some(ffprobe), guards))
+        let ffmpeg = tools::open(ffmpeg, ffmpeg_sha256)?;
+        let ffprobe = tools::open(ffprobe, ffprobe_sha256)?;
+        let mut guards = ffmpeg.guards;
+        guards.extend(ffprobe.guards);
+        Ok(Self::inspect_tools(
+            Some((ffmpeg.path, ffmpeg.program)),
+            Some((ffprobe.path, ffprobe.program)),
+            guards,
+        ))
     }
 
-    fn inspect_tools(ffmpeg: Option<PathBuf>, ffprobe: Option<PathBuf>, guards: Vec<File>) -> Self {
+    /// Each tool is `(evidence path, program to spawn)`.
+    fn inspect_tools(
+        ffmpeg: Option<(PathBuf, PathBuf)>,
+        ffprobe: Option<(PathBuf, PathBuf)>,
+        guards: Vec<File>,
+    ) -> Self {
+        let (ffmpeg, ffmpeg_program) = ffmpeg.unzip();
+        let (ffprobe, ffprobe_program) = ffprobe.unzip();
         let mut failures = Vec::new();
         let mut version = |path: &PathBuf, stage: &str| {
             discovery::version(
@@ -84,13 +105,13 @@ impl FfmpegFrameCapture {
             .map_err(|reason| failures.push(reason))
             .ok()
         };
-        let ffmpeg_version = ffmpeg
+        let ffmpeg_version = ffmpeg_program
             .as_ref()
             .and_then(|path| version(path, "ffmpeg_version"));
-        let ffprobe_version = ffprobe
+        let ffprobe_version = ffprobe_program
             .as_ref()
             .and_then(|path| version(path, "ffprobe_version"));
-        let features_available = ffmpeg.as_ref().is_some_and(|tool| {
+        let features_available = ffmpeg_program.as_ref().is_some_and(|tool| {
             let encoders = process::run(
                 Command::new(tool).args(["-hide_banner", "-encoders"]),
                 Instant::now() + Duration::from_secs(2),
@@ -122,6 +143,8 @@ impl FfmpegFrameCapture {
                 .is_some_and(|v| v.starts_with("ffprobe version "));
         Self {
             _tool_guards: guards,
+            ffmpeg_program,
+            ffprobe_program,
             capability: FrameCaptureCapability {
                 available,
                 adapter: "external_ffmpeg_cpu".into(),
@@ -221,7 +244,7 @@ impl FfmpegFrameCapture {
             ));
         }
         let info = probe::inspect(
-            self.capability.ffprobe_path.as_ref().unwrap(),
+            self.ffprobe_program.as_ref().unwrap(),
             &input,
             demuxer,
             deadline,
@@ -230,7 +253,7 @@ impl FfmpegFrameCapture {
         )?;
         info.validate(request.source_pts_us.0)?;
         let threshold = info.time_base.threshold(request.source_pts_us.0)?;
-        let mut command = Command::new(self.capability.ffmpeg_path.as_ref().unwrap());
+        let mut command = Command::new(self.ffmpeg_program.as_ref().unwrap());
         let seek_timestamp = seek::input_timestamp(info.start, request.source_pts_us.0);
         command.args(plan::arguments(
             &input,

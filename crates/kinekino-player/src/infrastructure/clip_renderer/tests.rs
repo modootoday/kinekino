@@ -216,7 +216,7 @@ fn actual_manual_candidate_combines_saved_media_encoder_boundaries_and_selected_
     assert_eq!(audio["codec_name"], "aac");
     assert_eq!(video["start_time"], "0.000000");
     assert_eq!(metadata["format"]["duration"], "1.000000");
-    let mut decode = Command::new(encoder.lease().path());
+    let mut decode = Command::new(encoder.lease().program());
     decode
         .args(["-v", "error", "-threads", "2", "-i"])
         .arg(&output)
