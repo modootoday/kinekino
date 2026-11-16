@@ -3,11 +3,13 @@
 //! page with the shared design tokens/components and turns user actions into the page
 //! protocol (`page`, `apply`, `dialog`, `ready`, `close`).
 mod caption;
+mod maximize;
 mod session;
 mod source;
 mod styles;
 mod window;
 
+pub use maximize::{MAXIMIZE_SETTLE, MaximizeFollow};
 pub use session::{HostControl, Session};
 pub use styles::{Styles, fetch_fonts, prepare_with};
 pub use window::MeariSettingsWindow;
