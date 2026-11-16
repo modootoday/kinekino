@@ -48,6 +48,27 @@ mod tests {
     use super::*;
     use std::io::{Read, Write};
 
+    /// An absolute echo: the owned launcher refuses bare or root-relative programs, and
+    /// `/bin/echo` has no drive on Windows.
+    #[cfg(not(windows))]
+    fn echo(text: &str) -> Command {
+        let mut command = Command::new("/bin/echo");
+        command.arg(text);
+        command
+    }
+
+    #[cfg(windows)]
+    fn echo(text: &str) -> Command {
+        let root = std::env::var_os("SystemRoot").expect("SystemRoot is set on Windows");
+        let mut command = Command::new(
+            std::path::PathBuf::from(root)
+                .join("System32")
+                .join("cmd.exe"),
+        );
+        command.args(["/C", "echo", text]);
+        command
+    }
+
     #[test]
     fn successful_run_removes_its_evidence_root() {
         let _ = crate::infrastructure::os_policy::host();
@@ -57,7 +78,7 @@ mod tests {
             Instant::now()
         );
         let output = run(
-            Command::new("/bin/echo").arg(&marker),
+            &mut echo(&marker),
             Instant::now() + Duration::from_secs(10),
             4096,
         )
