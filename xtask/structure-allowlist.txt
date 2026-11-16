@@ -315,8 +315,6 @@ r-cfg crates/kinekino-player/tests/snapshot_export_api_cli.rs
 r-cfg crates/kinekino-player/tests/sprite_capture_cli.rs
 r-cfg crates/kinekino-player/tests/sprite_timeline_bundle.rs
 r-cfg crates/kinekino-player/tests/timeline_video_production_actual.rs
-r-cfg crates/kinekino-player/tests/vad_parent_worker.rs
-r-cfg crates/kinekino-player/tests/vad_worker_control_process.rs
 r-cfg crates/kinekino-process/tests/windows_family.rs
 r-cfg crates/kinekino-source-host/src/lib.rs
 r-cfg crates/kinekino-source-host/src/plugin_host/stdio.rs
