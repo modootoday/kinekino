@@ -14,7 +14,7 @@
 
 ## Git
 - 기능 맥락과 검증 단계별로 명시 경로만 stage해 커밋한다. `git add .`/`git add -A` 금지. push는 사용자 요청이나 승인된 루틴 자동 push 규칙(`.agents/rules/git-and-release.md`)에 따를 때만 한다.
-- `.gitignore`는 기본 거부를 유지한다. runtime, 모델, 캐시, 개인 미디어, 비밀정보, 로컬 `.agents`/`.spec.local`은 커밋하지 않는다.
+- `.gitignore`는 기본 거부를 유지한다. runtime, 모델, 캐시, 개인 미디어, 비밀정보, 로컬 `.agents/local`/`.spec.local`은 커밋하지 않는다.
 
 ## 문서 (specfold)
 - 모든 설계·계획·유지보수 문서는 `spec` CLI로 루트 `.spec/`에서 관리한다(sot, adr, plan, evidence). 코드를 바꾸기 전 `spec context <path>`, 생성은 `spec new <type> --governs <path> --title … --write`, 상태는 `spec set`. 파일명을 직접 쓰지 않는다. 커밋 전 `spec check --staged`(또는 `cargo xtask spec-check`).
