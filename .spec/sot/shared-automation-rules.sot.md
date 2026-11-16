@@ -4,7 +4,7 @@ title: Shared automation rules
 status: active
 verify: manual
 created: 2026-11-16T07:14:35Z
-updated: 2026-11-16T07:14:35Z
+updated: 2026-11-16T13:52:45Z
 rel:
   governs: [AGENTS.md, .agents, .github]
   depends_on: [adr:kinekino/20261116062843, adr:kinekino/20261116065239]
@@ -80,7 +80,7 @@ Repository settings are files in the repository. They are applied from the owner
 |Records the canon requires|A handoff record or a curated evidence document is not a log and may be committed|
 |Bugs|GitHub Issues, label `bug`|
 |Owner decision pending|GitHub Issue, label `needs-owner`, assigned to the owner|
-|Change automation must not merge or build on|Pull request label `needs-human`|
+|Change automation must not merge or build on (kinekino: merge only after measurement, see Merging phase)|Pull request label `needs-human`|
 |What to do next|A roadmap document tracked in the repository. A work item with an open `needs-owner` issue is skipped|
 |Build environment values|The CI workflow. A cloud environment's setup script is a copy of it, with tool versions pinned to the CI's|
 |Coordination between sessions|Repository files and pull requests. Unattended sessions do not depend on session-to-session messages|
@@ -130,7 +130,7 @@ Repository settings are files in the repository. They are applied from the owner
 |Commit author (C10.5)|the owner's GitHub `users.noreply.github.com` address, also for agent commits (user decision 2026-11-16). Checked from 2026-11-16T07:10:00Z (`IDENTITY_SINCE`); GitHub's own web committer `noreply@github.com` (merges, web edits) is allowed as committer|
 |Document language|Korean for rules and SoT; English and Korean for public docs; English for this document|
 |Roadmap source|[[plan:kinekino/20261031153240]], status [[sot:kinekino/project-status]]|
-|Merging phase|Phase 2 from 2026-11-16 (owner instruction): the agent that opens a pull request turns on GitHub auto-merge (merge commit) unless a changed path is human-gated (C7.3, C2.10: `.github/workflows/`, `.github/rulesets/`, `.github/settings/`, `.github/labels.json`, this document, releases and the areas below), decided from the changed paths, not the label; otherwise it adds `needs-human`. Requires `allow_auto_merge` in `.github/settings/repository.json`|
+|Merging phase|Phase 2 from 2026-11-16 (owner instruction): the agent that opens a pull request turns on GitHub auto-merge (merge commit) unless a changed path is human-gated (C7.3, C2.10: `.github/workflows/`, `.github/rulesets/`, `.github/settings/`, `.github/labels.json`, this document, releases and the areas below), decided from the changed paths, not the label; otherwise it adds `needs-human`. Requires `allow_auto_merge` in `.github/settings/repository.json`. From 2026-11-16 (owner decision "needs-human pull requests also proceed after measurement"), a `needs-human` pull request also gets auto-merge once it is measured: the Linux required checks pass and, when the change reaches the build of a Windows gate crate, `cargo check --target x86_64-pc-windows-msvc` passes; the commands and results go in the pull request. This narrows C7.2 for kinekino. Two exceptions stay with the owner: changes that remove or weaken a required check, and releases and tags. Applying settings files stays an owner task (C2.7). Verification that needs a real Windows run is left on the pull request or issue with the label `needs-windows-run` and the exact command, and the owner's Windows OSS Desktop session runs it|
 |Human-gated areas|GUI quality approval; real inference, billing, model downloads; media download; updates past `=` pins; release, tags, crates.io; allowlist scope expansion; UI mock-up work; DC-4 scope|
 
 ### Open items (owner decisions, shared)
