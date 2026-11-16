@@ -3,7 +3,7 @@ id: adr:kinekino/20261109101726
 title: Installable package design
 status: active
 created: 2026-11-09T10:17:26Z
-updated: 2026-11-14T10:00:00Z
+updated: 2026-11-16T09:00:00Z
 rel:
   governs: [.github/scripts/package.sh]
   depends_on: [adr:kinekino/20261029201516, adr:kinekino/20261109071720]
@@ -118,3 +118,4 @@ Facts read on the Linux dev host on 2026-11-09 at main `be02cb7f`:
 
 - 2026-11-09: M6-3 (CI-2) designed the installable package without code or workflow changes.
 - 2026-11-14: slice (a) done. `kinekino_core::platform::font_cache` decides the font cache root for both the player window and `kinekino fonts fetch`: `MEARI_FONT_CACHE`, then the nearest existing `runtime/fonts` above the working directory or the executable, then the per-user cache (`XDG_CACHE_HOME`, `LOCALAPPDATA`, `~/Library/Caches` on macOS, `~/.cache`); it never creates a directory beside the executable. Unit tests cover each step, including an installed binary under `/usr/lib/kinekino`. Before this, `fonts fetch` wrote under the working directory while the player fell back beside the executable.
+- 2026-11-16: slice (b) done. `.github/scripts/package-payload.txt` is the one payload list (`bin NAME` for release binaries, `.exe` added on Windows; `file NAME` for repository files). `package.sh` copies exactly those files, and the release workflow runs `cargo xtask package-check --target T --archive A` after packaging, which lists the archive (zip read in Rust, tar.gz through `tar -tzf`) and fails on a missing or an unexpected file. Checked locally with a Linux tar.gz and an Info-ZIP zip; the first check on the release runners is the next release dry run.
