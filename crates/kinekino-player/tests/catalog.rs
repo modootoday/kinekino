@@ -1,10 +1,8 @@
-#![cfg(windows)]
 #[path = "support/cli_exe.rs"]
 mod cli_exe;
 #[path = "support/fixture_plugin.rs"]
 mod fixture_plugin;
 use serde_json::{Value, json};
-use std::os::windows::process::CommandExt;
 use std::{
     io::Write,
     process::{Command, Stdio},
@@ -12,7 +10,6 @@ use std::{
 
 fn invoke(root: &std::path::Path, request: Value) -> std::process::Output {
     let mut child = Command::new(crate::cli_exe::kinekino_cli_exe())
-        .creation_flags(0x08000000)
         .env("KINEKINO_PLUGIN_DIR", root.join("plugins"))
         .args(["--catalog-root", root.to_str().unwrap(), "--input", "-"])
         .stdin(Stdio::piped())
@@ -50,7 +47,6 @@ fn explicit_cli_discovery_is_experimental_and_rejects_unsupported_search_fields(
     assert_eq!(response["data"]["catalog"]["backend_available"], true);
     assert_eq!(response["data"]["catalog"]["status"], "experimental");
     let default = Command::new(crate::cli_exe::kinekino_cli_exe())
-        .creation_flags(0x08000000)
         .env("KINEKINO_PLUGIN_DIR", root.join("no-plugins"))
         .arg("capabilities")
         .output()
@@ -67,7 +63,6 @@ fn explicit_cli_discovery_is_experimental_and_rejects_unsupported_search_fields(
         assert_eq!(configured["data"]["status"], "experimental");
         assert!(configured["data"]["response"]["properties"]["data"].is_object());
         let default = Command::new(crate::cli_exe::kinekino_cli_exe())
-            .creation_flags(0x08000000)
             .env("KINEKINO_PLUGIN_DIR", root.join("no-plugins"))
             .args(["schema", command])
             .output()
