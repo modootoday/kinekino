@@ -13,10 +13,12 @@ pub enum Capability {
     FrameCapture,
     AudioMute,
     WindowEmbed,
+    /// DevTools protocol pass-through ([`super::ProtocolSession`]).
+    ProtocolSession,
 }
 
 impl Capability {
-    pub const ALL: [Self; 10] = [
+    pub const ALL: [Self; 11] = [
         Self::H264,
         Self::Aac,
         Self::Vp9,
@@ -27,6 +29,7 @@ impl Capability {
         Self::FrameCapture,
         Self::AudioMute,
         Self::WindowEmbed,
+        Self::ProtocolSession,
     ];
 
     pub const fn name(self) -> &'static str {
@@ -41,6 +44,7 @@ impl Capability {
             Self::FrameCapture => "frame-capture",
             Self::AudioMute => "audio-mute",
             Self::WindowEmbed => "window-embed",
+            Self::ProtocolSession => "protocol-session",
         }
     }
 

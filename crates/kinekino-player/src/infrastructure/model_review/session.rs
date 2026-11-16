@@ -274,7 +274,9 @@ impl ReviewSession for Session {
             return Ok(Vec::new());
         }
         let _item_guard = paths::lock_directory(&item_dir)?;
-        if item_dir.join(".publish.lock").exists() {
+        if crate::infrastructure::os_policy::transient_lock_held(&item_dir.join(".publish.lock"))
+            .map_err(io_error)?
+        {
             return Err(ApiError::new(
                 ErrorCode::ResourceExhausted,
                 "Review publication is busy",
@@ -284,6 +286,10 @@ impl ReviewSession for Session {
         for entry in fs::read_dir(&item_dir).map_err(io_error)? {
             let entry = entry.map_err(io_error)?;
             let name = entry.file_name().into_string().map_err(|_| conflict())?;
+            // A released lock file stays on POSIX (see `transient_lock_held`).
+            if name == ".publish.lock" {
+                continue;
+            }
             if !entry.file_type().map_err(io_error)?.is_dir() || !name.starts_with("d-") {
                 return Err(conflict());
             }

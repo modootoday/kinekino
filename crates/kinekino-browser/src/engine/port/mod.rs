@@ -4,12 +4,14 @@ mod error;
 mod event;
 mod kind;
 mod network;
+mod protocol;
 
 pub use capability::{Capability, CapabilitySet};
 pub use error::{EngineError, EngineResult};
 pub use event::BrowserEvent;
 pub use kind::EngineKind;
 pub use network::{InterceptedRequest, NetworkInterceptor, RequestDecision};
+pub use protocol::{ProtocolEvent, ProtocolSession};
 
 /// Navigation, script and event surface of one browser view.
 ///
@@ -36,6 +38,10 @@ pub trait BrowserEngine {
     }
     /// Viewport capture when `FrameCapture` is declared.
     fn frame_capture(&mut self) -> Option<&mut dyn FrameCapture> {
+        None
+    }
+    /// DevTools protocol session when `ProtocolSession` is declared.
+    fn protocol(&mut self) -> Option<&mut dyn ProtocolSession> {
         None
     }
 }

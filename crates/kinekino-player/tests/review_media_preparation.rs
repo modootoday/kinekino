@@ -1,5 +1,4 @@
 //! Real immutable filesystem custody, synthetic bytes; no decode/timeline/AI approval.
-#![cfg(windows)] // Windows-only infrastructure (review_source/model_review/timeline_evidence); Linux port pending platform split.
 use kinekino_player::application::api::ProposalClient;
 use kinekino_player::{
     application::{
