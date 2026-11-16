@@ -5,14 +5,14 @@ status: active
 created: 2026-11-16T15:18:26Z
 updated: 2026-11-16T15:18:26Z
 rel:
-  depends_on: [adr:kinekino/20261029155443, adr:kinekino/20261029163426, adr:kinekino/20261029164425, adr:kinekino/20261030030000, adr:kinekino/20261030120000, adr:kinekino/20261030180000, adr:kinekino/20261030190000, adr:kinekino/20261030200000, adr:kinekino/20261106022549, adr:kinekino/20261109121745, guide:kinekino/ignored-tests, plan:kinekino/20261030013900, sot:kinekino/conventions]
+  depends_on: [adr:kinekino/20261116151137, adr:kinekino/20261029155443, adr:kinekino/20261029163426, adr:kinekino/20261029164425, adr:kinekino/20261030030000, adr:kinekino/20261030120000, adr:kinekino/20261030180000, adr:kinekino/20261030190000, adr:kinekino/20261030200000, adr:kinekino/20261106022549, adr:kinekino/20261109121745, guide:kinekino/ignored-tests, plan:kinekino/20261030013900, sot:kinekino/conventions]
   governs: [crates/kinekino-platform-unix/src/fs, crates/kinekino-core/src/platform]
 ---
 
 # Pinned tool program path comes from the platform port
 
 ## Change
-Slice (a) of the pinned-tool-execution decision (ADR 20261116151137):
+Slice (a) of the pinned-tool-execution decision ([[adr:kinekino/20261116151137]]):
 - `PlatformHost::has_handle_execution` (Linux true; Windows and other POSIX false) and `OsPolicy::pinned_program(verified, path)` are added to the core platform port and routed through `kinekino-platform`.
 - **Unix adapter** (`kinekino-platform-unix/src/fs/pinned.rs`):
   - Refuses a relative path or a `#!` script (`InvalidInput`).
