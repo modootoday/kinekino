@@ -1,4 +1,3 @@
-#![cfg(windows)]
 #[path = "support/cli_exe.rs"]
 mod cli_exe;
 #[path = "output_review_cli/fixture.rs"]
