@@ -2897,7 +2897,7 @@ name = "kinekino-card-render"
 version = "0.1.0"
 dependencies = [
  "kinekino-media-contracts",
- "meari",
+ "meari 0.3.0",
  "meari-native",
  "png",
  "serde",
@@ -3050,7 +3050,7 @@ dependencies = [
  "kinekino-vad",
  "kinekino-vad-executor",
  "kinekino-vad-worker",
- "meari",
+ "meari 0.3.0",
  "meari-native",
  "png",
  "raw-window-handle",
@@ -3075,7 +3075,7 @@ dependencies = [
  "kinekino-libmpv",
  "kinekino-settings-ui",
  "linebender_resource_handle",
- "meari",
+ "meari 0.3.0",
  "meari-dom",
  "meari-native",
  "meari-shell",
@@ -3109,7 +3109,7 @@ name = "kinekino-settings-ui"
 version = "0.1.0"
 dependencies = [
  "kinekino-core",
- "meari",
+ "meari 0.3.0",
  "meari-dom",
  "meari-native",
  "meari-shell",
@@ -3152,7 +3152,7 @@ version = "0.1.0"
 dependencies = [
  "kinekino-media-contracts",
  "kinekino-subtitles",
- "meari",
+ "meari 0.3.0",
  "serde",
  "serde_json",
 ]
@@ -3372,7 +3372,27 @@ version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9b8ebe959d76729fc33552eb8b657ea5fb2dce2d31cf2c7bd44259473fff0e86"
 dependencies = [
- "meari-platform",
+ "meari-platform 0.2.0",
+ "oxc_allocator",
+ "oxc_ast",
+ "oxc_parser",
+ "oxc_span",
+ "oxc_syntax",
+ "proc-macro2",
+ "ryu-js",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "syn 2.0.117",
+]
+
+[[package]]
+name = "meari"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7edab5106aa2d3d1044484d0ae8da0416aa31e1a2189d394a2422aade47c9500"
+dependencies = [
+ "meari-platform 0.3.0",
  "oxc_allocator",
  "oxc_ast",
  "oxc_parser",
@@ -3411,7 +3431,7 @@ dependencies = [
  "kurbo",
  "linebender_resource_handle",
  "markup5ever",
- "meari-platform",
+ "meari-platform 0.2.0",
  "objc2 0.6.5",
  "parley",
  "percent-encoding",
@@ -3461,11 +3481,11 @@ dependencies = [
  "dioxus-shadcn-primitives",
  "image",
  "keyboard-types",
- "meari",
+ "meari 0.2.0",
  "meari-dom",
  "meari-html",
  "meari-paint",
- "meari-platform",
+ "meari-platform 0.2.0",
  "meari-shell",
  "oxc_allocator",
  "oxc_ast",
@@ -3525,6 +3545,17 @@ dependencies = [
  "serde_json",
  "windows",
  "winit",
+]
+
+[[package]]
+name = "meari-platform"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3ddb101060cb1a971c716e1178d0910774e8158f05282eaa234f95f61f6efb59"
+dependencies = [
+ "raw-window-handle",
+ "serde_json",
+ "windows",
 ]
 
 [[package]]

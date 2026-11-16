@@ -29,7 +29,7 @@ futures = "0.3"
 http = "=1.5.0"
 image = { version = "0.25", default-features = false }
 libc = "0.2"
-meari = "0.2.0"
+meari = "0.3.0"
 meari-native = { version = "0.2.0", default-features = false }
 ort = { version = "=2.0.0-rc.15", default-features = false }
 png = "=0.18.1"
