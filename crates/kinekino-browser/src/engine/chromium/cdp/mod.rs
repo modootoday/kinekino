@@ -1,12 +1,14 @@
 //! CDP adapter: drives installed Google Chrome (codecs + Widevine) via chromiumoxide.
 mod intercept;
 mod launch;
+mod protocol;
 
 pub use launch::CdpLaunch;
+pub use protocol::FORWARDED;
 
 use crate::engine::port::{
     AudioControl, BrowserEngine, BrowserEvent, EngineError, EngineKind, EngineResult, FrameCapture,
-    NetworkInterceptor,
+    NetworkInterceptor, ProtocolEvent, ProtocolSession,
 };
 use chromiumoxide::page::ScreenshotParams;
 use chromiumoxide::{Browser, Page};
@@ -20,6 +22,8 @@ pub struct CdpEngine {
     browser: Browser,
     page: Page,
     events: Arc<Mutex<Vec<BrowserEvent>>>,
+    /// Forwarded DevTools protocol events (see [`FORWARDED`]).
+    protocol_events: Arc<Mutex<Vec<ProtocolEvent>>>,
     muted: bool,
     /// Driving a pre-existing (`--app`) target: chromiumoxide gets no lifecycle events for it,
     /// so `Page.navigate` never resolves and navigation is done and awaited from the page.
@@ -46,11 +50,14 @@ impl CdpEngine {
             };
             Ok::<_, EngineError>((browser, page))
         })?;
+        let protocol_events = Arc::default();
+        runtime.block_on(protocol::listen(&page, Arc::clone(&protocol_events)))?;
         Ok(Self {
             runtime,
             browser,
             page,
             events: Arc::default(),
+            protocol_events,
             muted: false,
             attached: spec.app_url.is_some(),
         })
@@ -146,6 +153,46 @@ impl BrowserEngine for CdpEngine {
 
     fn frame_capture(&mut self) -> Option<&mut dyn FrameCapture> {
         Some(self)
+    }
+
+    fn protocol(&mut self) -> Option<&mut dyn ProtocolSession> {
+        Some(self)
+    }
+}
+
+impl ProtocolSession for CdpEngine {
+    fn call(
+        &mut self,
+        session: Option<&str>,
+        method: &str,
+        params: serde_json::Value,
+    ) -> EngineResult<serde_json::Value> {
+        self.runtime.block_on(async {
+            let target = protocol::target(&self.browser, &self.page, session).await?;
+            let response = target
+                .execute(protocol::RawCommand::new(method, params))
+                .await
+                .map_err(call)?;
+            Ok(response.result)
+        })
+    }
+
+    fn drain_protocol_events(&mut self) -> Vec<ProtocolEvent> {
+        std::mem::take(
+            &mut *self
+                .protocol_events
+                .lock()
+                .unwrap_or_else(|p| p.into_inner()),
+        )
+    }
+
+    fn set_auto_attach(&mut self, on: bool) -> EngineResult<()> {
+        let params = serde_json::json!({
+            "autoAttach": on,
+            "waitForDebuggerOnStart": on,
+            "flatten": true,
+        });
+        self.call(None, "Target.setAutoAttach", params).map(|_| ())
     }
 }
 
