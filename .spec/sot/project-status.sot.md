@@ -23,7 +23,7 @@ verify: manual
 |M1 재생 핵심|닫힘(2026-11-05). 실화면 보완 M1-V1~V3 완료(Linux X11)|엔진 자막 들어올림(`sub-pos`, 2026-11-16 코드·가짜 엔진 테스트) 실화면 확인|
 |M2 플레이어 UI|닫힘(2026-11-08, Linux X11). 단축키·우클릭 메뉴·재생목록 패널·OSD·설정 창 제목 줄·창/트레이 아이콘|Windows·macOS 창·트레이 아이콘(플랫폼 어댑터 대기), Wayland 트레이 미확인, 버튼 `:focus-visible`, WM 최대화 동기화 실화면 확인(코드·테스트 2026-11-16)|
 |M3 호스트·플러그인 경계|열림. M3-1~M3-8 조각 완료|자격증명 저장소의 제품 메모리 대체 경로 미연결, Windows Credential Manager 어댑터 없음|
-|M4 제작 기능(CLI)|열림. M4-1~M4-10 조각이 각 범위 안에서 완료|완료 기준과 코드 대조 판정(2026-11-16: 카드·자산·클립 프로젝트 저장소와 제안 저장소 `--proposal-root`를 Linux CLI에서 열어 Unsupported 해소, 과거 증거 검증기는 Windows 전용으로 거절, 리뷰 저장소와 모델 목록은 Windows 전용 유지). 피사체 분할은 설계만(`segment_subject` unsupported), whisper는 실측 준비만(실측은 승인 후)|
+|M4 제작 기능(CLI)|열림. M4-1~M4-10 조각이 각 범위 안에서 완료|완료 기준과 코드 대조 판정(2026-11-16: 카드·자산·클립 프로젝트 저장소, 제안 저장소 `--proposal-root`, 모델 목록 `--model-root`, 카탈로그 `--catalog-root`, 화자 문서, 리뷰 저장소 `--review-root`를 Linux CLI에서 열어 Unsupported 해소. 과거 증거 검증기·실행 호스트 `--serve-execution`·카드 리뷰 내보내기·결합 호스트 `--serve-playback/native/provider/review`는 Windows 전용 유지, 근거와 소유자 결정은 이슈 #30). 피사체 분할은 설계만(`segment_subject` unsupported), whisper는 실측 준비만(실측은 승인 후)|
 |M5 구조·플랫폼 정리|열림. M5-1~M5-8 기록(M5-4~M5-8은 판정·ADR만)|allowlist 2~4단계(보류)와 ADR 후속 구현(GPU 렌더, 플러그인 OS 격리, Unix 브라우저 provider: 2026-11-16 Chrome 어댑터 프로토콜 세션과 자식 세션까지, provider 연결은 남음)|
 |M6 마무리·배포 준비|가용 범위만 완료. 전체 미닫힘|Windows 재생, 실제 GPU·DPI, macOS 실기, 패키지 빌드. 아래 OS별 상태 참고|
 
@@ -45,7 +45,7 @@ verify: manual
 
 ## 원격
 
-`origin`은 `modootoday/kinekino`이며 `main`은 원격과 같다. 열린 이슈 0건. 열린 PR 5건은 모두 dependabot이고, 그중 `meari`·`meari-native` 0.3.0과 `windows-core` 0.100은 고정 버전(`=`)을 넘는 업데이트라 별도 검토가 필요하다. 2026-11-16부터 `main` 반영은 PR로만 한다(토픽 브랜치 → PR → Linux 필수 체크 통과 후 사람이 병합, [[adr:kinekino/20261116062843]]). `main` 규칙은 `.github/rulesets/main-protected.json`(필수 체크 `lint`, `Public surface`, `test (ubuntu-26.04)`)으로 저장소에 두고 사람이 GitHub에 적용해야 하며, 적용 전까지 게이트는 권고 수준이다.
+`origin`은 `modootoday/kinekino`이다. 열린 이슈는 저장소 설정 단계(#8)와 남은 소유자 결정·환경 대기 목록(#30) 두 건이다. `needs-human` PR은 자격증명 저장소(#12)·릴리스 페이로드 목록(#13)·프로세스 샌드박스 정책(#14)과 dependabot(#1~#5, 그중 `meari`·`meari-native` 0.3.0과 `windows-core` 0.100은 고정 버전(`=`)을 넘는 업데이트)이다. 2026-11-16부터 `main` 반영은 PR로만 한다(토픽 브랜치 → PR → Linux 필수 체크 통과 후 병합, [[adr:kinekino/20261116062843]]). needs-human 경로를 건드리지 않는 에이전트 PR은 자동 병합을 켠다. `main` 규칙은 `.github/rulesets/main-protected.json`(필수 체크 `lint`, `Public surface`, `test (ubuntu-26.04)`)이다.
 
 ## 알려진 문서 불일치
 
