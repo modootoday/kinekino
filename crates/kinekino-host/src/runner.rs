@@ -557,11 +557,9 @@ fn execute_local(args: &[String], request: Request) -> Response {
     };
     let client = PlayerSdk::new(kinekino_player::infrastructure::subtitle_files::SubtitleFiles)
         .with_frame_capture(frame);
-    #[cfg(windows)]
     let client = client.with_speaker_documents(
         kinekino_player::infrastructure::speaker_annotation_files::LocalSpeakerFiles,
     );
-    #[cfg(windows)]
     let client = if let Some(root) = args
         .windows(2)
         .find(|pair| pair[0] == "--model-root")
@@ -576,16 +574,6 @@ fn execute_local(args: &[String], request: Request) -> Response {
     } else {
         client
     };
-    #[cfg(not(windows))]
-    if args.iter().any(|arg| arg == "--model-root") {
-        return Response::failure(
-            request.context.request_id,
-            ApiError::new(
-                ErrorCode::Unsupported,
-                "Local model catalog requires Windows path guards",
-            ),
-        );
-    }
     #[cfg(all(windows, feature = "card-review-export"))]
     let client = client
         .with_card_image_export(kinekino_player::infrastructure::card_export::PngCardReviewExport);
@@ -637,7 +625,18 @@ fn execute_local(args: &[String], request: Request) -> Response {
     } else {
         client
     };
-    #[cfg(windows)]
+    // The historical evidence verifier runs a pinned external program; off Windows it is
+    // refused until its process ownership is checked there. Proposal storage itself opens.
+    #[cfg(not(windows))]
+    if historical.is_some() {
+        return Response::failure(
+            request.context.request_id,
+            ApiError::new(
+                ErrorCode::Unsupported,
+                "The historical evidence verifier requires Windows",
+            ),
+        );
+    }
     let client = if let Some(root) = args
         .windows(2)
         .find(|p| p[0] == "--proposal-root")
@@ -653,16 +652,6 @@ fn execute_local(args: &[String], request: Request) -> Response {
     } else {
         client
     };
-    #[cfg(not(windows))]
-    if args.iter().any(|a| a == "--proposal-root") {
-        return Response::failure(
-            request.context.request_id,
-            ApiError::new(
-                ErrorCode::Unsupported,
-                "Rooted proposal storage requires Windows",
-            ),
-        );
-    }
     let client = if let Some(root) = args
         .windows(2)
         .find(|p| p[0] == "--project-root")
@@ -679,7 +668,6 @@ fn execute_local(args: &[String], request: Request) -> Response {
     } else {
         client
     };
-    #[cfg(windows)]
     let client = if let Some(root) = args
         .windows(2)
         .find(|p| p[0] == "--card-project-root")
@@ -694,17 +682,6 @@ fn execute_local(args: &[String], request: Request) -> Response {
     } else {
         client
     };
-    #[cfg(not(windows))]
-    if args.iter().any(|a| a == "--card-project-root") {
-        return Response::failure(
-            request.context.request_id,
-            ApiError::new(
-                ErrorCode::Unsupported,
-                "Rooted card project storage requires Windows",
-            ),
-        );
-    }
-    #[cfg(windows)]
     let client = if let Some(root) = args
         .windows(2)
         .find(|pair| pair[0] == "--asset-project-root")
@@ -719,17 +696,6 @@ fn execute_local(args: &[String], request: Request) -> Response {
     } else {
         client
     };
-    #[cfg(not(windows))]
-    if args.iter().any(|arg| arg == "--asset-project-root") {
-        return Response::failure(
-            request.context.request_id,
-            ApiError::new(
-                ErrorCode::Unsupported,
-                "Rooted asset project storage requires Windows",
-            ),
-        );
-    }
-    #[cfg(windows)]
     let client = if let Some(root) = args
         .windows(2)
         .find(|pair| pair[0] == "--clip-project-root")
@@ -744,81 +710,57 @@ fn execute_local(args: &[String], request: Request) -> Response {
     } else {
         client
     };
-    #[cfg(not(windows))]
-    if args.iter().any(|arg| arg == "--clip-project-root") {
-        return Response::failure(
-            request.context.request_id,
-            ApiError::new(
-                ErrorCode::Unsupported,
-                "Rooted clip project storage requires Windows",
-            ),
-        );
-    }
     if let Some(root) = args
         .windows(2)
         .find(|pair| pair[0] == "--review-root")
         .map(|pair| pair[1].as_str())
     {
-        #[cfg(windows)]
-        {
-            match kinekino_player::infrastructure::model_review::ReviewFiles::open(
-                std::path::Path::new(root),
-            ) {
-                Ok(store) => {
-                    let client = client.with_review_store(store);
-                    if let Some(user_root) = args
-                        .windows(2)
-                        .find(|pair| pair[0] == "--user-review-root")
-                        .map(|pair| pair[1].as_str())
-                    {
-                        let writable = !kinekino_player::application::review_source::api::is_read(
-                            &request.command,
-                        ) && request.command
-                            != kinekino_player::application::review_source::media_api::INSPECT;
-                        match kinekino_player::infrastructure::review_source::open_api(
-                            std::path::Path::new(root),
-                            std::path::Path::new(user_root),
-                            writable,
-                        ) {
-                            Ok(api) => {
-                                let api = if let Some(path) = args
+        match kinekino_player::infrastructure::model_review::ReviewFiles::open(
+            std::path::Path::new(root),
+        ) {
+            Ok(store) => {
+                let client = client.with_review_store(store);
+                if let Some(user_root) = args
+                    .windows(2)
+                    .find(|pair| pair[0] == "--user-review-root")
+                    .map(|pair| pair[1].as_str())
+                {
+                    let writable = !kinekino_player::application::review_source::api::is_read(
+                        &request.command,
+                    ) && request.command
+                        != kinekino_player::application::review_source::media_api::INSPECT;
+                    match kinekino_player::infrastructure::review_source::open_api(
+                        std::path::Path::new(root),
+                        std::path::Path::new(user_root),
+                        writable,
+                    ) {
+                        Ok(api) => {
+                            let api = if let Some(path) = args
+                                .windows(2)
+                                .find(|pair| pair[0] == "--review-media-config")
+                                .map(|pair| pair[1].as_str())
+                            {
+                                let sha = args
                                     .windows(2)
-                                    .find(|pair| pair[0] == "--review-media-config")
+                                    .find(|pair| pair[0] == "--review-media-config-sha256")
                                     .map(|pair| pair[1].as_str())
-                                {
-                                    let sha = args
-                                        .windows(2)
-                                        .find(|pair| pair[0] == "--review-media-config-sha256")
-                                        .map(|pair| pair[1].as_str())
-                                        .unwrap_or("");
-                                    match kinekino_player::infrastructure::review_source::media_preparation::MediaPreparationFiles::from_pinned_settings(std::path::PathBuf::from(root), std::path::Path::new(path), sha, writable) {
-                                        Ok(port) => api.with_media_preparation(port),
-                                        Err(error) => return Response::failure(request.context.request_id, error),
-                                    }
-                                } else {
-                                    api
-                                };
-                                client.with_review_source(api).execute(request)
-                            }
-                            Err(error) => Response::failure(request.context.request_id, error),
+                                    .unwrap_or("");
+                                match kinekino_player::infrastructure::review_source::media_preparation::MediaPreparationFiles::from_pinned_settings(std::path::PathBuf::from(root), std::path::Path::new(path), sha, writable) {
+                                    Ok(port) => api.with_media_preparation(port),
+                                    Err(error) => return Response::failure(request.context.request_id, error),
+                                }
+                            } else {
+                                api
+                            };
+                            client.with_review_source(api).execute(request)
                         }
-                    } else {
-                        client.execute(request)
+                        Err(error) => Response::failure(request.context.request_id, error),
                     }
+                } else {
+                    client.execute(request)
                 }
-                Err(error) => Response::failure(request.context.request_id, error),
             }
-        }
-        #[cfg(not(windows))]
-        {
-            let _ = root;
-            Response::failure(
-                request.context.request_id,
-                ApiError::new(
-                    ErrorCode::Unsupported,
-                    "Rooted review storage requires the Windows adapter",
-                ),
-            )
+            Err(error) => Response::failure(request.context.request_id, error),
         }
     } else {
         client.execute(request)
@@ -959,6 +901,45 @@ mod tests {
         assert_eq!(parse(&local).unwrap().command, "capabilities");
         local.extend(args(&["--endpoint", "explicit-endpoint"]));
         assert!(parse(&local).is_err());
+    }
+
+    /// Proposal storage opens off Windows; the historical evidence verifier (a pinned
+    /// external process) stays Windows-only there and is refused, not silently ignored.
+    #[cfg(not(windows))]
+    #[test]
+    fn proposal_root_opens_but_the_historical_verifier_is_refused_off_windows() {
+        kinekino_platform::install();
+        let base = std::env::temp_dir().join(format!("kk-proposal-root-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&base);
+        std::fs::create_dir_all(&base).unwrap();
+        let root = base.canonicalize().unwrap();
+        let root = root.to_str().unwrap();
+        let capabilities = || Request::new("capabilities");
+        let plain = execute_local(
+            &args(&["capabilities", "--proposal-root", root]),
+            capabilities(),
+        );
+        assert!(plain.ok, "{:?}", plain.error);
+        let pin = "a".repeat(64);
+        let verified = execute_local(
+            &args(&[
+                "capabilities",
+                "--proposal-root",
+                root,
+                "--historical-verifier",
+                root,
+                "--historical-verifier-sha256",
+                &pin,
+                "--historical-workspace",
+                root,
+                "--historical-package",
+                "test",
+            ]),
+            capabilities(),
+        );
+        let error = verified.error.expect("refused");
+        assert_eq!(error.code, ErrorCode::Unsupported, "{}", error.message);
+        let _ = std::fs::remove_dir_all(&base);
     }
 
     #[cfg(windows)]

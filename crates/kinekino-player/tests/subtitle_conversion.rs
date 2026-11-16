@@ -205,7 +205,6 @@ fn configured_sdk_and_cli_discovery_match_conversion_support() {
     );
     let sdk = sdk
         .with_snapshot_export(kinekino_player::infrastructure::snapshot_export::PngSnapshotExport);
-    #[cfg(windows)]
     let sdk = sdk.with_speaker_documents(
         kinekino_player::infrastructure::speaker_annotation_files::LocalSpeakerFiles,
     );
@@ -284,7 +283,6 @@ fn object_safe_client_on_worker_matches_cli_typed_conversion() {
     );
     let sdk = sdk
         .with_snapshot_export(kinekino_player::infrastructure::snapshot_export::PngSnapshotExport);
-    #[cfg(windows)]
     let sdk = sdk.with_speaker_documents(
         kinekino_player::infrastructure::speaker_annotation_files::LocalSpeakerFiles,
     );
