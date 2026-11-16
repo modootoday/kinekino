@@ -560,7 +560,6 @@ fn execute_local(args: &[String], request: Request) -> Response {
     let client = client.with_speaker_documents(
         kinekino_player::infrastructure::speaker_annotation_files::LocalSpeakerFiles,
     );
-    #[cfg(windows)]
     let client = if let Some(root) = args
         .windows(2)
         .find(|pair| pair[0] == "--model-root")
@@ -575,16 +574,6 @@ fn execute_local(args: &[String], request: Request) -> Response {
     } else {
         client
     };
-    #[cfg(not(windows))]
-    if args.iter().any(|arg| arg == "--model-root") {
-        return Response::failure(
-            request.context.request_id,
-            ApiError::new(
-                ErrorCode::Unsupported,
-                "Local model catalog requires Windows path guards",
-            ),
-        );
-    }
     #[cfg(all(windows, feature = "card-review-export"))]
     let client = client
         .with_card_image_export(kinekino_player::infrastructure::card_export::PngCardReviewExport);
