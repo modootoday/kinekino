@@ -312,7 +312,6 @@ r-cfg crates/kinekino-player/tests/model_review.rs
 r-cfg crates/kinekino-player/tests/native_gui_endpoint.rs
 r-cfg crates/kinekino-player/tests/native_product_launch.rs
 r-cfg crates/kinekino-player/tests/native_skip_cli.rs
-r-cfg crates/kinekino-player/tests/output_review_cli.rs
 r-cfg crates/kinekino-player/tests/product_gui_launch.rs
 r-cfg crates/kinekino-player/tests/review_mapping_proof_actual.rs
 r-cfg crates/kinekino-player/tests/review_matroska_input.rs
