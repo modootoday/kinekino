@@ -32,6 +32,9 @@ impl PlatformHost for UnixHost {
     fn has_mandatory_share_modes(&self) -> bool {
         false
     }
+    fn has_handle_execution(&self) -> bool {
+        fs::has_handle_execution()
+    }
 }
 
 #[cfg(test)]
