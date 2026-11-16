@@ -104,6 +104,11 @@ pub fn symlink_file(target: &Path, link: &Path) -> io::Result<()> {
     std::os::unix::fs::symlink(target, link)
 }
 
+/// Creates a directory symlink at `link` pointing to `target` (fixtures for link-rejection checks).
+pub fn symlink_dir(target: &Path, link: &Path) -> io::Result<()> {
+    std::os::unix::fs::symlink(target, link)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
