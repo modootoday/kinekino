@@ -1,4 +1,3 @@
-#![cfg(windows)]
 #[allow(dead_code)]
 #[path = "support/owned_process_evidence.rs"]
 mod owned_process_evidence;

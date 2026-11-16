@@ -44,18 +44,63 @@ pub fn identity_of(uid: u32) -> PeerIdentity {
     }
 }
 
-/// Start time (clock ticks since boot) of `pid` from `/proc/<pid>/stat` field 22.
+/// Start stamp of `pid`, non-zero and stable for the life of the process. It guards
+/// endpoint and peer identity against PID reuse, so an OS without a real source returns
+/// `Unsupported` instead of a fake value (ADR 20261109121745).
 pub fn process_start(pid: u32) -> io::Result<u64> {
-    if !cfg!(target_os = "linux") {
-        return Err(io::Error::new(
-            io::ErrorKind::Unsupported,
-            "process start time is only implemented for Linux /proc",
-        ));
-    }
+    start_stamp(pid)
+}
+
+/// Linux: clock ticks since boot from `/proc/<pid>/stat` field 22.
+#[cfg(target_os = "linux")]
+fn start_stamp(pid: u32) -> io::Result<u64> {
     let stat = std::fs::read_to_string(format!("/proc/{pid}/stat"))?;
     parse_start(&stat).ok_or_else(|| io::Error::new(io::ErrorKind::InvalidData, "bad /proc stat"))
 }
 
+/// macOS: start time in microseconds since the epoch from `proc_pidinfo(PROC_PIDTBSDINFO)`.
+#[cfg(target_os = "macos")]
+fn start_stamp(pid: u32) -> io::Result<u64> {
+    let pid = libc::c_int::try_from(pid)
+        .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "pid out of range"))?;
+    // SAFETY: proc_bsdinfo is plain old data; all-zero is a valid value.
+    let mut info: libc::proc_bsdinfo = unsafe { std::mem::zeroed() };
+    let size = libc::c_int::try_from(std::mem::size_of::<libc::proc_bsdinfo>())
+        .map_err(|_| io::Error::other("proc_bsdinfo size"))?;
+    // SAFETY: the buffer is a live, writable proc_bsdinfo of exactly `size` bytes.
+    let n = unsafe {
+        libc::proc_pidinfo(
+            pid,
+            libc::PROC_PIDTBSDINFO,
+            0,
+            (&raw mut info).cast::<libc::c_void>(),
+            size,
+        )
+    };
+    if n != size {
+        let err = io::Error::last_os_error();
+        return Err(if n <= 0 && err.raw_os_error().unwrap_or(0) != 0 {
+            err
+        } else {
+            io::Error::new(io::ErrorKind::NotFound, format!("no process {pid}"))
+        });
+    }
+    let micros = info
+        .pbi_start_tvsec
+        .saturating_mul(1_000_000)
+        .saturating_add(info.pbi_start_tvusec);
+    Ok(micros.max(1))
+}
+
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
+fn start_stamp(_pid: u32) -> io::Result<u64> {
+    Err(io::Error::new(
+        io::ErrorKind::Unsupported,
+        "process start time is implemented for Linux and macOS only",
+    ))
+}
+
+#[cfg(any(target_os = "linux", test))]
 fn parse_start(stat: &str) -> Option<u64> {
     // comm (field 2) may contain spaces and ')'; fields after the last ')' start at field 3.
     let rest = &stat[stat.rfind(')')? + 1..];
