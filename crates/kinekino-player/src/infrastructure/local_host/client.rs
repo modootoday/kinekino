@@ -223,7 +223,7 @@ mod tests {
     // Per-message transports (Windows) query the server identity after connect, which fails
     // once the pipe is disconnected (ERROR_PIPE_NOT_CONNECTED) before anything is sent.
     // Connection-bound transports (Unix SO_PEERCRED) keep the identity, so the expiry surfaces
-    // at the request write and delivery is conservatively unknown. Both never dispatch.
+    // at the request write or the response read, and delivery is conservatively unknown. Both never dispatch.
     #[test]
     fn expired_connected_pipe_keeps_identity_query_cause_and_never_dispatches() {
         use kinekino_core::platform::ipc::MessagePeer;
@@ -256,14 +256,23 @@ mod tests {
             trace.snapshot()
         );
         assert_eq!(error.code, ErrorCode::EngineFailed);
-        let (delivery, operation) = if per_message {
-            ("not_sent", "GetNamedPipeServerProcessId")
+        let operation = error.details["diagnostic"]["operation"].clone();
+        if per_message {
+            assert_eq!(error.details["delivery"], "not_sent");
+            assert_eq!(operation, "GetNamedPipeServerProcessId");
+            assert!(error.details["diagnostic"]["win32_error"].is_number());
         } else {
-            ("execution_unknown", "write_request")
-        };
-        assert_eq!(error.details["delivery"], delivery);
-        assert_eq!(error.details["diagnostic"]["operation"], operation);
-        assert!(error.details["diagnostic"]["win32_error"].is_number());
+            // The expired host closes the socket, but the request write can still land in the
+            // send buffer, so the failure may surface at the response read (EOF, no errno).
+            assert_eq!(error.details["delivery"], "execution_unknown");
+            assert!(
+                operation == "write_request" || operation == "read_response",
+                "{operation}"
+            );
+            if operation == "write_request" {
+                assert!(error.details["diagnostic"]["win32_error"].is_number());
+            }
+        }
         assert!(
             !trace
                 .snapshot()
