@@ -1,4 +1,3 @@
-#![cfg(windows)]
 use kinekino_player::application::api::CardClient;
 #[path = "support/cli_exe.rs"]
 mod cli_exe;
