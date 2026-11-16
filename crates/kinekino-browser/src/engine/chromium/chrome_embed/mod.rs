@@ -4,7 +4,7 @@ use crate::engine::chromium::cdp::{CdpEngine, CdpLaunch};
 use crate::engine::embed::x11::X11Host;
 use crate::engine::port::{
     AudioControl, BrowserEngine, BrowserEvent, EngineError, EngineKind, EngineResult, FrameCapture,
-    NetworkInterceptor,
+    NetworkInterceptor, ProtocolSession,
 };
 use std::path::PathBuf;
 
@@ -89,6 +89,9 @@ impl BrowserEngine for SystemChromeEngine {
         Some(&mut self.cdp)
     }
     fn frame_capture(&mut self) -> Option<&mut dyn FrameCapture> {
+        Some(&mut self.cdp)
+    }
+    fn protocol(&mut self) -> Option<&mut dyn ProtocolSession> {
         Some(&mut self.cdp)
     }
 }
