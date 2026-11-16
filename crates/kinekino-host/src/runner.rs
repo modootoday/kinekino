@@ -557,7 +557,6 @@ fn execute_local(args: &[String], request: Request) -> Response {
     };
     let client = PlayerSdk::new(kinekino_player::infrastructure::subtitle_files::SubtitleFiles)
         .with_frame_capture(frame);
-    #[cfg(windows)]
     let client = client.with_speaker_documents(
         kinekino_player::infrastructure::speaker_annotation_files::LocalSpeakerFiles,
     );

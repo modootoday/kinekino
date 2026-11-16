@@ -1,5 +1,4 @@
 //! Manual imported annotations only. No audio, model, network or GUI execution.
-#![cfg(windows)]
 #[path = "support/cli_exe.rs"]
 mod cli_exe;
 #[path = "speaker_annotations_cli/cooperative_execution.rs"]
@@ -26,6 +25,17 @@ use std::{
 };
 fn sha(bytes: &[u8]) -> String {
     kinekino_media_contracts::hex_lower(Sha256::digest(bytes))
+}
+/// While the adapter holds the original, writers are denied where the OS has mandatory share
+/// modes (Windows). POSIX locks are advisory, so a writer open is not refused there.
+fn assert_writer_denied(path: &Path) {
+    if kinekino_player::infrastructure::os_policy::has_mandatory_share_modes() {
+        assert!(
+            fs::OpenOptions::new().write(true).open(path).is_err(),
+            "original source lease must remain held: {}",
+            path.display()
+        );
+    }
 }
 fn root() -> PathBuf {
     let root = std::env::temp_dir().join(format!(
@@ -358,12 +368,7 @@ fn cancel_before_atomic_publication_keeps_original_input_lease_and_no_output() {
                     .to_string_lossy()
                     .starts_with(".export-")
             }) {
-                assert!(
-                    fs::OpenOptions::new()
-                        .write(true)
-                        .open(&self.input)
-                        .is_err()
-                );
+                assert_writer_denied(&self.input);
                 self.seen.store(true, Ordering::SeqCst);
                 return Err(ApiError::new(
                     ErrorCode::Cancelled,

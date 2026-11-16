@@ -3,7 +3,7 @@ id: adr:kinekino/20261108112026
 title: Project revision export through the Linux CLI
 status: active
 created: 2026-11-08T11:20:26Z
-updated: 2026-11-08T11:20:26Z
+updated: 2026-11-16T12:20:00Z
 rel:
   governs:
     - crates/kinekino-player/src/application/projects
@@ -45,3 +45,7 @@ rel:
 - Linux CLI에서 `projects.create/inspect/save_revision/reconnect_source/export`가 `--project-root`로 동작하고 CLI fixture 테스트로 잠긴다.
 - 남은 일: 명시적 덮어쓰기·새 이름 정책(OUT-04), 다항목·preset 내보내기(OUT-07/08), Linux `--proposal-root`, 내보낸 문서 import.
 - skill: modoo.today skills 조회(파일 내보내기 계약)했으나 맞는 도메인 스킬 없음 → 미적용.
+
+## Record
+
+- 2026-11-16: Speaker annotation documents open on the Linux CLI: the runner attaches `LocalSpeakerFiles` on every OS, where before it did so only on Windows and other systems answered "Speaker annotation file adapter unavailable". The adapter reads and publishes through `immutable_storage_paths` and the file publication helper, which go through the OS policy port. The shared test custody guard (`tests/sprite_capture_cli/custody.rs`) now opens files and directories through the same port. Windows behavior is unchanged: same share modes, no-follow and directory flags, and file index. On Linux it uses `O_NOFOLLOW` and dev + inode, so CLI tests that use it are no longer tied to Windows APIs. `tests/speaker_annotations_cli.rs` runs on Linux; all 6 cases pass. Before the runner change the CLI cases failed there. The check that a writer is denied while the original is held now runs only where the OS has mandatory share modes (`has_mandatory_share_modes`), because POSIX locks are advisory.
