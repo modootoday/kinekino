@@ -115,3 +115,64 @@ fn actual_pinned_verifier_reconstructs_nine_originals_and_rejects_swapped_refere
         );
     }
 }
+
+#[test]
+fn pinned_verifier_runs_its_verified_program() {
+    let _ = crate::infrastructure::os_policy::host();
+    let name = format!("true{}", std::env::consts::EXE_SUFFIX);
+    let Some(native) = std::env::var_os("PATH").and_then(|paths| {
+        std::env::split_paths(&paths)
+            .map(|dir| dir.join(&name))
+            .find(|path| path.is_file())
+    }) else {
+        eprintln!("no native `true` on PATH; pinned verifier check skipped");
+        return;
+    };
+    let scratch = std::env::temp_dir().join(format!("kk-historical-pin-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&scratch);
+    std::fs::create_dir(&scratch).unwrap();
+    let executable = scratch.join(&name);
+    std::fs::copy(&native, &executable).unwrap();
+    let sha = content_digest::sha256(&mut File::open(&executable).unwrap(), 134_217_728)
+        .unwrap()
+        .1;
+    let reader = HistoricalVerifier::open(&executable, sha, &scratch, "pin-check".into()).unwrap();
+    let reference = CompanionReference {
+        sha256: "a".repeat(64),
+        bytes: 1,
+        item_id: "item-1".into(),
+    };
+    // `true` prints nothing: the run reaches the verified program and its empty output is
+    // reported as missing evidence, not as a spawn or pin failure.
+    let error = reader.verify(&reference).err().unwrap();
+    assert_eq!(error.code, ErrorCode::NeedsInput, "{error:?}");
+    drop(reader);
+    let _ = std::fs::remove_dir_all(&scratch);
+}
+
+#[test]
+fn script_verifier_is_refused_where_sharing_is_advisory() {
+    let _ = crate::infrastructure::os_policy::host();
+    if crate::infrastructure::os_policy::has_mandatory_share_modes() {
+        return;
+    }
+    let scratch = std::env::temp_dir().join(format!("kk-historical-script-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&scratch);
+    std::fs::create_dir(&scratch).unwrap();
+    let executable = scratch.join("verifier");
+    std::fs::write(&executable, b"#!/bin/sh\nexit 0\n").unwrap();
+    let sha = content_digest::sha256(&mut File::open(&executable).unwrap(), 1024)
+        .unwrap()
+        .1;
+    let reader = HistoricalVerifier::open(&executable, sha, &scratch, "pin-check".into()).unwrap();
+    let reference = CompanionReference {
+        sha256: "a".repeat(64),
+        bytes: 1,
+        item_id: "item-1".into(),
+    };
+    // A script's interpreter would reopen the path instead of the verified file.
+    let error = reader.verify(&reference).err().unwrap();
+    assert_eq!(error.code, ErrorCode::InvalidArgument, "{error:?}");
+    drop(reader);
+    let _ = std::fs::remove_dir_all(&scratch);
+}

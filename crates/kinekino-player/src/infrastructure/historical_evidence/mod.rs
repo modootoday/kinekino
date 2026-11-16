@@ -107,13 +107,15 @@ impl HistoricalEvidenceReader for HistoricalVerifier {
     fn verify(&self, reference: &CompanionReference) -> Result<VerifiedHistoricalSample, ApiError> {
         self.process.recover()?;
         reference.validate().map_err(|_| invalid())?;
-        let _executable_guard = self.pinned_executable()?;
-        let bytes = self.process.inspect(
+        // Spawn the verified file (ADR 20261116151137), held open until the run ends.
+        let executable_guard = self.pinned_executable()?;
+        let program = crate::infrastructure::frame_capture::tools::pinned_program(
+            &executable_guard,
             &self.executable,
-            &self.root,
-            &self.label,
-            &reference.item_id,
         )?;
+        let bytes = self
+            .process
+            .inspect(&program, &self.root, &self.label, &reference.item_id)?;
         let imported: Imported = serde_json::from_slice(&bytes).map_err(|_| mismatch())?;
         let e = imported.evidence;
         let task = match e.task.as_str() {
