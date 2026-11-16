@@ -1,6 +1,7 @@
 # Git·배포·작업 경계 (항상)
 각 줄 끝 [근거]. "근거 문서 없음"은 사용자 결정. 개발 호스트 값·운영 기록은 `.agents/local/`(추적 안 함)에 둔다.
-- 커밋 작성자 Choi Won <1237913+myso-kr@users.noreply.github.com>. 명시 경로만 stage, `git add .`/`-A` 금지. [AGENTS.md]
+- 커밋 작성자는 저장소 소유자의 GitHub `users.noreply.github.com` 주소를 쓴다(실제 값은 `.agents/local/`). 명시 경로만 stage, `git add .`/`-A` 금지. [AGENTS.md]
+- 커밋 trailer: `Co-authored-by`는 주소가 `@users.noreply.github.com`일 때만 붙인다. 도구 기본 출처 trailer(`Co-Authored-By: … <noreply@anthropic.com>` 등)와 세션 URL trailer(`Claude-Session:` 등)는 커밋에 넣지 않고, 도구 출처·세션 링크는 PR 본문에 적는다. [사용자 결정 2026-11-16, 공통 규칙 C10.2]
 - 커밋 메시지는 일반적 표현. 커밋·공개 파일에 비공개 흔적(`.local-status/private-terms.txt`) 금지. [AGENTS.md + 사용자 결정 2026-11-03 전달, 근거 문서 없음]
 - `.spec`은 공개, `.spec.local`은 비공개(gitignore). 공개 문서에서 `.spec.local`로 링크하지 않는다. [AGENTS.md, .gitignore]
 - 커밋 전 `spec check --staged`(또는 `cargo xtask spec-check`) 통과. [AGENTS.md]
