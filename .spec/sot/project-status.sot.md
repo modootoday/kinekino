@@ -50,7 +50,7 @@ verify: manual
 ## 알려진 문서 불일치
 
 - (2026-11-16 해소) README와 사이트가 MCP 서버·`kinekino settings`를 "planned"로 적던 것을 실제 범위(MCP는 기본 꺼짐·읽기 전용 기본·호스트 없이 되는 명령만 도구, partial)로 고쳤다.
-- 사이트 설정 페이지(`docs/settings.md`)는 이미 제거한 Pretendard 글꼴을 적고 있고, 기능 표의 설정 페이지·Meari UI 상태도 P6 병합 이후로 갱신되지 않았다.
+- (2026-11-16 해소) 사이트 설정 페이지의 Pretendard 표기를 고정 Noto 글꼴로, 설정 페이지·Meari UI·추론 동의와 비용 보호를 실제 확인 범위(partial)로 고쳤다. 토큰을 "OS 자격증명 저장소에 둔다"던 표기도 고쳤다: 앱은 지금 `SessionCredentialStore`(세션 메모리)만 쓰고 OS 저장소 어댑터는 연결 전이다.
 - 2026-11-14 이력 재작성 이전의 커밋 해시는 이 문서에서 인용하지 않는다.
 
 ## Why
