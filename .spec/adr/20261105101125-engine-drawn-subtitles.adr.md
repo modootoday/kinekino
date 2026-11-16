@@ -3,7 +3,7 @@ id: adr:kinekino/20261105101125
 title: 스타일·이미지 자막은 엔진이 그린다
 status: active
 created: 2026-11-05T10:11:25Z
-updated: 2026-11-05T10:11:25Z
+updated: 2026-11-16T09:45:00Z
 rel:
   governs: [crates/kinekino-player-ui/src/controller, crates/kinekino-libmpv/src]
 ---
@@ -31,3 +31,7 @@ rel:
 
 - ASS·이미지 자막이 원래 모양으로 보인다. 텍스트 자막은 지금과 같다.
 - 남은 일: 엔진 자막의 크기·여백을 오버레이 설정과 맞추는 옵션, 플레이어 컨트롤 막대와 겹침 확인(GUI 실기), SB-2의 ASS 입력 변환, 이미지 자막 실제 파일 확인.
+
+## Record
+
+- 2026-11-16: The overlap with the control bar is handled in code. While the controls show, the controller lifts engine-drawn cues with `sub-pos` (percent of the frame height) by the transport height. `sub-margin-y` was not used because mpv documents it as not applying to ASS without a forced style override, nor to picture subtitles. Not yet checked: that libmpv's `osd-height` equals the video box's CSS height under the render API, and the real window itself (GUI).

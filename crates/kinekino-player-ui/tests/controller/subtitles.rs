@@ -178,3 +178,83 @@ fn player_overlays_with_their_own_display_still_hide_when_hidden() {
     }
     assert!(missing.is_empty(), "no [hidden] rule for: {missing:?}");
 }
+
+fn positions(e: &FakeEngine) -> Vec<&str> {
+    e.commands
+        .iter()
+        .filter(|c| c.starts_with("set sub-pos"))
+        .map(String::as_str)
+        .collect()
+}
+
+#[test]
+fn engine_drawn_subtitles_clear_the_transport_while_controls_show() {
+    // M1-V2 follow-up: the overlay cue lifts by --aw-transport-height (56px) while the
+    // controls show; a cue the engine draws into the frame must lift the same distance.
+    let (dir, files) = folder("subs-lift");
+    let mut c = Controller::new(FakeEngine::default());
+    c.open(&files[0]);
+    c.engine.strings.insert(CODEC.into(), "ass".into());
+    // The engine renders into the video box, so its OSD height is the box height.
+    c.engine.numbers.insert("osd-height".into(), 560.0);
+    c.poll();
+    assert_eq!(
+        positions(&c.engine),
+        ["set sub-pos 90"],
+        "56 of 560 px → 10 %"
+    );
+    c.poll();
+    assert_eq!(
+        positions(&c.engine).len(),
+        1,
+        "unchanged position is not resent"
+    );
+    // Controls auto-hide: the cue returns to the frame's own bottom.
+    c.view.controls_visible = false;
+    c.poll();
+    assert_eq!(positions(&c.engine).last(), Some(&"set sub-pos 100"));
+    // A taller box needs a smaller share; the lift never rounds below the transport.
+    c.view.controls_visible = true;
+    c.engine.numbers.insert("osd-height".into(), 1000.0);
+    c.poll();
+    assert_eq!(positions(&c.engine).last(), Some(&"set sub-pos 94"));
+    std::fs::remove_dir_all(dir).ok();
+}
+
+#[test]
+fn overlay_tracks_and_unknown_boxes_leave_the_engine_position_alone() {
+    let (dir, files) = folder("subs-lift-none");
+    let mut c = Controller::new(FakeEngine::default());
+    c.open(&files[0]);
+    c.engine.numbers.insert("osd-height".into(), 560.0);
+    c.engine.strings.insert(CODEC.into(), "subrip".into());
+    c.poll();
+    assert!(
+        positions(&c.engine).is_empty(),
+        "the overlay lifts itself in CSS"
+    );
+    // Engine drawing with no laid-out box yet: nothing to compute from.
+    c.engine.numbers.remove("osd-height");
+    c.engine.strings.insert(CODEC.into(), "ass".into());
+    c.poll();
+    assert!(positions(&c.engine).is_empty(), "{:?}", c.engine.commands);
+    // Leaving engine drawing after a lift puts the engine back at its default.
+    c.engine.numbers.insert("osd-height".into(), 560.0);
+    c.poll();
+    c.engine.strings.insert(CODEC.into(), "subrip".into());
+    c.poll();
+    assert_eq!(positions(&c.engine), ["set sub-pos 90", "set sub-pos 100"]);
+    std::fs::remove_dir_all(dir).ok();
+}
+
+#[test]
+fn the_lift_matches_the_transport_token() {
+    let tokens = include_str!("../../../kinekino-player/src/presentation/web_ui/styles/tokens.css");
+    assert!(
+        tokens.contains(&format!(
+            "--aw-transport-height: {}px;",
+            kinekino_player_ui::TRANSPORT_HEIGHT_PX
+        )),
+        "keep the engine lift equal to --aw-transport-height"
+    );
+}
