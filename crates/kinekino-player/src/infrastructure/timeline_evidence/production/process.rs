@@ -223,7 +223,7 @@ impl<'a> TimelineProductionSession<'a> {
         self.source.check_current().map_err(before)?;
         let evidence = PreparedEvidence::create(&root, None, 1).map_err(|e| before(io_error(e)))?;
         let spec = SpawnSpec {
-            executable: tool.path.clone(),
+            executable: tool.program.clone(),
             cwd: root.clone(),
             arguments,
             environment: None,
