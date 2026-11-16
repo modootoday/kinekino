@@ -6,6 +6,7 @@ use super::{
 use kinekino_core::platform::process::{
     CONTROL_ARGUMENT, DATA_ARGUMENT, END_ARGUMENT, FamilyBudget, FaultPoint, OPERATION_ARGUMENT,
     OwnedFamily, ProcessIdentity, SourceChildEndpoint, SourceChildren, SpawnFailure, SpawnRequest,
+    refuse_unenforced_sandbox,
 };
 use std::{
     fs::File,
@@ -122,7 +123,11 @@ pub(super) fn spawn(
         deadline,
         source,
         fault,
+        sandbox,
     } = request;
+    if let Err(e) = refuse_unenforced_sandbox(sandbox.as_ref(), &super::CAPABILITIES) {
+        return Err(before("sandbox", e));
+    }
     let created = (|| -> io::Result<_> {
         remaining(deadline)?;
         if !executable.is_absolute() || !cwd.is_absolute() {

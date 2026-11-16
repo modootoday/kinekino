@@ -43,6 +43,100 @@ pub struct ProcessCapabilities {
     pub family_memory_peaks: Enforcement,
     /// [`FamilyObservation::Active`] carries an exact process count.
     pub exact_family_count: bool,
+    /// [`SandboxPolicy`] file access (read-only paths, one scratch directory) is enforced.
+    pub sandbox_file_access: Enforcement,
+    /// [`SandboxNetwork::None`] is enforced.
+    pub sandbox_network: Enforcement,
+    /// A system-call filter is applied to sandboxed children.
+    pub sandbox_system_calls: Enforcement,
+}
+
+/// Network rule of a [`SandboxPolicy`] (ADR 20261109051610: no per-host rules in stage 1).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SandboxNetwork {
+    /// No network access.
+    None,
+    /// Unrestricted network access.
+    Any,
+}
+
+/// What a sandboxed child may do, independent of how an OS enforces it
+/// (ADR 20261109051610). The adapter adds the read-only system paths an executable needs.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SandboxPolicy {
+    /// Paths the child may read (the plugin directory).
+    pub read_only: Vec<PathBuf>,
+    /// The one private writable directory, owned by the host.
+    pub scratch: Option<PathBuf>,
+    pub network: SandboxNetwork,
+    /// The child's whole environment; nothing is inherited.
+    pub environment: BTreeMap<String, OsString>,
+}
+
+/// One guarantee a [`SandboxPolicy`] can ask for.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SandboxGuarantee {
+    FileAccess,
+    Network,
+    SystemCalls,
+}
+
+impl SandboxGuarantee {
+    pub fn name(self) -> &'static str {
+        match self {
+            Self::FileAccess => "file access",
+            Self::Network => "network",
+            Self::SystemCalls => "system calls",
+        }
+    }
+}
+
+impl SandboxPolicy {
+    /// Guarantees this policy needs: file access and system calls always, network only
+    /// when the policy forbids it.
+    pub fn required(&self) -> Vec<SandboxGuarantee> {
+        let mut v = vec![SandboxGuarantee::FileAccess, SandboxGuarantee::SystemCalls];
+        if self.network == SandboxNetwork::None {
+            v.insert(1, SandboxGuarantee::Network);
+        }
+        v
+    }
+
+    /// Required guarantees that `caps` does not report as [`Enforcement::Enforced`].
+    pub fn unmet(&self, caps: &ProcessCapabilities) -> Vec<SandboxGuarantee> {
+        self.required()
+            .into_iter()
+            .filter(|g| {
+                let e = match g {
+                    SandboxGuarantee::FileAccess => caps.sandbox_file_access,
+                    SandboxGuarantee::Network => caps.sandbox_network,
+                    SandboxGuarantee::SystemCalls => caps.sandbox_system_calls,
+                };
+                e != Enforcement::Enforced
+            })
+            .collect()
+    }
+}
+
+/// Spawn-time gate every adapter runs before creating anything: a sandboxed request whose
+/// guarantees are not all enforced fails with `Unsupported`, naming them. There is no silent
+/// unsandboxed fallback; an unsandboxed run is a request without a policy.
+pub fn refuse_unenforced_sandbox(
+    policy: Option<&SandboxPolicy>,
+    caps: &ProcessCapabilities,
+) -> io::Result<()> {
+    let Some(policy) = policy else {
+        return Ok(());
+    };
+    let unmet = policy.unmet(caps);
+    if unmet.is_empty() {
+        return Ok(());
+    }
+    let names: Vec<&str> = unmet.iter().map(|g| g.name()).collect();
+    Err(io::Error::new(
+        io::ErrorKind::Unsupported,
+        format!("sandbox not enforced on this machine: {}", names.join(", ")),
+    ))
 }
 
 /// Both cutoffs are established before spawning; no phase starts a fresh timeout.
@@ -239,6 +333,8 @@ pub struct SpawnRequest<'a> {
     pub deadline: Deadline,
     pub source: Option<SourceChildren<'a>>,
     pub fault: Option<FaultPoint>,
+    /// None runs unsandboxed. Some is refused unless every required guarantee is enforced.
+    pub sandbox: Option<SandboxPolicy>,
 }
 
 /// One original owned process family. Drop never waits; it releases ownership the way the OS
@@ -344,4 +440,78 @@ pub trait ProcessOwnership: Send + Sync {
     unsafe fn adopt_inherited_source(&self, value: usize) -> io::Result<Arc<dyn SourcePipe>>;
     /// Operations whose buffers were intentionally leaked because the OS never released them.
     fn emergency_retained_operations(&self) -> u64;
+}
+
+#[cfg(test)]
+mod sandbox_tests {
+    use super::*;
+
+    fn caps(file: Enforcement, net: Enforcement, sys: Enforcement) -> ProcessCapabilities {
+        ProcessCapabilities {
+            family_containment: Enforcement::Enforced,
+            family_termination: Enforcement::Enforced,
+            cleanup_on_owner_death: Enforcement::Enforced,
+            memory_budget: Enforcement::Enforced,
+            affinity_budget: Enforcement::Enforced,
+            family_memory_peaks: Enforcement::Enforced,
+            exact_family_count: true,
+            sandbox_file_access: file,
+            sandbox_network: net,
+            sandbox_system_calls: sys,
+        }
+    }
+
+    fn policy(network: SandboxNetwork) -> SandboxPolicy {
+        SandboxPolicy {
+            read_only: vec![PathBuf::from("/plugins/a")],
+            scratch: None,
+            network,
+            environment: BTreeMap::new(),
+        }
+    }
+
+    use Enforcement::{Advisory, Enforced, Unsupported};
+    use SandboxGuarantee::{FileAccess, Network, SystemCalls};
+
+    #[test]
+    fn network_is_required_only_when_forbidden() {
+        assert_eq!(
+            policy(SandboxNetwork::None).required(),
+            [FileAccess, Network, SystemCalls]
+        );
+        assert_eq!(
+            policy(SandboxNetwork::Any).required(),
+            [FileAccess, SystemCalls]
+        );
+    }
+
+    #[test]
+    fn only_enforced_counts() {
+        let p = policy(SandboxNetwork::None);
+        assert!(p.unmet(&caps(Enforced, Enforced, Enforced)).is_empty());
+        assert_eq!(
+            p.unmet(&caps(Advisory, Enforced, Unsupported)),
+            [FileAccess, SystemCalls]
+        );
+        assert!(
+            policy(SandboxNetwork::Any)
+                .unmet(&caps(Enforced, Unsupported, Enforced))
+                .is_empty()
+        );
+    }
+
+    #[test]
+    fn gate_refuses_and_names_missing_guarantees() {
+        let none = caps(Unsupported, Unsupported, Unsupported);
+        assert!(refuse_unenforced_sandbox(None, &none).is_ok());
+        let err = refuse_unenforced_sandbox(Some(&policy(SandboxNetwork::None)), &none)
+            .expect_err("unsupported sandbox must be refused");
+        assert_eq!(err.kind(), io::ErrorKind::Unsupported);
+        let msg = err.to_string();
+        for name in ["file access", "network", "system calls"] {
+            assert!(msg.contains(name), "{msg}");
+        }
+        let all = caps(Enforced, Enforced, Enforced);
+        assert!(refuse_unenforced_sandbox(Some(&policy(SandboxNetwork::None)), &all).is_ok());
+    }
 }

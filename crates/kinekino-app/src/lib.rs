@@ -17,7 +17,6 @@ pub use config::{AppConfig, Source};
 pub use env::Env;
 
 use kinekino_browser::engine::registry::{self as browser, BrowserRegistry};
-use kinekino_core::port::credential::CredentialStore;
 use kinekino_core::port::{DisplayServer, ErrorCode, OsId, PortError, PortResult, TargetPlatform};
 use std::process::ExitCode;
 
@@ -26,7 +25,6 @@ pub struct App {
     pub target: TargetPlatform,
     pub config: AppConfig,
     pub browser: BrowserRegistry,
-    pub credentials: Box<dyn CredentialStore>,
 }
 
 /// Builds the application graph. `KINEKINO_PLATFORM=<os>[-<display>]` overrides detection.
@@ -40,7 +38,6 @@ pub fn bootstrap(args: &Args, env: &Env) -> PortResult<App> {
         target,
         config,
         browser: browser::registry(),
-        credentials: Box::new(kinekino_platform::session::SessionCredentialStore::new()),
     })
 }
 

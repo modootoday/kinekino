@@ -165,6 +165,8 @@ impl PluginWorker {
                     deadline,
                     source: None,
                     fault: None,
+                    // Unsandboxed until the OS sandbox adapters land (ADR 20261109051610).
+                    sandbox: None,
                 },
                 None,
             )

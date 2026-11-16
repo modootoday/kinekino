@@ -1,5 +1,4 @@
 //! Synthetic catalog declarations and ordinary files, never actual model execution.
-#![cfg(windows)]
 #[path = "support/cli_exe.rs"]
 mod cli_exe;
 #[path = "sprite_capture_cli/custody.rs"]
@@ -382,7 +381,14 @@ fn mid_hash_cancel_timeout_and_busy_keep_original_file_guards_until_return() {
         fn checkpoint(&self) -> Result<(), ApiError> {
             let n = self.calls.fetch_add(1, Ordering::SeqCst) + 1;
             if n == 20 {
-                for path in &self.paths {
+                // Only mandatory share modes let an open guard deny writers; POSIX opens cannot.
+                let paths =
+                    if kinekino_player::infrastructure::os_policy::has_mandatory_share_modes() {
+                        &self.paths[..]
+                    } else {
+                        &[]
+                    };
+                for path in paths {
                     assert!(
                         fs::OpenOptions::new().write(true).open(path).is_err(),
                         "Original file guard was released early: {}",

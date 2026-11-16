@@ -21,7 +21,7 @@ The workspace moves the Meari crates from 0.2.0 to 0.3.0 together:
 
 Bumping only `meari` or only `meari-native` (Dependabot) left 0.2 `meari-dom`/`meari-shell` in the graph. `kinekino-player-ui` then failed to build, because it mixed two `blitz_dom` versions (`SpecialElementData`, `ScrollBehavior`).
 
-`meari-native` 0.3.0 still pins `rfd =0.17.2` and `winit =0.31.0-beta.3`, the same versions the workspace pins, so nothing else moves. A separate `rfd` 0.18 bump cannot resolve while `meari-native` pins 0.17.2.
+`meari-native` 0.3.0 still pins `rfd =0.17.2` and `winit =0.31.0-beta.3`. The workspace pins the same `winit`. Its own `rfd` is `=0.18.0` (already on `main`), so the lockfile carries both `rfd` 0.17.2 (through `meari-native`) and 0.18.0 (the workspace crates), as it did with `meari-native` 0.2.
 
 No source changes were needed.
 

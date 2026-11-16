@@ -145,6 +145,12 @@ pub fn symlink_file(target: &Path, link: &Path) -> io::Result<()> {
     std::os::windows::fs::symlink_file(target, link)
 }
 
+/// Creates a directory symlink at `link` pointing to `target` (fixtures for link-rejection checks).
+/// Requires the symlink privilege or Developer Mode; failure stays a real error.
+pub fn symlink_dir(target: &Path, link: &Path) -> io::Result<()> {
+    std::os::windows::fs::symlink_dir(target, link)
+}
+
 #[cfg(test)]
 mod normalize_tests {
     use super::normalize_local_path;
