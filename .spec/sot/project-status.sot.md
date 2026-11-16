@@ -37,7 +37,7 @@ verify: manual
 
 - **Linux:** 주 개발·검증 OS. X11 실화면 확인 완료. Wayland는 hosted 러너(헤드리스 sway 1.11)에서 창 매핑·가장자리 드래그·리사이즈 30/30 확인. 리사이즈 지연 p50이 실행마다 39ms·235ms로 달라 원인 미규명. 실제 GPU·분수 배율·다른 컴포지터는 미확인.
 - **Windows:** windows-2022 러너에서 플레이어 창 표시·바깥 리사이즈 30/30(p50 48ms, p95 70ms)·가장자리 드래그 위임 확인. libmpv DLL 폴더 탐색 결함 KB-015는 `9467dbd`에서 수정. **재생은 미검증**(GPU 없는 러너에서 `libmpv produced no frame`). 실제 GPU·DPI 배율도 미검증.
-- **macOS:** 지원 판정(ADR)만 있다. `aarch64-apple-darwin` 타입 검사 통과, CI 권고 실행에서 테스트 약 284건 실패(프로세스 시작 스탬프 부재가 첫 원인). 실기 검증 없음.
+- **macOS:** 지원 판정(ADR)만 있다. 프로세스 시작 스탬프(IPC 선행 조건)는 2026-11-16 `proc_pidinfo`로 구현했고 `aarch64-apple-darwin` clippy만 통과했다(macOS 실행 미검증). `aarch64-apple-darwin` 타입 검사 통과, CI 권고 실행에서 테스트 약 284건 실패(프로세스 시작 스탬프 부재가 첫 원인). 실기 검증 없음.
 
 ## 보류(사용자 지시 전에는 손대지 않음)
 
