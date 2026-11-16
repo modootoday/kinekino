@@ -9,7 +9,7 @@ sections:
   - { c: prose }
 ---
 
-All AI features call one inference port. You pick where models run; kinekino asks before anything leaves your machine and stops before a budget is exceeded. The whole port is planned for P1b. `status:planned`
+All AI features call one inference port. You pick where models run; kinekino asks before anything leaves your machine and stops before a budget is exceeded. The port, consent and cost guard are built and tested against a mock server; no real model has been called yet (P7 waits for approval). `status:partial`
 
 ## Modes
 
@@ -28,7 +28,7 @@ All AI features call one inference port. You pick where models run; kinekino ask
 | Consent scope | per project (task, project or always) |
 | Upload | only needed segments or frames, never a whole video |
 | Network timeouts | 10 s connect, 120 s request, 3 retries |
-| Token | stored in the OS credential store; settings show status only |
+| Token | kept for the current session only for now (OS credential store not wired yet); settings show status only |
 
 > [!WARNING]
 > Cloud models may charge you. The cost guard stops a job before it goes over budget, not after.

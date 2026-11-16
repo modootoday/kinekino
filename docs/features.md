@@ -16,9 +16,9 @@ Each badge is checked against the roadmap plan and the code. `status:available` 
 - **[Playback](features/playback.md)**: mpv playback, episodes, resume and skip. `status:partial`
 - **[Studio](features/studio.md)**: timeline ranges, clips, snapshots, review and jobs. `status:partial`
 - **[Subtitles and AI](features/subtitles-ai.md)**: subtitle editing, speech to text, speakers, translation. `status:partial`
-- **[Local and cloud inference](features/inference.md)**: one port for local and cloud models, with consent and a cost guard. `status:planned`
+- **[Local and cloud inference](features/inference.md)**: one port for local and cloud models, with consent and a cost guard; tested against a mock server only. `status:partial`
 - **[AI agents](agents.md)**: CLI, request JSON and an MCP server. `status:partial`
-- **[Settings and privacy](settings.md)**: one settings page for inference, playback and agents. `status:planned`
+- **[Settings and privacy](settings.md)**: one settings page for inference, playback and agents. `status:partial`
 
 ## All features
 
@@ -40,8 +40,8 @@ Each badge is checked against the roadmap plan and the code. `status:available` 
 | Translation and summaries | `status:planned` | P5 |
 | OCR and subtitle search | `status:planned` | P5 |
 | Local model packs | `status:planned` | P5 |
-| Inference consent and cost guard | `status:planned` | P1b |
-| Settings page | `status:planned` | P6; schema decided |
-| MCP server | `status:planned` | P9 |
-| Meari UI | `status:partial` | Player and settings windows on Linux and Windows; macOS in P8 |
+| Inference consent and cost guard | `status:partial` | Tested against a mock server; no real model call yet (P7) |
+| Settings page | `status:partial` | Window checked on Linux X11; `kinekino settings` CLI available |
+| MCP server | `status:partial` | Off by default; tools limited to host-free commands |
+| Meari UI | `status:partial` | Player and settings windows checked on Linux X11; player window smoke on Windows and Wayland runners; macOS not checked |
 | Provenance of edits | `status:partial` | |

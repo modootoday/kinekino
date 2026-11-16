@@ -35,7 +35,7 @@ kinekino는 영상을 재생하고, 자르고, 자막을 붙입니다. 모든 �
 - **[클립과 스냅샷](features/studio.md)**: 프레임 캡처, 스냅샷 내보내기, 쇼츠 렌더를 작업으로. `status:partial`
 - **[리뷰](features/studio.md)**: AI 제안을 반영 전에 수락하거나 거절. `status:partial`
 - **[AI 자막](features/subtitles-ai.md)**: 음성 인식, 화자, 번역을 하나의 추론 포트로. `status:planned`
-- **[에이전트](agents.md)**: 지금은 CLI, MCP 서버는 계획에 있음. `status:partial`
+- **[에이전트](agents.md)**: CLI와 로컬 MCP 서버(기본 꺼짐). `status:partial`
 
 ## 타임라인에서 클립 만들기
 
@@ -85,7 +85,7 @@ kinekino --input request.json --json
 원하면 추론을 로컬에서 먼저 돌립니다. 클라우드 모델은 동의가 있어야 하고 비용 한도 안에서만 씁니다. 필요한 구간이나 프레임만 올리고 영상 전체는 올리지 않습니다.
 
 > [!NOTE]
-> 설정 화면과 추론 포트는 계획 단계입니다(P1b, P6). 기본값은 이미 정해져 있고 설정 페이지에 있습니다.
+> 설정 창과 추론 포트는 만들어져 있습니다. 창은 Linux에서 확인했고, 포트는 목 서버로만 시험했으며 실제 모델은 아직 부르지 않았습니다. 기본값은 설정 페이지에 있습니다.
 
 [설정과 개인정보](settings.md)
 
