@@ -15,6 +15,13 @@ updates:
     groups:
       cargo-minor:
         update-types: [minor, patch]
+    ignore:
+      # windows-core must stay on the generation the windows crate and webview2-com use.
+      # windows-core 0.100 has no matching windows release (newest windows is 0.62.x, which
+      # needs windows-core ^0.62), and mixing the two breaks the Windows build. Bump these
+      # three together once windows and webview2-com move to the same generation.
+      - dependency-name: windows-core
+        versions: [">= 0.63"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
