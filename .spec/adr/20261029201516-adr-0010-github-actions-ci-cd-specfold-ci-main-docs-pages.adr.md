@@ -35,7 +35,7 @@ rel:
 | 의존성 갱신 | 없음 | Dependabot(cargo, github-actions) 주간 묶음 | SHA 고정 액션 갱신 경로 |
 
 ## Decision
-1. 파일: `.github/workflows/ci.yml`(lint, windows-gate, test, site), `.github/workflows/release.yml`(draft, binaries, finish), `.github/workflows/window-smoke.yml`(수동 실행, 실제 플레이어 창: Windows 스모크·Wayland 리사이즈 실측, 2026-11-14 추가), `.github/dependabot.yml`, `.github/scripts/*.sh`, `.github/RELEASING.md`.
+1. 파일: `.github/workflows/ci.yml`(lint, windows-gate, test, site), `.github/workflows/release.yml`(draft, binaries, finish), `.github/workflows/window-smoke.yml`(수동 실행, 실제 플레이어 창: Windows 스모크·Wayland 리사이즈 실측, 2026-11-14 추가), `.github/dependabot.yml`, `.github/scripts/*.sh`, `.github/RELEASING.md`, `.github/rulesets/main-protected.json`(main 규칙 정의, 사람이 적용, 2026-11-16 추가, [[adr:kinekino/20261116062843]]).
 2. 포크 PR: CI는 시크릿을 쓰지 않으므로 포크 코드가 시크릿과 함께 도는 경로가 없다(2026-11-16부터 PR에서도 실행). `pull_request_target`은 쓰지 않는다. PR 트리거를 켜면 `pull_request`만 쓴다.
 3. GitHub Environments: specfold 규칙을 그대로 따른다(2026-10-30 사용자 지시로 `release` 환경 폐기). 규칙은 "레지스트리 하나당 환경 하나, 이름은 레지스트리 이름(`crates`, `npm`), 필수 검토자, 태그 규칙 `v*`, 해당 레지스트리에 게시하는 잡에만 `github.event_name == 'push'`일 때 붙임, 인증은 Trusted Publishing(OIDC)"이다. kinekino는 현재 게시할 레지스트리가 없으므로 환경은 **0개**다.
    - `crates`: 해당 없음. 앱 crate는 `publish` 대상이 아니다. 라이브러리 crate를 공개하면 specfold와 같은 `crates` 잡·환경을 추가한다.

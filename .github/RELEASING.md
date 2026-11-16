@@ -8,7 +8,7 @@ builds and packages every target and deletes its draft.
 1. Bump `version` under `[workspace.package]` in the root `Cargo.toml`, run the usual checks
    (`cargo fmt --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test`,
    `cargo xtask lint-structure`, `cargo xtask spec-check`) and commit.
-2. Land it through a pull request to `main`; CI runs on the pull request. Optionally run the Release workflow (`dry-run`) by hand.
+2. Land it through a pull request to `main`; CI runs on the pull request and again after the merge. Optionally run the Release workflow (`dry-run`) by hand.
 3. Push the tag `v<version>`; the workflow fails if it does not match `Cargo.toml`. Pushing the
    tag is the release decision, as in specfold.
 4. Confirm the release page lists five archives and their `.sha256` files.
