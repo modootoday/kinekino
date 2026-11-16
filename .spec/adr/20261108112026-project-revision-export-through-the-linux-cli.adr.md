@@ -3,7 +3,7 @@ id: adr:kinekino/20261108112026
 title: Project revision export through the Linux CLI
 status: active
 created: 2026-11-08T11:20:26Z
-updated: 2026-11-08T11:20:26Z
+updated: 2026-11-16T10:40:00Z
 rel:
   governs:
     - crates/kinekino-player/src/application/projects
@@ -45,3 +45,7 @@ rel:
 - Linux CLI에서 `projects.create/inspect/save_revision/reconnect_source/export`가 `--project-root`로 동작하고 CLI fixture 테스트로 잠긴다.
 - 남은 일: 명시적 덮어쓰기·새 이름 정책(OUT-04), 다항목·preset 내보내기(OUT-07/08), Linux `--proposal-root`, 내보낸 문서 import.
 - skill: modoo.today skills 조회(파일 내보내기 계약)했으나 맞는 도메인 스킬 없음 → 미적용.
+
+## Record
+
+- 2026-11-16: The same opening now covers `--card-project-root`, `--asset-project-root` and `--clip-project-root`. Their stores (`CardProjectFiles`, `AssetProjectFiles`, `ClipProjectFiles`) use the same fixed-root guards and writer lock (`flock` on Unix) as `ProjectFiles`, and the runner's `cfg(windows)` branch was the only block. The three CLI test files are no longer Windows-only. Their pinned normal-CLI cases (create, save with CAS, historical inspect, matched against the typed SDK) passed on Linux with fresh evidence directories; before the runner change the card and clip cases failed. `--proposal-root`, `--review-root` and the model catalog stay Windows-only.

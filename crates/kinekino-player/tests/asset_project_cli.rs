@@ -1,4 +1,3 @@
-#![cfg(windows)]
 use kinekino_player::application::api::AssetClient;
 #[path = "support/owned_process_evidence.rs"]
 pub mod owned_process_evidence;
