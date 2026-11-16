@@ -233,8 +233,6 @@ fn actual_cli_capabilities_schemas_and_unsupported_dispatch_match_injected_clien
     let client = PlayerSdk::new(SubtitleFiles).with_frame_capture(FfmpegFrameCapture::discover());
     let client = client
         .with_snapshot_export(kinekino_player::infrastructure::snapshot_export::PngSnapshotExport);
-    // The CLI runner wires local speaker documents on Windows only (kinekino-host runner).
-    #[cfg(windows)]
     let client = client.with_speaker_documents(
         kinekino_player::infrastructure::speaker_annotation_files::LocalSpeakerFiles,
     );

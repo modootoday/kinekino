@@ -3,7 +3,7 @@ id: adr:kinekino/20261109121745
 title: macOS support and build feasibility assessment
 status: active
 created: 2026-11-09T12:17:45Z
-updated: 2026-11-09T12:17:45Z
+updated: 2026-11-16T09:30:00Z
 rel:
   governs: [crates/kinekino-platform, crates/kinekino-platform-unix]
   depends_on: [adr:kinekino/20261109071720, adr:kinekino/20261109101726]
@@ -105,3 +105,7 @@ Rejected:
 Would reverse this: a macOS CI run or Mac check that shows a blocker outside the POSIX adapter
 (for example in Meari's window driver or libmpv loading), which would call for a separate
 platform crate or a different window path.
+
+## Record
+
+- 2026-11-16: decision 3 implemented. `kinekino-platform-unix::ipc::process_start` reads `/proc` on Linux only, asks the kernel on macOS (`proc_pidinfo` with `PROC_PIDTBSDINFO`, start time in microseconds since the epoch, at least 1), and returns `Unsupported` on other Unix systems. A new test checks the stamp is non-zero and stable for this process, non-zero for a child, and refused for a missing pid. It ran on Linux; for `aarch64-apple-darwin` the crate passes clippy with `-D warnings` (type-check only). Running it on macOS waits for a hand-started `test-macos` CI run.

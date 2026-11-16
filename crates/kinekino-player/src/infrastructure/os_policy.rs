@@ -115,6 +115,23 @@ pub fn rename_no_replace(file: &File, staged: &Path, target: &Path) -> io::Resul
 pub fn create_transient_lock(path: &Path) -> io::Result<File> {
     os().create_transient_lock(path)
 }
+/// Whether a [`create_transient_lock`] lock at `path` is held right now. Windows deletes the
+/// lock file when its holder closes it, so the file existing is the answer. POSIX keeps the
+/// file after release, so there the probe tries a shared lock on it and drops it.
+pub fn transient_lock_held(path: &Path) -> io::Result<bool> {
+    if has_mandatory_share_modes() {
+        return match std::fs::symlink_metadata(path) {
+            Ok(_) => Ok(true),
+            Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(false),
+            Err(error) => Err(error),
+        };
+    }
+    match open_reserved_read(path) {
+        Ok(file) => Ok(try_lock_shared(&file).is_err()),
+        Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(false),
+        Err(error) => Err(error),
+    }
+}
 /// Builder-chain form of [`apply_share_mode`] / [`apply_open_flags`].
 pub trait OpenOptionsPolicy {
     fn share(&mut self, mode: ShareMode) -> &mut Self;
@@ -160,4 +177,24 @@ pub fn guarded_mutation(mutation: io::Result<()>) -> bool {
     let mandatory = os().host().has_mandatory_share_modes();
     assert_eq!(mutation.is_err(), mandatory, "{mutation:?}");
     !mandatory
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn transient_lock_is_held_only_while_its_handle_lives() {
+        let dir = std::env::temp_dir().join(format!("kk-transient-lock-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join(".publish.lock");
+        assert!(!super::transient_lock_held(&path).unwrap(), "never taken");
+        let held = super::create_transient_lock(&path).unwrap();
+        assert!(super::transient_lock_held(&path).unwrap(), "held");
+        drop(held);
+        assert!(!super::transient_lock_held(&path).unwrap(), "released");
+        let again = super::create_transient_lock(&path).unwrap();
+        assert!(super::transient_lock_held(&path).unwrap(), "taken again");
+        drop(again);
+        let _ = std::fs::remove_dir_all(&dir);
+    }
 }
