@@ -1,4 +1,3 @@
-#![cfg(windows)]
 #[path = "support/cli_exe.rs"]
 mod cli_exe;
 #[path = "support/owned_process_evidence.rs"]

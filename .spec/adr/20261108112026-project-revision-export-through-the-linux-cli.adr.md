@@ -3,7 +3,7 @@ id: adr:kinekino/20261108112026
 title: Project revision export through the Linux CLI
 status: active
 created: 2026-11-08T11:20:26Z
-updated: 2026-11-16T12:20:00Z
+updated: 2026-11-16T11:00:00Z
 rel:
   governs:
     - crates/kinekino-player/src/application/projects
@@ -49,3 +49,4 @@ rel:
 ## Record
 
 - 2026-11-16: Speaker annotation documents open on the Linux CLI: the runner attaches `LocalSpeakerFiles` on every OS, where before it did so only on Windows and other systems answered "Speaker annotation file adapter unavailable". The adapter reads and publishes through `immutable_storage_paths` and the file publication helper, which go through the OS policy port. The shared test custody guard (`tests/sprite_capture_cli/custody.rs`) now opens files and directories through the same port. Windows behavior is unchanged: same share modes, no-follow and directory flags, and file index. On Linux it uses `O_NOFOLLOW` and dev + inode, so CLI tests that use it are no longer tied to Windows APIs. `tests/speaker_annotations_cli.rs` runs on Linux; all 6 cases pass. Before the runner change the CLI cases failed there. The check that a writer is denied while the original is held now runs only where the OS has mandatory share modes (`has_mandatory_share_modes`), because POSIX locks are advisory.
+- 2026-11-16: `--proposal-root` opens on Linux (the Linux proposal root listed as remaining above). `ProposalFiles` uses the same root guards and writer lock as `ProjectFiles`. Off Windows, a request that also configures the historical evidence verifier (`--historical-verifier` and related flags) is refused as `unsupported`, because the verifier starts a pinned external program whose process ownership has not been checked there; bound reads that need it stay unavailable on Linux. Five proposal test files are no longer Windows-only. `tests/projects.rs` now builds its stored locators from the temp directory instead of drive-letter paths. The pinned normal-CLI capture-mutation and accepted-subtitle-export cases pass on Linux; capture-mutation needs a stripped CLI because the debug build is larger than that test's 128 MiB hashing bound.
