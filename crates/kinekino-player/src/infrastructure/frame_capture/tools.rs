@@ -41,13 +41,18 @@ pub(crate) fn open(path: &Path, expected: &str) -> Result<PinnedTool, ApiError> 
             "Frame tool SHA256 differs from the explicit host configuration",
         ));
     }
-    let program = os_policy::pinned_program(&file, &path).map_err(program_error)?;
+    let program = pinned_program(&file, &path)?;
     guards.push(file);
     Ok(PinnedTool {
         path,
         program,
         guards,
     })
+}
+
+/// Program to spawn for a verified tool file (ADR 20261116151137), as an API error on refusal.
+pub(crate) fn pinned_program(verified: &File, path: &Path) -> Result<PathBuf, ApiError> {
+    os_policy::pinned_program(verified, path).map_err(program_error)
 }
 
 fn program_error(error: std::io::Error) -> ApiError {
