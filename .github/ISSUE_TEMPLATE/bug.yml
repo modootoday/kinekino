@@ -1,0 +1,36 @@
+name: Bug
+description: Something kinekino does differs from what it should do.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you saw, and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How to reproduce
+      description: Commands or steps. Use `<repo>` and `<private-path>` instead of local paths, and leave out personal media.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: Output of `kinekino version`, or a commit hash.
+  - type: dropdown
+    id: os
+    attributes:
+      label: OS
+      options: [Linux X11, Linux Wayland, Windows, macOS, Other]
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - "high: data loss, crash, or a security problem"
+        - "medium: a feature does not work"
+        - "low: cosmetic, or a workaround exists"
