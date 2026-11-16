@@ -3,7 +3,7 @@
 use kinekino_browser::engine::chromium::cdp::{CdpEngine, CdpLaunch};
 use kinekino_browser::engine::contract::{self, fixture as support};
 use kinekino_browser::engine::port::{
-    BrowserEngine, BrowserEvent, FrameCapture, InterceptedRequest, NetworkInterceptor,
+    BrowserEngine, BrowserEvent, Capability, FrameCapture, InterceptedRequest, NetworkInterceptor,
     RequestDecision,
 };
 use std::time::Duration;
@@ -113,4 +113,68 @@ fn headless_cdp_passes_port_contract() {
     let _ = std::fs::remove_dir_all(&dir);
     println!("{report}");
     assert!(report.passed(), "{:?}", report.failures());
+    assert!(
+        report
+            .checks
+            .contains(&("protocol-session", contract::Outcome::Pass)),
+        "Chrome over CDP declares and passes the protocol session: {report}"
+    );
+}
+
+/// ADR 20261109071720: the protocol session carries calls and the provider's events
+/// (network responses, frames) from headless Chrome on a local fixture.
+#[test]
+fn headless_cdp_protocol_session_passes_calls_and_events() {
+    if !CdpLaunch::executable().exists() {
+        eprintln!("skip: chrome not installed");
+        return;
+    }
+    let dir = std::env::temp_dir().join(format!("kk-protocol-{}", std::process::id()));
+    let base = support::serve(None);
+    let mut engine = CdpEngine::launch(&CdpLaunch {
+        headless: true,
+        profile_dir: dir.join("profile"),
+        window: (800, 600),
+        app_url: None,
+    })
+    .expect("launch chrome");
+    assert!(engine.capabilities().contains(Capability::ProtocolSession));
+    let p = engine.protocol().expect("declared protocol session");
+    p.call(None, "Network.enable", serde_json::json!({}))
+        .expect("Network.enable");
+    let version = p
+        .call(None, "Browser.getVersion", serde_json::json!({}))
+        .expect("Browser.getVersion");
+    assert!(version["product"].as_str().is_some(), "{version}");
+    let err = p.call(None, "No.suchMethod", serde_json::json!({}));
+    assert!(err.is_err(), "an unknown method is an error: {err:?}");
+    let err = p.call(
+        Some("not-a-session"),
+        "Runtime.evaluate",
+        serde_json::json!({}),
+    );
+    assert!(err.is_err(), "an unknown session is an error: {err:?}");
+    engine.navigate(&format!("{base}/")).expect("navigate");
+    std::thread::sleep(Duration::from_millis(300));
+    let p = engine.protocol().expect("declared protocol session");
+    let events = p.drain_protocol_events();
+    let page_url = format!("{base}/");
+    let response = events
+        .iter()
+        .find(|e| e.method == "Network.responseReceived" && e.params["response"]["url"] == page_url)
+        .unwrap_or_else(|| panic!("no responseReceived for {page_url}: {events:?}"));
+    assert_eq!(
+        response.session, None,
+        "page session events carry no child id"
+    );
+    assert!(
+        events.iter().any(|e| e.method == "Page.frameNavigated"),
+        "frame events reach the session: {:?}",
+        events.iter().map(|e| &e.method).collect::<Vec<_>>()
+    );
+    assert!(p.drain_protocol_events().is_empty(), "drained once");
+    p.set_auto_attach(true).expect("auto-attach on");
+    p.set_auto_attach(false).expect("auto-attach off");
+    engine.close().expect("close");
+    let _ = std::fs::remove_dir_all(&dir);
 }
