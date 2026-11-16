@@ -100,7 +100,9 @@ jobs:
         run: cargo build --locked --release -p kinekino-cli -p kinekino-app --bins --target ${{ matrix.target }}
       - name: Package
         shell: bash
-        run: bash .github/scripts/package.sh "${{ matrix.target }}" "target/${{ matrix.target }}/release" dist
+        run: |
+          archive=$(bash .github/scripts/package.sh "${{ matrix.target }}" "target/${{ matrix.target }}/release" dist)
+          cargo xtask package-check --target "${{ matrix.target }}" --archive "$archive"
       - name: Upload
         shell: bash
         run: |

@@ -1,0 +1,10 @@
+# Files in each release archive, read by package.sh and checked by `cargo xtask package-check`
+# (ADR 20261109101726 slice b). One entry per line, all placed at the archive's top folder:
+#   bin NAME   a release binary from the target's release directory (`.exe` added on Windows)
+#   file NAME  a file from the repository root
+bin kinekino
+bin player
+bin kinekino-vad-worker
+file LICENSE
+file README.md
+file THIRD_PARTY.md
