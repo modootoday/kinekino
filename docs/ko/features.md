@@ -42,6 +42,6 @@ sections:
 | 로컬 모델 팩 | `status:planned` | P5 |
 | 추론 동의와 비용 보호 | `status:planned` | P1b |
 | 설정 화면 | `status:planned` | P6, 스키마 확정 |
-| MCP 서버 | `status:planned` | P9 |
+| MCP 서버 | `status:partial` | 기본 꺼짐, 호스트 없이 되는 명령만 도구로 |
 | 메아리 UI | `status:partial` | 플레이어·설정 창은 Linux와 Windows, macOS는 P8 |
 | 편집 출처 기록 | `status:partial` | |

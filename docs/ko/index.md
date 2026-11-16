@@ -35,7 +35,7 @@ kinekino는 영상을 재생하고, 자르고, 자막을 붙입니다. 모든 �
 - **[클립과 스냅샷](features/studio.md)**: 프레임 캡처, 스냅샷 내보내기, 쇼츠 렌더를 작업으로. `status:partial`
 - **[리뷰](features/studio.md)**: AI 제안을 반영 전에 수락하거나 거절. `status:partial`
 - **[AI 자막](features/subtitles-ai.md)**: 음성 인식, 화자, 번역을 하나의 추론 포트로. `status:planned`
-- **[에이전트](agents.md)**: 지금은 CLI, MCP 서버는 계획에 있음. `status:partial`
+- **[에이전트](agents.md)**: CLI와 로컬 MCP 서버(기본 꺼짐). `status:partial`
 
 ## 타임라인에서 클립 만들기
 

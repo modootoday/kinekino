@@ -25,4 +25,4 @@ sections:
 - **썸네일용 프레임**: FFmpeg로 `production.capture_frame`. `status:partial`
 - **에이전트 보조 편집**: 에이전트가 제안, 사람이 리뷰. `status:partial`
 - **완전 오프라인**: 로컬 팩과 로컬만 모드. `status:planned`
-- **MCP 클라이언트 연결**: `kinekino mcp serve`. `status:planned`
+- **MCP 클라이언트 연결**: `kinekino mcp serve`. `status:partial`

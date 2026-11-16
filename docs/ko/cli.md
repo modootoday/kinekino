@@ -23,5 +23,5 @@ kinekino platform config
 |---|---|
 | 위 명령 | `status:available` |
 | OS IPC 로컬 호스트 `--endpoint` | `status:partial` |
-| `kinekino settings` | `status:planned` |
-| `kinekino mcp serve` | `status:planned` |
+| `kinekino settings` | `status:available` |
+| `kinekino mcp serve` | `status:partial` |

@@ -25,4 +25,4 @@ Each use case lists the parts it needs. A case is only as ready as its least rea
 - **Grab frames for a thumbnail**: `production.capture_frame` with FFmpeg. `status:partial`
 - **Agent-assisted editing**: an agent writes proposals; you review. `status:partial`
 - **Work fully offline**: local only mode with local packs. `status:planned`
-- **Plug into an MCP client**: `kinekino mcp serve`. `status:planned`
+- **Plug into an MCP client**: `kinekino mcp serve`. `status:partial`
