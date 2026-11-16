@@ -296,7 +296,6 @@ r-cfg crates/kinekino-player/tests/accepted_subtitle_export_cli.rs
 r-cfg crates/kinekino-player/tests/asset_project_cli.rs
 r-cfg crates/kinekino-player/tests/capture_mutation.rs
 r-cfg crates/kinekino-player/tests/card_project_cli.rs
-r-cfg crates/kinekino-player/tests/catalog.rs
 r-cfg crates/kinekino-player/tests/cli_discovery_inventory.rs
 r-cfg crates/kinekino-player/tests/clip_project_cli.rs
 r-cfg crates/kinekino-player/tests/cue_edit_cli.rs

@@ -3,7 +3,7 @@ id: adr:kinekino/20261108112026
 title: Project revision export through the Linux CLI
 status: active
 created: 2026-11-08T11:20:26Z
-updated: 2026-11-08T11:20:26Z
+updated: 2026-11-16T12:10:00Z
 rel:
   governs:
     - crates/kinekino-player/src/application/projects
@@ -45,3 +45,7 @@ rel:
 - Linux CLI에서 `projects.create/inspect/save_revision/reconnect_source/export`가 `--project-root`로 동작하고 CLI fixture 테스트로 잠긴다.
 - 남은 일: 명시적 덮어쓰기·새 이름 정책(OUT-04), 다항목·preset 내보내기(OUT-07/08), Linux `--proposal-root`, 내보낸 문서 import.
 - skill: modoo.today skills 조회(파일 내보내기 계약)했으나 맞는 도메인 스킬 없음 → 미적용.
+
+## Record
+
+- 2026-11-16: `--catalog-root` opens on Linux. The runner refused it there ("Catalog artifacts require the Windows path guard adapter"), but `CatalogFiles` stores captured artifacts through the same `immutable_storage_paths` guards as the project stores, and those go through the OS policy port. The catalog is still the experimental `document/1` source-plugin backend, and selectors on real sites are still unverified; `catalog.search` and `episodes.list` behave as they do on Windows. The existing CLI discovery test (`tests/catalog.rs`) no longer requires Windows. It had used only a Windows console flag, which is now dropped. It runs on Linux with the site-neutral fixture plugin, and failed there before the runner change.
