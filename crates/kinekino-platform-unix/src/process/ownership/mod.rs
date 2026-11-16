@@ -30,6 +30,10 @@ pub const CAPABILITIES: ProcessCapabilities = ProcessCapabilities {
     },
     family_memory_peaks: Enforcement::Advisory,
     exact_family_count: false,
+    // Sandbox adapters are later slices (ADR 20261109051610); until then nothing is enforced.
+    sandbox_file_access: Enforcement::Unsupported,
+    sandbox_network: Enforcement::Unsupported,
+    sandbox_system_calls: Enforcement::Unsupported,
 };
 
 /// True when this process sits in a cgroup v2 hierarchy whose `cgroup.subtree_control` it may

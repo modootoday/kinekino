@@ -31,6 +31,10 @@ pub const CAPABILITIES: ProcessCapabilities = ProcessCapabilities {
     affinity_budget: Enforcement::Enforced,
     family_memory_peaks: Enforcement::Enforced,
     exact_family_count: true,
+    // Sandbox adapters are later slices (ADR 20261109051610); until then nothing is enforced.
+    sandbox_file_access: Enforcement::Unsupported,
+    sandbox_network: Enforcement::Unsupported,
+    sandbox_system_calls: Enforcement::Unsupported,
 };
 
 #[derive(Debug, Default)]
