@@ -3,7 +3,7 @@ id: plan:kinekino/20261031153240
 title: kinekino 완성 로드맵과 마일스톤
 status: draft
 created: 2026-10-31
-updated: 2026-11-16
+updated: 2026-11-16T13:26:31Z
 rel:
   governs: [crates]
 ---
@@ -187,3 +187,4 @@ PotPlayer를 기준으로 한 Linux 우선 플레이어를 끝까지 완성하�
 - 2026-11-16: M4 criterion check — `--model-root` (read-only `models.list/inspect/verify`) opens on the Linux CLI, covered by a cross-platform CLI test against the typed SDK. No downloads or model execution. M4 not closed.
 - 2026-11-16: M4 criteria check (Linux CLI not Unsupported) — card, asset and clip project storage were refused on Linux only by the runner's Windows gate; they now open with `--card-project-root`, `--asset-project-root` and `--clip-project-root`, and their normal-CLI cases pass on Linux. Proposal and review storage and the local model catalog stay Windows-only. M4 not closed.
 - 2026-11-16: M4 criteria check — proposal storage (`--proposal-root`) opens on the Linux CLI, so live proposal captures, capture edits and accepted subtitle export are no longer Unsupported there. The historical evidence verifier stays Windows-only and is refused off Windows. M4 not closed.
+- 2026-11-16: M4-1 record (the slice landed earlier without a Record line) — jobs submit, cancel and retry work through the Linux CLI against an explicit `--serve-jobs` host with local subtitle fixtures only (`crates/kinekino-cli/tests/job_lifecycle_cli.rs`, 3 tests; `job_host_cli.rs` covers the host and `--endpoint` clients on every OS). No inference or network. The Windows-only `jobs` suite in `kinekino-player` waits on the browser provider (see the owner list). M4 not closed.
