@@ -1,4 +1,3 @@
-#![cfg(windows)]
 //! Existing local media only. Two existing commands, not a new atomic workflow API.
 use kinekino_player::application::api::PlaybackClient;
 #[path = "support/cli_exe.rs"]
