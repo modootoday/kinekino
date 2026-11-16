@@ -3,7 +3,7 @@ id: sot:kinekino/project-status
 title: kinekino 현재 상태와 우선순위
 status: active
 created: 2026-10-29
-updated: 2026-10-30
+updated: 2026-11-16
 verify: manual
 ---
 
@@ -11,41 +11,53 @@ verify: manual
 
 ## Rule
 
-이 문서는 kinekino의 현재 상태를 한 곳에서만 적는 정본이다. 다른 문서는 상태를 복제하지 않고 이 문서를 링크한다. 기준 시점은 2026-10-30 23:30 KST, 로컬 `main` `6a6d503`이다. 단계 정의와 완료 기준은 [[plan:kinekino/20261029151512]]에 있고 여기에는 상태만 적는다.
+이 문서는 kinekino의 현재 상태를 한 곳에서만 적는 정본이다. 다른 문서는 상태를 복제하지 않고 이 문서를 링크한다. 기준 시점은 2026-11-16, `main` `46496b3`이다. 마일스톤 정의·완료 기준·조각별 기록은 [[plan:kinekino/20261031153240]]에, 기능 인벤토리(#)와 단계(P0~P9) 정의는 [[plan:kinekino/20261029151512]]에 있고 여기에는 상태만 적는다. 인벤토리 표의 행별 판정은 2026-10-29 시점 그대로라 현재 상태로 읽지 않는다.
 
-- **우선순위(사용자 지시 2026-10-30):** Cross-OS 기반(P0) 위에서 단계별 완성. 리팩터링은 lint 예외 확대·허용치 완화·테스트 skip 없이 allowlist를 실제로 줄이는 방향으로만 한다.
-- **병합 완료(로컬 main):** 구조 재편 M1a(`c698f40`)·M1b(`116d5a4`, `259e3a0`)·M2(`ec00ae5`)·M3 플러그인 호스트(`ec08d47`)·M4 카탈로그 플러그인(`47ddd71`)·M5 문서 분리(`c6a97da`); P1b 설정 CLI(`cd6e2e1`); P3 adblock 명령(`32b78bc`); P4 Linux snapshot(`afb815a`)·Windows 실측(`2542829`); P5 ASS 출력(`6b69409`)·Linux job host(`3be1df6`)·AI 실행기(`a723381`)·ASR 큐(`a1a7ea1`)·전사→큐 Jobs(`f7ff389`); P6 설정 페이지(`a9a495b`)·Windows 설정 창(`a820298`)·Meari 설정(`4d9fdf0`); P9 MCP 서버(`198ae78`); 문서·라이선스·CI 권고 작업(`e21efe8`~`80ece14`).
-- **플러그인 SDK([[sot:kinekino/plugin-sdk-extraction]]):** `crates/kinekino-plugin-sdk` 0.1.0(serde·serde_json만, publish=false). S1 wire 추출·S2 `plugin.json` 매니페스트·합성 골든 fixture(core·host 양쪽 테스트가 읽음)·S3 `SourcePlugin`/`serve` 병합. S4는 비공개 저장소 대신 kinekino 밖 `<private-path>` 합성 소비자를 path·git(file://, main `6a6d503`) 의존 양쪽으로 빌드·실행해 검증(git 확인용 폴더는 정리). S5(push·`plugin-sdk-v0.1.0` 태그)는 사용자 승인 대기.
-- **Meari:** crates.io 게시본 `meari`·`meari-native` 0.1.0(포크 `meari-dom`·`meari-paint`·`meari-shell` 포함)을 쓴다. `vendor/meari`와 `[patch.crates-io]`는 제거(이전 vendor와 소스 동일 확인). Pretendard 제거, 글꼴은 Noto Sans KR/JP(OFL)만, 리비전 고정·SHA-256 검증 다운로드 캐시(`kinekino fonts fetch`), 저장소에 글꼴 미포함.
+- **우선순위:** 재생 핵심 → 플레이어 UI → 호스트·플러그인 경계 → 제작 기능과 구조 정리 → 마무리(로드맵 원칙). 리팩터링은 lint 예외 확대·허용치 완화·테스트 skip 없이 allowlist를 실제로 줄이는 방향으로만 한다.
+- **구분:** 조각 병합, 실화면 확인, 마일스톤 닫힘은 서로 다른 판정이다. 아래에서 "완료"는 기록된 근거가 있는 것만, "미검증"은 실행 기록이 없는 것이다.
 
-## 로드맵 단계별 상태
+## 마일스톤 상태
 
-|단계|상태|남은 것|
+|마일스톤|상태|남은 것|
 |-|-|-|
-|P0 기반 아키텍처|구현|lint-structure 372건 allowlist 고정·신규 0, Windows 컴파일 게이팅 완료|
-|P1 core 컨텍스트화|부분|#32 완료(ae7c252): `kinekino-core::playback`(PlaybackControl 이전, `PlaybackBackend` 포트·FakeBackend·`check_backend` 계약, 재개 정책 #9). playback file-and-dir 11건 해소로 allowlist 372→361. 다음 컨텍스트 분리는 인벤토리 순서대로|
-|P1b 추론 포트·HF 어댑터|부분|포트·HF 어댑터·목 서버·비용 원장·설정 CLI 구현. Unix 영구 토큰 저장소 `FileCredentialStore`(0600, `932493b`). OS 키체인 연동·실 HF 호출 미검증|
-|P2 Linux 재생|부분|8e518bf: `kinekino-platform-unix::mpv::MpvBackend`(JSON IPC 소켓, `PlaybackBackend` 구현, `check_backend` 통과). 헤드리스 `--vo=null --ao=null` 시험 4건, ffmpeg 합성 4초 영상. mpv 탐색: 명시 경로→`$KINEKINO_MPV`→PATH, 바이너리 미커밋. 설치 절차 `.spec/guide/mpv-install.guide.md`. 이어보기 저장 `89e3e03`: `ResumeStore` 포트·`FileResumeStore`(JSON 원자 저장)·`ResumingPlayback`(열 때 복원, checkpoint/stop 저장·완료 시 삭제), mpv 왕복 시험. VideoSurface 포트 `108880c`, libmpv 렌더 어댑터 `132c0e8`, Meari 텍스처 `202c104`, 플레이어 창 병합. 남은 것: GPU 렌더 경로|
-|P3 BrowserProviderPort|부분|adblock 명령·포트 병합, 실사이트 검증 보류(네트워크)|
-|P4 제작 executor|부분|Linux snapshot·Windows 실측 병합, 품질 판정은 사용자|
-|P5 자막·AI executor|부분|ASS 입출력·ASR·전사→큐·번역·OCR·화자분리 executor(목 계약 테스트) 병합(`6a6d503`). 실 HF 호출 미검증|
-|P6 설정·GUI|부분|설정 페이지·설정 창(Meari) 병합. 플레이어 창(Meari, `kinekino-player-ui`): 4b 텍스처 `202c104`, 5 창·컨트롤러·`kinekino watch`(Linux·Windows 같은 경로), Ctrl+O(macOS Cmd+O) 파일 열기 `c3f31a0`, 전체 화면 재생 중 컨트롤 자동 숨김(2.5초) `3620096`, libmpv `sub-text` 자막 오버레이 `4dca584`. 남은 것: 기존 `kinekino-player` eframe·egui·wry 제거, 작품 탐색 연결, Windows 실제 창 스모크([ADR](../adr/20261031020000-player-window-meari-libmpv.adr.md))|
-|P7 실 HF 평가|미착수|키·한도·동의 승인 필요|
-|P8 Windows·macOS 최종 검증|부분|아래 Windows 경과. macOS는 CI 권고 설정만, 실측 없음|
-|P9 MCP 서버|구현|`kinekino mcp serve` 병합|
+|M1 재생 핵심|닫힘(2026-11-05). 실화면 보완 M1-V1~V3 완료(Linux X11)|ASS 경로의 엔진 `sub-margin-y`를 컨트롤 표시와 맞추기|
+|M2 플레이어 UI|닫힘(2026-11-08, Linux X11). 단축키·우클릭 메뉴·재생목록 패널·OSD·설정 창 제목 줄·창/트레이 아이콘|Windows·macOS 창·트레이 아이콘(플랫폼 어댑터 대기), Wayland 트레이 미확인, 버튼 `:focus-visible`·WM 최대화 동기화|
+|M3 호스트·플러그인 경계|열림. M3-1~M3-8 조각 완료|자격증명 저장소의 제품 메모리 대체 경로 미연결, Windows Credential Manager 어댑터 없음|
+|M4 제작 기능(CLI)|열림. M4-1~M4-10 조각이 각 범위 안에서 완료|완료 기준과 코드 대조 판정. 피사체 분할은 설계만(`segment_subject` unsupported), whisper는 실측 준비만(실측은 승인 후)|
+|M5 구조·플랫폼 정리|열림. M5-1~M5-8 기록(M5-4~M5-8은 판정·ADR만)|allowlist 2~4단계(보류)와 ADR 후속 구현(GPU 렌더, 플러그인 OS 격리, Unix 브라우저 provider)|
+|M6 마무리·배포 준비|가용 범위만 완료. 전체 미닫힘|Windows 재생, 실제 GPU·DPI, macOS 실기, 패키지 빌드. 아래 OS별 상태 참고|
 
-## Windows
+## 게이트 상태
 
-2026-10-29 보류(`kinekino-platform-unix`가 Windows에서도 빌드되어 check 실패) → 2026-10-30 사용자 지시로 재개. Windows 게이트 범위 확장(`3e77636`), 테스트 정리 병합(`1b029f5`): build-host에서 18개 크레이트 clippy `-D warnings` 통과, 테스트는 symlink 권한 오류 1314(개발자 모드/권한 없음, 환경 요인) 4건 외 통과.
+- **원격 CI:** `main` `46496b3`에서 CI·Window smoke 수동 실행 모두 성공(GitHub Actions, 2026-11-14). Linux x86_64·arm64 전체 테스트 녹색(CI-1 기록: 1865 통과, 0 실패, 53 무시).
+- **로컬 재현(2026-11-16, Ubuntu 24.04 컨테이너):** fmt·clippy `-D warnings`·`lint-structure`(348 위반 전부 allowlist, 신규 0, 어댑터 밖 플랫폼 cfg 78파일 173건) 통과. `spec check`(specfold 0.5.1) 오류 0, 경고 4,701(대부분 옛 경로 링크), baseline 오류 122. 전체 테스트 1827 통과·39 실패·53 무시였고 실패는 모두 환경 요인으로 판정했다: 13건은 `XDG_RUNTIME_DIR` 미설정(설정 후 재실행 통과), 26건은 mpv/libmpv 0.37의 `loadfile` 인자 비호환(0.38 이상 필요, CI가 Ubuntu 26.04를 쓰는 이유). 코드 결함은 확인되지 않았다.
+- **CLI 표면:** 호스트 없이 `kinekino capabilities`를 실행하면 120개 명령 중 8개(`version`, `capabilities`, `schema`, `subtitles.convert`·`export_range`·`from_transcript`, `production.capture_frame`·`export_snapshot`)만 supported다. 나머지는 job host·`--project-root`·`kinekino watch` 같은 호스트 맥락에서 판정된다.
+
+## OS별 상태
+
+- **Linux:** 주 개발·검증 OS. X11 실화면 확인 완료. Wayland는 hosted 러너(헤드리스 sway 1.11)에서 창 매핑·가장자리 드래그·리사이즈 30/30 확인. 리사이즈 지연 p50이 실행마다 39ms·235ms로 달라 원인 미규명. 실제 GPU·분수 배율·다른 컴포지터는 미확인.
+- **Windows:** windows-2022 러너에서 플레이어 창 표시·바깥 리사이즈 30/30(p50 48ms, p95 70ms)·가장자리 드래그 위임 확인. libmpv DLL 폴더 탐색 결함 KB-015는 `9467dbd`에서 수정. **재생은 미검증**(GPU 없는 러너에서 `libmpv produced no frame`). 실제 GPU·DPI 배율도 미검증.
+- **macOS:** 지원 판정(ADR)만 있다. `aarch64-apple-darwin` 타입 검사 통과, CI 권고 실행에서 테스트 약 284건 실패(프로세스 시작 스탬프 부재가 첫 원인). 실기 검증 없음.
+
+## 보류(사용자 지시 전에는 손대지 않음)
+
+릴리스·태그(`plugin-sdk-v0.1.0` 포함)·crates.io 게시, P7 실제 추론 호출·과금·실모델 실측, 미디어 다운로드, allowlist 2~4단계 추가 범위, UI 시안 작업 재개, DC-4(core 컨텍스트화·ID 이전) 구현 범위.
 
 ## 원격
 
-원격 없음. push·remote add·릴리스·퍼블릭 전환은 사용자 승인 필요.
+`origin`은 `modootoday/kinekino`이며 `main`은 원격과 같다. 열린 이슈 0건. 열린 PR 5건은 모두 dependabot이고, 그중 `meari`·`meari-native` 0.3.0과 `windows-core` 0.100은 고정 버전(`=`)을 넘는 업데이트라 별도 검토가 필요하다. push는 승인된 정기 작업 규칙 또는 사용자 지시로만 한다.
+
+## 알려진 문서 불일치
+
+- README는 MCP 서버를 "Planned"로 적지만 코드에는 `kinekino-app/src/mcp.rs`와 stdio 계약 테스트(`kinekino-cli/tests/mcp_stdio.rs`)가 있다. 제공 범위를 확인한 뒤 README를 고친다.
+- 2026-11-14 이력 재작성 이전의 커밋 해시는 이 문서에서 인용하지 않는다.
 
 ## Why
 
-상태가 여러 문서(HANDOFF, 계획, 대화)에 흩어지면 서로 어긋난다. 한 문서에서만 갱신한다.
+상태가 여러 문서(HANDOFF, 계획, 대화)에 흩어지면 서로 어긋난다. 이 문서는 2026-10-30 이후 갱신되지 않아 M1·M2 닫힘과 원격 CI·OS 스모크 결과가 빠져 있었다. 한 문서에서만 갱신한다.
 
 ## Verification
 
-사람이 검토한다(verify: manual). 브랜치·커밋 해시는 `git log`로 확인한다.
+사람이 검토한다(verify: manual). 브랜치·커밋 해시는 `git log`로, 마일스톤 근거는 [[plan:kinekino/20261031153240]]의 Record로, 게이트는 `cargo fmt --all --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo xtask lint-structure`, `cargo xtask spec-check`, `cargo test --workspace`로 다시 확인한다.
+
+- 2026-11-16 skill: modootoday/spec-authoring/sot | 적용: 규칙·이유·검증 구조 유지, 사람 검토(`verify: manual`) 명시, 관측 사실과 미검증 분리 | 버림: `check_cmd` 신설(상태 문서는 명령으로 판정할 불변식이 아님).
