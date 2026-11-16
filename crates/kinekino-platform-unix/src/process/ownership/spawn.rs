@@ -133,7 +133,13 @@ pub(super) fn spawn(
         if !executable.is_absolute() || !cwd.is_absolute() {
             return Err(io::Error::other("absolute executable and cwd required"));
         }
-        let executable = executable.canonicalize()?;
+        // A verified-handle program (ADR 20261116151137) must stay a handle path: resolving it
+        // would name the file at its path again, which may no longer be the verified bytes.
+        let executable = if crate::fs::is_handle_program(&executable) {
+            executable
+        } else {
+            executable.canonicalize()?
+        };
         if !executable.is_file() || !cwd.is_dir() {
             return Err(io::Error::other("executable/cwd unavailable"));
         }

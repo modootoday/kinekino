@@ -164,6 +164,11 @@ pub const NO_FOLLOW_DIRECTORY: OpenFlags = OpenFlags {
 pub fn normalize_local_path(path: &Path) -> Option<std::path::PathBuf> {
     os().normalize_local_path(path)
 }
+/// Program path to spawn for a pinned tool whose open handle `verified` was hashed
+/// (ADR 20261116151137). On Linux it names the handle and is valid only while it stays open.
+pub fn pinned_program(verified: &File, path: &Path) -> io::Result<std::path::PathBuf> {
+    os().pinned_program(verified, path)
+}
 /// Whether a held read-shared handle makes concurrent writer opens fail on this host.
 pub fn has_mandatory_share_modes() -> bool {
     host().has_mandatory_share_modes()

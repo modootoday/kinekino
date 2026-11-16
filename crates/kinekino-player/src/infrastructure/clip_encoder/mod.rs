@@ -25,6 +25,7 @@ pub struct EncoderToolObservation {
 }
 pub struct PinnedClipEncoder {
     path: PathBuf,
+    program: PathBuf,
     inventory: ClipEncoderInventory,
     observations: Vec<EncoderToolObservation>,
     _guards: Vec<File>,
@@ -35,8 +36,13 @@ impl ClipEncoderLease for PinnedClipEncoder {
     }
 }
 impl PinnedClipEncoder {
+    /// Verified local path of the pinned encoder, for evidence and messages.
     pub fn path(&self) -> &Path {
         &self.path
+    }
+    /// What to spawn (ADR 20261116151137); valid while this lease is held.
+    pub fn program(&self) -> &Path {
+        &self.program
     }
     pub fn observations(&self) -> &[EncoderToolObservation] {
         &self.observations
@@ -55,7 +61,11 @@ impl PinnedClipEncoder {
         }
         let deadline = Instant::now() + timeout;
         control.checkpoint()?;
-        let (path, guards) = tools::open(path, sha256)?;
+        let tools::PinnedTool {
+            path,
+            program,
+            guards,
+        } = tools::open(path, sha256)?;
         let mut observations = Vec::new();
         for (stage, option) in [
             ("version", "-version"),
@@ -66,7 +76,7 @@ impl PinnedClipEncoder {
             ("muxers", "-muxers"),
         ] {
             control.checkpoint()?;
-            let mut command = Command::new(&path);
+            let mut command = Command::new(&program);
             command.args(["-hide_banner", option]);
             let output =
                 process::run_with_recovery(&mut command, deadline, 524288, Some(control), None)?;
@@ -143,6 +153,7 @@ impl PinnedClipEncoder {
         }
         Ok(Self {
             path,
+            program,
             inventory,
             observations,
             _guards: guards,

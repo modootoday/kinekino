@@ -68,7 +68,7 @@ impl PreparedClipSourceProbe {
                 .map_err(|error| error.into_api_error())?;
         guards.push(file);
         control.checkpoint()?;
-        let mut command = Command::new(&tool.path);
+        let mut command = Command::new(&tool.program);
         command.args([
             "-v",
             "error",

@@ -8,7 +8,8 @@ fn pinned_section_crop_switches_exactly_between_decoded_frame_14_and_15() {
     fs::create_dir(&root).unwrap();
     let tool = PathBuf::from(std::env::var_os("CLIP_RENDER_ENCODER").unwrap());
     let pin = std::env::var("CLIP_RENDER_ENCODER_SHA256").unwrap();
-    let (tool, _guards) = crate::infrastructure::frame_capture::tools::open(&tool, &pin).unwrap();
+    let pinned = crate::infrastructure::frame_capture::tools::open(&tool, &pin).unwrap();
+    let (tool, _guards) = (pinned.program, pinned.guards);
     let mut raw = Vec::new();
     for _ in 0..31 {
         for _ in 0..32 {

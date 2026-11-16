@@ -63,6 +63,15 @@ pub fn pinned_program(verified: &File, path: &Path) -> io::Result<PathBuf> {
     }
 }
 
+/// True for a program path returned by [`pinned_program`] that names an open handle. Spawners
+/// must use it as is: canonicalizing it would resolve back to the file's current path.
+pub fn is_handle_program(program: &Path) -> bool {
+    has_handle_execution()
+        && program
+            .strip_prefix("/proc/self/fd")
+            .is_ok_and(|fd| fd.to_str().is_some_and(|fd| fd.parse::<u32>().is_ok()))
+}
+
 fn require_owner_only(file: &Path, uid: u32) -> io::Result<()> {
     let denied = |what: &str| {
         io::Error::new(
@@ -170,6 +179,18 @@ mod tests {
         // A fresh request sees that the path names another file.
         let error = pinned_program(&verified, &path).unwrap_err();
         assert_eq!(error.kind(), io::ErrorKind::InvalidData);
+    }
+
+    #[test]
+    fn handle_programs_are_recognised() {
+        let scratch = Scratch::new("handle");
+        let path = scratch.tool("tool", &native("true"));
+        let verified = File::open(&path).unwrap();
+        let program = pinned_program(&verified, &path).unwrap();
+        assert_eq!(is_handle_program(&program), has_handle_execution());
+        assert!(!is_handle_program(&path));
+        assert!(!is_handle_program(Path::new("/proc/self/fd/x")));
+        assert!(!is_handle_program(Path::new("/proc/self/fd")));
     }
 
     #[test]
