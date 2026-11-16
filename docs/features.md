@@ -42,6 +42,6 @@ Each badge is checked against the roadmap plan and the code. `status:available` 
 | Local model packs | `status:planned` | P5 |
 | Inference consent and cost guard | `status:planned` | P1b |
 | Settings page | `status:planned` | P6; schema decided |
-| MCP server | `status:planned` | P9 |
+| MCP server | `status:partial` | Off by default; tools limited to host-free commands |
 | Meari UI | `status:partial` | Player and settings windows on Linux and Windows; macOS in P8 |
 | Provenance of edits | `status:partial` | |

@@ -49,7 +49,8 @@ verify: manual
 
 ## 알려진 문서 불일치
 
-- README는 MCP 서버를 "Planned"로 적지만 코드에는 `kinekino-app/src/mcp.rs`와 stdio 계약 테스트(`kinekino-cli/tests/mcp_stdio.rs`)가 있다. 제공 범위를 확인한 뒤 README를 고친다.
+- (2026-11-16 해소) README와 사이트가 MCP 서버·`kinekino settings`를 "planned"로 적던 것을 실제 범위(MCP는 기본 꺼짐·읽기 전용 기본·호스트 없이 되는 명령만 도구, partial)로 고쳤다.
+- 사이트 설정 페이지(`docs/settings.md`)는 이미 제거한 Pretendard 글꼴을 적고 있고, 기능 표의 설정 페이지·Meari UI 상태도 P6 병합 이후로 갱신되지 않았다.
 - 2026-11-14 이력 재작성 이전의 커밋 해시는 이 문서에서 인용하지 않는다.
 
 ## Why

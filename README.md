@@ -113,8 +113,8 @@ Per-command availability depends on the host and installed models; `capabilities
 | Interface | Status |
 | --- | --- |
 | CLI with JSON output (`kinekino <command>`, `schema`, `capabilities`) | Available |
-| MCP server exposing the same commands | Planned |
-| [`llms.txt`](llms.txt) index for agents | Available |
+| MCP server over stdio (`kinekino mcp serve`; off by default, read-only tools by default) | Partial |
+| [`llms.txt`](docs/llms.txt) index for agents | Available |
 
 Agents working **on** this repository follow [`AGENTS.md`](AGENTS.md); this README is for people **using** the tool.
 

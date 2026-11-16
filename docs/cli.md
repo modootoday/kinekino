@@ -23,5 +23,5 @@ Common flags: `--json|--human`, `--request-id ID`, `--timeout-ms MS`, `--expecte
 |---|---|
 | Commands above | `status:available` |
 | `--endpoint` local host over OS IPC | `status:partial` |
-| `kinekino settings` | `status:planned` |
-| `kinekino mcp serve` | `status:planned` |
+| `kinekino settings` | `status:available` |
+| `kinekino mcp serve` | `status:partial` |

@@ -35,7 +35,7 @@ Badges come from the roadmap plan and the CLI's own `capabilities` output. Nothi
 - **[Clips and snapshots](features/studio.md)**: capture frames, export snapshots, render shorts as jobs. `status:partial`
 - **[Review](features/studio.md)**: accept or reject AI proposals on a project before they change anything. `status:partial`
 - **[AI subtitles](features/subtitles-ai.md)**: speech to text, speakers and translation through one inference port. `status:planned`
-- **[Agents](agents.md)**: the CLI today, an MCP server on the plan. `status:partial`
+- **[Agents](agents.md)**: the CLI and a local MCP server (off by default). `status:partial`
 
 ## Cut clips on a timeline
 
