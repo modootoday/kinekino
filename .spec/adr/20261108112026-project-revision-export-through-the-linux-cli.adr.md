@@ -3,7 +3,7 @@ id: adr:kinekino/20261108112026
 title: Project revision export through the Linux CLI
 status: active
 created: 2026-11-08T11:20:26Z
-updated: 2026-11-16T12:10:00Z
+updated: 2026-11-16T11:00:00Z
 rel:
   governs:
     - crates/kinekino-player/src/application/projects
@@ -49,3 +49,4 @@ rel:
 ## Record
 
 - 2026-11-16: `--catalog-root` opens on Linux. The runner refused it there ("Catalog artifacts require the Windows path guard adapter"), but `CatalogFiles` stores captured artifacts through the same `immutable_storage_paths` guards as the project stores, and those go through the OS policy port. The catalog is still the experimental `document/1` source-plugin backend, and selectors on real sites are still unverified; `catalog.search` and `episodes.list` behave as they do on Windows. The existing CLI discovery test (`tests/catalog.rs`) no longer requires Windows. It had used only a Windows console flag, which is now dropped. It runs on Linux with the site-neutral fixture plugin, and failed there before the runner change.
+- 2026-11-16: `--proposal-root` opens on Linux (the Linux proposal root listed as remaining above). `ProposalFiles` uses the same root guards and writer lock as `ProjectFiles`. Off Windows, a request that also configures the historical evidence verifier (`--historical-verifier` and related flags) is refused as `unsupported`, because the verifier starts a pinned external program whose process ownership has not been checked there; bound reads that need it stay unavailable on Linux. Five proposal test files are no longer Windows-only. `tests/projects.rs` now builds its stored locators from the temp directory instead of drive-letter paths. The pinned normal-CLI capture-mutation and accepted-subtitle-export cases pass on Linux; capture-mutation needs a stripped CLI because the debug build is larger than that test's 128 MiB hashing bound.
