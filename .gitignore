@@ -32,9 +32,13 @@
 !/spec.toml
 !/.spec/
 !/.spec/**
+!/.agents/
+!/.agents/**
 **/.git/
 /*/**/.spec/
-**/.agents/
+/*/**/.agents/
+# Dev-host values and operations notes for agent rules stay local.
+/.agents/local/
 **/runtime/
 **/target/
 **/node_modules/
