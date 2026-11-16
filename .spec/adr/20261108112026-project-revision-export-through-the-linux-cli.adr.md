@@ -3,7 +3,7 @@ id: adr:kinekino/20261108112026
 title: Project revision export through the Linux CLI
 status: active
 created: 2026-11-08T11:20:26Z
-updated: 2026-11-16T12:30:00Z
+updated: 2026-11-16T11:00:00Z
 rel:
   governs:
     - crates/kinekino-player/src/application/projects
@@ -49,3 +49,4 @@ rel:
 ## Record
 
 - 2026-11-16: `--review-root` (and `--user-review-root`, `--review-media-config`) opens on Linux. The runner refused it there ("Rooted review storage requires the Windows adapter"). Opening it surfaced a latent Linux bug in review decisions. `create_transient_lock` releases its lock on drop on both OSes, but only Windows deletes the file (delete-on-close); POSIX keeps it. `model_review` treated the `.publish.lock` file existing as "publication busy" and counted it as a stray entry when listing decisions, so after the first recorded decision every read on Linux reported busy. New `os_policy::transient_lock_held` checks whether the file exists on hosts with mandatory share modes, and on POSIX tries a shared lock instead. Decision listing skips the lock file. `tests/model_review.rs` (8) and `tests/review_source_cli.rs` (3) now run on Linux and pass. Before the change, model_review failed with "Review publication is busy", and the CLI cases failed with the runner refusal. The writer-denied asset check runs only where share modes are mandatory. `tests/output_review_cli.rs` stays Windows-only until `--proposal-root` opens on Linux.
+- 2026-11-16: `--proposal-root` opens on Linux (the Linux proposal root listed as remaining above). `ProposalFiles` uses the same root guards and writer lock as `ProjectFiles`. Off Windows, a request that also configures the historical evidence verifier (`--historical-verifier` and related flags) is refused as `unsupported`, because the verifier starts a pinned external program whose process ownership has not been checked there; bound reads that need it stay unavailable on Linux. Five proposal test files are no longer Windows-only. `tests/projects.rs` now builds its stored locators from the temp directory instead of drive-letter paths. The pinned normal-CLI capture-mutation and accepted-subtitle-export cases pass on Linux; capture-mutation needs a stripped CLI because the debug build is larger than that test's 128 MiB hashing bound.
