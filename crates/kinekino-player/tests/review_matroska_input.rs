@@ -1,5 +1,4 @@
 //! Existing actual media custody and raw classification only. No engine/GUI/model launch.
-#![cfg(windows)] // Windows-only infrastructure (review_source/model_review/timeline_evidence); Linux port pending platform split.
 use kinekino_player::{
     application::review_playback::{ReviewContentClass, inspect_review_input},
     application::review_source::ReviewCaseEvidence,
