@@ -1,4 +1,3 @@
-#![cfg(windows)]
 use kinekino_player::application::api::{AssetClient, ReviewClient};
 #[path = "support/cli_exe.rs"]
 mod cli_exe;
@@ -11,7 +10,7 @@ use kinekino_player::{
         api_values::DecimalU64,
         model_review::{CheckOutcome, RecordReviewDecision, ReviewPackage, ReviewVerdict},
     },
-    infrastructure::{content_digest, model_review::ReviewFiles},
+    infrastructure::{content_digest, model_review::ReviewFiles, os_policy},
 };
 use serde_json::{Value, json};
 #[path = "../src/test_support/review_package.rs"]
@@ -342,7 +341,6 @@ fn deferred_missing_baseline_or_failed_checks_never_pass_and_conditions_are_pinn
         ErrorCode::InvalidArgument
     );
 }
-
 #[test]
 fn non_temporal_issues_and_missing_review_methods_are_rejected() {
     let mut fixture = Fixture::new();
@@ -388,7 +386,6 @@ fn non_temporal_issues_and_missing_review_methods_are_rejected() {
         ErrorCode::InvalidArgument
     );
 }
-
 #[test]
 fn concurrent_same_identity_has_one_immutable_record_and_reproducible_digest() {
     let fixture = Fixture::new();
@@ -515,13 +512,15 @@ fn verified_session_holds_assets_against_writes_and_reparse_escape_is_denied() {
         .root
         .join("objects")
         .join(&fixture.package.items[0].source.sha256);
-    assert!(fs::OpenOptions::new().write(true).open(&object).is_err());
+    if os_policy::has_mandatory_share_modes() {
+        assert!(fs::OpenOptions::new().write(true).open(&object).is_err());
+    }
     drop(session);
     drop(store);
     fs::remove_file(&object).unwrap();
     let outside = fixture.root.join("outside.txt");
     fs::write(&outside, b"Original fixed cue").unwrap();
-    std::os::windows::fs::symlink_file(&outside, &object).unwrap();
+    kinekino_platform::fs::symlink_file(&outside, &object).unwrap();
     let sdk = fixture.sdk();
     assert_eq!(
         sdk.inspect_review(

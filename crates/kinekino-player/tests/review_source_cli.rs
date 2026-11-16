@@ -1,4 +1,3 @@
-#![cfg(windows)]
 #[path = "support/cli_exe.rs"]
 mod cli_exe;
 #[path = "review_source_cli/combined.rs"]
