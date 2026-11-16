@@ -24,7 +24,7 @@ verify: manual
 |M2 플레이어 UI|닫힘(2026-11-08, Linux X11). 단축키·우클릭 메뉴·재생목록 패널·OSD·설정 창 제목 줄·창/트레이 아이콘|Windows·macOS 창·트레이 아이콘(플랫폼 어댑터 대기), Wayland 트레이 미확인, 버튼 `:focus-visible`, WM 최대화 동기화 실화면 확인(코드·테스트 2026-11-16)|
 |M3 호스트·플러그인 경계|열림. M3-1~M3-8 조각 완료. 자격증명 저장소 제품 배선(OS 저장소 우선, 사용 불가 시 세션 저장소로 명시적 대체·보고) 완료(2026-11-16)|Windows Credential Manager·macOS Keychain 어댑터 없음(두 OS는 세션 대체로 동작), 실제 데스크톱 keyring에서 GUI 토큰 저장 확인 미실시|
 |M4 제작 기능(CLI)|열림. M4-1~M4-10 조각이 각 범위 안에서 완료|완료 기준과 코드 대조 판정(2026-11-16: 카드·자산·클립 프로젝트 저장소, 제안 저장소 `--proposal-root`, 모델 목록 `--model-root`, 카탈로그 `--catalog-root`, 화자 문서, 리뷰 저장소 `--review-root`를 Linux CLI에서 열어 Unsupported 해소. 과거 증거 검증기·실행 호스트 `--serve-execution`·카드 리뷰 내보내기·결합 호스트 `--serve-playback/native/provider/review`는 Windows 전용 유지, 근거와 소유자 결정은 이슈 #30). 피사체 분할은 설계만(`segment_subject` unsupported), whisper는 실측 준비만(실측은 승인 후)|
-|M5 구조·플랫폼 정리|열림. M5-1~M5-8 기록(M5-4~M5-8은 판정·ADR만)|allowlist 2~4단계(보류)와 ADR 후속 구현(GPU 렌더, 플러그인 OS 격리, Unix 브라우저 provider: 2026-11-16 Chrome 어댑터 프로토콜 세션과 자식 세션까지, provider 연결은 남음)|
+|M5 구조·플랫폼 정리|열림. M5-1~M5-8 기록(M5-4~M5-8은 판정·ADR만). 플러그인 OS 격리 첫 후속(`SandboxPolicy`·능력 항목·모든 OS에서 `Unsupported` 거절 관문) 완료(2026-11-16)|allowlist 2~4단계(보류)와 ADR 후속 구현(GPU 렌더, 플러그인 OS 격리의 `document/1` 포트 이전·서명 검사·Linux landlock/seccomp·Windows AppContainer, Unix 브라우저 provider: 2026-11-16 Chrome 어댑터 프로토콜 세션과 자식 세션까지, provider 연결은 남음)|
 |M6 마무리·배포 준비|가용 범위만 완료. 전체 미닫힘|Windows 재생, 실제 GPU·DPI, macOS 실기, 패키지 빌드. 아래 OS별 상태 참고|
 
 ## 게이트 상태

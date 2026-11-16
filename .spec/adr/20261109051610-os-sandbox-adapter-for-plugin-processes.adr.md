@@ -3,7 +3,7 @@ id: adr:kinekino/20261109051610
 title: OS sandbox adapter for plugin processes
 status: active
 created: 2026-11-09T05:16:10Z
-updated: 2026-11-09T05:16:58Z
+updated: 2026-11-16T09:10:00Z
 rel:
   governs: [crates/kinekino-core/src/platform/process.rs]
   depends_on: [adr:kinekino/20261030200000, adr:kinekino/20261030030000]
@@ -128,3 +128,4 @@ Facts read on the Linux dev host on 2026-11-09 at main `b37c9593`:
 
 - 2026-11-09: M5-7 (PG-9) recorded the plugin sandbox contract, boundary and unsupported
   cases without code changes.
+- 2026-11-16: first follow-up slice done. `kinekino_core::platform::process` has `SandboxPolicy` (read-only paths, one scratch directory, `SandboxNetwork::None|Any`, an explicit environment) as `SpawnRequest::sandbox`, and `ProcessCapabilities` reports `sandbox_file_access`, `sandbox_network` and `sandbox_system_calls`. `refuse_unenforced_sandbox` is the spawn-time gate: a policy whose required guarantees (file access and system calls always, network when it is `None`) are not all `Enforced` fails with `Unsupported` naming them, before anything is created. The Unix and Windows adapters report all three as `Unsupported` and run the gate, so a sandboxed spawn is refused on every OS today. Callers still pass `sandbox: None`; the plugin worker asks for the sandbox once an adapter enforces it. Unix test: the refused spawn has stage `sandbox`, no owner and the child never ran. The Windows adapter was type-checked for `x86_64-pc-windows-msvc`, not run.

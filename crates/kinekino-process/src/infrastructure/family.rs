@@ -182,6 +182,7 @@ fn spawn_inner(
         deadline,
         source,
         fault,
+        sandbox: None,
     };
     match process().spawn(request, prepared) {
         Ok(owner) => Ok((OwnedProcessFamily(owner), paths)),

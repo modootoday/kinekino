@@ -9,7 +9,7 @@ use super::{
 use kinekino_core::platform::process::{
     CONTROL_ARGUMENT, DATA_ARGUMENT, Deadline, END_ARGUMENT, FamilyBudget, FaultPoint, LaunchState,
     OPERATION_ARGUMENT, OwnedFamily, PreparedFamily, ProcessIdentity, SourceChildren, SpawnFailure,
-    SpawnRequest,
+    SpawnRequest, refuse_unenforced_sandbox,
 };
 use std::{
     collections::BTreeMap,
@@ -240,6 +240,7 @@ fn spawn_inner(
         deadline,
         source,
         fault,
+        sandbox,
     } = request;
     let before = |stage, error| {
         Box::new(SpawnFailure {
@@ -249,6 +250,9 @@ fn spawn_inner(
             termination_error: None,
         })
     };
+    if let Err(e) = refuse_unenforced_sandbox(sandbox.as_ref(), &super::CAPABILITIES) {
+        return Err(before("sandbox", e));
+    }
     let expected_budget = prepared_job.as_ref().map(|(_, budget)| *budget);
     let setup = (|| -> io::Result<_> {
         remaining(deadline)?;
