@@ -296,12 +296,9 @@ r-cfg crates/kinekino-player/tests/catalog.rs
 r-cfg crates/kinekino-player/tests/cli_discovery_inventory.rs
 r-cfg crates/kinekino-player/tests/download_cli.rs
 r-cfg crates/kinekino-player/tests/execution_host_cli.rs
-r-cfg crates/kinekino-player/tests/ffprobe_observation.rs
-r-cfg crates/kinekino-player/tests/frame_snapshot_pipeline.rs
 r-cfg crates/kinekino-player/tests/historical_provenance_cli.rs
 r-cfg crates/kinekino-player/tests/jobs.rs
 r-cfg crates/kinekino-player/tests/local_host.rs
-r-cfg crates/kinekino-player/tests/manual_skip_cli.rs
 r-cfg crates/kinekino-player/tests/media_download.rs
 r-cfg crates/kinekino-player/tests/media_download_owned.rs
 r-cfg crates/kinekino-player/tests/model_catalog_cli.rs
@@ -321,9 +318,7 @@ r-cfg crates/kinekino-player/tests/snapshot_export_api_cli.rs
 r-cfg crates/kinekino-player/tests/sprite_capture_cli.rs
 r-cfg crates/kinekino-player/tests/sprite_timeline_bundle.rs
 r-cfg crates/kinekino-player/tests/timeline_video_production_actual.rs
-r-cfg crates/kinekino-player/tests/vad_jobs.rs
 r-cfg crates/kinekino-player/tests/vad_parent_worker.rs
-r-cfg crates/kinekino-player/tests/vad_product_cli.rs
 r-cfg crates/kinekino-player/tests/vad_worker_control_process.rs
 r-cfg crates/kinekino-process/tests/windows_family.rs
 r-cfg crates/kinekino-source-host/src/lib.rs
