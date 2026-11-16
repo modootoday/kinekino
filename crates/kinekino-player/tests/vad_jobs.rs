@@ -1,4 +1,3 @@
-#![cfg(windows)]
 //! Compiles the exact concrete product adapters as siblings, just like the
 //! existing Media product_guards target. This does not install the operation.
 #[path = "support/cli_exe.rs"]
