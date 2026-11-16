@@ -5,7 +5,7 @@
 - 침묵 감시: 예약 작업 완료 알림과 실행 이력으로 본다. 24시간 넘게 실행 기록이 없으면 원 님에게 **한 번만** 보고하고, 같은 침묵을 반복 보고하지 않는다.
 - 버그: GitHub Issues에 `bug` 템플릿으로 연다(심각도는 양식 항목). 낮은 심각도는 이슈만 열고 고치지 않는다. 고칠 때 PR 본문에 `Fixes #N`을 쓴다.
 - 결정 대기: 원 님 결정이 필요한 일은 `needs-owner` 이슈로 열고 원 님에게 할당한다. 열린 `needs-owner` 이슈와 연결된 작업 항목은 건너뛴다.
-- 사람 확인이 필요한 PR: `needs-human` 라벨을 붙인다. 대상은 `.github/workflows/`·`.github/rulesets/` 변경, 릴리스·태그, 고정(`=`)·메이저 버전을 넘는 의존성 갱신, 보안 민감 코드, 아래 보류 항목. 자동화는 이 라벨이 붙은 PR을 병합하거나 그 위에 쌓지 않는다. [공통 규칙 C7.3]
+- 사람 확인이 필요한 PR: `needs-human` 라벨을 붙인다. 대상은 `.github/workflows/`·`.github/rulesets/`·`.github/settings/`·`.github/labels.json` 변경(설정 파일은 병합 뒤 원 님 PC에서 적용, 공통 규칙 C2.7·C2.10), 릴리스·태그, 고정(`=`)·메이저 버전을 넘는 의존성 갱신, 보안 민감 코드, 공통 규칙 사본 `.spec/sot/shared-automation-rules.sot.md`, 그 프로필의 human-gated 영역(GUI 품질 승인, 실추론·과금·모델 다운로드, 미디어 다운로드, 릴리스·태그·crates.io, allowlist 범위 확대, UI 시안, DC-4), 아래 보류 항목. 자동화는 이 라벨이 붙은 PR에 자동 병합을 켜거나 그 위에 쌓지 않는다. 그 밖의 PR은 자동 병합을 켠다(Phase 2, git-and-release.md). [공통 규칙 C7.3]
 - 다음 작업: 공개 로드맵 [[plan:kinekino/20261031153240]]과 상태 정본 [[sot:kinekino/project-status]]에서 고른다. 로드맵에 새 행을 임의로 만들지 않는다. 집을 조각이 없으면 원 님에게 **한 번만** 보고하고 결과 `queue-empty`로 조용히 종료한다.
 - 비공개 용어 검사: PR의 필수 체크 `Public surface`(`cargo xtask deny-terms`, 시크릿 `KINEKINO_DENY_TERMS`, fail-closed, [[adr:kinekino/20261116065239]])가 관문이다. 로컬 사전 검사는 선택이다(git-and-release.md).
 - 일요일 실행은 테스트를 3회 반복해 불안정 테스트를 찾는다.

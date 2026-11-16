@@ -3,7 +3,7 @@ id: adr:kinekino/20261116065239
 title: "Private term scan in CI: fail-closed deny-terms check on every pull request"
 status: active
 created: 2026-11-16T06:52:39Z
-updated: 2026-11-16T07:20:00Z
+updated: 2026-11-16T07:25:00Z
 rel:
   governs: [.github/workflows/public-surface.yml, .github/workflows/ci.yml, xtask/src/deny_terms]
   depends_on: [adr:kinekino/20261116062843]
@@ -26,7 +26,8 @@ rel:
 5. `Public surface` joins the required checks in `.github/rulesets/main-protected.json`. The check name and the ruleset change in the same pull request, and the owner re-applies the ruleset afterwards (shared rules C3.5).
 6. No `pull_request_target`: pull requests from forks get no secrets, fail this check and need a person. Dependabot pull requests read Dependabot secrets, so the same list must also be registered there.
 7. The same check enforces the trailer rule (user decision 2026-11-16, shared rules C10.2/C4.8): a `Co-authored-by` line whose address does not end in `@users.noreply.github.com` fails it. It applies to commits made at or after `COAUTHOR_SINCE` (2026-11-16T06:55:00Z) in the workflow; earlier history is not rewritten. The address is never printed.
-8. The local pre-push scan stays as an earlier, optional check; the CI check is the one that gates `main`.
+8. The same check enforces the commit identity rule (user decision 2026-11-16, shared rules C10.5): from `IDENTITY_SINCE` (2026-11-16T07:10:00Z) on, a commit whose author or committer address is not `@users.noreply.github.com` fails it. GitHub's own web committer `noreply@github.com` (merge commits, web edits) is allowed as committer. Addresses are never printed.
+9. The local pre-push scan stays as an earlier, optional check; the CI check is the one that gates `main`.
 
 ## Consequences
 
