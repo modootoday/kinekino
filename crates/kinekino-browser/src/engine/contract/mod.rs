@@ -6,7 +6,7 @@ pub mod fixture;
 
 use crate::engine::port::{
     BrowserEngine, BrowserEvent, Capability, EngineError, InterceptedRequest, NetworkInterceptor,
-    RequestDecision,
+    ProtocolSession, RequestDecision,
 };
 
 /// Outcome of one contract check.
@@ -192,7 +192,38 @@ pub fn run(engine: &mut dyn BrowserEngine, base_url: &str) -> ContractReport {
             (false, None) => Outcome::NotDeclared,
         },
     );
+
+    let declared = caps.contains(Capability::ProtocolSession);
+    report.record(
+        "protocol-session",
+        match (declared, engine.protocol()) {
+            (true, Some(p)) => protocol_round_trip(p),
+            (true, None) => Outcome::Fail("declared but protocol() is None".into()),
+            (false, Some(_)) => Outcome::Fail("undeclared but protocol() is Some".into()),
+            (false, None) => Outcome::NotDeclared,
+        },
+    );
     report
+}
+
+/// `Runtime.evaluate` answers through the session, and auto-attach can be switched on and off.
+fn protocol_round_trip(p: &mut dyn ProtocolSession) -> Outcome {
+    let params = serde_json::json!({ "expression": "1 + 1", "returnByValue": true });
+    let value = match p.call(None, "Runtime.evaluate", params) {
+        Ok(v) => v,
+        Err(e) => return Outcome::Fail(e.to_string()),
+    };
+    if value["result"]["value"] != serde_json::json!(2) {
+        return Outcome::Fail(format!("Runtime.evaluate 1 + 1 gave {value}"));
+    }
+    let _ = p.drain_protocol_events();
+    match p
+        .set_auto_attach(true)
+        .and_then(|()| p.set_auto_attach(false))
+    {
+        Ok(()) => Outcome::Pass,
+        Err(e) => Outcome::Fail(format!("auto-attach: {e}")),
+    }
 }
 
 #[cfg(test)]

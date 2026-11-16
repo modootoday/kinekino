@@ -7,6 +7,7 @@ mod opening;
 mod prefs;
 mod resume;
 pub use resume::RESTORE_HOLD;
+pub use subtitles::TRANSPORT_HEIGHT_PX;
 mod skip;
 mod subtitles;
 mod tracks;
@@ -120,6 +121,8 @@ pub struct Controller<E: Engine> {
     prefs: prefs::Prefs,
     /// The engine draws the current subtitle into the frame (styled or picture track).
     engine_subtitles: bool,
+    /// Engine subtitle position last placed (`sub-pos`, 100 = frame bottom).
+    subtitle_position: u32,
     /// The span the user marked to skip in the current item.
     skip: skip::Skip,
 }
@@ -156,6 +159,7 @@ impl<E: Engine> Controller<E> {
             resume: resume::Resume::default(),
             prefs: prefs::Prefs::default(),
             engine_subtitles: false,
+            subtitle_position: subtitles::BOTTOM,
             skip: skip::Skip::default(),
         }
     }
