@@ -1,4 +1,3 @@
-#![cfg(windows)]
 #[path = "support/owned_process_evidence.rs"]
 pub mod owned_process_evidence;
 use kinekino_player::infrastructure::content_digest;
