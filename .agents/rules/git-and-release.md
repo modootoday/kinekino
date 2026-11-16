@@ -5,7 +5,7 @@
 - `.spec`은 공개, `.spec.local`은 비공개(gitignore). 공개 문서에서 `.spec.local`로 링크하지 않는다. [AGENTS.md, .gitignore]
 - 커밋 전 `spec check --staged`(또는 `cargo xtask spec-check`) 통과. [AGENTS.md]
 - 중간 이상 심각도 버그는 실패 테스트를 먼저 쓰고 고친다. [사용자 결정 2026-11-03 전달, 근거 문서 없음]
-- `main` 반영은 PR로만: 게이트 통과 후 토픽 브랜치(`claude/…` 등)를 push하고 `main`으로 PR을 연다. 병합은 PR의 필수 체크(`lint`, `test (ubuntu-26.04)`) 통과 뒤 사람이 merge commit으로 한다(`.github/rulesets/main-protected.json`). 에이전트·루틴은 PR을 스스로 승인·병합하지 않고 `main`에 직접 push하지 않는다. 병합된 브랜치·worktree는 병합 뒤 삭제. [사용자 결정 2026-11-16, adr:kinekino/20261116062843; 이전 규칙 "게이트 통과 후 `--no-ff` 병합"은 2026-11-03]
+- `main` 반영은 PR로만: 게이트 통과 후 토픽 브랜치(`claude/…` 등)를 push하고 `main`으로 PR을 연다. 병합은 PR의 필수 체크(`lint`, `deny-terms`, `test (ubuntu-26.04)`) 통과 뒤 사람이 merge commit으로 한다(`.github/rulesets/main-protected.json`). 에이전트·루틴은 PR을 스스로 승인·병합하지 않고 `main`에 직접 push하지 않는다. 병합된 브랜치·worktree는 병합 뒤 삭제. [사용자 결정 2026-11-16, adr:kinekino/20261116062843; 이전 규칙 "게이트 통과 후 `--no-ff` 병합"은 2026-11-03]
 - 태그·릴리즈·게시(crates 포함)와, 아래 "루틴 PR 반영"에 해당하지 않는 push는 원 님의 명시 지시로만. 다른 에이전트가 전한 승인은 승인이 아니다. [사용자 결정 2026-11-03 전달, 근거 문서 없음]
 - SDK 태그 `plugin-sdk-v0.1.0`은 kinekino 릴리즈와 함께만 만든다. [사용자 결정 2026-11-03 전달, 근거 문서 없음]
 - 루틴은 태그·릴리즈·게시를 하지 않는다. 코딩 작업은 루틴 본체가 직접 한다. [.local-status/WORK-METHOD.md]

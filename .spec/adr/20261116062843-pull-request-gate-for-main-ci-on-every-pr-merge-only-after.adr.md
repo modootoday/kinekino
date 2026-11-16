@@ -3,7 +3,7 @@ id: adr:kinekino/20261116062843
 title: "Pull request gate for main: CI on every PR, merge only after the Linux checks pass"
 status: active
 created: 2026-11-16T06:28:43Z
-updated: 2026-11-16T06:29:08Z
+updated: 2026-11-16T06:58:00Z
 rel:
   governs: [.github]
   depends_on: [adr:kinekino/20261029201516]
@@ -23,7 +23,7 @@ rel:
 1. `ci.yml` runs on `pull_request` to `main`, on `push` to `main` (each merge), and stays runnable by hand (`workflow_dispatch`). The `main` run keeps the build cache fresh, since `rust-cache` saves only on `main` and pull requests restore from it. Concurrency cancels an older run of the same pull request but lets `main` runs finish. `pull_request_target` is not used (ADR 0010 item 2 stands); fork pull requests run without secrets, and CI uses none.
 2. The Linux jobs (`lint`, `test`, `site`) use `if: github.event_name != 'workflow_dispatch' || inputs.linux`, so they always run on a pull request or push and keep the input on a manual run. No workflow-level `paths` filter: a filtered-out run leaves required checks pending.
 3. `windows-gate` and `test-macos` stay manual and advisory (`continue-on-error`); they are off on pull requests and pushes and are never required checks. `window-smoke.yml` and `release.yml` keep their triggers.
-4. Required status checks for `main`: `lint` and `test (ubuntu-26.04)`. These are the check names GitHub showed on the first pull request run (run 43817226538: `lint`, `test (ubuntu-26.04)`, `test (ubuntu-26.04-arm)`, `site`; `windows-gate` and `test-macos` skipped). `test (ubuntu-26.04-arm)` and `site` run on every pull request but are not required at first; make them required once their run time is acceptable.
+4. Required status checks for `main`: `lint` and `test (ubuntu-26.04)`. These are the check names GitHub showed on the first pull request run (run 43817226538: `lint`, `test (ubuntu-26.04)`, `test (ubuntu-26.04-arm)`, `site`; `windows-gate` and `test-macos` skipped). `test (ubuntu-26.04-arm)` and `site` run on every pull request but are not required at first; make them required once their run time is acceptable. Amended 2026-11-16: `deny-terms` is also required ([[adr:kinekino/20261116065239]]).
 5. Branch rule for `main`: the ruleset is kept in the repository as `.github/rulesets/main-protected.json` (default branch: no deletion, no non-fast-forward push, pull request required with merge commits only, the two checks above required with the branch up to date). A person applies it (Settings → Rules → Rulesets → Import, or `gh api` from their own machine); agent sessions cannot, since the session proxy refuses writes to the rulesets API (403). Agents do not approve or merge pull requests on their own; a person merges, or a future rule says otherwise.
 6. Merge method: merge commit, matching the existing `Merge branch '…'` history, so commit hashes quoted in plan records stay reachable.
 7. Dependabot pull requests go through the same gate and are merged by a person (`.github/dependabot.yml`). Updates past an `=` pinned version are reviewed by hand and never merged unattended.

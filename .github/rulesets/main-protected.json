@@ -40,6 +40,9 @@
             "context": "lint"
           },
           {
+            "context": "deny-terms"
+          },
+          {
             "context": "test (ubuntu-26.04)"
           }
         ]
