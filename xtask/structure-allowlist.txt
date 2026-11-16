@@ -205,7 +205,7 @@ file-and-dir crates/kinekino-vad-worker/src/infrastructure/windows_loaded_runtim
 file-and-dir crates/kinekino-vad-worker/src/parent_configuration.rs
 file-and-dir crates/kinekino-vad-worker/src/payload_tests.rs
 file-and-dir crates/kinekino-vad-worker/src/production.rs
-file-lines crates/kinekino-host/src/runner.rs (>1100)
+file-lines crates/kinekino-host/src/runner.rs (>1000)
 file-lines crates/kinekino-jobs/src/application/owned_attempt/tests.rs (>600)
 file-lines crates/kinekino-jobs/src/application/worker/owned/tests.rs (>600)
 file-lines crates/kinekino-jobs/src/infrastructure/subtitle_executor/tests.rs (>700)
