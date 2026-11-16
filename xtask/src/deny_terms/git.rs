@@ -7,8 +7,15 @@ pub struct AddedLine {
     pub text: String,
 }
 
+pub struct Commit {
+    pub sha: String,
+    pub time: i64,
+    pub message: String,
+}
+
 pub struct Changes {
-    pub messages: Vec<(String, String)>,
+    /// Short sha, committer time (unix seconds) and message of each commit.
+    pub messages: Vec<Commit>,
     pub added: Vec<AddedLine>,
     pub paths: Vec<String>,
 }
@@ -30,7 +37,7 @@ pub fn validate_range(range: &str) -> Result<(), String> {
 pub fn collect(range: &str) -> Result<Changes, String> {
     let (base, head) = range.split_once("..").ok_or("bad range")?;
     let three_dot = format!("{base}...{head}");
-    let log = git(&["log", "--no-color", "--format=%H%x00%B%x1e", range])?;
+    let log = git(&["log", "--no-color", "--format=%H%x00%ct%x00%B%x1e", range])?;
     let diff = git(&[
         "diff",
         "--no-color",
@@ -67,10 +74,19 @@ fn git(args: &[&str]) -> Result<String, String> {
     Ok(String::from_utf8_lossy(&out.stdout).into_owned())
 }
 
-fn parse_log(log: &str) -> Vec<(String, String)> {
+fn parse_log(log: &str) -> Vec<Commit> {
     log.split('\u{1e}')
-        .filter_map(|rec| rec.trim_start_matches('\n').split_once('\0'))
-        .map(|(sha, body)| (sha.chars().take(12).collect(), body.to_owned()))
+        .filter_map(|rec| {
+            let mut parts = rec.trim_start_matches('\n').splitn(3, '\0');
+            let sha = parts.next()?;
+            let time = parts.next()?.trim().parse().ok()?;
+            let message = parts.next()?.to_owned();
+            Some(Commit {
+                sha: sha.chars().take(12).collect(),
+                time,
+                message,
+            })
+        })
         .collect()
 }
 
@@ -136,10 +152,12 @@ mod tests {
 
     #[test]
     fn log_records_split_into_short_sha_and_body() {
-        let log = "0123456789abcdef\0subject\n\nbody\n\u{1e}\nfedcba9876543210\0two\n\u{1e}\n";
+        let log = "0123456789abcdef\u{0}100\u{0}subject\n\nbody\n\u{1e}\nfedcba9876543210\u{0}200\u{0}two\n\u{1e}\n";
         let got = parse_log(log);
         assert_eq!(got.len(), 2);
-        assert_eq!(got[0], ("0123456789ab".into(), "subject\n\nbody\n".into()));
-        assert_eq!(got[1].0, "fedcba987654");
+        assert_eq!(got[0].sha, "0123456789ab");
+        assert_eq!(got[0].time, 100);
+        assert_eq!(got[0].message, "subject\n\nbody\n");
+        assert_eq!((got[1].sha.as_str(), got[1].time), ("fedcba987654", 200));
     }
 }

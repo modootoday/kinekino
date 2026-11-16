@@ -3,9 +3,9 @@ id: adr:kinekino/20261116065239
 title: "Private term scan in CI: fail-closed deny-terms check on every pull request"
 status: active
 created: 2026-11-16T06:52:39Z
-updated: 2026-11-16T06:52:39Z
+updated: 2026-11-16T07:20:00Z
 rel:
-  governs: [.github/workflows/ci.yml, xtask/src/deny_terms]
+  governs: [.github/workflows/public-surface.yml, .github/workflows/ci.yml, xtask/src/deny_terms]
   depends_on: [adr:kinekino/20261116062843]
 ---
 
@@ -19,13 +19,14 @@ rel:
 
 ## Decision
 
-1. `cargo xtask deny-terms --range BASE..HEAD` (module `xtask/src/deny_terms/`) checks three things in the range: commit messages (`git log BASE..HEAD`), added diff lines and changed file names (`git diff BASE...HEAD`, no rename detection). Matching is case-insensitive fixed-string, like `grep -i -F`. One term per line; blank lines and `#` lines are skipped.
+1. `cargo xtask deny-terms --range BASE..HEAD [--text-env NAME]... [--coauthor-since TIME]` (module `xtask/src/deny_terms/`) checks three things in the range: commit messages (`git log BASE..HEAD`), added diff lines and changed file names (`git diff BASE...HEAD`, no rename detection). Matching is case-insensitive fixed-string, like `grep -i -F`. One term per line; blank lines and `#` lines are skipped.
 2. The list comes from the `KINEKINO_DENY_TERMS` environment variable or `--terms-file`. A missing or empty list is an error (fail-closed): no list means no pass.
 3. Reports give the place (commit, `path:line`, file name) and the term's line number in the list, never the term.
-4. CI job `deny-terms` in `ci.yml` runs on `pull_request` with `base.sha..head.sha` and on `push` to `main` with `before..after` (checkout `fetch-depth: 0`). It reads the term list from the repository secret `KINEKINO_DENY_TERMS`. It does not run on manual runs, which add no commits.
-5. `deny-terms` joins the required checks in `.github/rulesets/main-protected.json`.
+4. The workflow `.github/workflows/public-surface.yml` runs it as the check `Public surface` (the job's `name:`; the name is shared with the user's other projects, shared automation rules C3.1). It runs on `pull_request` (`opened`, `synchronize`, `reopened`, `edited`) with `base.sha..head.sha` and on `push` to `main` with `before..after` (checkout `fetch-depth: 0`). It also scans the pull request title and body (`--text-env`), so editing them re-runs only this check, not the full CI. It reads the term list from the repository secret `KINEKINO_DENY_TERMS`.
+5. `Public surface` joins the required checks in `.github/rulesets/main-protected.json`. The check name and the ruleset change in the same pull request, and the owner re-applies the ruleset afterwards (shared rules C3.5).
 6. No `pull_request_target`: pull requests from forks get no secrets, fail this check and need a person. Dependabot pull requests read Dependabot secrets, so the same list must also be registered there.
-7. The local pre-push scan stays as an earlier, optional check; the CI check is the one that gates `main`.
+7. The same check enforces the trailer rule (user decision 2026-11-16, shared rules C10.2/C4.8): a `Co-authored-by` line whose address does not end in `@users.noreply.github.com` fails it. It applies to commits made at or after `COAUTHOR_SINCE` (2026-11-16T06:55:00Z) in the workflow; earlier history is not rewritten. The address is never printed.
+8. The local pre-push scan stays as an earlier, optional check; the CI check is the one that gates `main`.
 
 ## Consequences
 

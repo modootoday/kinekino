@@ -45,7 +45,7 @@ verify: manual
 
 ## 원격
 
-`origin`은 `modootoday/kinekino`이며 `main`은 원격과 같다. 열린 이슈 0건. 열린 PR 5건은 모두 dependabot이고, 그중 `meari`·`meari-native` 0.3.0과 `windows-core` 0.100은 고정 버전(`=`)을 넘는 업데이트라 별도 검토가 필요하다. 2026-11-16부터 `main` 반영은 PR로만 한다(토픽 브랜치 → PR → Linux 필수 체크 통과 후 사람이 병합, [[adr:kinekino/20261116062843]]). `main` 규칙은 `.github/rulesets/main-protected.json`(필수 체크 `lint`, `deny-terms`, `test (ubuntu-26.04)`)으로 저장소에 두고 사람이 GitHub에 적용해야 하며, 적용 전까지 게이트는 권고 수준이다.
+`origin`은 `modootoday/kinekino`이며 `main`은 원격과 같다. 열린 이슈 0건. 열린 PR 5건은 모두 dependabot이고, 그중 `meari`·`meari-native` 0.3.0과 `windows-core` 0.100은 고정 버전(`=`)을 넘는 업데이트라 별도 검토가 필요하다. 2026-11-16부터 `main` 반영은 PR로만 한다(토픽 브랜치 → PR → Linux 필수 체크 통과 후 사람이 병합, [[adr:kinekino/20261116062843]]). `main` 규칙은 `.github/rulesets/main-protected.json`(필수 체크 `lint`, `Public surface`, `test (ubuntu-26.04)`)으로 저장소에 두고 사람이 GitHub에 적용해야 하며, 적용 전까지 게이트는 권고 수준이다.
 
 ## 알려진 문서 불일치
 

@@ -1,10 +1,11 @@
 name: CI
 
+# The `Public surface` check lives in public-surface.yml.
 # Runs on every pull request to main, after each merge to main (keeps the main build cache
 # that pull requests restore) and by hand (ADR 0010, amended by the PR gate ADR).
-# Jobs: lint (fmt, clippy, lint-structure, spec check), private term scan, Windows compile gate,
+# Jobs: lint (fmt, clippy, lint-structure, spec check), Windows compile gate,
 # tests on Linux and macOS, and the docs/ Jekyll build when the site exists.
-# Linux (lint, deny-terms, test, site) is the pass/fail gate and always runs on a pull request or push;
+# Linux (lint, test, site) is the pass/fail gate and always runs on a pull request or push;
 # on a manual run it follows the `linux` input. Windows and macOS are advisory:
 # off on pull requests and pushes, chosen per manual run, and continue-on-error so they never fail the run.
 # Pull request and push runs have no inputs, so a bare `if: inputs.linux` would skip the gate
@@ -70,26 +71,6 @@ jobs:
         run: bash .github/scripts/install-specfold.sh "$SPECFOLD_VERSION" "$RUNNER_TEMP/specfold"
       - name: spec check
         run: KINEKINO_SPEC_BIN="$RUNNER_TEMP/specfold/spec" cargo xtask spec-check
-
-  deny-terms:
-    # Private term scan of what the change adds (adr:kinekino/20261116065239). Fail-closed:
-    # no term list (unset secret, fork pull request) fails the check. Logs never show a term.
-    if: github.event_name != 'workflow_dispatch'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-          fetch-depth: 0
-      - name: Toolchain from rust-toolchain.toml
-        run: rustup toolchain install && rustup show active-toolchain
-      - name: Scan commit messages, added lines and file names
-        env:
-          KINEKINO_DENY_TERMS: ${{ secrets.KINEKINO_DENY_TERMS }}
-          BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
-          HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.event.after }}
-        run: cargo xtask deny-terms --range "$BASE..$HEAD"
 
   windows-gate:
     # Compile check only; Windows tests run in the last phase (P8). Advisory.
