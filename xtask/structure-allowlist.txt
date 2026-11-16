@@ -323,7 +323,6 @@ r-cfg crates/kinekino-player/tests/sdk_capability_parity.rs
 r-cfg crates/kinekino-player/tests/snapshot_export_api_cli.rs
 r-cfg crates/kinekino-player/tests/sprite_capture_cli.rs
 r-cfg crates/kinekino-player/tests/sprite_timeline_bundle.rs
-r-cfg crates/kinekino-player/tests/subtitle_conversion.rs
 r-cfg crates/kinekino-player/tests/timeline_video_production_actual.rs
 r-cfg crates/kinekino-player/tests/vad_jobs.rs
 r-cfg crates/kinekino-player/tests/vad_parent_worker.rs
