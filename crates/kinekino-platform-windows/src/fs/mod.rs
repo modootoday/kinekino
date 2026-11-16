@@ -139,6 +139,18 @@ pub fn try_lock_shared(_file: &File) -> io::Result<()> {
     Ok(())
 }
 
+/// Windows keeps a pinned tool's bytes fixed through the share-mode guards its caller holds, so
+/// the configured path is spawned unchanged (ADR 20261116151137).
+pub fn pinned_program(_verified: &File, path: &Path) -> io::Result<std::path::PathBuf> {
+    if !path.is_absolute() {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "pinned tool path must be absolute",
+        ));
+    }
+    Ok(path.to_path_buf())
+}
+
 /// Creates a file symlink at `link` pointing to `target` (fixtures for link-rejection checks).
 /// Requires the symlink privilege or Developer Mode; failure stays a real error.
 pub fn symlink_file(target: &Path, link: &Path) -> io::Result<()> {

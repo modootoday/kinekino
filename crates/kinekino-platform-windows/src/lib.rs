@@ -32,4 +32,7 @@ impl PlatformHost for WindowsHost {
     fn has_mandatory_share_modes(&self) -> bool {
         true
     }
+    fn has_handle_execution(&self) -> bool {
+        false
+    }
 }

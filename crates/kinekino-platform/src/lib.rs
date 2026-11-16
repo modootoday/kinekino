@@ -39,7 +39,7 @@ static WINDOW: kinekino_core::platform::window::UnsupportedWindows =
 pub mod fs {
     pub use super::adapter::fs::{
         apply_open_flags, apply_share_mode, file_identity, is_reparse_point, is_sharing_violation,
-        open_reserved_read, symlink_dir, symlink_file,
+        open_reserved_read, pinned_program, symlink_dir, symlink_file,
     };
 }
 
@@ -147,6 +147,13 @@ impl kinekino_core::platform::OsPolicy for CurrentOs {
     }
     fn create_transient_lock(&self, path: &std::path::Path) -> std::io::Result<std::fs::File> {
         adapter::publication::create_transient_lock(path)
+    }
+    fn pinned_program(
+        &self,
+        verified: &std::fs::File,
+        path: &std::path::Path,
+    ) -> std::io::Result<std::path::PathBuf> {
+        adapter::fs::pinned_program(verified, path)
     }
     fn host(&self) -> &dyn PlatformHost {
         &HOST

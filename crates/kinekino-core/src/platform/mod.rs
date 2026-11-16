@@ -25,6 +25,9 @@ pub trait PlatformHost {
     /// Whether opens honour mandatory share modes, so a held [`ShareMode::ReadOnly`] handle makes
     /// a concurrent writer open fail. POSIX hosts only offer advisory locks.
     fn has_mandatory_share_modes(&self) -> bool;
+    /// Whether a pinned tool runs from its verified open handle
+    /// ([`OsPolicy::pinned_program`]), so a later change at its path cannot alter what runs.
+    fn has_handle_execution(&self) -> bool;
 }
 
 /// How other handles may share a file opened through the platform port.
@@ -127,6 +130,17 @@ pub trait OsPolicy: Send + Sync {
     /// Acquires a process-exclusive lock file at `path` that is released when the returned handle
     /// is dropped. A held lock fails with `AlreadyExists`.
     fn create_transient_lock(&self, path: &std::path::Path) -> std::io::Result<std::fs::File>;
+    /// Program path to spawn for the pinned tool at absolute `path`, whose open handle
+    /// `verified` was hashed (ADR 20261116151137). Windows returns `path`: share-mode guards
+    /// keep its bytes fixed. POSIX refuses a tool that another user could change
+    /// (`PermissionDenied`), a `#!` script or relative path (`InvalidInput`) and a path that no
+    /// longer names `verified` (`InvalidData`); Linux returns a handle path that is valid only
+    /// while `verified` stays open.
+    fn pinned_program(
+        &self,
+        verified: &std::fs::File,
+        path: &std::path::Path,
+    ) -> std::io::Result<std::path::PathBuf>;
     /// Capability table of the OS adapter this policy delegates to.
     fn host(&self) -> &dyn PlatformHost;
     /// Process-family ownership adapter (ADR 0006).
