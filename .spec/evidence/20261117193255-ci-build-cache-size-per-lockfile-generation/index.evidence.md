@@ -3,7 +3,7 @@ id: evidence:kinekino/20261117193255
 title: CI build cache size per lockfile generation
 status: active
 created: 2026-11-17T19:32:55Z
-updated: 2026-11-17T19:32:55Z
+updated: 2026-11-17T20:50:00Z
 rel:
   governs: [.github/workflows/ci.yml]
 ---
@@ -52,3 +52,27 @@ rel:
 
   Then delete superseded `main` keys by hand, or drop the arm test cache first. The arm cache restores in about 15 s, and losing it costs only a cold arm build.
 - **The owner's computer has a separate cache.** The shared target root (`../.cargo-target/kinekino`), toolchains and temporary clones are cleaned from the survey numbers. The commands go on the survey issue, and the owner's computer session runs them.
+
+## Survey result (issue #54, 2026-11-17)
+
+**Actions caches.** 18 entries, 9,680 MB, all on `refs/heads/main`:
+
+| Key prefix | Entries | MB |
+|---|---:|---:|
+| `v0-rust-test-Linux-x64-*` | 6 | 4,264 |
+| `v0-rust-test-Linux-arm64-*` | 5 | 3,570 |
+| `v0-rust-lint-Linux-x64-*` | 5 | 1,777 |
+| `setup-ruby-bundler-*` (docs) | 2 | 61 |
+
+Two revisit triggers fired. Usage is above 8 GB, and 5–6 lockfile generations were saved within one day, during the Dependabot merges of 2026-11-16. No single job is above 1.5 GB, and no advisory cache was present. Each entry is 340–790 MB, which matches the per-job sizes above.
+
+**Decision: prune once, and do not change the workflow.**
+- Only the newest entry per prefix is restored. The superseded ones (about 7.8 GB) are deleted once, by hand, with the commands on #54.
+- Hitting the limit is not harmful. GitHub evicts the least recently used entries first, which are exactly the superseded generations, and it drops any entry unused for 7 days. The newest generation, the one in use, is never the one evicted.
+- An automatic prune step would need a CI token with `actions: write`. That is more permission than the problem warrants, so it is not added.
+- Dropping the arm cache stays the next step if usage stays near the limit outside Dependabot bursts.
+
+**Owner's computer (Windows).**
+- The leftovers from the 2026-11-16 Windows run are the shared target root (5.14 GB), the temporary clones (0.46 GB) and `runtime/build-cache` (0.23 GB). They are deleted.
+- The `stable-x86_64-pc-windows-gnu` toolchain (1.59 GB) is not used by this repository. Removal is listed on #54 as optional because the toolchain is shared with other projects.
+- `target-dir` is relative to the clone (`../.cargo-target/kinekino`). A clone under `%TEMP%` therefore builds on C:, so later Windows runs clone on D:.
