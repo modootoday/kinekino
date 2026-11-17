@@ -3,7 +3,7 @@ id: evidence:kinekino/20261117193255
 title: CI build cache size per lockfile generation
 status: active
 created: 2026-11-17T19:32:55Z
-updated: 2026-11-17T19:32:55Z
+updated: 2026-11-17T20:50:00Z
 rel:
   governs: [.github/workflows/ci.yml]
 ---
