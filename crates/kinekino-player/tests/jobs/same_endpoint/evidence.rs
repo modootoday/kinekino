@@ -327,6 +327,16 @@ mod request_ledger_tests {
     #[test]
     fn provider_provenance_preserves_urls_and_raw_refs_without_extending_admission() {
         kinekino_platform::install();
+        // An integration binary sees the deny-by-default policy until hosts are installed (the
+        // `cfg(test)` fixture applies only to the library's own unit tests). Install the plugin
+        // shape: the catalog document host is navigable, only the media host plays.
+        use kinekino_player::domain::admitted_hosts::{
+            admitted_hosts_from_plugin, install_admitted_hosts,
+        };
+        install_admitted_hosts(admitted_hosts_from_plugin(
+            &["media.example.test".into()],
+            Some("catalog.example.test"),
+        ));
         let refs = json!([{"artifact_id":"a".repeat(64),"body_sha256":"b".repeat(64)}]);
         let cdn = format!("https://media.example.test/video/{}", "a".repeat(32));
         let admitted = provider_links(
