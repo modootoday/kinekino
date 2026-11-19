@@ -14,6 +14,7 @@ use std::{
     fs::{self, File},
     path::{Path, PathBuf},
     process::{Child, Command, Stdio},
+    sync::atomic::{AtomicU64, Ordering},
     time::{Duration, Instant, SystemTime, UNIX_EPOCH},
 };
 struct Owner(Child);
@@ -25,10 +26,14 @@ impl Drop for Owner {
         }
     }
 }
+/// Tests in this binary run in parallel threads and may read the same clock value, so a
+/// per-process sequence number keeps their roots distinct.
+static NEXT_ROOT: AtomicU64 = AtomicU64::new(0);
 fn root() -> PathBuf {
     let root = std::env::temp_dir().join(format!(
-        "model-catalog-cli-{}-{}",
+        "model-catalog-cli-{}-{}-{}",
         std::process::id(),
+        NEXT_ROOT.fetch_add(1, Ordering::Relaxed),
         SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap()
@@ -554,4 +559,21 @@ fn invalid_catalog_paths_aliases_and_unfixed_provenance_are_rejected() {
             .code,
         kinekino_player::application::api::ErrorCode::InvalidArgument
     );
+}
+#[test]
+fn concurrent_fixture_roots_never_collide() {
+    let roots: Vec<PathBuf> = std::thread::scope(|scope| {
+        let workers: Vec<_> = (0..8)
+            .map(|_| scope.spawn(|| (0..64).map(|_| root()).collect::<Vec<_>>()))
+            .collect();
+        workers
+            .into_iter()
+            .flat_map(|worker| worker.join().unwrap())
+            .collect()
+    });
+    let unique: BTreeSet<_> = roots.iter().collect();
+    assert_eq!(unique.len(), roots.len());
+    for root in &roots {
+        fs::remove_dir(root).unwrap();
+    }
 }
