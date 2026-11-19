@@ -15,7 +15,7 @@ chrome-embed = ["cdp", "x11-embed"]
 # Official CEF child window. Build: CEF_PATH=<cef dist>; run: KINEKINO_CEF_DIR=<cef dist>.
 cef = ["dep:cef"]
 # Windows-only wry/WebView2 adapter; unverified on Linux CI.
-webview2 = ["dep:wry"]
+webview2 = ["dep:wry", "dep:webview2-com", "dep:windows"]
 
 [dependencies]
 kinekino-core.workspace = true
@@ -30,6 +30,12 @@ cef = { workspace = true, optional = true }
 
 [target.'cfg(windows)'.dependencies]
 wry = { workspace = true, optional = true }
+webview2-com = { workspace = true, optional = true }
+windows = { workspace = true, optional = true }
+
+[target.'cfg(windows)'.dev-dependencies]
+raw-window-handle.workspace = true
+windows = { workspace = true, features = ["Win32_System_Com", "Win32_System_LibraryLoader", "Win32_UI_WindowsAndMessaging"] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 x11rb = { workspace = true, optional = true }
@@ -44,3 +50,7 @@ required-features = ["cef"]
 [[example]]
 name = "demo_engine_chrome"
 required-features = ["chrome-embed"]
+
+[[example]]
+name = "demo_engine_webview2"
+required-features = ["webview2"]

@@ -43,7 +43,9 @@ impl EngineKind {
     /// What the adapter implements today (not the engine's potential). ADR 0002 table.
     pub const fn declared(self) -> CapabilitySet {
         match self {
-            Self::WebView2 => CapabilitySet::of(&[H264, Aac, Vp9, Widevine, WindowEmbed]),
+            Self::WebView2 => {
+                CapabilitySet::of(&[H264, Aac, Vp9, Widevine, ProtocolSession, WindowEmbed])
+            }
             // Official CEF: no proprietary codecs; CDM fetched at runtime (VP9 only).
             Self::Cef => CapabilitySet::of(&[Vp9, Widevine, Eval, AudioMute, WindowEmbed]),
             Self::SystemChrome => CapabilitySet::of(&[
