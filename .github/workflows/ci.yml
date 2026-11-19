@@ -3,7 +3,7 @@ name: CI
 # The `Public surface` check lives in public-surface.yml.
 # Runs on every pull request to main, after each merge to main (keeps the main build cache
 # that pull requests restore) and by hand (ADR 0010, amended by the PR gate ADR).
-# Jobs: lint (fmt, clippy, lint-structure, spec check), History (advisory), Windows compile gate,
+# Jobs: lint (fmt, clippy, lint-structure, spec check), History, Windows compile gate,
 # tests on Linux and macOS, and the docs/ Jekyll build when the site exists.
 # Linux (lint, test, site) is the pass/fail gate and always runs on a pull request or push;
 # on a manual run it follows the `linux` input. Windows and macOS are advisory:
@@ -73,7 +73,7 @@ jobs:
         run: KINEKINO_SPEC_BIN="$RUNNER_TEMP/specfold/spec" cargo xtask spec-check
 
   # Commit history (playpilot H1–H7, ADR 20261119194255): with merge commits, every commit in the
-  # pull request lands on main, so each must be clean. Advisory until the owner makes it required.
+  # pull request lands on main, so each must be clean. A required check (main-protected ruleset).
   history:
     name: History
     if: github.event_name == 'pull_request'

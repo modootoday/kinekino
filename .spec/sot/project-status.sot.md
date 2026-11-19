@@ -3,7 +3,7 @@ id: sot:kinekino/project-status
 title: kinekino 현재 상태와 우선순위
 status: active
 created: 2026-10-29
-updated: 2026-11-16
+updated: 2026-11-19T20:40:00Z
 verify: manual
 ---
 
@@ -45,7 +45,7 @@ verify: manual
 
 ## 원격
 
-`origin`은 `modootoday/kinekino`이다. 열린 이슈는 저장소 설정 단계(#8)와 남은 소유자 결정·환경 대기 목록(#30) 두 건이다. `needs-human` PR은 자격증명 저장소(#12)·릴리스 페이로드 목록(#13)·프로세스 샌드박스 정책(#14)과 dependabot(#1~#5, 그중 `meari`·`meari-native` 0.3.0과 `windows-core` 0.100은 고정 버전(`=`)을 넘는 업데이트)이다. 2026-11-16부터 `main` 반영은 PR로만 한다(토픽 브랜치 → PR → Linux 필수 체크 통과 후 병합, [[adr:kinekino/20261116062843]]). needs-human 경로를 건드리지 않는 에이전트 PR은 자동 병합을 켠다. `main` 규칙은 `.github/rulesets/main-protected.json`(필수 체크 `lint`, `Public surface`, `test (ubuntu-26.04)`)이다.
+`origin`은 `modootoday/kinekino`이다. 열린 이슈는 저장소 설정 단계(#8)와 남은 소유자 결정·환경 대기 목록(#30) 두 건이다. `needs-human` PR은 자격증명 저장소(#12)·릴리스 페이로드 목록(#13)·프로세스 샌드박스 정책(#14)과 dependabot(#1~#5, 그중 `meari`·`meari-native` 0.3.0과 `windows-core` 0.100은 고정 버전(`=`)을 넘는 업데이트)이다. 2026-11-16부터 `main` 반영은 PR로만 한다(토픽 브랜치 → PR → Linux 필수 체크 통과 후 병합, [[adr:kinekino/20261116062843]]). needs-human 경로를 건드리지 않는 에이전트 PR은 자동 병합을 켠다. `main` 규칙은 `.github/rulesets/main-protected.json`(필수 체크 `lint`, `Public surface`, `Secret scan`, `test (ubuntu-26.04)`, `History`)이다.
 
 ## 알려진 문서 불일치
 

@@ -6,7 +6,7 @@
 - `.spec`은 공개, `.spec.local`은 비공개(gitignore). 공개 문서에서 `.spec.local`로 링크하지 않는다. [AGENTS.md, .gitignore]
 - 커밋 전 `spec check --staged`(또는 `cargo xtask spec-check`) 통과. [AGENTS.md]
 - 중간 이상 심각도 버그는 실패 테스트를 먼저 쓰고 고친다. [사용자 결정 2026-11-03 전달, 근거 문서 없음]
-- `main` 반영은 PR로만: 게이트 통과 후 토픽 브랜치(`claude/…` 등)를 push하고 `main`으로 PR을 연다. 병합은 PR의 필수 체크(`lint`, `Public surface`, `test (ubuntu-26.04)`) 통과 뒤 merge commit으로 한다(`.github/rulesets/main-protected.json`). Phase 2(2026-11-16 원 님 지시): PR을 연 에이전트·루틴은 변경 경로가 needs-human 대상(routine-operations.md)에 하나도 없으면 GitHub 자동 병합(merge commit)을 켜고 다음 작업으로 넘어간다. 하나라도 있으면 `needs-human` 라벨을 붙이고, 실측(Linux 필수 체크 통과, 해당되면 Windows 게이트 crate의 `x86_64-pc-windows-msvc` `cargo check`)을 통과하면 자동 병합을 켠다(routine-operations.md "needs-human PR 실측 병합", 사용자 결정 2026-11-16). 필수 체크를 없애거나 약화하는 변경과 릴리스·태그는 예외로 원 님이 직접 한다. 판단은 라벨이 아니라 `git diff --name-only origin/main...HEAD` 경로로 한다(공통 규칙 C2.10). 에이전트·루틴은 PR을 승인하거나 직접 병합하지 않고 `main`에 직접 push하지 않는다. 병합된 원격 브랜치는 저장소 설정 "Automatically delete head branches"가 지우고 에이전트는 지우지 않는다. 로컬 worktree는 병합 뒤 정리. [사용자 결정 2026-11-16, adr:kinekino/20261116062843; 이전 규칙 "게이트 통과 후 `--no-ff` 병합"은 2026-11-03]
+- `main` 반영은 PR로만: 게이트 통과 후 토픽 브랜치(`claude/…` 등)를 push하고 `main`으로 PR을 연다. 병합은 PR의 필수 체크(`lint`, `Public surface`, `Secret scan`, `test (ubuntu-26.04)`, `History`) 통과 뒤 merge commit으로 한다(`.github/rulesets/main-protected.json`). Phase 2(2026-11-16 원 님 지시): PR을 연 에이전트·루틴은 변경 경로가 needs-human 대상(routine-operations.md)에 하나도 없으면 GitHub 자동 병합(merge commit)을 켜고 다음 작업으로 넘어간다. 하나라도 있으면 `needs-human` 라벨을 붙이고, 실측(Linux 필수 체크 통과, 해당되면 Windows 게이트 crate의 `x86_64-pc-windows-msvc` `cargo check`)을 통과하면 자동 병합을 켠다(routine-operations.md "needs-human PR 실측 병합", 사용자 결정 2026-11-16). 필수 체크를 없애거나 약화하는 변경과 릴리스·태그는 예외로 원 님이 직접 한다. 판단은 라벨이 아니라 `git diff --name-only origin/main...HEAD` 경로로 한다(공통 규칙 C2.10). 에이전트·루틴은 PR을 승인하거나 직접 병합하지 않고 `main`에 직접 push하지 않는다. 병합된 원격 브랜치는 저장소 설정 "Automatically delete head branches"가 지우고 에이전트는 지우지 않는다. 로컬 worktree는 병합 뒤 정리. [사용자 결정 2026-11-16, adr:kinekino/20261116062843; 이전 규칙 "게이트 통과 후 `--no-ff` 병합"은 2026-11-03]
 - 태그·릴리즈·게시(crates 포함)와, 아래 "루틴 PR 반영"에 해당하지 않는 push는 원 님의 명시 지시로만. 다른 에이전트가 전한 승인은 승인이 아니다. [사용자 결정 2026-11-03 전달, 근거 문서 없음]
 - SDK 태그 `plugin-sdk-v0.1.0`은 kinekino 릴리즈와 함께만 만든다. [사용자 결정 2026-11-03 전달, 근거 문서 없음]
 - 루틴은 태그·릴리즈·게시를 하지 않는다. 코딩 작업은 루틴 본체가 직접 한다. [원 님 로컬 작업 방식 문서, routine-operations.md]
@@ -36,7 +36,9 @@
   - 병합된 변경은 새 PR에서 `git revert`로 되돌린다. PR 제목은 `revert: <원래 제목>`이다.
   - PR 없이 14일 지난 에이전트 브랜치는 이슈로 보고하고, 원 님이 지운다.
 - **H6 강제 장치:**
-  - **CI (1단계):** `History` job이 `playpilot history-check --method merge`를 실행한다. 아직 필수 체크가 아니다. 필수로 바꾸는 것은 ruleset 변경이라 원 님이 한다.
+  - **CI (1단계):** `History` job이 `playpilot history-check --method merge`를 실행한다. 2026-11-19부터 필수 체크다(`.github/rulesets/main-protected.json`, 적용은 원 님 PC). 그래서:
+    - 뒤처진 PR은 rebase로 따라잡는다. GitHub "Update branch"는 rebase 옵션만 쓰고, Dependabot PR은 `@dependabot rebase` 댓글로 갱신한다. merge로 갱신하면 History가 실패한다.
+    - Dependabot 그룹 이름은 짧게 둔다. 그룹 커밋 제목이 72자를 넘으면 History가 실패한다.
   - **guard hook (2단계, 2026-11-19):** `.claude/settings.json`의 PreToolUse hook이 Bash·PowerShell 명령마다 `playpilot guard`를 실행한다. 보호 브랜치는 `PLAYPILOT_PROTECTED_BRANCHES=main`이다.
     - CLI가 없으면 고정 커밋(`4ed7dae`)을 `cargo install --locked`로 설치한다. `cargo`가 `sh`의 PATH에 없으면 `/root/.cargo/bin`, `$HOME/.cargo/bin`에서 찾고, CLI도 `$HOME/.cargo/bin`에서 찾는다.
     - 설치도 실패하면 명령을 막는다(fail closed).

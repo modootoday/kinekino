@@ -47,6 +47,9 @@
           },
           {
             "context": "test (ubuntu-26.04)"
+          },
+          {
+            "context": "History"
           }
         ]
       }
