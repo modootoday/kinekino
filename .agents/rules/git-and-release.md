@@ -35,9 +35,17 @@
 - **H5 되돌리기와 브랜치:**
   - 병합된 변경은 새 PR에서 `git revert`로 되돌린다. PR 제목은 `revert: <원래 제목>`이다.
   - PR 없이 14일 지난 에이전트 브랜치는 이슈로 보고하고, 원 님이 지운다.
-- **H6 강제 장치 (1단계):** CI `History` job이 `playpilot history-check --method merge`를 실행한다.
-  - 아직 필수 체크가 아니다. 필수로 바꾸는 것은 ruleset 변경이라 원 님이 한다.
-  - guard hook(`.claude/settings.json`)은 2단계에서 추가한다. 클라우드 환경에 playpilot CLI가 설치된 뒤다.
+- **H6 강제 장치:**
+  - **CI (1단계):** `History` job이 `playpilot history-check --method merge`를 실행한다. 아직 필수 체크가 아니다. 필수로 바꾸는 것은 ruleset 변경이라 원 님이 한다.
+  - **guard hook (2단계, 2026-11-19):** `.claude/settings.json`의 PreToolUse hook이 Bash·PowerShell 명령마다 `playpilot guard`를 실행한다. 보호 브랜치는 `PLAYPILOT_PROTECTED_BRANCHES=main`이다.
+    - CLI가 없으면 고정 커밋(`0ddc0e1`)을 `cargo install --locked`로 설치한다.
+    - 설치도 실패하면 명령을 막는다(fail closed).
+  - **hook이 막는 것:** 보호 브랜치 push, 브랜치를 쓰지 않은 `git push`, `--force`·`+refspec`, `<branch>:<sha>` 형식이 아닌 lease, 에이전트 접두어가 아닌 브랜치의 lease, 태그, `git add .`·`-A`, `--auto` 없는 `gh pr merge`, PR 승인, 릴리스, 시크릿, ruleset 쓰기.
+  - **명령 작성:**
+    - push는 항상 `git push -u origin <topic-branch>`처럼 브랜치 이름을 쓴다.
+    - guard는 명령 전체를 셸 단어로 나누므로, 따옴표 짝이 안 맞는 heredoc 본문(예: Python 삼중 따옴표)이 든 명령은 거절된다. 그런 스크립트는 파일로 쓴 뒤 실행한다.
+    - `git push` 뒤의 리다이렉션(`2>&1` 등)은 refspec으로 읽힌다. push 명령에는 리다이렉션·파이프를 붙이지 않는다.
+    - lease의 SHA는 셸 변수가 아니라 실제 값으로 쓴다. guard는 변수를 펼치지 않는다.
 - **H7 자동 병합:**
   - PR을 열면 곧바로 자동 병합(merge commit)을 켠다. needs-human 실측 규칙은 위와 같다.
   - 자동 병합이 켜진 PR에 커밋을 더 올릴 때는 자동 병합을 끄고, push한 뒤, 다시 켠다.

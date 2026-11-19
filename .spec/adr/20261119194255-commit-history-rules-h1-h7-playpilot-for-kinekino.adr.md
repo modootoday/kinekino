@@ -52,3 +52,19 @@ kinekino adopts H1–H7 with these project values.
 - Commits merged before this decision are not rewritten. Many of them have subjects that are not Conventional (for example "Record build cache survey and prune decision"). `History` runs only on a pull request's own range, so it does not flag them.
 - Until `History` is required, a pull request whose commits break H3 can still merge. Agents keep to H3 by hand.
 - Stage 2: install the playpilot CLI in the cloud environment, add the guard hook, then let the owner make `History` required.
+
+## Record
+
+- 2026-11-19: Stage 2, the guard hook (owner instruction).
+  - **What the hook runs.** `.claude/settings.json` runs `playpilot guard` as a PreToolUse hook for the `Bash` and `PowerShell` tools, with `PLAYPILOT_PROTECTED_BRANCHES=main`. It behaves like playpilot's `plugin/scripts/guard.sh`.
+  - **Install and fail-closed.** When the CLI is missing, the hook installs commit `0ddc0e1dfd1bac378901817a5fb106935fd5fba1` with `cargo install --locked`. If the install also fails, the call is blocked with exit 2.
+  - **Measured on Linux** (`change:kinekino/20261119195313`):
+    - a push to `main` exits 2, and a topic-branch push exits 0;
+    - the fail-closed path exits 2;
+    - the git and gh commands agents here use pass when the push names its branch.
+  - **Side effects.** The guard splits the whole command line into shell words without expanding it. Agents work around three cases:
+    - **A heredoc with unbalanced quotes is refused.** Agents write such scripts to a file and run the file.
+    - **A redirection after `git push` is read as a refspec.** For example, `2>&1` is refused as a lease target. Push commands carry no redirection or pipe.
+    - **A lease SHA in a shell variable is not seen as a SHA.** The SHA is written out literally.
+  - **Pending.** The Windows run is pending as `needs-windows-run`.
+
