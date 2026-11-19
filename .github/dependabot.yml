@@ -1,6 +1,9 @@
 # Weekly grouped updates; reviewed and merged by hand like any change (ADR 0010).
 # Label and Conventional Commits prefix per the shared automation rules (C5.4). Updates past
 # a pinned (=) or major version get the needs-human label from a person (C7.3).
+# Group names stay short: a group commit subject such as
+# "chore(deps): bump the cargo group across 1 directory with 12 updates" must fit the
+# 72-character limit of the required History check (ADR 20261119194255).
 version: 2
 updates:
   - package-ecosystem: cargo
@@ -13,7 +16,7 @@ updates:
     commit-message:
       prefix: "chore(deps)"
     groups:
-      cargo-minor:
+      cargo:
         update-types: [minor, patch]
     ignore:
       # windows-core must stay on the generation the windows crate and webview2-com use.
