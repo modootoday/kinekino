@@ -1,6 +1,6 @@
 # kinekino 에이전트 규칙
 
-이 파일과 `.agents/`가 단일 정본이다. `CLAUDE.md`(`@AGENTS.md` 한 줄)와 `.claude/{rules,skills,agents}`(링크)는 얇은 어댑터이며 내용을 따로 쓰지 않는다.
+이 파일과 `.agents/`가 단일 정본이다. `CLAUDE.md`(`@AGENTS.md` 한 줄)와 `.claude/{rules,skills,agents}`(링크)는 얇은 어댑터이며 내용을 따로 쓰지 않는다. `.claude/settings.json`에는 playpilot guard hook 설정만 둔다(`.agents/rules/git-and-release.md` H6).
 주제별 규칙은 `.agents/rules/`(색인 `.agents/rules/README.md`), 절차는 `.agents/skills/`, 역할 정의는 `.agents/agents/`에 있다.
 
 ## 항상 지키는 것
