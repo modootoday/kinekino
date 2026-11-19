@@ -3,7 +3,7 @@ id: evidence:kinekino/20261116135502
 title: glib 0.18 advisory is lockfile-only; no wry release leaves gtk 0.18
 status: active
 created: 2026-11-16T13:55:02Z
-updated: 2026-11-16T13:55:02Z
+updated: 2026-11-19T20:40:00Z
 rel:
   governs: [Cargo.lock]
 ---
@@ -30,6 +30,19 @@ With `--target all` it prints the `wry` path above.
 - `gtk` 0.19.0, published 2026-09-08 and built on `glib` 0.22, exists, but no `webkit2gtk` or `wry` release uses it yet.
 
 So no `wry` or `gtk` upgrade can remove `glib` 0.18 today. A `[patch]` override would replace third-party bindings, and the agent does not do that.
+
+## Recheck 2026-11-19
+
+`cargo-audit` 0.23.0 still lists `glib` 0.18.5 (RUSTSEC-2024-0429) as its only unsound finding. It reports no vulnerabilities.
+
+**Per target.** `cargo tree -i glib@0.18.5 -e all --target <t>` still prints nothing for the four targets above.
+
+**Upgrade path (crates.io, 2026-11-19).**
+- The newest `wry` is 0.57.3. It still requires `gtk ^0.18`, `webkit2gtk =2.0.2` and `javascriptcore-rs =1.1.2`.
+- `webkit2gtk` 3.0.0 was published on 2026-11-19. It is built on `gtk` 0.19, `glib` 0.22, `javascriptcore-rs` 2 and `soup3` 0.9.
+- So the first half of the recheck condition below is now met. The second half is not: no `wry` release uses `webkit2gtk` 3 yet.
+
+The conclusion is unchanged: no binary is affected, and there is no upgrade to take.
 
 ## How to read it
 
