@@ -75,4 +75,16 @@ kinekino adopts H1–H7 with these project values.
     - A push to `main` stays blocked, including inside a heredoc fed to `bash`.
   - **Measured on Linux.** See `change:kinekino/20261119200443`.
   - **Existing installs are not upgraded.** The hook installs only when the CLI is missing, so an existing install is replaced by hand, as the rules say.
+- 2026-11-19: `History` becomes a required check. The owner delegated the decision ("decide whether History should be required").
+  - **Decision.** Add `History` to the required checks of the `main-protected` ruleset. Adding a check strengthens the gate; it does not weaken one.
+  - **Evidence for.**
+    - `History` passed on every pull request since #58.
+    - It finishes in under a minute.
+    - The guard hook already keeps agent branches to H3.
+  - **One blocker, fixed in the same change.** Dependabot's group commit subject, "chore(deps): bump the cargo-minor group across 1 directory with 2 updates", is 73 characters, one over the limit. Renaming the groups to `cargo` and `actions` keeps it at about 68 characters for up to 99 updates.
+  - **What does not change.** Pull requests merged before this change are not rechecked. Many of them carry merge commits from "Update branch".
+  - **Branch updates.** The ruleset requires branches to be up to date (`strict_required_status_checks_policy`), so behind branches are updated by rebase:
+    - "Update branch" with the rebase option;
+    - `@dependabot rebase` for Dependabot pull requests.
+  - **Applying it.** The owner applies the ruleset file from their PC (common rule C2.7). See `change:kinekino/20261119203812`.
 
