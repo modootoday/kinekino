@@ -5,7 +5,7 @@ use crate::{
         api::{ErrorCode, Request},
         playback_session::EpisodePlaybackEngine,
     },
-    infrastructure::{content_digest, projects::ProjectFiles},
+    infrastructure::{content_digest, os_policy::guarded_mutation, projects::ProjectFiles},
 };
 use serde_json::{Value, json};
 use std::{
@@ -161,11 +161,11 @@ fn capture_setup_failures_return_original_host_for_explicit_cleanup() {
             assert_eq!(error.code, ErrorCode::InvalidArgument);
         }
         let host = host.expect("Original native guard must survive partial setup failure");
-        assert!(
+        guarded_mutation(
             OpenOptions::new()
                 .write(true)
                 .open(&fixture.executable)
-                .is_err()
+                .map(drop),
         );
         assert!(host.shutdown().unwrap().is_none());
         drop(host);
@@ -196,11 +196,11 @@ fn skip_owner_close_reaches_sdk_clones_while_native_guard_remains_owned() {
         capabilities(&clone)["skip_sessions"]["seek_submission_available"],
         false
     );
-    assert!(
+    guarded_mutation(
         OpenOptions::new()
             .write(true)
             .open(&fixture.executable)
-            .is_err()
+            .map(drop),
     );
     assert!(host.shutdown().unwrap().is_none());
 }
