@@ -1,4 +1,3 @@
-#![cfg(windows)]
 #[path = "support/local_host_cli.rs"]
 pub mod cli;
 #[path = "support/cli_exe.rs"]
@@ -156,15 +155,10 @@ fn run(broken_ready: bool, controls: bool, matroska: bool) {
     } else {
         serde_json::from_slice(&fs::read(fixture_root().join("NOMINATION.json")).unwrap()).unwrap()
     };
-    let (mut mask, mut system) = (0usize, 0usize);
-    unsafe {
-        windows::Win32::System::Threading::GetProcessAffinityMask(
-            windows::Win32::System::Threading::GetCurrentProcess(),
-            &mut mask,
-            &mut system,
-        )
-        .unwrap();
-    }
+    let mask = kinekino_player::infrastructure::os_policy::process()
+        .current_affinity()
+        .unwrap()
+        .unwrap_or(1);
     let mut settings = settings(&root, &data, mask.isolate_lowest_one());
     if matroska {
         matroska::configure(&mut settings);

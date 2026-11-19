@@ -57,15 +57,10 @@ fn review_host_process_child() {
     );
     let producer = custody::Guard::acquire(&std::env::current_exe().unwrap());
     let workspace = Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/../.."));
-    let (mut mask, mut system) = (0usize, 0usize);
-    unsafe {
-        windows::Win32::System::Threading::GetProcessAffinityMask(
-            windows::Win32::System::Threading::GetCurrentProcess(),
-            &mut mask,
-            &mut system,
-        )
-        .unwrap();
-    }
+    let mask = kinekino_player::infrastructure::os_policy::process()
+        .current_affinity()
+        .unwrap()
+        .unwrap_or(1);
     let config = sessions::fixed_config(
         &workspace.join("runtime/verification/sprite-timeline-actual-r1"),
         &output.join("user-review"),

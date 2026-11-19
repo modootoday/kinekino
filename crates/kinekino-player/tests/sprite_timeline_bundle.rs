@@ -1,4 +1,3 @@
-#![cfg(windows)]
 #[path = "sprite_timeline_bundle/assemble.rs"]
 mod assemble;
 #[path = "sprite_capture_cli/custody.rs"]

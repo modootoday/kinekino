@@ -1,4 +1,3 @@
-#![cfg(windows)]
 #[path = "support/local_host_cli.rs"]
 pub mod cli;
 #[path = "support/cli_exe.rs"]
@@ -160,15 +159,10 @@ fn actual_source_bound_video_probe_and_cancel_preserve_original_owners() {
         "a6618e99bb58869ded3c6f37b53aa1a8d701c3591dbb7b5b317d47369c112be2"
     );
     let tool = PinnedTimelineProbe::open(&tool_path, &tool_guard.sha256).unwrap();
-    let (mut mask, mut system) = (0usize, 0usize);
-    unsafe {
-        windows::Win32::System::Threading::GetProcessAffinityMask(
-            windows::Win32::System::Threading::GetCurrentProcess(),
-            &mut mask,
-            &mut system,
-        )
-        .unwrap();
-    }
+    let mask = kinekino_player::infrastructure::os_policy::process()
+        .current_affinity()
+        .unwrap()
+        .unwrap_or(1);
     let runtime = output.join("producer");
     fs::create_dir(&runtime).unwrap();
     let decoder_path = PathBuf::from(std::env::var("KINEKINO_TIMELINE_FFMPEG").unwrap());

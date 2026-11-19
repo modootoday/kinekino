@@ -1,4 +1,3 @@
-#![cfg(windows)]
 #[path = "support/local_host_cli.rs"]
 pub mod cli;
 #[path = "support/cli_exe.rs"]

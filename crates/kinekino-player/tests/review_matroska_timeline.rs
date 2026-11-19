@@ -1,4 +1,3 @@
-#![cfg(windows)]
 //! Actual local producer and SDK association. No inference/network/GUI or playback child.
 use kinekino_player::{
     application::{
@@ -95,15 +94,10 @@ fn actual_matroska_producer_publishes_fresh_timeline_and_sdk_verified_associatio
         )
         .unwrap(),
     };
-    let (mut affinity, mut system) = (0usize, 0usize);
-    unsafe {
-        windows::Win32::System::Threading::GetProcessAffinityMask(
-            windows::Win32::System::Threading::GetCurrentProcess(),
-            &mut affinity,
-            &mut system,
-        )
-        .unwrap();
-    }
+    let affinity = kinekino_player::infrastructure::os_policy::process()
+        .current_affinity()
+        .unwrap()
+        .unwrap_or(1);
     let token = prepare_timeline(
         TimelinePreparation {
             source_root: source,

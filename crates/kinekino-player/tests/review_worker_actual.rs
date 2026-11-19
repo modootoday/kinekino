@@ -1,4 +1,3 @@
-#![cfg(windows)]
 #[path = "support/local_host_cli.rs"]
 pub mod cli;
 #[path = "support/cli_exe.rs"]
@@ -183,20 +182,15 @@ fn run(retain_timeline: bool, worker_commands: bool) {
                 &tool_path,
                 "f8bf7e8fd8d6696e35441c55091498060e4594f724a132fd6c46579341bc0790",
             )?;
-            let (mut mask, mut system) = (0usize, 0usize);
-            unsafe {
-                windows::Win32::System::Threading::GetProcessAffinityMask(
-                    windows::Win32::System::Threading::GetCurrentProcess(),
-                    &mut mask,
-                    &mut system,
-                )
+            let mask = kinekino_player::infrastructure::os_policy::process()
+                .current_affinity()
                 .map_err(|e| {
                     kinekino_player::application::api::ApiError::new(
                         kinekino_player::application::api::ErrorCode::EngineFailed,
                         e.to_string(),
                     )
-                })?;
-            }
+                })?
+                .unwrap_or(1);
             let budget = JobBudget {
                 max_committed_bytes: 1024 * 1024 * 1024,
                 affinity_mask: mask.isolate_lowest_one(),
