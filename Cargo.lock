@@ -2884,10 +2884,13 @@ dependencies = [
  "chromiumoxide",
  "futures",
  "kinekino-core",
+ "raw-window-handle",
  "serde",
  "serde_json",
  "tokio",
  "url",
+ "webview2-com",
+ "windows",
  "wry",
  "x11rb 0.14.0",
 ]
