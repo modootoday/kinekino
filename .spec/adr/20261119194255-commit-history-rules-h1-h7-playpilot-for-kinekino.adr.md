@@ -67,4 +67,12 @@ kinekino adopts H1–H7 with these project values.
     - **A redirection after `git push` is read as a refspec.** For example, `2>&1` is refused as a lease target. Push commands carry no redirection or pipe.
     - **A lease SHA in a shell variable is not seen as a SHA.** The SHA is written out literally.
   - **Pending.** The Windows run is pending as `needs-windows-run`.
+- 2026-11-19: Guard parser fix (owner instruction through the playpilot design session).
+  - **What changed.** The hook and the `History` job now pin playpilot commit `4ed7daee4b5bfa4a3b0a89e7f5e2281690efec48`. That commit includes playpilot's guard fix, which lifts the three side effects above.
+    - The guard drops redirections before it reads a command.
+    - It accepts a lease SHA written as a shell variable.
+    - It checks a heredoc body as commands only when the body is fed to a shell. Otherwise the body is data.
+    - A push to `main` stays blocked, including inside a heredoc fed to `bash`.
+  - **Measured on Linux.** See `change:kinekino/20261119200443`.
+  - **Existing installs are not upgraded.** The hook installs only when the CLI is missing, so an existing install is replaced by hand, as the rules say.
 
