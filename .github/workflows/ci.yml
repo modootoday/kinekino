@@ -3,7 +3,7 @@ name: CI
 # The `Public surface` check lives in public-surface.yml.
 # Runs on every pull request to main, after each merge to main (keeps the main build cache
 # that pull requests restore) and by hand (ADR 0010, amended by the PR gate ADR).
-# Jobs: lint (fmt, clippy, lint-structure, spec check), Windows compile gate,
+# Jobs: lint (fmt, clippy, lint-structure, spec check), History (advisory), Windows compile gate,
 # tests on Linux and macOS, and the docs/ Jekyll build when the site exists.
 # Linux (lint, test, site) is the pass/fail gate and always runs on a pull request or push;
 # on a manual run it follows the `linux` input. Windows and macOS are advisory:
@@ -71,6 +71,31 @@ jobs:
         run: bash .github/scripts/install-specfold.sh "$SPECFOLD_VERSION" "$RUNNER_TEMP/specfold"
       - name: spec check
         run: KINEKINO_SPEC_BIN="$RUNNER_TEMP/specfold/spec" cargo xtask spec-check
+
+  # Commit history (playpilot H1–H7, ADR 20261119194255): with merge commits, every commit in the
+  # pull request lands on main, so each must be clean. Advisory until the owner makes it required.
+  history:
+    name: History
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Toolchain from rust-toolchain.toml
+        run: rustup toolchain install && rustup show active-toolchain
+      - name: Install playpilot (pinned commit)
+        run: >-
+          cargo install --locked --root "$RUNNER_TEMP/playpilot"
+          --git https://github.com/modootoday/playpilot
+          --rev 0ddc0e1dfd1bac378901817a5fb106935fd5fba1 playpilot
+      - name: history-check
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: '"$RUNNER_TEMP/playpilot/bin/playpilot" history-check --method merge --range "$BASE..$HEAD"'
 
   windows-gate:
     # Compile check only; Windows tests run in the last phase (P8). Advisory.

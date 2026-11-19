@@ -2,9 +2,9 @@
 id: sot:kinekino/shared-automation-rules
 title: Shared automation rules
 status: active
-verify: manual
 created: 2026-11-16T07:14:35Z
-updated: 2026-11-16T13:52:45Z
+updated: 2026-11-19T19:50:00Z
+verify: manual
 rel:
   governs: [AGENTS.md, .agents, .github]
   depends_on: [adr:kinekino/20261116062843, adr:kinekino/20261116065239]
@@ -117,6 +117,7 @@ Repository settings are files in the repository. They are applied from the owner
 |-|-|
 |Base branch for agent work|`main`|
 |Merge method|merge commit (plan records cite commit hashes)|
+|Commit history|playpilot H1–H7 from 2026-11-19 (owner instruction, [[adr:kinekino/20261119194255]]). Merge commit is kept (H1), so every topic-branch commit has a Conventional Commits subject, and a branch holds no merge, WIP or fixup commits at merge time (H3). An agent may rewrite only its own unmerged topic branch, and pushes it with `--force-with-lease=<branch>:<sha>` (H4). This narrows C1.3 for kinekino. Auto-merge goes on right after a pull request opens, and is turned off and on again around added pushes (H7). The `History` job runs `playpilot history-check --method merge` but is not yet required; the guard hook is stage 2|
 |Lock unit (C1.5)|the repository|
 |Ruleset file|`.github/rulesets/main-protected.json` (applied as ruleset 27354229)|
 |Settings files (C2.6)|`.github/labels.json`, `.github/settings/repository.json`|
