@@ -1,6 +1,6 @@
 use super::{
     fixture::{Fixture, Host, request},
-    provider::terminal,
+    job_observation::terminal,
 };
 use kinekino_core::source::document::{PageLocation, ResourceKind};
 use kinekino_player::{

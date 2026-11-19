@@ -1,10 +1,10 @@
 //! Real pinned CLI/typed SDK through the existing owned host/request harness.
 use super::{
     fixture::{Fixture, request},
+    job_observation::try_terminal_until,
     kinekino_process::{
         CliFailure, OwnedHost, ScenarioFailure, close_request, phase_deadline, transport_at,
     },
-    provider::try_terminal_until,
 };
 use kinekino_player::application::api::ClipClient;
 use kinekino_player::{

@@ -4,11 +4,11 @@ use super::evidence::provider_links;
 mod adjacent;
 use crate::{
     fixture::{Fixture, request},
+    job_observation::try_terminal_until as terminal_until,
     kinekino_process::CliFailure,
     playback_observation::{
         try_capture_frame as capture_frame, try_wait_for_progress as wait_for_progress,
     },
-    provider::try_terminal_until as terminal_until,
 };
 use kinekino_core::source::document::{PageLocation, ResourceKind};
 use kinekino_player::{
