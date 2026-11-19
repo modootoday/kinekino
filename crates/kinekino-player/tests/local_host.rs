@@ -1,4 +1,3 @@
-#![cfg(windows)]
 #[path = "support/cli_exe.rs"]
 mod cli_exe;
 #[path = "support/local_host_cli.rs"]
@@ -6,6 +5,7 @@ pub mod cli_fixture;
 use cli_fixture::invoke;
 #[path = "support/local_host_flight.rs"]
 mod flight_fixture;
+use kinekino_core::platform::ipc::IpcStream;
 use kinekino_player::{
     application::{
         api::{
@@ -28,10 +28,7 @@ use std::{
     },
     time::{Duration, Instant},
 };
-use tokio::{
-    io::{AsyncReadExt, AsyncWriteExt},
-    net::windows::named_pipe::ClientOptions,
-};
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 struct Port(Arc<AtomicUsize>);
 impl PlaybackControlPort for Port {
@@ -137,10 +134,10 @@ fn malformed_oversized_and_truncated_frames_do_not_dispatch_and_host_recovers() 
         trace.clone(),
     )
     .unwrap();
-    let path = pipe_path(&LocalEndpoint::parse(host.endpoint()).unwrap());
+    let endpoint = LocalEndpoint::parse(host.endpoint()).unwrap();
     runtime().block_on(async {
         for length in [0, MAX_REQUEST_BYTES as u32 + 1, u32::MAX] {
-            let mut pipe = open(&path).await;
+            let mut pipe = open(&endpoint).await;
             pipe.write_u32_le(length).await.unwrap();
             let mut byte = [0];
             assert!(
@@ -151,11 +148,11 @@ fn malformed_oversized_and_truncated_frames_do_not_dispatch_and_host_recovers() 
             );
         }
         {
-            let mut pipe = open(&path).await;
+            let mut pipe = open(&endpoint).await;
             pipe.write_u32_le(50).await.unwrap();
             pipe.write_all(b"partial").await.unwrap();
         }
-        let mut pipe = open(&path).await;
+        let mut pipe = open(&endpoint).await;
         let malformed = br#"{"command":"version","token":"SECRET"}"#;
         pipe.write_u32_le(malformed.len() as u32).await.unwrap();
         pipe.write_all(malformed).await.unwrap();
@@ -184,14 +181,13 @@ fn malformed_oversized_and_truncated_frames_do_not_dispatch_and_host_recovers() 
     assert_eq!(code, 0, "response={response}; trace={:?}", trace.snapshot());
     assert_eq!(calls.load(Ordering::SeqCst), 1);
 }
-/// Named-pipe address the Windows IPC adapter derives from the endpoint id (ADR 0007).
-fn pipe_path(endpoint: &LocalEndpoint) -> String {
-    format!(r"\\.\pipe\{}", endpoint.id().name())
-}
-async fn open(path: &str) -> tokio::net::windows::named_pipe::NamedPipeClient {
+/// Raw client connection through the IPC port (ADR 0007): a named pipe on Windows, a Unix socket
+/// elsewhere. The frames written on it bypass `EndpointClient` on purpose.
+async fn open(endpoint: &LocalEndpoint) -> Box<dyn IpcStream> {
     // The host serves one session at a time; a stalled partial frame holds it up to the timeout.
     for _ in 0..600 {
-        if let Ok(pipe) = ClientOptions::new().open(path) {
+        if let Ok(pipe) = kinekino_player::infrastructure::os_policy::ipc().connect(&endpoint.id())
+        {
             return pipe;
         }
         tokio::time::sleep(Duration::from_millis(5)).await;
@@ -229,7 +225,7 @@ fn host_drop_cancels_an_idle_partial_client_without_waiting_for_deadline() {
         LocalHost::start(Arc::new(PlayerSdk::default()), TransportOptions::default()).unwrap();
     let endpoint = LocalEndpoint::parse(host.endpoint()).unwrap();
     let rt = runtime();
-    let mut pipe = rt.block_on(open(&pipe_path(&endpoint)));
+    let mut pipe = rt.block_on(open(&endpoint));
     rt.block_on(pipe.write_u32_le(100)).unwrap();
     let start = Instant::now();
     drop(host);
@@ -331,7 +327,7 @@ fn stalled_response_reader_and_overlarge_sdk_response_remain_bounded() {
     .unwrap();
     let endpoint = LocalEndpoint::parse(host.endpoint()).unwrap();
     let rt = runtime();
-    let mut pipe = rt.block_on(open(&pipe_path(&endpoint)));
+    let mut pipe = rt.block_on(open(&endpoint));
     rt.block_on(async {
         let request = serde_json::to_vec(&Request::new("version")).unwrap();
         pipe.write_u32_le(request.len() as u32).await.unwrap();
