@@ -76,15 +76,10 @@ pub fn verify(
         tool_guard.sha256,
         "f8bf7e8fd8d6696e35441c55091498060e4594f724a132fd6c46579341bc0790"
     );
-    let (mut mask, mut system) = (0usize, 0usize);
-    unsafe {
-        windows::Win32::System::Threading::GetProcessAffinityMask(
-            windows::Win32::System::Threading::GetCurrentProcess(),
-            &mut mask,
-            &mut system,
-        )
-        .unwrap();
-    }
+    let mask = kinekino_player::infrastructure::os_policy::process()
+        .current_affinity()
+        .unwrap()
+        .unwrap_or(1);
     let budget = JobBudget {
         max_committed_bytes: 1024 * 1024 * 1024,
         affinity_mask: mask.isolate_lowest_one(),

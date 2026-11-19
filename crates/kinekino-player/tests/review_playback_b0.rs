@@ -1,4 +1,3 @@
-#![cfg(windows)]
 #[path = "sprite_capture_cli/custody.rs"]
 mod custody;
 use kinekino_player::{
@@ -57,15 +56,10 @@ fn actual_source_tool_and_job_are_retained_by_one_admitted_owner() {
             .as_nanos()
     ));
     fs::create_dir(&allocation).unwrap();
-    let (mut mask, mut system) = (0usize, 0usize);
-    unsafe {
-        windows::Win32::System::Threading::GetProcessAffinityMask(
-            windows::Win32::System::Threading::GetCurrentProcess(),
-            &mut mask,
-            &mut system,
-        )
-        .unwrap();
-    }
+    let mask = kinekino_player::infrastructure::os_policy::process()
+        .current_affinity()
+        .unwrap()
+        .unwrap_or(1);
     let budget = JobBudget {
         max_committed_bytes: 512 * 1024 * 1024,
         affinity_mask: mask.isolate_lowest_one(),

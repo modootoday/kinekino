@@ -1,5 +1,6 @@
 //! External Rust fault watcher; no product test hooks or alternate CLI binary.
 use super::*;
+use kinekino_player::infrastructure::os_policy::{self, ShareMode};
 use std::{collections::BTreeSet, io::Write, path::Path};
 const SENTINEL: &[u8] = b"original normal CLI receipt collision evidence";
 fn roots(pid: u32) -> BTreeSet<PathBuf> {
@@ -105,15 +106,16 @@ pub(super) fn recover(
                 .exists(),
             "no automatic receipt retry"
         );
-        use std::os::windows::fs::OpenOptionsExt;
-        assert!(
-            fs::OpenOptions::new()
-                .read(true)
-                .share_mode(0)
-                .open(media())
-                .is_err(),
-            "original media guard retained while pending"
-        );
+        // Windows share modes make the retained guard observable; POSIX sharing is advisory.
+        if os_policy::has_mandatory_share_modes() {
+            let mut options = fs::OpenOptions::new();
+            options.read(true);
+            os_policy::apply_share_mode(&mut options, ShareMode::Exclusive);
+            assert!(
+                options.open(media()).is_err(),
+                "original media guard retained while pending"
+            );
+        }
         if generation > 1 {
             let directory = root.join(format!("stale-retry-{generation}"));
             fs::create_dir(&directory).unwrap();
@@ -182,15 +184,16 @@ pub(super) fn recover(
         }
         assert!(!evidence.join("receipt-0017.json").exists());
         assert!(!root.join("frame.png").exists());
-        use std::os::windows::fs::OpenOptionsExt;
-        assert!(
-            fs::OpenOptions::new()
-                .read(true)
-                .share_mode(0)
-                .open(media())
-                .is_err(),
-            "source guard still retained after exhaustion"
-        );
+        // Windows share modes make the retained guard observable; POSIX sharing is advisory.
+        if os_policy::has_mandatory_share_modes() {
+            let mut options = fs::OpenOptions::new();
+            options.read(true);
+            os_policy::apply_share_mode(&mut options, ShareMode::Exclusive);
+            assert!(
+                options.open(media()).is_err(),
+                "source guard still retained after exhaustion"
+            );
+        }
         let after = roots(fault.pid);
         let added: Vec<_> = after.difference(&fault.before).cloned().collect();
         assert_eq!(added, vec![evidence.clone()]);
