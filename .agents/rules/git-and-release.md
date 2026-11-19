@@ -38,7 +38,7 @@
 - **H6 강제 장치:**
   - **CI (1단계):** `History` job이 `playpilot history-check --method merge`를 실행한다. 아직 필수 체크가 아니다. 필수로 바꾸는 것은 ruleset 변경이라 원 님이 한다.
   - **guard hook (2단계, 2026-11-19):** `.claude/settings.json`의 PreToolUse hook이 Bash·PowerShell 명령마다 `playpilot guard`를 실행한다. 보호 브랜치는 `PLAYPILOT_PROTECTED_BRANCHES=main`이다.
-    - CLI가 없으면 고정 커밋(`0ddc0e1`)을 `cargo install --locked`로 설치한다.
+    - CLI가 없으면 고정 커밋(`0ddc0e1`)을 `cargo install --locked`로 설치한다. `cargo`가 `sh`의 PATH에 없으면 `/root/.cargo/bin`, `$HOME/.cargo/bin`에서 찾고, CLI도 `$HOME/.cargo/bin`에서 찾는다.
     - 설치도 실패하면 명령을 막는다(fail closed).
   - **hook이 막는 것:** 보호 브랜치 push, 브랜치를 쓰지 않은 `git push`, `--force`·`+refspec`, `<branch>:<sha>` 형식이 아닌 lease, 에이전트 접두어가 아닌 브랜치의 lease, 태그, `git add .`·`-A`, `--auto` 없는 `gh pr merge`, PR 승인, 릴리스, 시크릿, ruleset 쓰기.
   - **명령 작성:**
