@@ -1,4 +1,3 @@
-#![cfg(windows)]
 use kinekino_player::application::api::JobClient;
 #[path = "jobs/asset_build.rs"]
 mod asset_build;
@@ -6,7 +5,7 @@ mod asset_build;
 mod batches;
 #[path = "jobs/cancel.rs"]
 mod cancel;
-#[cfg(feature = "card-review-export")]
+#[cfg(all(windows, feature = "card-review-export"))]
 #[path = "jobs/card_bundle.rs"]
 mod card_bundle;
 #[path = "jobs/catalog_replay.rs"]
@@ -17,6 +16,8 @@ mod cli_exe;
 mod clip_cancel;
 #[path = "jobs/clip_render.rs"]
 mod clip_render;
+// Uses the Windows-only browser provider (product `infrastructure::browser_provider`).
+#[cfg(windows)]
 #[path = "jobs/episode_capture.rs"]
 mod episode_capture;
 #[path = "jobs/fixture.rs"]
@@ -25,16 +26,24 @@ mod fixture;
 mod fixture_plugin;
 #[path = "jobs/frame_tools.rs"]
 mod frame_tools;
+#[path = "jobs/job_observation.rs"]
+mod job_observation;
 #[path = "jobs/kinekino_process.rs"]
 mod kinekino_process;
+// Native window pointer and visibility checks call Win32 directly (ADR 0009).
+#[cfg(windows)]
 #[path = "jobs/native_episode.rs"]
 mod native_episode;
+// Uses the Windows-only browser provider (product `infrastructure::browser_provider`).
+#[cfg(windows)]
 #[path = "jobs/observation_guard.rs"]
 mod observation_guard;
 #[path = "jobs/playback_observation.rs"]
 mod playback_observation;
 #[path = "jobs/playback_owner.rs"]
 mod playback_owner;
+// Uses the Windows-only browser provider (product `infrastructure::browser_provider`).
+#[cfg(windows)]
 #[path = "jobs/provider.rs"]
 mod provider;
 #[path = "jobs/range_export.rs"]
@@ -49,6 +58,8 @@ mod retaining_storage_paths;
 mod same_endpoint;
 #[path = "jobs/series.rs"]
 mod series;
+// Uses the Windows-only browser provider (product `infrastructure::browser_provider`).
+#[cfg(windows)]
 #[path = "jobs/synthetic_browser.rs"]
 mod synthetic_browser;
 use fixture::{Fixture, Host, request};

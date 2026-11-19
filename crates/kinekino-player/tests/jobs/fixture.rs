@@ -9,7 +9,6 @@ use serde_json::Value;
 use std::{
     fs,
     io::{BufRead, BufReader, Read, Write},
-    os::windows::process::CommandExt,
     path::{Path, PathBuf},
     process::{Child, ChildStdin, ChildStdout, Command, Stdio},
     time::{SystemTime, UNIX_EPOCH},
@@ -249,8 +248,8 @@ impl Fixture {
         let bytes = serde_json::to_vec(request).unwrap();
         fs::write(self.root.join(format!("logs/{label}.request.json")), &bytes).unwrap();
         let mut command = Command::new(&self.cli);
+        kinekino_player::infrastructure::os_policy::hide_console_window(&mut command);
         command
-            .creation_flags(0x08000000)
             .env("KINEKINO_PLUGIN_DIR", self.root.join("plugins"))
             .args(["--input", "-"]);
         if let Some(endpoint) = endpoint {
@@ -339,8 +338,8 @@ impl Host {
         options: &[String],
     ) -> Self {
         let mut command = Command::new(&fixture.cli);
+        kinekino_player::infrastructure::os_policy::hide_console_window(&mut command);
         command
-            .creation_flags(0x08000000)
             .env("KINEKINO_PLUGIN_DIR", fixture.root.join("plugins"))
             .arg(if provider.is_some() {
                 "--serve-provider"

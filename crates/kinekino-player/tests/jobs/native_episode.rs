@@ -1,10 +1,12 @@
 use kinekino_player::application::api::EpisodeClient;
 // Actual CLI gate; source interval is fixed separately from the initial native checkpoint.
-use super::{
-    fixture::{Fixture, request},
-    playback_observation::{capture_frame, observe_until, wait_for_progress},
-    playback_owner::NativeOwner,
-};
+use super::fixture::{Fixture, request};
+#[path = "native_episode/observation.rs"]
+mod observation;
+#[path = "native_episode/owner.rs"]
+mod owner;
+use observation::{capture_frame, observe_until, wait_for_progress};
+use owner::NativeOwner;
 #[path = "native_episode/options.rs"]
 mod options;
 #[path = "native_episode/pointer.rs"]

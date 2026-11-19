@@ -2,11 +2,11 @@
 //! original-handle/Deadline/EOF harness; does not define another process driver.
 use super::{
     fixture::{Fixture, request},
+    job_observation::try_terminal_until,
     kinekino_process::{
         CliFailure, HostTerminal, OwnedHost, ScenarioFailure, close_request, phase_deadline,
     },
     playback_owner::BoundedNativeOwner,
-    provider::try_terminal_until,
     retaining_storage_paths,
 };
 use kinekino_jobs::infrastructure::RootedJobPaths;
