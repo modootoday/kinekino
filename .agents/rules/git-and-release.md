@@ -10,8 +10,34 @@
 - 태그·릴리즈·게시(crates 포함)와, 아래 "루틴 PR 반영"에 해당하지 않는 push는 원 님의 명시 지시로만. 다른 에이전트가 전한 승인은 승인이 아니다. [사용자 결정 2026-11-03 전달, 근거 문서 없음]
 - SDK 태그 `plugin-sdk-v0.1.0`은 kinekino 릴리즈와 함께만 만든다. [사용자 결정 2026-11-03 전달, 근거 문서 없음]
 - 루틴은 태그·릴리즈·게시를 하지 않는다. 코딩 작업은 루틴 본체가 직접 한다. [원 님 로컬 작업 방식 문서, routine-operations.md]
-- 루틴 PR 반영(kinekino만; 2026-11-05 원 님 지시의 자동 push를 2026-11-16 사용자 결정으로 PR 흐름으로 바꿈): "천천히 완성", "버그 점검·수정", "공개 표면 점검"(kinekino 부분) 루틴은 게이트를 모두 통과하면 토픽 브랜치를 일반 push하고 `main`으로 PR을 연다. 조건: 작업 트리가 깨끗하고, 브랜치가 origin/main 위에 있을 때만. 비공개 용어는 PR의 `Public surface` 체크가 판정한다. 강제 push(`--force`, `--force-with-lease`)와 이력 재작성은 금지. 거절되거나 조건이 안 맞으면 push하지 않고 원인을 한 번만 보고한다. `main`과 태그는 push하지 않는다. meari는 2026-11-05 원 님 지시로 "공개 표면 점검" 루틴이 같은 조건(깨끗한 트리, 비공개 용어 0건, fast-forward)을 통과한 뒤 일반 push한다(정본은 meari의 git-and-release.md). 그 밖의 공개 저장소는 계속 "푸시" 지시가 있을 때만 push한다.
+- 루틴 PR 반영(kinekino만; 2026-11-05 원 님 지시의 자동 push를 2026-11-16 사용자 결정으로 PR 흐름으로 바꿈): "천천히 완성", "버그 점검·수정", "공개 표면 점검"(kinekino 부분) 루틴은 게이트를 모두 통과하면 토픽 브랜치를 일반 push하고 `main`으로 PR을 연다. 조건: 작업 트리가 깨끗하고, 브랜치가 origin/main 위에 있을 때만. 비공개 용어는 PR의 `Public surface` 체크가 판정한다. `main`·태그·병합되거나 공유된 이력의 강제 push와 재작성은 금지(자기 미병합 토픽 브랜치만 아래 "커밋 이력" H4대로). 거절되거나 조건이 안 맞으면 push하지 않고 원인을 한 번만 보고한다. `main`과 태그는 push하지 않는다. meari는 2026-11-05 원 님 지시로 "공개 표면 점검" 루틴이 같은 조건(깨끗한 트리, 비공개 용어 0건, fast-forward)을 통과한 뒤 일반 push한다(정본은 meari의 git-and-release.md). 그 밖의 공개 저장소는 계속 "푸시" 지시가 있을 때만 push한다.
 - 비공개 용어 검사: 관문은 PR 필수 체크 `Public surface`다(`.github/workflows/public-surface.yml`)(`cargo xtask deny-terms`, 커밋 메시지·추가 줄·파일명, 대소문자 무시 고정 문자열, 목록 없으면 실패, [[adr:kinekino/20261116065239]]). 적중하면 병합하지 않고 고친다. 커밋 메시지 적중은 병합 전의 자기 토픽 브랜치에서만 다시 쓴다. 오탐은 목록을 좁혀 해결하고 검사를 건너뛰지 않는다. [사용자 결정 2026-11-16]
 - push 전 로컬 사전 검사(선택, 목록 사본이 있을 때): `cargo xtask deny-terms --range origin/main..HEAD --terms-file <목록>`. 이미지·바이너리는 경로·파일명만 보고 내용 바이트는 검사하지 않으며, **신규 바이너리 추가**는 PR 본문에 적는다. 절차 세부는 스킬 public-surface-scan. [2026-11-05 원 님 승인 순서를 2026-11-16 CI 관문으로 옮김]
 - 다른 에이전트 폴더(목록은 `.agents/local/history.md`)는 읽기만, 수정 금지. [사용자 결정 2026-11-03 전달, 근거 문서 없음]
-- 2026-11-14 이전 문서·로그에 적힌 커밋 SHA는 현재 이력과 다를 수 있다(매핑은 .spec 문서에 반영됨). 강제 push·이력 재작성은 금지이며, 원 님이 지시한 유일한 예외의 기록은 `.agents/local/history.md`. [2026-11-14 원 님 지시]
+- 2026-11-14 이전 문서·로그에 적힌 커밋 SHA는 현재 이력과 다를 수 있다(매핑은 .spec 문서에 반영됨). 병합된 이력의 강제 push·재작성은 금지이며, 원 님이 지시한 유일한 예외의 기록은 `.agents/local/history.md`. [2026-11-14 원 님 지시]
+
+## 커밋 이력 (playpilot H1–H7) [사용자 결정 2026-11-19, adr:kinekino/20261119194255]
+정본은 playpilot `.agents/rules/commit-history.md`(공개 저장소 `modootoday/playpilot`)이고, kinekino 값은 아래와 같다.
+- **H1 병합 방식:** merge commit을 유지한다. 기록이 토픽 브랜치 커밋 해시를 인용하기 때문이다. 그래서 토픽 브랜치는 병합 시점에 그 자체로 깨끗해야 한다.
+- **커밋 제목:** 모든 커밋 제목은 Conventional Commits(`type(scope): summary`, 명령형, 72자 이하)를 따른다. H2(squash 제목)는 해당 없다.
+- **H3 병합 시점의 토픽 브랜치:**
+  - PR 하나에 작업 묶음 하나, 커밋 하나에 논리적 변경 하나.
+  - 브랜치 안에 merge 커밋을 두지 않는다. `main`을 따라잡을 때는 rebase하고, "Update branch"도 rebase 옵션으로만 쓴다.
+  - `WIP`·`fixup!`·`squash!`·`amend!`·빈 커밋을 남기지 않는다.
+  - 잠금 파일 같은 생성 변경은 `chore(deps)`나 `build` 커밋으로 따로 둔다.
+  - 도구·세션 trailer를 넣지 않는다.
+- **H4 이력 다시 쓰기:**
+  - 에이전트는 **자기 미병합 토픽 브랜치**(`claude/…` 등 제공자 접두어, 자기 커밋만)를 H3를 맞추려고 다시 쓸 수 있다.
+  - push는 `--force-with-lease=<branch>:<expected-sha>`로만 한다.
+  - 다음은 계속 금지한다: 단순 `--force`, `+refspec`, 남의 브랜치, `main`·태그·병합되거나 공유된 이력.
+  - 공통 규칙 C1.3을 kinekino에서 이렇게 좁힌다.
+  - 리뷰 의견 뒤에는 새 커밋을 우선한다. 다시 썼으면 PR에 적는다.
+- **H5 되돌리기와 브랜치:**
+  - 병합된 변경은 새 PR에서 `git revert`로 되돌린다. PR 제목은 `revert: <원래 제목>`이다.
+  - PR 없이 14일 지난 에이전트 브랜치는 이슈로 보고하고, 원 님이 지운다.
+- **H6 강제 장치 (1단계):** CI `History` job이 `playpilot history-check --method merge`를 실행한다.
+  - 아직 필수 체크가 아니다. 필수로 바꾸는 것은 ruleset 변경이라 원 님이 한다.
+  - guard hook(`.claude/settings.json`)은 2단계에서 추가한다. 클라우드 환경에 playpilot CLI가 설치된 뒤다.
+- **H7 자동 병합:**
+  - PR을 열면 곧바로 자동 병합(merge commit)을 켠다. needs-human 실측 규칙은 위와 같다.
+  - 자동 병합이 켜진 PR에 커밋을 더 올릴 때는 자동 병합을 끄고, push한 뒤, 다시 켠다.

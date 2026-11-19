@@ -15,7 +15,8 @@
 ## Git
 - 무인 자동화·PR·필수 체크·커밋 표기는 공통 규칙 v1.0의 kinekino 사본 `sot:kinekino/shared-automation-rules`(프로필 포함)을 따른다. 이 파일의 규칙이 더 엄격하면 이 파일이 우선한다.
 - 기능 맥락과 검증 단계별로 명시 경로만 stage해 커밋한다. `git add .`/`git add -A` 금지. push는 사용자 요청이나 승인된 루틴 자동 push 규칙(`.agents/rules/git-and-release.md`)에 따를 때만 한다.
-- `main` 반영은 PR로만 한다: 토픽 브랜치 push → `main`으로 PR → Linux 필수 체크(`lint`, `Public surface`, `test (ubuntu-26.04)`) 통과 후 merge commit으로 병합한다. 병합은 사람이 하거나 에이전트가 GitHub 자동 병합을 켠다(Phase 2, 2026-11-16 원 님 지시). needs-human 경로를 건드리는 PR은 실측(Linux 필수 체크, 해당되면 Windows 게이트 crate의 msvc `cargo check`)을 통과한 뒤 켠다. 필수 체크를 없애거나 약화하는 변경과 릴리스·태그는 원 님이 직접 한다. 규칙 정의는 `.github/rulesets/main-protected.json`. `main` 직접 push·강제 push·이력 재작성은 하지 않고, 에이전트는 PR을 승인하거나 직접 병합하지 않는다. 근거 `adr:kinekino/20261116062843`.
+- `main` 반영은 PR로만 한다: 토픽 브랜치 push → `main`으로 PR → Linux 필수 체크(`lint`, `Public surface`, `test (ubuntu-26.04)`) 통과 후 merge commit으로 병합한다. 병합은 사람이 하거나 에이전트가 GitHub 자동 병합을 켠다(Phase 2, 2026-11-16 원 님 지시). needs-human 경로를 건드리는 PR은 실측(Linux 필수 체크, 해당되면 Windows 게이트 crate의 msvc `cargo check`)을 통과한 뒤 켠다. 필수 체크를 없애거나 약화하는 변경과 릴리스·태그는 원 님이 직접 한다. 규칙 정의는 `.github/rulesets/main-protected.json`. `main`·태그·병합되거나 공유된 이력에는 직접 push·강제 push·재작성을 하지 않는다. 자기 미병합 토픽 브랜치만 H3를 맞추려고 `--force-with-lease=<branch>:<sha>`로 정리할 수 있다. 에이전트는 PR을 승인하거나 직접 병합하지 않는다. 근거 `adr:kinekino/20261116062843`.
+- 커밋 이력은 playpilot H1–H7을 따른다: 모든 커밋 제목은 Conventional Commits 형식이고, 토픽 브랜치에는 merge·WIP/fixup 커밋을 두지 않으며, `main`은 rebase로 따라잡는다. PR을 열면 바로 자동 병합을 켜고, 커밋을 더 올릴 때는 끄고 push한 뒤 다시 켠다. 상세 `.agents/rules/git-and-release.md`, 근거 `adr:kinekino/20261119194255`.
 - 커밋에는 `@users.noreply.github.com`이 아닌 주소의 `Co-authored-by` trailer와 세션 URL trailer를 넣지 않는다(도구 기본값보다 우선). 도구 출처와 세션 링크는 PR 본문에 적는다.
 - `.gitignore`는 기본 거부를 유지한다. runtime, 모델, 캐시, 개인 미디어, 비밀정보, 로컬 `.agents/local`/`.spec.local`은 커밋하지 않는다.
 
