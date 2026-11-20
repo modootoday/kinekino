@@ -39,10 +39,10 @@
   - **CI (1단계):** `History` job이 `playpilot history-check --method merge`를 실행한다. 2026-11-19부터 필수 체크다(`.github/rulesets/main-protected.json`, 적용은 원 님 PC). 그래서:
     - 뒤처진 PR은 rebase로 따라잡는다. GitHub "Update branch"는 rebase 옵션만 쓰고, Dependabot PR은 `@dependabot rebase` 댓글로 갱신한다. merge로 갱신하면 History가 실패한다.
     - Dependabot 그룹 이름은 짧게 둔다. 그룹 커밋 제목이 72자를 넘으면 History가 실패한다.
-  - **guard hook (2단계, 2026-11-19):** `.claude/settings.json`의 PreToolUse hook이 Bash·PowerShell 명령마다 `playpilot guard`를 실행한다. 보호 브랜치는 `PLAYPILOT_PROTECTED_BRANCHES=main`이다.
-    - CLI가 없으면 고정 커밋(`4ed7dae`)을 `cargo install --locked`로 설치한다. `cargo`가 `sh`의 PATH에 없으면 `/root/.cargo/bin`, `$HOME/.cargo/bin`에서 찾고, CLI도 `$HOME/.cargo/bin`에서 찾는다.
-    - 설치도 실패하면 명령을 막는다(fail closed).
-    - hook은 CLI가 이미 있으면 설치하지 않는다. 고정 커밋을 올린 뒤에는 기존 설치를 `cargo install --locked --force --git https://github.com/modootoday/playpilot --rev <새 커밋> playpilot`로 바꾼다.
+  - **guard hook (2단계, 2026-11-19):** `.claude/settings.json`의 PreToolUse hook이 Bash·PowerShell 명령마다 `playpilot guard`를 실행한다. 보호 브랜치는 `PLAYPILOT_PROTECTED_BRANCHES=main`이고, hook 명령 안에서 넘긴다.
+    - 이 파일은 손으로 쓰지 않는다. fleet 설정에서 `playpilot render settings --project kinekino --config <fleet 설정 체크아웃> --repo .`로 만든다(고정 커밋은 fleet의 `playpilot.lock`, 현재 `fde4784`).
+    - hook은 설치 위치의 `share/playpilot.rev`가 고정 커밋과 다르면 그 커밋을 `cargo install --locked --force`로 다시 설치하고 기록한다. 그래서 고정 커밋을 올리면 기존 설치도 다음 명령에서 바뀐다. `cargo`가 `sh`의 PATH에 없으면 `/root/.cargo/bin`, `$HOME/.cargo/bin`에서 찾고, CLI도 `$HOME/.cargo/bin`에서 찾는다.
+    - 설치도 실패하고 CLI가 없으면 명령을 막는다(fail closed).
   - **hook이 막는 것:** 보호 브랜치 push, 브랜치를 쓰지 않은 `git push`, `--force`·`+refspec`, `<branch>:<sha>` 형식이 아닌 lease, 에이전트 접두어가 아닌 브랜치의 lease, 태그, `git add .`·`-A`, `--auto` 없는 `gh pr merge`, PR 승인, 릴리스, 시크릿, ruleset 쓰기.
   - **명령 작성:**
     - push는 항상 `git push -u origin <topic-branch>`처럼 브랜치 이름을 쓴다.
