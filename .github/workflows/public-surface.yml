@@ -6,6 +6,7 @@ name: Public surface
 # and the pull request title and body. Also rejects Co-authored-by trailers whose address is
 # not @users.noreply.github.com in commits from the cutoff on (earlier history is not rewritten).
 # Fail-closed: without the KINEKINO_DENY_TERMS secret (unset, or a fork pull request) it fails.
+# KINEKINO_DENY_TERMS_EXTRA is optional and adds its terms (the union); unset or empty adds nothing.
 # Logs name the place and the term's list number, never the term.
 # Separate from ci.yml so that editing a pull request's title or body re-runs only this check.
 # No paths filter (it owns a required check) and no pull_request_target.
@@ -48,6 +49,7 @@ jobs:
       - name: Scan the change and the pull request text
         env:
           KINEKINO_DENY_TERMS: ${{ secrets.KINEKINO_DENY_TERMS }}
+          KINEKINO_DENY_TERMS_EXTRA: ${{ secrets.KINEKINO_DENY_TERMS_EXTRA }}
           BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
           HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.event.after }}
           PR_TITLE: ${{ github.event.pull_request.title }}
