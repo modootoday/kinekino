@@ -1,6 +1,6 @@
 # kinekino 에이전트 규칙
 
-이 파일과 `.agents/`가 단일 정본이다. `CLAUDE.md`(`@AGENTS.md` 한 줄)와 `.claude/{rules,skills,agents}`(링크)는 얇은 어댑터이며 내용을 따로 쓰지 않는다. `.claude/settings.json`에는 playpilot guard hook 설정만 둔다(`.agents/rules/git-and-release.md` H6).
+이 파일과 `.agents/`가 단일 정본이다. `CLAUDE.md`(`@AGENTS.md` 한 줄)와 `.claude/{rules,skills,agents}`(링크)는 얇은 어댑터이며 내용을 따로 쓰지 않는다. `.claude/settings.json`에는 렌더된 playpilot guard hook과 저장소 기준 권한 층(`permissions`의 allow·deny, playpilot `permissions.md`)만 둔다(`.agents/rules/git-and-release.md` H6).
 주제별 규칙은 `.agents/rules/`(색인 `.agents/rules/README.md`), 절차는 `.agents/skills/`, 역할 정의는 `.agents/agents/`에 있다.
 
 ## 항상 지키는 것
@@ -14,6 +14,7 @@
 
 ## Git
 - 무인 자동화·PR·필수 체크·커밋 표기는 공통 규칙 v1.0의 kinekino 사본 `sot:kinekino/shared-automation-rules`(프로필 포함)을 따른다. 이 파일의 규칙이 더 엄격하면 이 파일이 우선한다.
+- 플릿 공통 거버넌스 정본은 playpilot `.agents/rules/governance.md`(자율 단계 A0·A1·A2, 무인 루프, 에스컬레이션)와 권한 층 `.agents/rules/permissions.md`다(공개 저장소 `modootoday/playpilot`). 이 저장소의 규칙이 더 엄격한 곳은 이 저장소 규칙이 우선한다. 비공개 설정 저장소는 공개 표면에서 "the fleet configuration"으로만 부른다.
 - 기능 맥락과 검증 단계별로 명시 경로만 stage해 커밋한다. `git add .`/`git add -A` 금지. push는 사용자 요청이나 승인된 루틴 자동 push 규칙(`.agents/rules/git-and-release.md`)에 따를 때만 한다.
 - `main` 반영은 PR로만 한다: 토픽 브랜치 push → `main`으로 PR → Linux 필수 체크(`lint`, `Public surface`, `Secret scan`, `test (ubuntu-26.04)`, `History`) 통과 후 merge commit으로 병합한다. 병합은 사람이 하거나 에이전트가 GitHub 자동 병합을 켠다(Phase 2, 2026-11-16 원 님 지시). needs-human 경로를 건드리는 PR은 실측(Linux 필수 체크, 해당되면 Windows 게이트 crate의 msvc `cargo check`)을 통과한 뒤 켠다. 필수 체크를 없애거나 약화하는 변경과 릴리스·태그는 원 님이 직접 한다. 규칙 정의는 `.github/rulesets/main-protected.json`. `main`·태그·병합되거나 공유된 이력에는 직접 push·강제 push·재작성을 하지 않는다. 자기 미병합 토픽 브랜치만 H3를 맞추려고 `--force-with-lease=<branch>:<sha>`로 정리할 수 있다. 에이전트는 PR을 승인하거나 직접 병합하지 않는다. 근거 `adr:kinekino/20261116062843`.
 - 커밋 이력은 playpilot H1–H7을 따른다: 모든 커밋 제목은 Conventional Commits 형식이고, 토픽 브랜치에는 merge·WIP/fixup 커밋을 두지 않으며, `main`은 rebase로 따라잡는다. PR을 열면 바로 자동 병합을 켜고, 커밋을 더 올릴 때는 끄고 push한 뒤 다시 켠다. 상세 `.agents/rules/git-and-release.md`, 근거 `adr:kinekino/20261119194255`.
