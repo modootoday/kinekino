@@ -43,6 +43,7 @@
     - 이 파일은 손으로 쓰지 않는다. fleet 설정에서 `playpilot render settings --project kinekino --config <fleet 설정 체크아웃> --repo .`로 만든다(고정 커밋은 fleet의 `playpilot.lock`, 현재 `fde4784`).
     - hook은 설치 위치의 `share/playpilot.rev`가 고정 커밋과 다르면 그 커밋을 `cargo install --locked --force`로 다시 설치하고 기록한다. 그래서 고정 커밋을 올리면 기존 설치도 다음 명령에서 바뀐다. `cargo`가 `sh`의 PATH에 없으면 `/root/.cargo/bin`, `$HOME/.cargo/bin`에서 찾고, CLI도 `$HOME/.cargo/bin`에서 찾는다.
     - 설치도 실패하고 CLI가 없으면 명령을 막는다(fail closed).
+  - **저장소 기준 권한 층 (2026-11-25):** 같은 파일의 `permissions`는 playpilot `.agents/rules/permissions.md`를 따른다. `allow`에는 이 저장소의 A0 루틴 명령만 넣고(토픽 브랜치 git, 빌드·테스트, `spec`·`playpilot` 하위 명령, `gh pr/issue create`·comment·`merge --auto`), 넓은 패턴은 쓰지 않는다. `deny`에는 A2 명령(`gh secret`·`gh release`·`gh pr review`·`gh pr merge --admin`·`gh repo edit/delete`·ruleset·게시·`main`과 태그 push·`git add .`/`-A`)과 자격 증명 파일을 넣는다. `ask`는 배포·Worker 시크릿 명령이 없어 비운다. `deny` 추가는 A0, `allow`·`ask` 추가는 A1(needs-human, 실측)이다. `playpilot render settings`는 hook만 바꾸고 이 블록은 그대로 둔다.
   - **hook이 막는 것:** 보호 브랜치 push, 브랜치를 쓰지 않은 `git push`, `--force`·`+refspec`, `<branch>:<sha>` 형식이 아닌 lease, 에이전트 접두어가 아닌 브랜치의 lease, 태그, `git add .`·`-A`, `--auto` 없는 `gh pr merge`, PR 승인, 릴리스, 시크릿, ruleset 쓰기.
   - **명령 작성:**
     - push는 항상 `git push -u origin <topic-branch>`처럼 브랜치 이름을 쓴다.
