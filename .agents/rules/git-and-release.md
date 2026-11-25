@@ -40,7 +40,7 @@
     - 뒤처진 PR은 rebase로 따라잡는다. GitHub "Update branch"는 rebase 옵션만 쓰고, Dependabot PR은 `@dependabot rebase` 댓글로 갱신한다. merge로 갱신하면 History가 실패한다.
     - Dependabot 그룹 이름은 짧게 둔다. 그룹 커밋 제목이 72자를 넘으면 History가 실패한다.
   - **guard hook (2단계, 2026-11-19):** `.claude/settings.json`의 PreToolUse hook이 Bash·PowerShell 명령마다 `playpilot guard`를 실행한다. 보호 브랜치는 `PLAYPILOT_PROTECTED_BRANCHES=main`이고, hook 명령 안에서 넘긴다.
-    - 이 파일은 손으로 쓰지 않는다. fleet 설정에서 `playpilot render settings --project kinekino --config <fleet 설정 체크아웃> --repo .`로 만든다(고정 커밋은 fleet의 `playpilot.lock`, 현재 `fde4784`).
+    - 이 파일은 손으로 쓰지 않는다. fleet 설정에서 `playpilot render settings --project kinekino --config <fleet 설정 체크아웃> --repo .`로 만든다(고정 커밋은 fleet의 `playpilot.lock`, 현재 `e80e7a2`).
     - hook은 설치 위치의 `share/playpilot.rev`가 고정 커밋과 다르면 그 커밋을 `cargo install --locked --force`로 다시 설치하고 기록한다. 그래서 고정 커밋을 올리면 기존 설치도 다음 명령에서 바뀐다. `cargo`가 `sh`의 PATH에 없으면 `/root/.cargo/bin`, `$HOME/.cargo/bin`에서 찾고, CLI도 `$HOME/.cargo/bin`에서 찾는다.
     - 설치도 실패하고 CLI가 없으면 명령을 막는다(fail closed).
   - **저장소 기준 권한 층 (2026-11-25):** 같은 파일의 `permissions`는 playpilot `.agents/rules/permissions.md`를 따른다. `allow`에는 이 저장소의 A0 루틴 명령만 넣고(토픽 브랜치 git, 빌드·테스트, `spec`·`playpilot` 하위 명령, `gh pr/issue create`·comment·`merge --auto`), 넓은 패턴은 쓰지 않는다. `deny`에는 A2 명령(`gh secret`·`gh release`·`gh pr review`·`gh pr merge --admin`·`gh repo edit/delete`·ruleset·게시·`main`과 태그 push·`git add .`/`-A`)과 자격 증명 파일을 넣는다. `ask`는 배포·Worker 시크릿 명령이 없어 비운다. `deny` 추가는 A0, `allow`·`ask` 추가는 A1(needs-human, 실측)이다. `playpilot render settings`는 hook만 바꾸고 이 블록은 그대로 둔다.
